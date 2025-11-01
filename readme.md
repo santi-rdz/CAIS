@@ -11,7 +11,8 @@ cd CAIS
 
 ### Levanta los contenedores con Docker compose
 
-```docker-compose up --build
+```bash
+docker-compose up --build
 ````
 
 ## Tecnologías
