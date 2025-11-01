@@ -1,15 +1,6 @@
 # Proyecto CAIS
-
-## Tecnologías
-
-- **Frontend:** React + Vite
-- **Backend:** Node.js + Express
-- **Base de datos:** MySQL
-- **Contenedores:** Docker & Docker Compose
-
 ---
-
-## ⚙️ Cómo iniciar el proyecto
+## Cómo iniciar el proyecto
 
 ### Clonar el repositorio
 
@@ -22,3 +13,10 @@ cd CAIS
 
 ```docker-compose up --build
 ````
+
+## Tecnologías
+
+- **Frontend:** React + Vite
+- **Backend:** Node.js + Express
+- **Base de datos:** MySQL
+- **Contenedores:** Docker & Docker Compose
