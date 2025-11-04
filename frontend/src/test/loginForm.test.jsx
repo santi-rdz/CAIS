@@ -4,13 +4,11 @@ import { describe, it, expect, afterEach } from "vitest";
 import { BrowserRouter } from "react-router";
 import Login from "../pages/Login";
 
-afterEach(() => cleanup());
-
 function renderWithRouter(ui) {
   return render(<BrowserRouter>{ui}</BrowserRouter>);
 }
 
-describe("Login form", () => {
+describe("Login form validation", () => {
   it("should show errors if fields are empty", () => {
     renderWithRouter(<Login />);
     const form = screen.getByRole("form");
@@ -20,11 +18,11 @@ describe("Login form", () => {
     screen.getByText(/Ingresa tu contraseña/i);
   });
 
-  it("should show an error if email format is invalid when no uabc domain is active", () => {
+  it("Should show an error if email format is invalid when no UABC domain is active", () => {
     renderWithRouter(<Login />);
 
     const toggle = screen.getByTestId("toggle-domain");
-    // Cambiamos dominio no uabc
+    // Cambiamos dominio no-uabc
     fireEvent.click(toggle);
 
     const emailInput = screen.getByLabelText(/correo/i);

@@ -25,7 +25,7 @@
 }
 
 @utility text-2 {
-  font-size: clamp(1rem, 0.8239rem + 0.7512vw, 1.5rem);
+  font-size: clamp(1.25rem, 0.8239rem + 0.7512vw, 1.5rem);
   line-height: 1.25;
 }
 @utility text-3 {
@@ -53,4 +53,9 @@
   grid-template-areas:
     "sidebar header"
     "sidebar main";
+}
+
+.login {
+  @apply absolute inset-0 -z-10 bg-cover bg-center;
+  background-image: url("./assets/images/uabc-bg.png");
 }

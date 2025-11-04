@@ -1,16 +1,7 @@
 import { NavLink } from "react-router";
 import caisLogo from "../assets/images/logo-cais.png";
 import userImg from "../assets/images/userImg.png";
-import {
-  TbLayoutSidebarLeftCollapse,
-  TbLayoutSidebarRightCollapse,
-  TbLayout2,
-  TbUsersGroup,
-  TbBook2,
-  TbChartBarPopular,
-  TbUserCog,
-  TbSelector,
-} from "react-icons/tb";
+import { TbSelector } from "react-icons/tb";
 import {
   HiOutlineSquares2X2,
   HiOutlineUserGroup,
@@ -18,6 +9,7 @@ import {
   HiOutlineChartBar,
   HiOutlineBookOpen,
   HiChevronDoubleLeft,
+  HiOutlineChevronUpDown,
 } from "react-icons/hi2";
 import { useState } from "react";
 
@@ -82,7 +74,7 @@ export function Sidebar() {
       </nav>
 
       <button
-        className={`mt-auto flex cursor-pointer items-center justify-between gap-4 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md ${isExpanded ? "rounded-lg p-3 " : "rounded-full p-2"}`}
+        className={`group mt-auto flex cursor-pointer items-center justify-between gap-4 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md ${isExpanded ? "rounded-lg p-3 " : "rounded-full p-2"}`}
       >
         <div className="flex items-center">
           <picture className="block w-10">
@@ -96,7 +88,7 @@ export function Sidebar() {
             <span className="text-5 max-w-[14ch] truncate text-neutral-400">samanta.martinez@uabc.edu</span>
           </div>
         </div>
-        {isExpanded && <TbSelector />}
+        {isExpanded && <HiOutlineChevronUpDown size={18} className="duration-300 group-hover:scale-110" />}
       </button>
     </aside>
   );

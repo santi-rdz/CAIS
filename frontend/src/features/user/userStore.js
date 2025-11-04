@@ -7,8 +7,7 @@ const useUser = create((set) => {
     token:'',
   },
   login: (email, password) => set((state) => {
-    if(!email) return 'Ingrese su correo electronico'
-    if(!password) return 'Ingrese su contraseña'
+    
   })
   
 });
