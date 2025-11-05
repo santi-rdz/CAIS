@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom"; // ✅ enables toBeInTheDocument and other matchers
-import { render, fireEvent, screen, cleanup } from "@testing-library/react";
-import { describe, it, expect, afterEach } from "vitest";
+import { render, fireEvent, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
 import { BrowserRouter } from "react-router";
 import Login from "../pages/Login";
 

@@ -1,13 +1,12 @@
 import { useState } from "react";
-import { isValidEmail } from "../../lib/helpers";
 import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { HiOutlineEyeSlash, HiOutlineEye } from "react-icons/hi2";
-
-import Button from "../../ui/Button";
-import FormRow from "../../ui/FormRow";
-import DomainToggle from "../../ui/DomainToggle";
-import Input from "../../ui/Input";
+import { isValidEmail } from "@lib/utils";
+import Button from "@ui/Button";
+import FormRow from "@ui/FormRow";
+import DomainToggle from "@ui/DomainToggle";
+import Input from "@ui/Input";
 
 export default function LoginForm() {
   const { register, handleSubmit, formState } = useForm();

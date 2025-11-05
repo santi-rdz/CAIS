@@ -1,5 +1,5 @@
-import LoginForm from "../features/authenticaction/LoginForm";
-import logoCais from "../assets/images/logo-cais.png";
+import LoginForm from "@features/authenticaction/LoginForm";
+import logoCais from "@assets/images/logo-cais.png";
 
 export default function Login() {
   return (

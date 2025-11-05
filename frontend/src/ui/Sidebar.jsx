@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { NavLink } from "react-router";
-import caisLogo from "../assets/images/logo-cais.png";
-import userImg from "../assets/images/userImg.png";
-import { TbSelector } from "react-icons/tb";
+import caisLogo from "@assets/images/logo-cais.png";
+import userImg from "@assets/images/userImg.png";
 import {
   HiOutlineSquares2X2,
   HiOutlineUserGroup,
@@ -11,7 +11,6 @@ import {
   HiChevronDoubleLeft,
   HiOutlineChevronUpDown,
 } from "react-icons/hi2";
-import { useState } from "react";
 
 const routes = [
   {
@@ -44,7 +43,7 @@ const routes = [
 export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   return (
-    <aside className={`flex flex-col gap-12 bg-neutral-50 p-6 [grid-area:sidebar]`}>
+    <aside className={`flex flex-col gap-16 bg-neutral-50 p-6 [grid-area:sidebar]`}>
       <header className="relative flex flex-col items-center gap-2">
         <div className={`flex items-center transition-all duration-300 ease-in-out ${isExpanded ? "gap-2" : "gap-0"}`}>
           <img src={caisLogo} className="w-12" alt="" />
