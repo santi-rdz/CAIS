@@ -20,7 +20,7 @@ describe("Login page", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: "Iniciar Sesión" }));
+    expect(screen.getByRole("heading", { name: /iniciar sesión/i }));
   });
   it("should render email input", () => {
     render(
@@ -29,7 +29,7 @@ describe("Login page", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByLabelText(/Usuario|Correo electronico/i));
+    expect(screen.getByLabelText(/usuario|correo electronico/i));
   });
   it("should render password input", () => {
     render(
@@ -38,7 +38,7 @@ describe("Login page", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByLabelText("Contraseña"));
+    expect(screen.getByLabelText(/contraseña/i));
   });
 
   it("should render forgot password link", () => {
@@ -48,7 +48,7 @@ describe("Login page", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("link", { name: "¿Olvidaste tu contraseña?" }));
+    expect(screen.getByRole("link", { name: /¿Olvidaste tu contraseña?/i }));
   });
   it("should render login button", () => {
     render(

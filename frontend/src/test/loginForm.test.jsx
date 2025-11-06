@@ -14,8 +14,8 @@ describe("Login form validation", () => {
     const form = screen.getByRole("form");
     fireEvent.submit(form);
 
-    screen.getByText(/Ingresa tu usuario|Ingresa tu correo electronico/i);
-    screen.getByText(/Ingresa tu contraseña/i);
+    expect(screen.getByText(/ingresa tu usuario|Ingresa tu correo electronico/i));
+    expect(screen.getByText(/ingresa tu contraseña/i));
   });
 
   it("Should show an error if email format is invalid when no UABC domain is active", () => {
