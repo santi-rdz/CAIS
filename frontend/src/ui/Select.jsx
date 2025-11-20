@@ -2,16 +2,17 @@ import useClickOutside from "@hooks/useClickOutside";
 import { useState } from "react";
 import { HiChevronRight } from "react-icons/hi2";
 
-export default function Select({ options, currenOption, onClick }) {
-  const { label } = currenOption || {};
+export default function Select({ options, currentOption, onClick, className }) {
+  const { label } = currentOption || {};
   const [showOptions, setShowOptions] = useState(false);
   const ref = useClickOutside(() => setShowOptions(false));
-
+  console.log(options);
   return (
-    <div className="text-5 relative w-42" ref={ref}>
+    <div className={`text-5 relative w-42 ${className}`} ref={ref}>
       <button
+        type="button"
         onClick={() => setShowOptions((show) => !show)}
-        className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium shadow-2xs duration-300 hover:shadow-md hover:ring hover:ring-green-800"
+        className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2.5 font-medium shadow-xs duration-300 hover:shadow-md hover:ring hover:ring-green-800"
       >
         <span>{label}</span>
         <HiChevronRight
@@ -21,13 +22,13 @@ export default function Select({ options, currenOption, onClick }) {
       </button>
 
       <div
-        className={`absolute top-full right-0 z-10 mt-2 w-full space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300 ${showOptions ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
+        className={`absolute top-full right-0 z-10 mt-2 w-fit space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300 ${showOptions ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"} `}
       >
-        {Object.values(options).map((option) => (
+        {options.map((option) => (
           <SelectOption
             key={option.value}
             setShowOptions={setShowOptions}
-            currenOption={currenOption}
+            currentOption={currentOption}
             option={option}
             onClick={onClick}
           />
@@ -37,18 +38,19 @@ export default function Select({ options, currenOption, onClick }) {
   );
 }
 
-function SelectOption({ option, currenOption, onClick, setShowOptions }) {
-  const isActive = currenOption.value === option.value;
+function SelectOption({ option, currentOption, onClick, setShowOptions }) {
+  const isActive = currentOption.value === option.value;
   const { label, value } = option;
 
   function handleClick() {
-    onClick(value);
+    onClick(option);
     setShowOptions(false);
   }
 
   return (
     <button
-      className={`flex w-full cursor-pointer items-center gap-2 rounded-sm px-4 py-3 text-start hover:bg-gray-100 ${isActive ? "bg-white-mint pointer-events-none" : ""}`}
+      type="button"
+      className={`flex w-full cursor-pointer items-center gap-3 rounded-sm px-4 py-3 text-start hover:bg-gray-100 ${isActive ? "bg-white-mint pointer-events-none" : ""}`}
       onClick={handleClick}
     >
       {value !== "clear" && <Radio isActive={isActive} />}

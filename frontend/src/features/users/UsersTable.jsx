@@ -12,8 +12,9 @@ export default function UsersTable() {
   }, []);
 
   return (
-    <Table columns="3.4fr 1.2fr 1.6fr 1.2fr 0.6fr">
+    <Table columns="0.3fr 3.4fr 1.2fr 1.6fr 1.2fr 0.6fr">
       <Table.Header>
+        <div></div>
         <div>Nombre</div>
         <div>Rol</div>
         <div>Ultimo login</div>

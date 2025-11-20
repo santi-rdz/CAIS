@@ -9,7 +9,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`flex flex-col gap-16 bg-neutral-50 p-6 transition-all duration-300 ease-in-out [grid-area:sidebar] ${isExpanded ? "w-65" : "w-24"}`}
+      className={`flex flex-col gap-16 border-r border-r-gray-100 bg-white p-6 transition-all duration-300 ease-in-out [grid-area:sidebar] ${isExpanded ? "w-65" : "w-24"}`}
     >
       <SidebarHeading isExpanded={isExpanded} handleToggle={() => setIsExpanded((prev) => !prev)} />
       <MainNav isExpanded={isExpanded} />

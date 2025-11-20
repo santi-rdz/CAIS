@@ -8,14 +8,14 @@ export default function UserRow({ user }) {
   const hasPicture = Boolean(picture);
   return (
     <Table.Row>
-      <div className="flex items-center gap-2">
-        <UserPicture>
-          {hasPicture ? (
-            <img src={picture} className="size-full" />
-          ) : (
-            <div className="flex size-full items-center justify-center">{email.at(0)}</div>
-          )}
-        </UserPicture>
+      <UserPicture>
+        {hasPicture ? (
+          <img src={picture} className="size-full" />
+        ) : (
+          <div className="flex size-full items-center justify-center text-base uppercase">{email.at(0)}</div>
+        )}
+      </UserPicture>
+      <div className="">
         <Stacked>
           <span>{name ? name : "---"}</span>
           <span className="font-normal text-neutral-500">{email}</span>

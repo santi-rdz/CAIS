@@ -8,7 +8,7 @@ export default function AppLayout() {
       <Sidebar />
       <Header />
 
-      <main className="overflow-scroll py-10 [grid-area:main]">
+      <main className="overflow-scroll bg-gray-50 py-10 [grid-area:main]">
         <div className="my-container">
           <Outlet />
         </div>

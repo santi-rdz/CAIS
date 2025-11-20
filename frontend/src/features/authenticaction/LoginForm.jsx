@@ -27,6 +27,7 @@ export default function LoginForm() {
         label={isUabcDomain ? "Usuario" : "Correo electronico"}
       >
         <Input
+          offset="6"
           {...register("email", {
             required: isUabcDomain ? "Ingresa tu usuario" : "Ingresa tu correo electronico",
             validate: (email) => isUabcDomain || isValidEmail(email) || "Ingresa un correo valido",
@@ -59,9 +60,10 @@ export default function LoginForm() {
   );
 }
 
-function ToggleShowPassword({ showPassword, setShowPassword, className }) {
+function ToggleShowPassword({ showPassword, setShowPassword, className, style }) {
   return (
     <button
+      style={style}
       onClick={() => setShowPassword((p) => !p)}
       className={`cursor-pointer text-neutral-500 active:scale-105 ${className}`}
       type="button"

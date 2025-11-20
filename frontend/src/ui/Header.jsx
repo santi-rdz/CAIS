@@ -4,7 +4,7 @@ import Input from "./Input";
 
 export function Header() {
   return (
-    <header className="flex gap-0 border-b-[0.5px] border-b-neutral-200 p-3 [grid-area:header]">
+    <header className="flex gap-0 border-b-[0.5px] border-b-gray-100 p-3 [grid-area:header]">
       <div className="grow">
         <Input
           className="w-[600px] justify-self-center"

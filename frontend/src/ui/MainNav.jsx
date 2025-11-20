@@ -53,7 +53,7 @@ function NavLi({ route, isExpanded }) {
     <li className="">
       <NavLink
         to={path}
-        className={`text-4 group active-route:bg-green-600 active-route:pointer-events-none active-route:text-white hover:bg-white-mint relative flex items-center rounded-md px-4 py-3 duration-300 ${isExpanded ? "w-full gap-3" : "w-fit gap-0"}`}
+        className={`text-4 group active-route:bg-green-600 active-route:pointer-events-none active-route:text-white hover:bg-white-mint relative flex items-center rounded-md px-4 py-3 tracking-wide duration-300 ${isExpanded ? "w-full gap-3" : "w-fit gap-0"}`}
       >
         <Icon size={24} className="group-hover:text-green-800" />
         <span

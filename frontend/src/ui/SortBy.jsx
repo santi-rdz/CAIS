@@ -4,18 +4,18 @@ import Select from "./Select";
 export default function SortBy({ options }) {
   const [serchParams, setSearchParams] = useSearchParams();
   const sortBy = serchParams.get("ordenarPor") || "";
-  const currenOption = options[sortBy] || { label: "Ordenar por", value: "" };
+  const currentOption = options[sortBy] || { label: "Ordenar por", value: "" };
 
-  function onClick(value) {
-    if (value === "clear") {
+  function onClick(option) {
+    if (option.value === "clear") {
       serchParams.delete("ordenarPor");
       setSearchParams(serchParams);
       return;
     }
 
-    serchParams.set("ordenarPor", value);
+    serchParams.set("ordenarPor", option.value);
     setSearchParams(serchParams);
   }
 
-  return <Select options={options} currenOption={currenOption} onClick={onClick} />;
+  return <Select options={Object.values(options)} currentOption={currentOption} onClick={onClick} />;
 }

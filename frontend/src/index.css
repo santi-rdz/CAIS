@@ -17,6 +17,7 @@
   --color-black-50: #f2f2f2;
   --color-white-mint: #d0ecdf;
   --color-dark-gray: #202224;
+  --color-backdrop-color: rgba(255, 255, 255, 0.1);
 }
 
 @utility text-1 {

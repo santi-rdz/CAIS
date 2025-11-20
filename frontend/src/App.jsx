@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
 import LoginForm from "@features/authenticaction/LoginForm";
 import Users from "./pages/Users";
+import EmailsRegister from "@features/users/EmailsRegister";
 
 function App() {
   return (
