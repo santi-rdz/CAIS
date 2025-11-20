@@ -4,7 +4,6 @@ import Modal from "@ui/Modal";
 import SortBy from "@ui/SortBy";
 import TableOperations from "@ui/TableOperations";
 import UserModal from "./UserModal";
-import { useNavigate } from "react-router";
 
 const SORT_BY_OPTIONS = {
   "nombre-asc": { label: "Nombre (asc)", value: "nombre-asc" },
