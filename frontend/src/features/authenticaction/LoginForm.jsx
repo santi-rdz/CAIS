@@ -26,48 +26,44 @@ export default function LoginForm() {
         error={errors?.email?.message}
         label={isUabcDomain ? "Usuario" : "Correo electronico"}
       >
-        <div className="relative">
-          <Input
-            {...register("email", {
-              required: isUabcDomain ? "Ingresa tu usuario" : "Ingresa tu correo electronico",
-              validate: (email) => isUabcDomain || isValidEmail(email) || "Ingresa un correo valido",
-            })}
-            id="email"
-            type="text"
-            name="email"
-            hasError={errors?.email?.message}
-            placeholder={isUabcDomain ? "e.g. jhon.martinez29" : "e.g. jhon.martinez@example.com"}
-            aria-label="Ingresar email"
-          />
-          <DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} />
-        </div>
+        <Input
+          {...register("email", {
+            required: isUabcDomain ? "Ingresa tu usuario" : "Ingresa tu correo electronico",
+            validate: (email) => isUabcDomain || isValidEmail(email) || "Ingresa un correo valido",
+          })}
+          id="email"
+          type="text"
+          name="email"
+          hasError={errors?.email?.message}
+          placeholder={isUabcDomain ? "e.g. jhon.martinez29" : "e.g. jhon.martinez@example.com"}
+          aria-label="Ingresar email"
+          suffix={<DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} />}
+        />
       </FormRow>
 
       <FormRow htmlFor="password" label="Contraseña" error={errors?.password?.message}>
-        <div className="relative">
-          <Input
-            {...register("password", { required: "Ingresa tu contraseña" })}
-            hasError={errors?.password?.message}
-            id="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Contraseña"
-            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-          />
-          <ToggleShowPassword showPassword={showPassword} setShowPassword={setShowPassword} />
-        </div>
+        <Input
+          {...register("password", { required: "Ingresa tu contraseña" })}
+          hasError={errors?.password?.message}
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Contraseña"
+          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          suffix={<ToggleShowPassword showPassword={showPassword} setShowPassword={setShowPassword} />}
+        />
       </FormRow>
       <Footer />
 
-      <Button className="mt-10">Iniciar Sesión</Button>
+      <Button className="mt-10 w-full">Iniciar Sesión</Button>
     </form>
   );
 }
 
-function ToggleShowPassword({ showPassword, setShowPassword }) {
+function ToggleShowPassword({ showPassword, setShowPassword, className }) {
   return (
     <button
       onClick={() => setShowPassword((p) => !p)}
-      className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-neutral-500 active:scale-105"
+      className={`cursor-pointer text-neutral-500 active:scale-105 ${className}`}
       type="button"
       data-testid="toggle-passsword"
     >

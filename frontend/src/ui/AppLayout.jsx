@@ -4,11 +4,14 @@ import { Header } from "./Header";
 
 export default function AppLayout() {
   return (
-    <div className="grid layout min-h-dvh">
+    <div className="layout grid h-dvh">
       <Sidebar />
       <Header />
-      <main className="[grid-area:main]">
-        <Outlet />
+
+      <main className="overflow-scroll py-10 [grid-area:main]">
+        <div className="my-container">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

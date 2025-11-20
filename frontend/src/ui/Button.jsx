@@ -1,11 +1,16 @@
 const variant = {
   primary: "bg-green-800 text-white",
 };
+const sizes = {
+  sm: "text-6 px-2 py-1 rounded-sm font-semibold",
+  md: "text-5 px-4 py-2.5 rounded-md font-medium",
+  lg: "text-5 px-5 py-3.5 rounded-lg font-medium",
+};
 
-export default function Button({ children, type = "primary", className, ...props }) {
+export default function Button({ children, type = "primary", size = "lg", className, ...props }) {
   return (
     <button
-      className={`text-4 w-full cursor-pointer rounded-lg px-6 py-3 font-bold transition-colors duration-300 hover:bg-green-900 ${variant[type]} ${className}`}
+      className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg transition-colors duration-300 hover:bg-green-900 ${variant[type]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}

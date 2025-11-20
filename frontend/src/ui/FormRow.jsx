@@ -5,7 +5,7 @@ export default function FormRow({ children, label, error, htmlFor, className }) 
         {label}
       </label>
       {children}
-      {error && <span className="text-5 mt-1 inline-block text-red-600">{error}</span>}
+      {error && <span className="text-5 mt-1.5 inline-block text-red-600">{error}</span>}
     </div>
   );
 }

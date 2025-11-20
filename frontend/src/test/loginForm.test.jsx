@@ -2,7 +2,7 @@ import "@testing-library/jest-dom"; // ✅ enables toBeInTheDocument and other m
 import { render, fireEvent, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { BrowserRouter } from "react-router";
-import Login from "../pages/Login";
+import Login from "../pages/Auth";
 
 function renderWithRouter(ui) {
   return render(<BrowserRouter>{ui}</BrowserRouter>);

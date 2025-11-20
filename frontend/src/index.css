@@ -16,6 +16,7 @@
   --font-lato: "lato", sans-serif;
   --color-black-50: #f2f2f2;
   --color-white-mint: #d0ecdf;
+  --color-dark-gray: #202224;
 }
 
 @utility text-1 {
@@ -58,4 +59,9 @@
 .login {
   @apply absolute inset-0 -z-10 bg-cover bg-center;
   background-image: url("./assets/images/uabc-bg.png");
+}
+
+@utility my-container {
+  width: min(95%, 90rem);
+  margin-inline: auto;
 }

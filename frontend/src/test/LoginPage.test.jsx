@@ -1,7 +1,7 @@
 // Login.test.jsx
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import Login from "../pages/Login";
+import Login from "../pages/Auth";
 import { BrowserRouter } from "react-router";
 
 describe("Login page", () => {
