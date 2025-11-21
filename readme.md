@@ -236,20 +236,11 @@ Ve a: `http://localhost:5173/dashboard`
 3. Haz clic en "Registrar Paciente"
 4. Verás una notificación de éxito
 
-### Paso 4: Verificar que Funcionó
-Puedes revisar la consola del navegador (F12) para ver el paciente registrado
+---
 
-## ❓ Preguntas Frecuentes
+## 📚 Documentación Adicional
 
-**P: ¿Por qué se pierden los datos al reiniciar?**
-R: Porque actualmente se guardan en memoria. Próximamente se conectará a MySQL.
+- [📋 Guía de Tests](./GUIA_DE_TESTS.md) - Aprende a escribir y ejecutar tests
+- [🔄 Configuración CI/CD](./CI_CD_SETUP.md) - Guía de integración continua con GitHub Actions
 
-**P: ¿Puedo acceder desde otra computadora?**
-R: No directamente. Por ahora solo funciona en `localhost` (tu computadora).
-
-**P: ¿Qué pasa si el backend no está funcionando?**
-R: El frontend mostrará un error al intentar registrar un paciente.
-
-**P: ¿Los datos son seguros?**
-R: Este es un ambiente de desarrollo. Para producción se necesitarían más medidas de seguridad.
 
