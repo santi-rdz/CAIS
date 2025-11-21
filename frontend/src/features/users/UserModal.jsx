@@ -5,7 +5,7 @@ import EmailsRegister from "./EmailsRegister";
 import { useState } from "react";
 
 export default function UserModal({ onCloseModal }) {
-  const [activeTab, setActiveTab] = useState("pre");
+  const [activeTab] = useState("pre");
   return (
     <div className="w-[600px]">
       <header>

@@ -14,7 +14,7 @@ export default function LoginForm() {
   const [isUabcDomain, setIsUabcDomain] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  function onSubmit(data) {
+  function onSubmit() {
     // Login logic
   }
 

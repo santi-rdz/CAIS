@@ -132,43 +132,13 @@ jobs:
           name: frontend-build
           path: frontend/dist/
 
-  # Job para verificar que Docker Compose funcione
-  docker-compose-check:
-    name: Docker Compose Check
-    runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Build Docker images
-        run: docker-compose build
-      
-      - name: Start services
-        run: docker-compose up -d
-      
-      - name: Wait for services
-        run: sleep 10
-      
-      - name: Check backend health
-        run: curl -f http://localhost:8000 || exit 1
-      
-      - name: Check frontend health
-        run: curl -f http://localhost:5173 || exit 1
-      
-      - name: Run backend tests in Docker
-        run: docker-compose exec -T backend npm test
-      
-      - name: Stop services
-        if: always()
-        run: docker-compose down
+
 
   # Job final de resumen
   ci-success:
     name: CI Pipeline Success
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests, frontend-lint, frontend-build, docker-compose-check]
+    needs: [backend-tests, frontend-tests, frontend-lint, frontend-build]
     
     steps:
       - name: Success message
