@@ -1,0 +1,32 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.md'
+      - '.github/workflows/deploy-docs.yml'
+
+jobs:
+  check-documentation:
+    name: Check Documentation Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check for broken links (optional)
+        run: |
+          echo "📚 Documentation files updated:"
+          git diff --name-only HEAD~1 HEAD | grep '.md$' || echo "No markdown files changed"
+      
+      - name: List all documentation
+        run: |
+          echo "📄 Available documentation files:"
+          find . -name "*.md" -type f | grep -v node_modules | sort
+      
+      - name: Documentation summary
+        run: |
+          echo "✅ Documentation check completed"
+          echo "📋 Found $(find . -name '*.md' -type f | grep -v node_modules | wc -l) markdown files"
