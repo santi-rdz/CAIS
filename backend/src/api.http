@@ -1,0 +1,32 @@
+### obtener usuarios
+GET http://localhost:8000/usuarios?status=inactivo
+
+### Crear un Pre-Usuario (Creado pro coordinador)
+POST http://localhost:8000/usuarios/pre
+Content-Type: application/json
+
+[
+  {
+    "email": "juan.perez@uabc.edu.mx",
+    "role": "pasante"
+  },
+  {
+    "email": "ana.garcia@uabc.edu.mx",
+    "role": "coordinador"
+  }
+]
+
+### Crear usuario completo
+POST http://localhost:8000/usuarios/complete
+Content-Type: application/json
+
+{
+  "name": "Raul Rodriguez",
+  "email": "raul.rodriguez@uabc.edu.mx",
+  "birthDay": "2003-04-25",
+  "phone": "6861234567",
+  "rol": "coordinador",
+  "area": "medicina",
+  "password": "miPasswordSuperSecreta123",
+  "pic_url": "https://example.com/profile.jpg"
+}
