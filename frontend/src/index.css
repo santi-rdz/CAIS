@@ -1,23 +1,29 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant active-route (&:where(.active));
 
 @font-face {
-  font-family: "geist";
-  src: url("assets/fonts/Geist/Geist-VariableFont_wght.ttf");
+  font-family: 'geist';
+  src: url('assets/fonts/Geist/Geist-VariableFont_wght.ttf');
 }
 @font-face {
-  font-family: "lato";
-  src: url("assets/fonts/Lato/Lato-Bold.ttf");
+  font-family: 'lato';
+  src: url('assets/fonts/Lato/Lato-Bold.ttf');
 }
 
 @theme {
-  --font-geist: "geist", sans-serif;
-  --font-lato: "lato", sans-serif;
+  --font-geist: 'geist', sans-serif;
+  --font-lato: 'lato', sans-serif;
   --color-black-50: #f2f2f2;
   --color-white-mint: #d0ecdf;
   --color-dark-gray: #202224;
   --color-backdrop-color: rgba(255, 255, 255, 0.1);
+  --animate-rotate: rotate 1.5s linear infinite;
+  @keyframes rotate {
+    to {
+      transform: rotate(1turn);
+    }
+  }
 }
 
 @utility text-1 {
@@ -53,13 +59,13 @@
   grid-template-columns: auto 1fr;
   grid-template-rows: auto 1fr;
   grid-template-areas:
-    "sidebar header"
-    "sidebar main";
+    'sidebar header'
+    'sidebar main';
 }
 
 .login {
   @apply absolute inset-0 -z-10 bg-cover bg-center;
-  background-image: url("./assets/images/uabc-bg.png");
+  background-image: url('./assets/images/uabc-bg.png');
 }
 
 @utility my-container {

@@ -8,10 +8,10 @@ const userSchema = z.object({
   phone: z.string().regex(/^\d{8,15}$/),
 
   // campos de usuario
-  rol: z.enum(['pasante', 'coordinador', 'superadmin']),
+  role: z.enum(['pasante', 'coordinador', 'superadmin']),
   area: z.enum(['medicina', 'nutricion']),
   password: z.string(),
-  pic_url: z.string().url(),
+  picture: z.string().url().optional(),
 })
 
 export function validateUser(input) {

@@ -2,12 +2,13 @@ import Table from '@ui/Table'
 import UserRow from './UserRow'
 import { useUsers } from './useUsers'
 import { useState } from 'react'
+import Spinner from '@ui/Spinner'
 
 export default function UsersTable() {
   const { users, isPending } = useUsers()
-  const [openMenu, setOpenMenu] = useState('3e272706-d62f-482a-afdb-b8d99631c534')
+  const [openMenu, setOpenMenu] = useState(null)
 
-  if (isPending) return <p>Cargando usuarios...</p>
+  if (isPending) return <Spinner />
 
   return (
     <Table columns="0.3fr 3.4fr 1.2fr 1.6fr 1.6fr 0.2fr">

@@ -25,7 +25,7 @@ export default function EmailsRegister({ onClose }) {
   function onSubmit(data) {
     const { email } = data
     const fullEmail = isUabcDomain ? `${email.replace('@uabc.edu.mx', '')}@uabc.edu.mx` : email
-    setEmails([{ email: fullEmail, role, status: 'registro enviado' }, ...emails])
+    setEmails([{ email: fullEmail, role, status: 'pendiente' }, ...emails])
     reset()
   }
 

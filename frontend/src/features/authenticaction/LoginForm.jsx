@@ -1,37 +1,42 @@
-import { useState } from "react";
-import { Link } from "react-router";
-import { useForm } from "react-hook-form";
-import { HiOutlineEyeSlash, HiOutlineEye } from "react-icons/hi2";
-import { isValidEmail } from "@lib/utils";
-import Button from "@ui/Button";
-import FormRow from "@ui/FormRow";
-import DomainToggle from "@ui/DomainToggle";
-import Input from "@ui/Input";
+import { useState } from 'react'
+import { Link } from 'react-router'
+import { useForm } from 'react-hook-form'
+import { HiOutlineEyeSlash, HiOutlineEye } from 'react-icons/hi2'
+import { isValidEmail } from '@lib/utils'
+import Button from '@ui/Button'
+import FormRow from '@ui/FormRow'
+import DomainToggle from '@ui/DomainToggle'
+import Input from '@ui/Input'
+import useLogin from './useLogin'
 
 export default function LoginForm() {
-  const [isUabcDomain, setIsUabcDomain] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-  const { register, handleSubmit, formState } = useForm();
-  const { errors } = formState;
+  const [isUabcDomain, setIsUabcDomain] = useState(true)
+  const [showPassword, setShowPassword] = useState(false)
+  const { register, handleSubmit, formState } = useForm()
+  const { errors } = formState
+  const { login, isPending } = useLogin()
 
   function onSubmit(data) {
     // Login logic
+    const { email, password } = data
+    login({ email: isUabcDomain ? `${email}@uabc.edu.mx` : email, password })
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit, () => console.log(errors))} role="form">
-      <FormRow className="mb-6" htmlFor="email" label={isUabcDomain ? "Usuario" : "Correo electronico"}>
+      <FormRow className="mb-6" htmlFor="email" label={isUabcDomain ? 'Usuario' : 'Correo electronico'}>
         <Input
+          defaultValue="sofia.navarro"
           offset="6"
-          {...register("email", {
-            required: isUabcDomain ? "Ingresa tu usuario" : "Ingresa tu correo electronico",
-            validate: (email) => isUabcDomain || isValidEmail(email) || "Ingresa un correo valido",
+          {...register('email', {
+            required: isUabcDomain ? 'Ingresa tu usuario' : 'Ingresa tu correo electronico',
+            validate: (email) => isUabcDomain || isValidEmail(email) || 'Ingresa un correo valido',
           })}
           id="email"
           type="text"
           name="email"
           error={errors?.email?.message}
-          placeholder={isUabcDomain ? "e.g. jhon.martinez29" : "e.g. jhon.martinez@example.com"}
+          placeholder={isUabcDomain ? 'e.g. jhon.martinez29' : 'e.g. jhon.martinez@example.com'}
           aria-label="Ingresar email"
           suffix={<DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} />}
         />
@@ -39,12 +44,12 @@ export default function LoginForm() {
 
       <FormRow htmlFor="password" label="Contraseña">
         <Input
-          {...register("password", { required: "Ingresa tu contraseña" })}
+          {...register('password', { required: 'Ingresa tu contraseña' })}
           error={errors?.password?.message}
           id="password"
-          type={showPassword ? "text" : "password"}
+          type={showPassword ? 'text' : 'password'}
           placeholder="Contraseña"
-          aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           suffix={<ToggleShowPassword showPassword={showPassword} setShowPassword={setShowPassword} />}
         />
       </FormRow>
@@ -52,7 +57,7 @@ export default function LoginForm() {
 
       <Button className="mt-10 w-full">Iniciar Sesión</Button>
     </form>
-  );
+  )
 }
 
 function ToggleShowPassword({ showPassword, setShowPassword, className, style }) {
@@ -70,7 +75,7 @@ function ToggleShowPassword({ showPassword, setShowPassword, className, style })
         <HiOutlineEyeSlash size={20} className="transition-transform duration-300 hover:scale-105" />
       )}
     </button>
-  );
+  )
 }
 
 function Footer() {
@@ -82,5 +87,5 @@ function Footer() {
         ¿Olvidaste tu contraseña?
       </Link>
     </div>
-  );
+  )
 }

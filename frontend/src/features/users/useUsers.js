@@ -7,7 +7,7 @@ export function useUsers() {
   const status = params.get('status')
 
   const { data: users, isPending } = useQuery({
-    queryKey: ['users'],
+    queryKey: ['users', status],
     queryFn: () => getUsers({ status }),
   })
   return { users, isPending }

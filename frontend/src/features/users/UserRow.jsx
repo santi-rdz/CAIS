@@ -5,12 +5,14 @@ import Table from '@ui/Table'
 import Tag from '@ui/Tag'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { createPortal } from 'react-dom'
 import { HiEllipsisVertical, HiTrash } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
-  const { name, role, lastLogin, email, status, picture, id } = user
+  const { name, role: roleUp, last_login: lastLogin, email, status: statusUp, picture, id } = user
+  const status = statusUp.toLowerCase()
+  const role = roleUp.toLowerCase()
+
   const { deleteUser, isPending } = useDeleteUser()
   const isMenuOpen = openMenu === id
   const hasPicture = Boolean(picture)

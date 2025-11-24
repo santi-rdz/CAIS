@@ -5,12 +5,19 @@ import Dashboard from './pages/Dashboard'
 import Auth from './pages/Auth'
 import LoginForm from '@features/authenticaction/LoginForm'
 import Users from './pages/Users'
+import ProtectedRoute from '@ui/ProtectedRoute'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout />}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="usuarios" element={<Users />} />

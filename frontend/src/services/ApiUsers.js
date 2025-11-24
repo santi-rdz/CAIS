@@ -40,3 +40,18 @@ export async function deleteUser(id) {
     throw Error('No se ha podido borrar el usuario')
   }
 }
+
+export async function getUser(id) {
+  try {
+    const res = await fetch(`http://localhost:8000/usuarios/${id}`)
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      throw new Error(errorData.message || 'Error fetching user')
+    }
+
+    return await res.json()
+  } catch (error) {
+    throw new Error(error.message)
+  }
+}
