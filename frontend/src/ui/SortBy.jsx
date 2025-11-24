@@ -2,20 +2,20 @@ import { useSearchParams } from "react-router";
 import Select from "./Select";
 
 export default function SortBy({ options }) {
-  const [serchParams, setSearchParams] = useSearchParams();
-  const sortBy = serchParams.get("ordenarPor") || "";
-  const currentOption = options[sortBy] || { label: "Ordenar por", value: "" };
+  const [params, setParams] = useSearchParams();
+  const current = params.get("ordenarPor");
 
-  function onClick(option) {
-    if (option.value === "clear") {
-      serchParams.delete("ordenarPor");
-      setSearchParams(serchParams);
-      return;
+  const selected = options.find((o) => o.value === current) || null;
+
+  function handleChange(value) {
+    if (value === "clear") {
+      params.delete("ordenarPor");
+      setParams(params);
+    } else {
+      params.set("ordenarPor", value);
+      setParams(params);
     }
-
-    serchParams.set("ordenarPor", option.value);
-    setSearchParams(serchParams);
   }
 
-  return <Select options={Object.values(options)} currentOption={currentOption} onClick={onClick} />;
+  return <Select options={options} value={selected} onChange={handleChange} placeholder="Ordenar por" />;
 }

@@ -1,11 +1,10 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Login from "./pages/Auth";
-import AppLayout from "./ui/AppLayout";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import LoginForm from "@features/authenticaction/LoginForm";
-import Users from "./pages/Users";
-import EmailsRegister from "@features/users/EmailsRegister";
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Login from './pages/Auth'
+import AppLayout from './ui/AppLayout'
+import Dashboard from './pages/Dashboard'
+import Auth from './pages/Auth'
+import LoginForm from '@features/authenticaction/LoginForm'
+import Users from './pages/Users'
 
 function App() {
   return (
@@ -21,6 +20,6 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
-export default App;
+export default App

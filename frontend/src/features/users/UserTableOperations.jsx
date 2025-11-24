@@ -5,13 +5,13 @@ import SortBy from "@ui/SortBy";
 import TableOperations from "@ui/TableOperations";
 import UserModal from "./UserModal";
 
-const SORT_BY_OPTIONS = {
-  "nombre-asc": { label: "Nombre (asc)", value: "nombre-asc" },
-  "nombre-desc": { label: "Nombre (desc)", value: "nombre-desc" },
-  "login-asc": { label: "Login (asc)", value: "login-asc" },
-  "login-desc": { label: "Login (desc)", value: "login-desc" },
-  clear: { label: "Limpiar", value: "clear" },
-};
+const SORT_BY_OPTIONS = [
+  { label: "Nombre (asc)", value: "nombre-asc" },
+  { label: "Nombre (desc)", value: "nombre-desc" },
+  { label: "Login (asc)", value: "login-asc" },
+  { label: "Login (desc)", value: "login-desc" },
+  { label: "Limpiar", value: "clear" },
+];
 
 export default function UserTableOperations() {
   return (

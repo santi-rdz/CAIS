@@ -10,9 +10,10 @@ const sizes = {
 };
 
 export default function Button({ children, type = "primary", size = "lg", className, ...props }) {
+  console.log(props);
   return (
     <button
-      className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg transition-colors duration-300 ${variant[type]} ${sizes[size]} ${className}`}
+      className={`flex items-center justify-center gap-2 rounded-lg transition-colors duration-300 ${variant[type]} ${sizes[size]} ${className} ${props.disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer "}`}
       {...props}
     >
       {children}

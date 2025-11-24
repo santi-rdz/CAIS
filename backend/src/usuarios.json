@@ -1,23 +1,5 @@
 [
   {
-    "id": "cc8d48ea-31c3-494b-9932-38f22000e2bf",
-    "email": "2@uabc.edu.mx",
-    "role": "pasante",
-    "status": "registro enviado"
-  },
-  {
-    "id": "d105d785-4e31-4bcd-9201-f713259a8cea",
-    "email": "12@uabc.edu.mx",
-    "role": "pasante",
-    "status": "registro enviado"
-  },
-  {
-    "id": "d1f7ed6e-db6a-4bce-aef4-a500790e8cee",
-    "email": "raul@uabc.edu.mx",
-    "role": "pasante",
-    "status": "registro enviado"
-  },
-  {
     "id": 1,
     "name": "Raul Santiago Rodriguez Martinez",
     "email": "raul.rodriguez39@uabc.edu.mx",
@@ -110,11 +92,5 @@
     "createdAt": "2023-10-09T09:10:00Z",
     "lastLogin": "2024-07-30T09:40:00Z",
     "picture": "https://randomuser.me/api/portraits/women/84.jpg"
-  },
-  {
-    "id": "10c4fbdc-a8b9-47c2-92e8-845b5fdd039c",
-    "email": "alexa@uabc.edu.mx",
-    "role": "pasante",
-    "status": "registro enviado"
   }
 ]

@@ -47,9 +47,9 @@ Tab.Button = function TabButton({ option }) {
   );
 };
 
-Tab.Content = function TabContent() {
+Tab.Content = function TabContent({ onClose }) {
   const { activeOption } = useContext(TabContext);
   const ActiveComponent = activeOption.component;
 
-  return <main className="mt-16">{ActiveComponent}</main>;
+  return <main className="mt-16">{ActiveComponent(onClose)}</main>;
 };
