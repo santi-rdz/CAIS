@@ -9,10 +9,10 @@ import DomainToggle from "@ui/DomainToggle";
 import Input from "@ui/Input";
 
 export default function LoginForm() {
-  const { register, handleSubmit, formState } = useForm();
-  const { errors } = formState;
   const [isUabcDomain, setIsUabcDomain] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const { register, handleSubmit, formState } = useForm();
+  const { errors } = formState;
 
   function onSubmit(data) {
     // Login logic
@@ -20,12 +20,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, () => console.log(errors))} role="form">
-      <FormRow
-        className="mb-6"
-        htmlFor="email"
-        error={errors?.email?.message}
-        label={isUabcDomain ? "Usuario" : "Correo electronico"}
-      >
+      <FormRow className="mb-6" htmlFor="email" label={isUabcDomain ? "Usuario" : "Correo electronico"}>
         <Input
           offset="6"
           {...register("email", {
@@ -35,17 +30,17 @@ export default function LoginForm() {
           id="email"
           type="text"
           name="email"
-          hasError={errors?.email?.message}
+          error={errors?.email?.message}
           placeholder={isUabcDomain ? "e.g. jhon.martinez29" : "e.g. jhon.martinez@example.com"}
           aria-label="Ingresar email"
           suffix={<DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} />}
         />
       </FormRow>
 
-      <FormRow htmlFor="password" label="Contraseña" error={errors?.password?.message}>
+      <FormRow htmlFor="password" label="Contraseña">
         <Input
           {...register("password", { required: "Ingresa tu contraseña" })}
-          hasError={errors?.password?.message}
+          error={errors?.password?.message}
           id="password"
           type={showPassword ? "text" : "password"}
           placeholder="Contraseña"
