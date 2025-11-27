@@ -28,7 +28,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: cais-db
+      MYSQL_DATABASE: cais
       MYSQL_USER: user
       MYSQL_PASSWORD: user
     ports:
