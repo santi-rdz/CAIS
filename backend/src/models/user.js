@@ -70,8 +70,24 @@ export class UserModel {
 
   // Eliminar un usuario por id
   static async delete(id) {
-    const [result] = await pool.query(`DELETE FROM user WHERE person_id = UUID_TO_BIN(?)`, [id])
-    return result.affectedRows > 0
+    const conn = await pool.getConnection()
+    try {
+      await conn.beginTransaction()
+
+      // Primero eliminar de user
+      await conn.query(`DELETE FROM user WHERE person_id = UUID_TO_BIN(?)`, [id])
+
+      // Luego eliminar de person
+      await conn.query(`DELETE FROM person WHERE id = UUID_TO_BIN(?)`, [id])
+
+      await conn.commit()
+      return true
+    } catch (err) {
+      await conn.rollback()
+      throw err
+    } finally {
+      conn.release()
+    }
   }
 
   // Actualizar campos de un usuario
