@@ -21,3 +21,5 @@ docker-compose up --build
 - **Backend:** Node.js + Express
 - **Base de datos:** MySQL
 - **Contenedores:** Docker & Docker Compose
+
+### Version:

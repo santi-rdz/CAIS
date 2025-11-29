@@ -8,7 +8,6 @@ export class UserModel {
     let sql = `
     SELECT 
       BIN_TO_UUID(u.person_id) AS id,
-      u.password_hash,
       s.code AS status,
       r.code AS role,
       a.name AS area,
@@ -17,7 +16,6 @@ export class UserModel {
       u.picture,
       p.name,
       p.email,
-      p.birth_date,
       p.phone
     FROM user u
     JOIN person p ON u.person_id = p.id
