@@ -4,16 +4,16 @@
 
 ### Clonar el repositorio
 
-````bash
+```bash
 git clone https://github.com/santi-rdz/CAIS.git
 cd CAIS
-````
+```
 
 ### Levanta los contenedores con Docker compose
 
 ```bash
 docker-compose up --build
-````
+```
 
 ## Tecnologías
 
@@ -22,4 +22,4 @@ docker-compose up --build
 - **Base de datos:** MySQL
 - **Contenedores:** Docker & Docker Compose
 
-### Version: 1
+### Version: 3 pr
