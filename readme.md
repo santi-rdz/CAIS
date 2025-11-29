@@ -22,4 +22,4 @@ docker-compose up --build
 - **Base de datos:** MySQL
 - **Contenedores:** Docker & Docker Compose
 
-### Version:
+### Version: 1
