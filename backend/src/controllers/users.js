@@ -7,8 +7,8 @@ import { UserService } from '../services/users.js'
 export class UserController {
   static async getAll(req, res) {
     const { status, sortBy, search } = req.query
-    const page = +req.query.page
-    const limit = +req.query.limit
+    const page = +req.query.page || 1
+    const limit = +req.query.limit || 10
     const users = await UserModel.getAll({ status, sortBy, search, page, limit })
     res.json(users)
   }

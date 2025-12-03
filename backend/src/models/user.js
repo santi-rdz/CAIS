@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 
 export class UserModel {
   // Traer todos los usuarios, opcionalmente filtrando por status
-  static async getAll({ status, sortBy, search, page = 1, limit = 10 }) {
+  static async getAll({ status, sortBy, search, page, limit }) {
     let sql = `
     SELECT 
       BIN_TO_UUID(u.person_id) AS id,
@@ -33,7 +33,8 @@ export class UserModel {
     }
 
     if (search) {
-      conditions.push('p.name LIKE ?')
+      conditions.push('(p.name LIKE ? OR p.email LIKE ?)')
+      params.push(`%${search}%`)
       params.push(`%${search}%`)
     }
 
