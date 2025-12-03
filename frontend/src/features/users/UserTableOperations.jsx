@@ -44,7 +44,7 @@ export default function UserTableOperations() {
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}
         className="mr-auto w-[380px]"
-        placeholder="Buscar usuario..."
+        placeholder="Buscar por nombre o correo..."
         size="sm"
         variant="outline"
         suffix={<HiMagnifyingGlass className="" />}
