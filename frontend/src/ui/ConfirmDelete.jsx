@@ -16,7 +16,7 @@ export default function ConfirmDelete({ resourceName, onConfirm, disabled, onClo
         </Button>
 
         <Button variation="danger" disabled={disabled} onClick={onConfirm}>
-          Delete
+          Borrar
         </Button>
       </div>
     </div>

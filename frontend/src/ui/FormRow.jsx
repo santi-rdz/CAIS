@@ -5,7 +5,9 @@ export default function FormRow({ children, label, htmlFor, className }) {
         {label}
       </label>
       {children}
-      {children.props.error && <span className="text-5 mt-1.5 inline-block text-red-600">{children.props.error}</span>}
+      {children.props.hasError && (
+        <span className="text-5 mt-1.5 inline-block text-red-600">{children.props.hasError}</span>
+      )}
     </div>
-  );
+  )
 }

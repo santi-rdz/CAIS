@@ -1,10 +1,22 @@
+import { PAGE_SIZE } from '@lib/constants'
+
 const BASE_URL = 'http://localhost:8000'
 
-export async function getUsers({ status }) {
+export async function getUsers({ status, sortBy, search, page }) {
   try {
-    const query = status ? `?status=${encodeURIComponent(status)}` : ''
+    const params = new URLSearchParams()
+
+    if (status) params.append('status', status)
+    if (sortBy && sortBy !== 'clear') params.append('sortBy', sortBy)
+    if (search) params.append('search', search)
+    if (page) {
+      params.append('page', page)
+      params.append('limit', PAGE_SIZE)
+    }
+    const query = params.toString() ? `?${params.toString()}` : ''
+
     const res = await fetch(`${BASE_URL}/usuarios${query}`)
-    if (!res.ok) throw new Error('Erorr al obtener los uusarios')
+    if (!res.ok) throw new Error('Error al obtener los usuarios')
     const data = await res.json()
     return data
   } catch (error) {

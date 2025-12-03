@@ -1,3 +1,3 @@
-export default function TableOperations({ children }) {
-  return <div className="flex items-center gap-4">{children}</div>;
+export default function TableOperations({ children, width = 'full' }) {
+  return <div className={`flex items-center gap-4 ${width === 'full' ? 'w-full' : 'w-fit'}`}>{children}</div>
 }

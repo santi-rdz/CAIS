@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom'
 
-export default function Filter({ filterField, options }) {
+export default function Filter({ filterField, options, className }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const currentFilter = searchParams.get(filterField) || options[0].value
 
@@ -11,17 +11,17 @@ export default function Filter({ filterField, options }) {
       return
     }
     searchParams.set(filterField, value)
-    // if (searchParams.get('page')) searchParams.set('page', 1)
+    if (searchParams.get('page')) searchParams.set('page', 1)
     setSearchParams(searchParams)
   }
 
   return (
-    <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-xs">
+    <div className={`flex gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-xs ${className}`}>
       {options.map((op) => (
         <button
           key={op.value}
           onClick={() => handleClick(op.value)}
-          className={`rounded-md px-2 py-1 text-sm font-medium transition-all ${
+          className={`cursor-pointer rounded-md px-2 py-1 text-sm font-medium transition-all ${
             op.value === currentFilter ? 'pointer-events-none bg-green-800 text-blue-50' : 'bg-white hover:bg-gray-100'
           }`}
         >
