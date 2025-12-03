@@ -1,10 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { UserModel } from '../models/user.js'
 import { TokenModel } from '../models/TokenModel.js'
-import { sendEmail } from '../lib/mailer.js'
 import { pool } from '../config/db.js'
-import { error } from 'node:console'
-import { success } from 'zod'
+import { sendEmail } from '../lib/sendEmail.js'
 
 export class UserService {
   static async preRegister(usersData) {
