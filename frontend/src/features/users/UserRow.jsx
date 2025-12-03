@@ -13,7 +13,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
   const status = statusUp.toLowerCase()
   const role = roleUp.toLowerCase()
 
-  const { deleteUser, isPending } = useDeleteUser()
+  const { deleteUser, isPending: isDeleting } = useDeleteUser()
   const isMenuOpen = openMenu === id
   const hasPicture = Boolean(picture)
   const ref = useClickOutside(() => setOpenMenu(null), true)
@@ -66,7 +66,12 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
           )}
         </div>
         <Modal.Content name="delete">
-          <ConfirmDelete resourceName="usuario" onConfirm={() => deleteUser(id)} />
+          <ConfirmDelete
+            disabled={isDeleting}
+            isDeleting={isDeleting}
+            resourceName="usuario"
+            onConfirm={() => deleteUser(id)}
+          />
         </Modal.Content>
       </Modal>
     </Table.Row>

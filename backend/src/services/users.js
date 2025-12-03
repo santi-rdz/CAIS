@@ -3,6 +3,7 @@ import { UserModel } from '../models/user.js'
 import { TokenModel } from '../models/TokenModel.js'
 import { pool } from '../config/db.js'
 import { sendEmail } from '../lib/sendEmail.js'
+import { registerEmail } from '../lib/registerEmail.js'
 
 export class UserService {
   static async preRegister(usersData) {
@@ -35,17 +36,13 @@ export class UserService {
     const emailErrors = []
     for (const u of usersWithToken) {
       const url = `https://localhost:5173/register/${u.token}`
+      
 
       try {
         await sendEmail({
           to: u.email,
           subject: 'Completa tu registro',
-          html: `
-            <p>Hola ${u.name ?? ''},</p>
-            <p>Haz clic en el siguiente enlace para completar tu registro:</p>
-            <a href="${url}">${url}</a>
-            <p>Este enlace expira en 24 horas.</p>
-          `,
+          html: registerEmail(u.email, url),
         })
       } catch (err) {
         emailErrors.push({ email: u.email, error: err.message })

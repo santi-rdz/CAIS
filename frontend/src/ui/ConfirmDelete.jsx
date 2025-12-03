@@ -1,7 +1,8 @@
 import Button from './Button'
 import Heading from './Heading'
+import SpinnerMini from './SpinnerMini'
 
-export default function ConfirmDelete({ resourceName, onConfirm, disabled, onCloseModal }) {
+export default function ConfirmDelete({ resourceName, onConfirm, disabled, onCloseModal, isDeleting }) {
   return (
     <div className="flex w-[400px] flex-col gap-4">
       <Heading as="h3">Borrar {resourceName}</Heading>
@@ -16,7 +17,7 @@ export default function ConfirmDelete({ resourceName, onConfirm, disabled, onClo
         </Button>
 
         <Button variation="danger" disabled={disabled} onClick={onConfirm}>
-          Borrar
+          {!isDeleting ? 'Borrar' : <SpinnerMini />}
         </Button>
       </div>
     </div>

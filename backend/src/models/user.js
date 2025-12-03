@@ -1,9 +1,7 @@
-// backend/models/user.js
 import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
 
 export class UserModel {
-  // Traer todos los usuarios, opcionalmente filtrando por status
   static async getAll({ status, sortBy, search, page, limit }) {
     let sql = `
     SELECT 
