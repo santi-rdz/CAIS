@@ -11,6 +11,7 @@ services:
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
+      - /app/dist
 
   backend:
     build: ./backend
