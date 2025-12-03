@@ -8,6 +8,7 @@ import FormRow from '@ui/FormRow'
 import DomainToggle from '@ui/DomainToggle'
 import Input from '@ui/Input'
 import useLogin from './useLogin'
+import SpinnerMini from '@ui/SpinnerMini'
 
 export default function LoginForm() {
   const [isUabcDomain, setIsUabcDomain] = useState(true)
@@ -35,7 +36,7 @@ export default function LoginForm() {
           id="email"
           type="text"
           name="email"
-          error={errors?.email?.message}
+          hasError={errors?.email?.message}
           placeholder={isUabcDomain ? 'e.g. jhon.martinez29' : 'e.g. jhon.martinez@example.com'}
           aria-label="Ingresar email"
           suffix={<DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} />}
@@ -45,7 +46,7 @@ export default function LoginForm() {
       <FormRow htmlFor="password" label="Contraseña">
         <Input
           {...register('password', { required: 'Ingresa tu contraseña' })}
-          error={errors?.password?.message}
+          hasError={errors?.password?.message}
           id="password"
           type={showPassword ? 'text' : 'password'}
           placeholder="Contraseña"
@@ -55,7 +56,7 @@ export default function LoginForm() {
       </FormRow>
       <Footer />
 
-      <Button className="mt-10 w-full">Iniciar Sesión</Button>
+      <Button className="mt-10 w-full">{!isPending ? 'Iniciar Sesion' : <SpinnerMini />}</Button>
     </form>
   )
 }

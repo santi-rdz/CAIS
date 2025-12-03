@@ -2,11 +2,14 @@ import { validatePartialUser, validateUser } from '../schemas/usuario.js'
 import { validatePreUser } from '../schemas/createPreUser.js'
 import { randomUUID } from 'node:crypto'
 import { UserModel } from '../models/user.js'
+import { UserService } from '../services/users.js'
 
 export class UserController {
   static async getAll(req, res) {
-    const { status } = req.query
-    const users = await UserModel.getAll({ status })
+    const { status, sortBy, search } = req.query
+    const page = +req.query.page
+    const limit = +req.query.limit
+    const users = await UserModel.getAll({ status, sortBy, search, page, limit })
     res.json(users)
   }
 
@@ -39,13 +42,8 @@ export class UserController {
     const result = validatePreUser(req.body)
     if (result.error) return res.status(400).json({ message: JSON.parse(result.error.message) })
 
-    const newUsers = result.data.map((user) => ({
-      id: randomUUID(),
-      ...user,
-    }))
-
-    const createdUsers = await UserModel.preRegister(newUsers)
-    res.status(201).json(createdUsers)
+    const users = await UserService.preRegister(result.data)
+    res.status(201).json(users)
   }
 
   static async fullRegister(req, res) {

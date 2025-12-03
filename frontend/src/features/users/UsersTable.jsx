@@ -3,9 +3,10 @@ import UserRow from './UserRow'
 import { useUsers } from './useUsers'
 import { useState } from 'react'
 import Spinner from '@ui/Spinner'
+import Pagination from '@ui/Pagination'
 
 export default function UsersTable() {
-  const { users, isPending } = useUsers()
+  const { users, count, isPending } = useUsers()
   const [openMenu, setOpenMenu] = useState(null)
 
   if (isPending) return <Spinner />
@@ -23,7 +24,9 @@ export default function UsersTable() {
         data={users}
         render={(user) => <UserRow user={user} key={user.id} openMenu={openMenu} setOpenMenu={setOpenMenu} />}
       />
-      <Table.Footer>Pagination</Table.Footer>
+      <Table.Footer>
+        <Pagination count={count} />
+      </Table.Footer>
     </Table>
   )
 }

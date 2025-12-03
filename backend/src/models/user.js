@@ -1,10 +1,10 @@
 // backend/models/user.js
-import { pool } from '../db.js'
+import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
 
 export class UserModel {
   // Traer todos los usuarios, opcionalmente filtrando por status
-  static async getAll({ status }) {
+  static async getAll({ status, sortBy, search, page = 1, limit = 10 }) {
     let sql = `
     SELECT 
       BIN_TO_UUID(u.person_id) AS id,
@@ -25,18 +25,55 @@ export class UserModel {
   `
 
     const params = []
+    const conditions = []
 
     if (status) {
-      const lowerStatus = status.toLowerCase()
-      sql += ` WHERE LOWER(s.code) = ?`
-      params.push(lowerStatus)
+      conditions.push('LOWER(s.code) = ?')
+      params.push(status.toLowerCase())
     }
 
-    // orden de craecion
-    sql += ` ORDER BY u.created_at DESC`
+    if (search) {
+      conditions.push('p.name LIKE ?')
+      params.push(`%${search}%`)
+    }
 
-    const [rows] = await pool.query(sql, params)
-    return rows
+    const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
+
+    sql += whereClause
+
+    const sortOptions = {
+      'nombre-asc': 'p.name ASC',
+      'nombre-desc': 'p.name DESC',
+      'login-asc': 'u.last_login ASC',
+      'login-desc': 'u.last_login DESC',
+    }
+
+    if (sortBy && sortOptions[sortBy]) {
+      sql += ` ORDER BY ${sortOptions[sortBy]}`
+    } else {
+      sql += ` ORDER BY u.created_at DESC`
+    }
+
+    const offset = (page - 1) * limit
+    sql += ` LIMIT ? OFFSET ?`
+    params.push(limit, offset)
+
+    // Query de conteo (con los mismos filtros)
+    const countSql = `
+    SELECT COUNT(*) as count
+    FROM user u
+    JOIN person p ON u.person_id = p.id
+    JOIN status s ON u.status_id = s.id
+    JOIN role r ON u.role_id = r.id
+    LEFT JOIN area a ON u.area_id = a.id
+    ${whereClause}
+  `
+
+    // Ejecutar queries
+    const [[{ count }]] = await pool.query(countSql, params.slice(0, -2))
+    const [users] = await pool.query(sql, params)
+
+    return { users, count }
   }
 
   // Traer un usuario por id
@@ -66,16 +103,13 @@ export class UserModel {
     return rows[0] || null
   }
 
-  // Eliminar un usuario por id
+  // Eliminar un usuario por id (solo se borra person y todo lo demás cae en cascada)
   static async delete(id) {
     const conn = await pool.getConnection()
     try {
       await conn.beginTransaction()
 
-      // Primero eliminar de user
-      await conn.query(`DELETE FROM user WHERE person_id = UUID_TO_BIN(?)`, [id])
-
-      // Luego eliminar de person
+      // Solo debes eliminar la PERSON
       await conn.query(`DELETE FROM person WHERE id = UUID_TO_BIN(?)`, [id])
 
       await conn.commit()
@@ -105,48 +139,43 @@ export class UserModel {
   }
 
   // Pre-registrar varios usuarios (status PENDING)
-  static async preRegister(newUsers) {
-    const conn = await pool.getConnection()
-    try {
-      await conn.beginTransaction()
-      const registeredUsers = []
+  static async preRegister(newUsers, conn) {
+    const registeredUsers = []
 
-      for (const u of newUsers) {
-        // Generar UUID para person_id
-        const personId = randomUUID()
-        // Insertar en person
-        await conn.query(
-          `INSERT INTO person (id, name, email, birth_date, phone) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)`,
-          [personId, u.name || null, u.email, u.birthDay || null, u.phone || null]
-        )
+    for (const u of newUsers) {
+      // Insertar en person
+      await conn.query(
+        `INSERT INTO person (id, name, email, birth_date, phone)
+         VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)`,
+        [u.personId, u.name || null, u.email, u.birthDay || null, u.phone || null]
+      )
 
-        // Traer IDs de status, role y area según códigos/nombres
-        const [[statusRow]] = await conn.query('SELECT id FROM status WHERE code = ?', [
-          u.status || 'PENDIENTE',
-        ])
-        const [[roleRow]] = await conn.query('SELECT id FROM role WHERE code = ?', [
-          u.role || 'PASANTE',
-        ])
-        const [[areaRow]] = await conn.query('SELECT id FROM area WHERE name = ?', [u.area || null])
+      // Traer IDs
+      const [[statusRow]] = await conn.query('SELECT id FROM status WHERE code = ?', [
+        u.status || 'PENDIENTE',
+      ])
+      const [[roleRow]] = await conn.query('SELECT id FROM role WHERE code = ?', [
+        u.role || 'PASANTE',
+      ])
+      const [[areaRow]] = await conn.query('SELECT id FROM area WHERE name = ?', [u.area || null])
 
-        // Insertar en user
-        await conn.query(
-          `INSERT INTO user (person_id, status_id, role_id, area_id, created_at) VALUES (UUID_TO_BIN(?), ?, ?, ?, NOW())`,
-          [personId, statusRow.id, roleRow.id, areaRow?.id || null]
-        )
+      // Insert en user
+      await conn.query(
+        `INSERT INTO user (person_id, status_id, role_id, area_id, created_at)
+         VALUES (UUID_TO_BIN(?), ?, ?, ?, NOW())`,
+        [u.personId, statusRow.id, roleRow.id, areaRow?.id || null]
+      )
 
-        // Traer el usuario completo con joins
-        const [[row]] = await conn.query(
-          `
+      // Obtener datos ya combinados
+      const [[row]] = await conn.query(
+        `
         SELECT 
           BIN_TO_UUID(u.person_id) AS id,
-          u.password_hash,
           s.code AS status,
           r.code AS role,
           a.name AS area,
           u.created_at,
           u.last_login,
-          u.picture,
           p.name,
           p.email,
           p.birth_date,
@@ -158,19 +187,13 @@ export class UserModel {
         LEFT JOIN area a ON u.area_id = a.id
         WHERE u.person_id = UUID_TO_BIN(?)
         `,
-          [personId]
-        )
-        registeredUsers.push(row)
-      }
+        [u.personId]
+      )
 
-      await conn.commit()
-      return registeredUsers
-    } catch (err) {
-      await conn.rollback()
-      throw err
-    } finally {
-      conn.release()
+      registeredUsers.push(row)
     }
+
+    return registeredUsers
   }
 
   // Registrar un usuario completo (status ACTIVE)

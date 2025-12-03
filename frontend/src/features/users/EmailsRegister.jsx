@@ -11,6 +11,7 @@ import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { HiOutlineUserPlus } from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
+import SpinnerMini from '@ui/SpinnerMini'
 
 const EmailsContext = createContext()
 
@@ -19,8 +20,12 @@ export default function EmailsRegister({ onClose }) {
   const [emails, setEmails] = useState([])
   const [isUabcDomain, setIsUabcDomain] = useState(true)
   const [role, setRole] = useState('pasante')
-  const { register, handleSubmit, formState, reset } = useForm()
-  const { errors } = formState
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm()
 
   function onSubmit(data) {
     const { email } = data
@@ -71,7 +76,7 @@ export default function EmailsRegister({ onClose }) {
             })
           }
         >
-          Confirmar y enviar
+          {!isCreating ? 'Enviar correos' : <SpinnerMini />}
         </Button>
       </Row>
     </EmailsContext.Provider>
