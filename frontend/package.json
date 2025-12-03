@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
+    "preview": "vite preview --host --port 5173",
     "test": "vitest",
     "server": "json-server --watch public/users.json --port 3000"
   },

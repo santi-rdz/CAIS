@@ -1,5 +1,5 @@
 import UsersTable from '@features/users/UsersTable'
-import UserTableOperations from '@features/users/userTableOperations'
+import UserTableOperations from '@features/users/UserTableOperations'
 import Heading from '@ui/Heading'
 
 export default function Users() {
