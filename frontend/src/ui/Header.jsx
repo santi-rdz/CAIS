@@ -1,6 +1,6 @@
-import { HiMagnifyingGlass, HiOutlinePlus } from "react-icons/hi2";
-import Button from "./Button";
-import Input from "./Input";
+import { HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
+import Button from './Button'
+import Input from './Input'
 
 export function Header() {
   return (
@@ -19,5 +19,5 @@ export function Header() {
         Nuevo paciente
       </Button>
     </header>
-  );
+  )
 }
