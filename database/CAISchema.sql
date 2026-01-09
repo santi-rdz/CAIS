@@ -19,6 +19,293 @@ CREATE TABLE IF NOT EXISTS pacientes (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+--ACTUALIZACIÓN NUTRICIÓN
+
+CREATE TABLE IF NOT EXISTS historia_medica_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    enfermedad VARCHAR(100),
+    eval INT,
+    farmacos VARCHAR(255),
+    dosis VARCHAR(20)
+)
+
+CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    producto VARCHAR(255),
+    cual_producto VARCHAR(255),
+    mejora VARCHAR(10),
+    dosis VARCHAR(20)
+)
+
+CREATE TABLE IF NOT EXISTS adicciones_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    adicciones SMALLINT, --1210 Para decir que si fuma, esta inactivo en alcohol, usa drogas y no tiene medicinas
+    tabaco_frecuencia VARCHAR(20),
+    num_cigarros_d TINYINT,
+    alcohol_frecuencia VARCHAR(20),
+    ml_ocasion SMALLINT,
+    drogas_frecuencia VARCHAR(20),
+    cual_droga VARCHAR(255),
+    med_contr_frecuencia VARCHAR(20),
+    cual_med_contr VARCHAR(255)
+)
+
+CREATE TABLE IF NOT EXISTS eval_cal_sueno_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(), --AQUI TENGO DUDA CON EL VALOR
+    horas_sueno TINYINT,
+    insomnio TINYINT,
+    medicacion TINYINT
+)
+
+CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    tipo VARCHAR(50),
+    porque_no VARCHAR(255),
+    frecuencia VARCHAR(20), -- tiene dias por semana o una vez al mes, por lo que esta raro
+    duracion SMALLINT,
+    intensidad VARCHAR(20), -- DUDA PORQUE TIENE UN PORCENTAJE
+    tiempo_de_practica VARCHAR(20),
+    pensamientos_con_realizar_AF VARCHAR(50)
+)
+
+    --Eval.Bioq.BD
+CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    --PERFIL INFLAMATORIO
+    pcr FLOAT,
+    plaquetas INT
+)
+
+CREATE TABLE IF NOT EXISTS perfil_anemia_nutricia(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    eritrocitos FLOAT, -- ?
+    hemoglobina FLOAT, -- ?
+    hematocrito FLOAT,
+    vcm FLOAT,
+    homocisteina FLOAT,
+    ferritina FLOAT,
+    hierro FLOAT,
+    cap_fij_tot_he FLOAT,
+    saturacion_hierro FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS perfil_endocrino(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    glucosa FLOAT,
+    hbAlc FLOAT,
+    insulina FLOAT,
+    tiroxina_libre FLOAT,
+    triyodotironina FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    osmolaridad FLOAT, --calculo
+    urea FLOAT,
+    bun FLOAT,
+    creatinina FLOAT,
+    acido_urico FLOAT,
+    sodio FLOAT,
+    peso_sin_edema FLOAT,
+    agua FLOAT, --calculo
+    potasio FLOAT,
+    fosforo FLOAT,
+    calcio_serico FLOAT,
+    ca_corregido FLOAT, --calculo
+    producto_caP FLOAT, --calculo
+    pth FLOAT,
+    vitamina_d FLOAT,
+    tfge FLOAT,
+    albuminuria FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS perfil_lipidos(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    colesterol FLOAT,
+    c_hdl FLOAT,
+    c_ldl FLOAT,
+    trigliceridos FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS balance_acido_base(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    ph_serico FLOAT,
+    saturacion_o2 FLOAT,
+    bicarbonato FLOAT,
+    pco2_total FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS perfil_orina_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    volumen_urinario SMALLINT,
+    densidad FLOAT,
+    alteraciones_urinarias VARCHAR(50),
+    litos VARCHAR(50),
+    ph FLOAT,
+    cetonas VARCHAR(50),
+    sodio SMALLINT
+)
+
+CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id_eval_bioq BINARY(16) NOT NULL,
+    leucocitos FLOAT,
+    linfocitos FLOAT,
+    ctl FLOAT, --calculo
+    albumina FLOAT,
+    pre_albumina FLOAT,
+    transferrina FLOAT
+)
+    --fin Eval.Bioq.BD
+    --Eval.nutr.FH
+CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    hora_desayuno VARCHAR(20),
+    hora_comida VARCHAR(20),
+    hora_cena VARCHAR(20),
+    hora_colac_1 VARCHAR(20),
+    hora_colac_2 VARCHAR(20),
+    hora_colac_3 VARCHAR(20),
+    hora_despierto VARCHAR(20),
+    tipo_alimentacion VARCHAR(10),
+    problemas_masticar BOOLEAN,
+    problemas_pasar_alimento BOOLEAN,
+    perdida_dientes BOOLEAN,
+    pensamientos_sobre_dieta VARCHAR(255)
+)
+
+CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT(UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    apetito VARCHAR(20),
+    lleno VARCHAR(20),
+    sabor_comida VARCHAR(20),
+    comidas_al_día VARCHAR(20),
+    puntaje_total TINYINT,
+    clasif_alteración_apetito VARCHAR(20)
+)
+
+CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    frutas VARCHAR(20),
+    verduras_cocidas VARCHAR(20),
+    verduras_crudas VARCHAR(20),
+    pesacado VARCHAR(20),
+    mariscos VARCHAR(20),
+    pollo VARCHAR(20),
+    carne_roja VARCHAR(20),
+    quesos VARCHAR(20),
+    huevo_entero VARCHAR(20),
+    clara_huevo VARCHAR(20),
+    embutidos VARCHAR(20),
+    leguminosas VARCHAR(20),
+    tortilla_maíz VARCHAR(20),
+    cant_tortilla_maiz VARCHAR(20),
+    tortilla_harina VARCHAR(20),
+    cant_tortilla_harina VARCHAR(20),
+    pan_de_caja VARCHAR(20),
+    galletas_industr VARCHAR(20),
+    pan_dulce VARCHAR(20),
+    cereal_de_caja VARCHAR(20),
+    frituras_papas VARCHAR(20),
+    birote_bolillo VARCHAR(20),
+    pastas_arroz VARCHAR(20),
+    aderezos_capsu VARCHAR(20),
+    comida_rapida VARCHAR(20),
+    grasa_animal VARCHAR(20),
+    grasa_vegetal VARCHAR(20),
+    cafe_te VARCHAR(20),
+    litros_al_dia_cafe_te VARCHAR(20),
+    bebida_az VARCHAR(20),
+    litros_al_dia_beb_az VARCHAR(20),
+    bebida_endul_art VARCHAR(20),
+    litros_al_dia_beb_endul VARCHAR(20),
+    leche_sin_az VARCHAR(20),
+    litros_al_dia_leche_sin_az VARCHAR(20),
+    agua_simple VARCHAR(20),
+    litros_al_dia_agua_simple VARCHAR(20),
+    agrega_sal_extra VARCHAR(20),
+    cdas_al_dia_sal_extra TINYINT,
+    agrega_azucar VARCHAR(20),
+    cdas_sobres_al_dia_azucar TINYINT
+)
+
+    --fin Eval.nutr.FH
+    --Exam.Fis.Orien.Nut
+CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    peso_habitual FLOAT,
+    peso_perdido FLOAT,
+    porcentaje_peso_perdido FLOAT, --calculo
+)
+
+CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    presenta_sgi BOOLEAN,
+    presencia VARCHAR(50)
+)
+
+CREATE TABLE IF NOT EXISTS signos_vitales_nutricion(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    tas	FLOAT,
+    tad	FLOAT,
+    temperatura	FLOAT,
+    dificultad_respiratoria	BOOLEAN
+)
+
+CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    paciente_id BIARY(16) NOT NULL,
+    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    pcb VARCHAR(10),	
+    pct VARCHAR(10),	
+    fondo_ojo VARCHAR(10),	
+    diag_reservagrasa VARCHAR(10),	
+    sienes VARCHAR(10),	
+    clavicula VARCHAR(10),	
+    hombros VARCHAR(10),	
+    omoplato VARCHAR(10),	
+    interoseos_mano VARCHAR(10),	
+    costillas VARCHAR(10),	
+    espalda_alta VARCHAR(10),	
+    cuadriceps VARCHAR(10),	
+    pantorrilla VARCHAR(10),	
+    diag_reserva_muscular VARCHAR(15),	
+    edema VARCHAR(20),
+    descripcion TEXT,
+    descripcion_sist_genito_urinario TEXT	
+)
+
+    --fin Exam.Fis.Orien.Nut
+
+--FIN ACTUALIZACIÓN NUTRICIÓN
+
 CREATE TABLE IF NOT EXISTS historia_medicina(
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),    
     paciente_id BINARY(16) NOT NULL,
