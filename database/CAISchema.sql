@@ -303,6 +303,67 @@ CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
 )
 
     --fin Exam.Fis.Orien.Nut
+    --Eval.antro.AD
+CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	paciente_id BINARY(16) NOT NULL,
+	eval_antro_ad_kid_id BINARY(16),
+	eval_antro_ad_adulto_id BINARY(16),
+	fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+	peso_actual FLOAT,
+	estatura FLOAT,
+	imc FLOAT,
+	pantorrilla FLOAT,
+	cintura FLOAT,
+	pb FLOAT,
+	pct FLOAT,
+	pcse FLOAT
+)
+
+CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	percentiles_imc FLOAT,
+	interpretacion_imc VARCHAR(255),
+	percentiles_cintura FLOAT,
+	percentiles_pb FLOAT,
+	percentiles_pct FLOAT,
+	percentiles_pcse FLOAT,
+	peso_para_talla FLOAT,
+	peso_ideal FLOAT,
+	desviacion_estandar_peso FLOAT,
+	interpretacion_nom_peso VARCHAR(255),
+	talla_para_edad FLOAT,
+	talla_ideal FLOAT,
+	desviacion_estandar_talla FLOAT,
+	interpretacion_nom_talla VARCHAR(255),
+	peso_para_edad FLOAT,
+	desviacion_estandar_peso_edad FLOAT,
+	interpretacion_nom_peso_edad VARCHAR(255),
+	diagnostico_general VARCHAR(50)
+)
+
+CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	codo FLOAT,
+	frisancho FLOAT,
+	complexion VARCHAR(20),
+	pi_kg FLOAT,
+	edema_liq FLOAT,
+	peso_sin_edema FLOAT,
+	peso_ajustado FLOAT,
+	peso_ideal_por FLOAT,
+	diagnostico_pi VARCHAR(20),
+	diagnostico_imc VARCHAR(20),
+	pcb FLOAT,
+	pcsi FLOAT,
+	riesgo_cv BOOLEAN,
+	cadera FLOAT,
+	indice_cintura_cadera FLOAT,
+	diagnostico_icc VARCHAR(20),
+	circuf_cuello FLOAT,
+	riesgo_eo_inf BOOLEAN
+)
+    --fin Eval.antro.AD
 
 --FIN ACTUALIZACIÓN NUTRICIÓN
 
