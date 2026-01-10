@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
 CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
 	percentiles_imc FLOAT,
-	interpretacion_imc VARCHAR(255),
+	interpretacion_imc VARCHAR(255), --DUDA
 	percentiles_cintura FLOAT,
 	percentiles_pb FLOAT,
 	percentiles_pct FLOAT,
@@ -331,16 +331,18 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 	peso_para_talla FLOAT,
 	peso_ideal FLOAT,
 	desviacion_estandar_peso FLOAT,
-	interpretacion_nom_peso VARCHAR(255),
+	interpretacion_nom_peso VARCHAR(50),
 	talla_para_edad FLOAT,
 	talla_ideal FLOAT,
 	desviacion_estandar_talla FLOAT,
-	interpretacion_nom_talla VARCHAR(255),
+	interpretacion_nom_talla VARCHAR(50),
 	peso_para_edad FLOAT,
 	desviacion_estandar_peso_edad FLOAT,
-	interpretacion_nom_peso_edad VARCHAR(255),
+	interpretacion_nom_peso_edad VARCHAR(50),
 	diagnostico_general VARCHAR(50)
 )
+
+		-- FALTA REVISAR LO DE ANALISIS VECTORIAL
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
