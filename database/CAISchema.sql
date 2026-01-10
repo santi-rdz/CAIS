@@ -366,6 +366,57 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 	riesgo_eo_inf BOOLEAN
 )
     --fin Eval.antro.AD
+    --Rec24h
+CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	paciente_id BINARY(16) NOT NULL,
+	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP(),
+	-- PREGUNTAR SI PASAR LO DE ARRIBA A UNA TABLA
+	-- Y LO DE ABAJO A OTRA QUE REFERENCIE LA DE ARRIBA
+	fecha DATE,
+	comida VARCHAR(100),
+	alimento VARCHAR(100),
+	calorias FLOAT,
+	grasa FLOAT,
+	colesterol FLOAT,
+	sodio FLOAT,
+	carb FLOAT,
+	proteinas FLOAT,
+	azucar FLOAT,
+	fibra FLOAT
+)
+    --fin Rec24h
+    --Reporte EEN
+CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	paciente_id BINARY(16) NOT NULL,
+	eval_diag_edo_nutr TEXT,
+	solicito_orient BOOLEAN,
+	prescrip_nut_obs VARCHAR(100),
+	educ_nut_obs VARCHAR(100),
+	consejeria_nut_obs VARCHAR(100),
+	coord_aten_nut_obs VARCHAR(100)
+)
+
+CREATE TABLE IF NOT EXISTS reporte_een_adulto_nutricion(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	paciente_id BINARY(16) NOT NULL,
+	habitos_ali_obs VARCHAR(100),
+	alteraciones_gastroin VARCHAR(100)
+)
+
+CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
+	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+	paciente_id BINARY(16) NOT NULL,
+	pes VARCHAR(255),
+	intervencion VARCHAR(50),
+	objetivos VARCHAR(255),
+	indicadores VARCHAR(255),
+	criterio VARCHAR(255),
+	progreso VARCHAR(20)
+	--DUDA CON LOS VARCHAR
+)
+    --fin Reporte EEN
 
 --FIN ACTUALIZACIÓN NUTRICIÓN
 
