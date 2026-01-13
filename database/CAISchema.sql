@@ -22,39 +22,42 @@ CREATE TABLE IF NOT EXISTS pacientes (
 --ACTUALIZACIÓN NUTRICIÓN
 
 CREATE TABLE IF NOT EXISTS historia_medica_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    paciente_id BINARY(16) NOT NULL,
-    enfermedad VARCHAR(100),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    enfermedad TEXT,
     eval INT,
-    farmacos VARCHAR(255),
+    farmacos TEXT,
     dosis VARCHAR(20)
 )
 
 CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY, 
     paciente_id BINARY(16) NOT NULL,
-    producto VARCHAR(255),
-    cual_producto VARCHAR(255),
+    producto TEXT,
+    cual_producto TEXT, 
     mejora VARCHAR(10),
     dosis VARCHAR(20)
 )
 
 CREATE TABLE IF NOT EXISTS adicciones_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    adicciones SMALLINT, --1210 Para decir que si fuma, esta inactivo en alcohol, usa drogas y no tiene medicinas
+    -- adicciones SMALLINT, --1210 Para decir que si fuma, esta inactivo en alcohol, usa drogas y no tiene medicinas
+    adicto_tabaco VARCHAR(10),
     tabaco_frecuencia VARCHAR(20),
     num_cigarros_d TINYINT,
+    adicto_alcohol VARCHAR(10),
     alcohol_frecuencia VARCHAR(20),
     ml_ocasion SMALLINT,
+    adicto_droga VARCHAR(10),
     drogas_frecuencia VARCHAR(20),
-    cual_droga VARCHAR(255),
+    cual_droga TEXT,
+    adicto_med_contr VARCHAR(10),
     med_contr_frecuencia VARCHAR(20),
-    cual_med_contr VARCHAR(255)
+    cual_med_contr TEXT
 )
 
 CREATE TABLE IF NOT EXISTS eval_cal_sueno_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(), --AQUI TENGO DUDA CON EL VALOR
     horas_sueno TINYINT,
@@ -63,7 +66,7 @@ CREATE TABLE IF NOT EXISTS eval_cal_sueno_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     tipo VARCHAR(50),
@@ -77,17 +80,21 @@ CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
 
     --Eval.Bioq.BD
 CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
-    --PERFIL INFLAMATORIO
-    pcr FLOAT,
-    plaquetas INT
+    id_perfil_anemia INT,
+    id_perfil_endocrino INT,
+    id_perfil_renal_electrolitos INT,
+    id_perfil_lipidos INT,
+    id_balance_acido_base INT,
+    id_perfil_orina INT,
+    id_perfil_inflamatorio INT,
+    id_eval_estado_nutr INT,
 )
 
 CREATE TABLE IF NOT EXISTS perfil_anemia_nutricia(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     eritrocitos FLOAT, -- ?
     hemoglobina FLOAT, -- ?
     hematocrito FLOAT,
@@ -100,8 +107,7 @@ CREATE TABLE IF NOT EXISTS perfil_anemia_nutricia(
 )
 
 CREATE TABLE IF NOT EXISTS perfil_endocrino(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     glucosa FLOAT,
     hbAlc FLOAT,
     insulina FLOAT,
@@ -110,8 +116,7 @@ CREATE TABLE IF NOT EXISTS perfil_endocrino(
 )
 
 CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     osmolaridad FLOAT, --calculo
     urea FLOAT,
     bun FLOAT,
@@ -132,8 +137,7 @@ CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
 )
 
 CREATE TABLE IF NOT EXISTS perfil_lipidos(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     colesterol FLOAT,
     c_hdl FLOAT,
     c_ldl FLOAT,
@@ -141,8 +145,7 @@ CREATE TABLE IF NOT EXISTS perfil_lipidos(
 )
 
 CREATE TABLE IF NOT EXISTS balance_acido_base(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     ph_serico FLOAT,
     saturacion_o2 FLOAT,
     bicarbonato FLOAT,
@@ -150,8 +153,7 @@ CREATE TABLE IF NOT EXISTS balance_acido_base(
 )
 
 CREATE TABLE IF NOT EXISTS perfil_orina_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     volumen_urinario SMALLINT,
     densidad FLOAT,
     alteraciones_urinarias VARCHAR(50),
@@ -161,9 +163,14 @@ CREATE TABLE IF NOT EXISTS perfil_orina_nutricion(
     sodio SMALLINT
 )
 
+CREATE TABLE IF NOT EXISTS perfil_inflamatorio(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pcr FLOAT,
+    plaquetas INT
+)
+
 CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    id_eval_bioq BINARY(16) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     leucocitos FLOAT,
     linfocitos FLOAT,
     ctl FLOAT, --calculo
@@ -174,7 +181,7 @@ CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
     --fin Eval.Bioq.BD
     --Eval.nutr.FH
 CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     hora_desayuno VARCHAR(20),
@@ -192,7 +199,7 @@ CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT(UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     apetito VARCHAR(20),
@@ -204,7 +211,7 @@ CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     frutas VARCHAR(20),
@@ -253,7 +260,7 @@ CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
     --fin Eval.nutr.FH
     --Exam.Fis.Orien.Nut
 CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     peso_habitual FLOAT,
@@ -262,7 +269,7 @@ CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     presenta_sgi BOOLEAN,
@@ -270,7 +277,7 @@ CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS signos_vitales_nutricion(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     tas	FLOAT,
@@ -280,7 +287,7 @@ CREATE TABLE IF NOT EXISTS signos_vitales_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BIARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     pcb VARCHAR(10),	
@@ -305,7 +312,7 @@ CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
     --fin Exam.Fis.Orien.Nut
     --Eval.antro.AD
 CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
 	eval_antro_ad_kid_id BINARY(16),
 	eval_antro_ad_adulto_id BINARY(16),
@@ -321,7 +328,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	percentiles_imc FLOAT,
 	interpretacion_imc VARCHAR(255), --DUDA
 	percentiles_cintura FLOAT,
@@ -345,7 +352,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 		-- FALTA REVISAR LO DE ANALISIS VECTORIAL
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	codo FLOAT,
 	frisancho FLOAT,
 	complexion VARCHAR(20),
@@ -368,7 +375,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
     --fin Eval.antro.AD
     --Rec24h
 CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
 	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP(),
 	-- PREGUNTAR SI PASAR LO DE ARRIBA A UNA TABLA
@@ -388,7 +395,7 @@ CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
     --fin Rec24h
     --Reporte EEN
 CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
 	eval_diag_edo_nutr TEXT,
 	solicito_orient BOOLEAN,
@@ -399,14 +406,14 @@ CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
 )
 
 CREATE TABLE IF NOT EXISTS reporte_een_adulto_nutricion(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
 	habitos_ali_obs VARCHAR(100),
 	alteraciones_gastroin VARCHAR(100)
 )
 
 CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
-	id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
 	pes VARCHAR(255),
 	intervencion VARCHAR(50),
