@@ -180,6 +180,16 @@ CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
 )
     --fin Eval.Bioq.BD
     --Eval.nutr.FH
+CREATE TABLE IF NOT EXISTS patron_alimentacion_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    paciente_id BINARY(16) NOT NULL,
+    fecha DATE,
+    sigue_dieta BOOLEAN,
+    tiene_alergia BOOLEAN,
+    cual_alergia TEXT,
+    alimentos_disgusta TEXT
+)
+
 CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
@@ -259,10 +269,18 @@ CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
 
     --fin Eval.nutr.FH
     --Exam.Fis.Orien.Nut
-CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
+CREATE TABLE IF NOT EXISTS exam_fis_orien_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    id_perdida_peso INT NOT NULL,
+    id_signos_vitales INT NOT NULL,
+    id_semiologia INT NOT NULL
+    -- falta constraints
+)
+
+CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
     peso_habitual FLOAT,
     peso_perdido FLOAT,
     porcentaje_peso_perdido FLOAT, --calculo
@@ -270,26 +288,21 @@ CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    exam_fis_id INT NOT NULL, -- Aqui debe ser 1:N porque pueden ser varios sintomas
     presenta_sgi BOOLEAN,
     presencia VARCHAR(50)
 )
 
 CREATE TABLE IF NOT EXISTS signos_vitales_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     tas	FLOAT,
     tad	FLOAT,
     temperatura	FLOAT,
-    dificultad_respiratoria	BOOLEAN
+    dificultad_respiratoria BOOLEAN
 )
 
 CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    paciente_id BIARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
     pcb VARCHAR(10),	
     pct VARCHAR(10),	
     fondo_ojo VARCHAR(10),	
@@ -305,8 +318,9 @@ CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
     pantorrilla VARCHAR(10),	
     diag_reserva_muscular VARCHAR(15),	
     edema VARCHAR(20),
-    descripcion TEXT,
-    descripcion_sist_genito_urinario TEXT	
+    descripcion TEXT, -- descripcion de lo que observa el paciente en su cuerpo
+    descripcion_sist_genito_urinario TEXT -- descripcion de lo que observa el
+					  -- paciente en base al sistema genito_urinario
 )
 
     --fin Exam.Fis.Orien.Nut
@@ -377,9 +391,12 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
     	id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
-	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP(),
-	-- PREGUNTAR SI PASAR LO DE ARRIBA A UNA TABLA
-	-- Y LO DE ABAJO A OTRA QUE REFERENCIE LA DE ARRIBA
+	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP()
+)
+
+CREATE TABLE IF NOT EXISTS rec_24h_comidas(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	rec_24h_id INT NOT NULL, -- llave foranea
 	fecha DATE,
 	comida VARCHAR(100),
 	alimento VARCHAR(100),
