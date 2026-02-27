@@ -22,7 +22,7 @@ export default function Select({ options, value, onChange, placeholder = 'Selecc
         />
       </button>
 
-      <divb
+      <div
         className={`absolute top-full right-0 z-10 mt-2 w-44 space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300 ${showOptions ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'}`}
       >
         {options.map((option) => (
@@ -37,7 +37,7 @@ export default function Select({ options, value, onChange, placeholder = 'Selecc
             setShowOptions={setShowOptions}
           />
         ))}
-      </divb>
+      </div>
     </div>
   )
 }

@@ -1,0 +1,34 @@
+{
+  "name": "cais",
+  "version": "0.0.1",
+  "description": "Administration System for UABC \"Centro de Atencion Integral para la Salud\"",
+  "homepage": "https://github.com/santi-rdz/CAIS#readme",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "database"
+  ],
+  "bugs": {
+    "url": "https://github.com/santi-rdz/CAIS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/santi-rdz/CAIS.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up",
+    "docker:up:d": "docker compose up -d",
+    "docker:up:b": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:restart": "docker compose restart",
+    "docker:logs": "docker compose logs -f",
+    "docker:start": "docker compose start",
+    "docker:stop": "docker compose stop"
+  }
+}

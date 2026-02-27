@@ -56,7 +56,9 @@ export default function LoginForm() {
       </FormRow>
       <Footer />
 
-      <Button className="mt-10 w-full">{!isPending ? 'Iniciar Sesion' : <SpinnerMini />}</Button>
+      <Button isLoading={isPending} className="mt-10 w-full">
+        Iniciar Sesion
+      </Button>
     </form>
   )
 }
