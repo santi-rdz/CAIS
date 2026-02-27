@@ -1,6 +1,7 @@
 -- PERSON
 CREATE TABLE IF NOT EXISTS pacientes (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    doctor_id BINARY(16),
     name VARCHAR(255),
     birth_date DATE,
     es_externo BOOLEAN DEFAULT FALSE,
@@ -16,7 +17,9 @@ CREATE TABLE IF NOT EXISTS pacientes (
     contacto_emergencia VARCHAR (255),
     telefono_emergencia VARCHAR (30),
     parentesco_emergencia VARCHAR (100),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_paciente_doctor
+	FOREIGN KEY (doctor_id) REFERENCES usuarios(id)
 );
 
 --ACTUALIZACIÓN NUTRICIÓN
@@ -470,6 +473,7 @@ CREATE TABLE IF NOT EXISTS rec_24h_comidas(
 )
     --fin Rec24h
     --Reporte EEN
+    --REVISAR LO QUE SE DEBE QUITAR POR LA NUEVA JUNTA
 CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
 	paciente_id BINARY(16) NOT NULL,
@@ -507,6 +511,55 @@ CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
 )
     --fin Reporte EEN
 
+    --TPAN
+CREATE TABLE IF NOT EXISTS tpan_nutricion(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	paciente_id BINARY(16) NOT NULL,
+	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP(),
+	eval_realizada TEXT,
+	observacion TEXT,
+	estandares_com TEXT,
+	decision TEXT,
+	problema_iden TEXT,
+	causa_probl TEXT,
+	evidencia_probl TEXT,
+	progreso TINYINT,
+	CONSTRAINT fk_paciente_tpan
+		FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+)
+   --fin reporte TPAN
+
+   --Req nutr ec y cal get nutr
+CREATE TABLE IF NOT EXISTS cal_get_nutr(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	paciente_id BINARY(16) NOT NULL,
+	fecha_eval DATE DEFAULT CURRENT_TIMESTAMP(),
+	verdura TINYINT,
+	fruta TINYINT,
+	cereal_sin_grasa TINYINT,
+	cereal_con_grasa TINYINT,
+	leguminosas TINYINT,
+	aoa_a TINYINT,
+	aoa_b TINYINT,
+	aoa_c TINYINT,
+	aoa_d TINYINT,
+	leche_a TINYINT,
+	leche_b TINYINT,
+	leche_c TINYINT,
+	grasa_a TINYINT,
+	grasa_b TINYINT,
+	azucares TINYINT,
+	rice_dream TINYINT,
+	silk TINYINT,
+	soyactive TINYINT,
+	almond_breeze TINYINT,
+	aube_baja TINYINT,
+	nan_one TINYINT,
+	aube_alta TINYINT,
+	CONSTRAINT fk_paciente_cal_get
+		FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+)
+   --fin Req.nut.EC y cal.GET.nutr
 --FIN ACTUALIZACIÓN NUTRICIÓN
 
 CREATE TABLE IF NOT EXISTS historia_medicina(
