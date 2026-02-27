@@ -4,7 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'sonner'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

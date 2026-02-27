@@ -9,7 +9,7 @@ const sizes = {
 const variants = {
   outline: 'border bg-white shadow-xs border-gray-200 ',
   fill: 'bg-black-50 ',
-  'outline-b': 'border-b border-b-gray-200  outline-none pb-4',
+  'outline-b': 'border-b border-b-gray-200  outline-none focus:border-b-green-800 pb-4',
 }
 export default function Input({ hasError, suffix, variant = 'fill', size = 'lg', offset, className, ...props }) {
   return (

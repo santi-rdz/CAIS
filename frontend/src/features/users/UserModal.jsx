@@ -1,5 +1,5 @@
-import EmailsRegister from './EmailsRegister'
 import Tab from '@ui/Tab'
+import InvitationalLinksForm from './InvitationalLinksForm'
 
 const options = [
   {
@@ -7,14 +7,14 @@ const options = [
     desc: 'Ingresa correos electrónicos destino para enviar el link de registro',
     label: 'Pre-registro',
     value: 'pre',
-    component: (onClose) => <EmailsRegister onClose={onClose} />,
+    component: (onClose) => <InvitationalLinksForm onClose={onClose} />,
   },
   {
     title: 'Registro completo',
     desc: 'Completa la información del usuario',
     label: 'Registro completo',
     value: 'full',
-    component: (onClose) => <EmailsRegister onClose={onClose} />,
+    component: (onClose) => <InvitationalLinksForm onClose={onClose} />,
   },
 ]
 

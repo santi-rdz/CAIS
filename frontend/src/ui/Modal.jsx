@@ -27,7 +27,7 @@ Modal.Content = function Content({ children, name, noPadding = false }) {
   if (!showModal) return null
 
   return createPortal(
-    <div className="bg-backdrop-color fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div
         className="relative flex max-h-[95vh] max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl"
         ref={ref}

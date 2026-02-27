@@ -4,46 +4,84 @@ import DomainToggle from '@ui/DomainToggle'
 import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import RoleSelect from '@ui/RoleSelect'
+import ModalActions from '@ui/ModalActions'
+import TabLayout from '@ui/TabLayout'
 
 import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import {
-  HiOutlineEnvelope,
-  HiOutlineUserPlus,
-  HiCheck,
-  HiOutlineTrash,
-  HiOutlinePencil,
-  HiBars3,
-  HiOutlineSquares2X2,
-} from 'react-icons/hi2'
+import { toast } from 'sonner'
+import { HiOutlineEnvelope, HiOutlineUserPlus, HiCheck, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
-import ModalActions from '@ui/ModalActions'
 
 const EmailsContext = createContext()
 
-export default function EmailsRegister({ onClose }) {
+export default function InvitationalLinksForm({ onClose }) {
   const { createPreUser, isCreating } = useCreatePreUser()
-  const [users, setUsers] = useState([])
-  const [isUabcDomain, setIsUabcDomain] = useState(true)
-  const [role, setRole] = useState('pasante')
 
+  const [users, setUsers] = useState([])
+  const [idEdit, setIdEdit] = useState('')
+  const [role, setRole] = useState('pasante')
+  const [isUabcDomain, setIsUabcDomain] = useState(true)
+
+  const isEditMode = Boolean(idEdit)
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm()
 
-  function onSubmit(data) {
+  const handleEdit = (user) => {
+    const isUabc = user.email.endsWith('@uabc.edu.mx')
+    setIdEdit(user.email)
+    setRole(user.role)
+    setIsUabcDomain(isUabc)
+
+    const displayEmail = isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email
+    setValue('email', displayEmail)
+  }
+
+  const handleDelete = (email) => {
+    setUsers(users.filter((user) => user.email !== email))
+    resetForm()
+  }
+
+  const onSubmit = (data) => {
     const { email } = data
     const fullEmail = isUabcDomain ? `${email.replace('@uabc.edu.mx', '')}@uabc.edu.mx` : email
-    setUsers([{ email: fullEmail, role, status: 'pendiente' }, ...users])
+
+    if (isEditMode) {
+      setUsers(users.map((u) => (u.email === idEdit ? { email: fullEmail, role, status: 'pendiente' } : u)))
+      setIdEdit('')
+    } else {
+      if (users.some((u) => u.email === fullEmail)) return toast.error('Este correo ya ha sido agregado a la lista')
+      setUsers([{ email: fullEmail, role, status: 'pendiente' }, ...users])
+    }
+
+    resetForm()
+  }
+
+  function resetForm() {
     reset()
+    setRole('pasante')
+    setIsUabcDomain(true)
+    setIdEdit('')
   }
 
   return (
-    <EmailsContext.Provider value={{ users, role, setRole, isUabcDomain, setIsUabcDomain }}>
-      {/* CUERPO SCROLLEABLE */}
+    <EmailsContext.Provider
+      value={{
+        users,
+        role,
+        setRole,
+        isUabcDomain,
+        idEdit,
+        setIsUabcDomain,
+        onDelete: handleDelete,
+        onEdit: handleEdit,
+      }}
+    >
       <div className="space-y-6 px-8 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <FormRow htmlFor="email">
@@ -58,21 +96,28 @@ export default function EmailsRegister({ onClose }) {
               name="email"
               variant="outline-b"
               size="xl"
-              error={errors?.email?.message}
+              hasError={errors?.email?.message}
               placeholder={isUabcDomain ? 'e.g. jhon.martinez29' : 'e.g. jhon.martinez@example.com'}
               aria-label="Ingresar email"
               suffix={<Suffix />}
             />
           </FormRow>
-          <Button size="md" variant="outline" className="w-full border-gray-100">
-            <HiOutlineUserPlus size="18" /> Agregar usuario
+          <Button size="md" variant="secondary" className="w-full">
+            {isEditMode ? (
+              <>
+                <HiOutlinePencil /> Guardar cambios
+              </>
+            ) : (
+              <>
+                <HiOutlineUserPlus size="18" /> Agregar usuario a la lista
+              </>
+            )}
           </Button>
         </form>
 
         <EmailsDisplay />
       </div>
 
-      {/* ACTIONS */}
       <ModalActions className="shrink-0 border-t border-gray-100 bg-white shadow-lg">
         <Button variant="secondary" onClick={onClose}>
           Cancelar
@@ -108,31 +153,16 @@ function EmailsDisplay() {
       {users.length > 0 && (
         <div className="text-4 mb-4 flex items-center justify-between font-bold">
           <p className="text-4 font-semibold"> Registros ({users.length})</p>
-          <div className="flex gap-1 rounded-md bg-gray-100 p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={layout === 'list' ? 'bg-gray-200' : ''}
-              onClick={() => setLayout('list')}
-            >
-              <HiBars3 size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={layout === 'grid' ? 'bg-gray-200' : ''}
-              onClick={() => setLayout('grid')}
-            >
-              <HiOutlineSquares2X2 size={16} />
-            </Button>
-          </div>
+          <TabLayout layout={layout} setLayout={setLayout} />
         </div>
       )}
 
       {users.length === 0 ? (
         <EmailsEmptyState />
       ) : (
-        <ul className={`${isGrid ? 'grid grid-cols-2 ' : 'flex flex-col '} h-[300px] gap-2 overflow-y-auto`}>
+        <ul
+          className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-60 gap-2 overflow-y-auto`}
+        >
           {users.map((user) => (
             <InvitationCard key={user.email} user={user} size="md" type="white" className="shadow-sm">
               {user.email}
@@ -146,8 +176,11 @@ function EmailsDisplay() {
 
 function InvitationCard({ user }) {
   const { email, role } = user
+  const { onDelete, onEdit, idEdit } = useContext(EmailsContext)
   return (
-    <li className="group flex items-center gap-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-xs transition-shadow duration-300 hover:shadow-sm">
+    <li
+      className={`group ${idEdit === email ? 'border-blue-200 bg-blue-50' : 'border-emerald-200 bg-emerald-50'} flex h-fit items-center gap-4 rounded-lg border px-4 py-3 shadow-xs transition-shadow duration-300 hover:shadow-sm`}
+    >
       <div className="grid size-10 shrink-0 place-items-center rounded-full bg-green-800 shadow-xs">
         <HiOutlineEnvelope size={20} className="text-white" />
       </div>
@@ -160,15 +193,17 @@ function InvitationCard({ user }) {
       <div className="hidden gap-2 transition-opacity duration-200 group-hover:flex">
         <button
           type="button"
-          className="rounded p-1.5 text-green-900 transition-colors hover:bg-gray-100 hover:text-green-950"
+          className={`rounded p-1.5 text-green-900 transition-colors hover:bg-gray-100 hover:text-green-950 ${idEdit === email ? 'pointer-events-none opacity-50' : ''}`}
           title="Editar"
+          onClick={() => onEdit(user)}
         >
           <HiOutlinePencil size={18} />
         </button>
         <button
           type="button"
-          className="rounded p-1.5 text-green-900 transition-colors hover:bg-gray-100 hover:text-green-950"
+          className={`rounded p-1.5 text-green-900 transition-colors hover:text-green-950 ${idEdit === email ? 'hover:bg-gray-200' : 'hover:bg-gray-100'}`}
           title="Eliminar"
+          onClick={() => onDelete(email)}
         >
           <HiOutlineTrash size={18} />
         </button>
@@ -179,7 +214,7 @@ function InvitationCard({ user }) {
 
 function EmailsEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-gray-100 p-8 text-neutral-500">
+    <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-gray-100 p-6 text-neutral-500">
       <div className="rounded-full bg-white p-3 shadow-sm">
         <HiOutlineEnvelope size={24} />
       </div>
@@ -193,11 +228,7 @@ function Suffix({ className, style }) {
   const { role, isUabcDomain, setIsUabcDomain, setRole } = useContext(EmailsContext)
   return (
     <div style={style} className={`flex items-center gap-2 pb-4 ${className}`}>
-      <DomainToggle
-        isDomain={isUabcDomain}
-        setIsDomain={setIsUabcDomain}
-        className="relative rounded-lg border border-gray-200 py-2.5 font-medium shadow-xs"
-      />
+      <DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} className="relative" />
       <RoleSelect role={role} setRole={setRole} />
     </div>
   )

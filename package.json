@@ -29,6 +29,10 @@
     "docker:restart": "docker compose restart",
     "docker:logs": "docker compose logs -f",
     "docker:start": "docker compose start",
-    "docker:stop": "docker compose stop"
+    "docker:stop": "docker compose stop",
+    "docker:exec:frontend": "docker compose exec frontend sh"
+  },
+  "dependencies": {
+    "frontend": "^0.0.0"
   }
 }
