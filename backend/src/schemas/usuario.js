@@ -1,17 +1,17 @@
 import z from 'zod'
 
 const userSchema = z.object({
-  // campos de persona
-  name: z.string().min(5),
-  email: z.string().email(),
-  birthDay: z.string(),
-  phone: z.string().regex(/^\d{8,15}$/),
-
-  // campos de usuario
-  role: z.enum(['pasante', 'coordinador', 'superadmin']),
-  area: z.enum(['medicina', 'nutricion']),
-  password: z.string(),
-  picture: z.string().url().optional(),
+  nombre: z.string().min(2),
+  correo: z.string().email(),
+  fechaNacimiento: z.string(),
+  telefono: z.string().regex(/^\d{8,15}$/),
+  rol: z.enum(['PASANTE', 'COORDINADOR', 'SUPER_ADMIN']),
+  area: z.enum(['MEDICINA', 'NUTRICION', 'PSICOLOGIA', 'PSIQUIATRIA']).optional(),
+  password: z.string().min(8),
+  foto: z.string().url().optional(),
+  matricula: z.string().optional(),
+  inicio_servicio: z.string().optional(),
+  fin_servicio: z.string().optional(),
 })
 
 export function validateUser(input) {

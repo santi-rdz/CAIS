@@ -183,20 +183,24 @@ export class UserModel {
       ])
 
       await conn.query(
-        `INSERT INTO usuarios 
-        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, area_id, foto)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios
+        (id, nombre, correo, fecha_nacimiento, telefono, password_hash,
+         estado_id, rol_id, area_id, foto, matricula, inicio_servicio, fin_servicio)
+        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           userId,
           user.nombre,
           user.correo,
           user.fechaNacimiento,
           user.telefono,
-          user.password, // Asegúrate de hashear esto antes de enviarlo aquí
+          user.password,
           estadoRow.id,
           rolRow.id,
           areaRow?.id || null,
           foto,
+          user.matricula || null,
+          user.inicio_servicio || null,
+          user.fin_servicio || null,
         ],
       )
 

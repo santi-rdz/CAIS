@@ -21,11 +21,11 @@ const options = [
   },
 ]
 
-export default function UserForm() {
+export default function UserForm({ onClose }) {
   return (
     <Tab options={options} defaultTab="pasante" variant="secondary">
       <Tab.Options />
-      <Tab.Content />
+      <Tab.Content onClose={onClose} />
     </Tab>
   )
 }

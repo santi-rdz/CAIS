@@ -67,3 +67,13 @@ export async function getUser(id) {
     throw new Error(error.message)
   }
 }
+
+export async function fullRegisterUser(userData) {
+  const res = await fetch(`${BASE_URL}/usuarios/complete`, {
+    method: 'POST',
+    body: JSON.stringify(userData),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) throw new Error('Error al crear usuario')
+  return await res.json()
+}

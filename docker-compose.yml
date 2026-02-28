@@ -16,12 +16,21 @@ services:
     ports:
       - '8000:8000'
     restart: always
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: user
+      DB_NAME: cais
+      BETTER_AUTH_SECRET: dev_secret_change_in_prod
+      BETTER_AUTH_URL: http://localhost:8000
     volumes:
       - ./backend:/app
       - backend_node_modules:/app/node_modules
     command: sh -c "npm install && npm run start"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
@@ -37,6 +46,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "user", "-puser"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   db_data:
