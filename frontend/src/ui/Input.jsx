@@ -21,7 +21,7 @@ export default function Input({ hasError, suffix, variant = 'fill', size = 'lg',
       {suffix &&
         cloneElement(suffix, {
           style: { right: `${offset ?? 12}px` },
-          className: `absolute top-1/2  -translate-y-1/2 `,
+          className: `absolute top-1/2  -translate-y-1/2  `,
         })}
     </div>
   )

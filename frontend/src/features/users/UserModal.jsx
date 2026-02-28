@@ -27,7 +27,7 @@ export default function UserModal({ onCloseModal }) {
         <Tab.Description />
       </Tab.Header>
       <Tab.Options />
-      <Tab.Content onClose={onCloseModal} />
+      <Tab.Content onClose={onCloseModal} scrollable={false} />
     </Tab>
   )
 }

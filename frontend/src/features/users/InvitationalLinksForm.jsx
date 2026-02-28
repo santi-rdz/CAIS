@@ -82,7 +82,7 @@ export default function InvitationalLinksForm({ onClose }) {
         onEdit: handleEdit,
       }}
     >
-      <div className="space-y-6 px-8 py-8">
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-6 px-8 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <FormRow htmlFor="email">
             <Input

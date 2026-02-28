@@ -9,7 +9,7 @@ export default function ModalActions({
   className = '',
 }) {
   const hasSecondary = Object.keys(secondaryAction).length > 0
-  const containerStyle = `sticky right-0 bottom-0 p-0 left-0 mt-auto border-t border-t-neutral-200 bg-white px-6 py-4 ${className} ${hasSecondary ? 'flex items-center justify-between' : ''}`
+  const containerStyle = `shrink-0 border-t border-t-neutral-200 bg-white px-8 py-4 ${className} ${hasSecondary ? 'flex items-center justify-between' : ''}`
 
   if (!hasSecondary) {
     return (
