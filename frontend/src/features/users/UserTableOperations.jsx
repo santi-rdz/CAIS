@@ -17,11 +17,17 @@ const SORT_BY_OPTIONS = [
   { label: 'Limpiar', value: 'clear' },
 ]
 
-export default function UserTableOperations() {
+const FILTER_OPTIONS = [
+  { value: 'default', label: 'Todos' },
+  { value: 'activo', label: 'Activo' },
+  { value: 'inactivo', label: 'Inactivo' },
+  { value: 'pendiente', label: 'Pendiente' },
+]
+
+function useDebouncedSearch(delay = 500) {
   const [params, setParams] = useSearchParams()
   const [searchValue, setSearchValue] = useState(params.get('buscar') || '')
 
-  // Debounce: actualizar URL después de 500ms sin escribir
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!searchValue.trim()) {
@@ -33,10 +39,16 @@ export default function UserTableOperations() {
       params.set('buscar', searchValue)
       params.set('page', 1)
       setParams(params)
-    }, 500)
+    }, delay)
 
     return () => clearTimeout(timer)
-  }, [searchValue, setParams, params])
+  }, [searchValue, setParams, params, delay])
+
+  return { searchValue, setSearchValue }
+}
+
+export default function UserTableOperations() {
+  const { searchValue, setSearchValue } = useDebouncedSearch()
 
   return (
     <TableOperations>
@@ -50,16 +62,9 @@ export default function UserTableOperations() {
         suffix={<HiMagnifyingGlass className="" />}
       />
 
-      <Filter
-        filterField="status"
-        options={[
-          { value: 'default', label: 'Todos' },
-          { value: 'activo', label: 'Activo' },
-          { value: 'inactivo', label: 'Inactivo' },
-          { value: 'pendiente', label: 'Pendiente' },
-        ]}
-      />
+      <Filter filterField="status" options={FILTER_OPTIONS} />
       <SortBy options={SORT_BY_OPTIONS} />
+      
       <Modal>
         <Modal.Open opens="userModal">
           <Button size="md" className="py-2.5">
@@ -67,7 +72,7 @@ export default function UserTableOperations() {
             Agregar usuario
           </Button>
         </Modal.Open>
-        <Modal.Content name="userModal">
+        <Modal.Content name="userModal" noPadding>
           <UserModal />
         </Modal.Content>
       </Modal>

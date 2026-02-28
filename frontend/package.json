@@ -12,10 +12,14 @@
     "server": "json-server --watch public/users.json --port 3000"
   },
   "dependencies": {
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
+    "@mui/x-date-pickers": "8.27.2",
     "@tailwindcss/vite": "4.1.16",
     "@tanstack/react-query": "5.90.5",
     "@tanstack/react-query-devtools": "5.90.2",
     "date-fns": "4.1.0",
+    "dayjs": "1.11.19",
     "json-server": "1.0.0-beta.3",
     "react": "^19.2.3",
     "react-dom": "19.2.3",
@@ -24,6 +28,7 @@
     "react-icons": "5.5.0",
     "react-router": "7.9.5",
     "react-router-dom": "7.9.5",
+    "sonner": "^2.0.7",
     "tailwindcss": "4.1.16",
     "zustand": "5.0.8"
   },

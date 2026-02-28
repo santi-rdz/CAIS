@@ -1,29 +1,28 @@
 import useClickOutside from '@hooks/useClickOutside'
 import { useState } from 'react'
 import { HiChevronRight } from 'react-icons/hi2'
+import Button from './Button'
 
 export default function Select({ options, value, onChange, placeholder = 'Seleccionar', className = '' }) {
-  const [showOptions, setShowOptions] = useState(false)
-  const ref = useClickOutside(() => setShowOptions(false))
+  const [isOpen, setIsOpen] = useState(false)
+
+  const ref = useClickOutside(() => setIsOpen(false))
+  const open = () => setIsOpen(true)
+  const close = () => setIsOpen(false)
+  const toggle = () => setIsOpen((open) => !open)
 
   const label = value?.label || placeholder
 
   return (
-    <div className={`text-5 relative w-39 ${className}`} ref={ref}>
-      <button
-        type="button"
-        onClick={() => setShowOptions((show) => !show)}
-        className="flex w-full cursor-pointer items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-2.5 font-medium shadow-xs duration-300 hover:shadow-md hover:ring hover:ring-green-800"
-      >
+    <div onMouseEnter={open} onMouseLeave={close} className={`text-5 group relative w-39 ${className}`} ref={ref}>
+      <Button variant="outline" size="md" type="button" className="" onClick={toggle}>
         <span>{label}</span>
-        <HiChevronRight
-          size="16"
-          className={`ml-2 inline-block duration-300 ${showOptions ? 'rotate-270' : 'rotate-90'}`}
-        />
-      </button>
-
-      <divb
-        className={`absolute top-full right-0 z-10 mt-2 w-44 space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300 ${showOptions ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'}`}
+        <HiChevronRight size="16" className={`ml-2 inline-block duration-400 ${isOpen ? 'rotate-270' : 'rotate-90'}`} />
+      </Button>
+      {/* Invisible element */}
+      <div className="absolute top-full left-0 h-4 w-full cursor-default" />
+      <div
+        className={`${isOpen ? 'pointer-events-auto translate-y-2 scale-100 opacity-100 ' : 'pointer-events-none opacity-0'} absolute top-full right-0 z-10 w-44 scale-95 space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300`}
       >
         {options.map((option) => (
           <SelectOption
@@ -32,12 +31,11 @@ export default function Select({ options, value, onChange, placeholder = 'Selecc
             isActive={value?.value === option.value}
             onClick={(v) => {
               onChange(v)
-              setShowOptions(false)
+              close()
             }}
-            setShowOptions={setShowOptions}
           />
         ))}
-      </divb>
+      </div>
     </div>
   )
 }

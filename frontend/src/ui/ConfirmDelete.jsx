@@ -12,12 +12,12 @@ export default function ConfirmDelete({ resourceName, onConfirm, disabled, onClo
       </p>
 
       <div className="flex justify-end gap-4">
-        <Button type="secondary" disabled={disabled} onClick={onCloseModal}>
+        <Button variant="secondary" disabled={disabled} onClick={onCloseModal}>
           Cancelar
         </Button>
 
-        <Button variation="danger" disabled={disabled} onClick={onConfirm}>
-          {!isDeleting ? 'Borrar' : <SpinnerMini />}
+        <Button variant="danger" isLoading={isDeleting} disabled={disabled} onClick={onConfirm}>
+          Borrar
         </Button>
       </div>
     </div>

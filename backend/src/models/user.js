@@ -5,262 +5,204 @@ export class UserModel {
   static async getAll({ status, sortBy, search, page, limit }) {
     let sql = `
     SELECT 
-      BIN_TO_UUID(u.person_id) AS id,
-      s.code AS status,
-      r.code AS role,
-      a.name AS area,
-      u.created_at,
-      u.last_login,
-      u.picture,
-      p.name,
-      p.email,
-      p.phone
-    FROM user u
-    JOIN person p ON u.person_id = p.id
-    JOIN status s ON u.status_id = s.id
-    JOIN role r ON u.role_id = r.id
-    LEFT JOIN area a ON u.area_id = a.id
-  `
+      BIN_TO_UUID(u.id) AS id,
+      e.codigo AS estado,
+      r.codigo AS rol,
+      a.nombre AS area,
+      u.creado_at,
+      u.ultimo_acceso,
+      u.foto,
+      u.nombre,
+      u.correo,
+      u.telefono
+    FROM usuarios u
+    JOIN estados e ON u.estado_id = e.id
+    JOIN roles r ON u.rol_id = r.id
+    LEFT JOIN areas a ON u.area_id = a.id
+    `
 
     const params = []
     const conditions = []
 
     if (status) {
-      conditions.push('LOWER(s.code) = ?')
+      conditions.push('LOWER(e.codigo) = ?')
       params.push(status.toLowerCase())
     }
 
     if (search) {
-      conditions.push('(p.name LIKE ? OR p.email LIKE ?)')
+      conditions.push('(u.nombre LIKE ? OR u.correo LIKE ?)')
       params.push(`%${search}%`)
       params.push(`%${search}%`)
     }
 
     const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
-
     sql += whereClause
 
     const sortOptions = {
-      'nombre-asc': 'p.name ASC',
-      'nombre-desc': 'p.name DESC',
-      'login-asc': 'u.last_login ASC',
-      'login-desc': 'u.last_login DESC',
+      'nombre-asc': 'u.nombre ASC',
+      'nombre-desc': 'u.nombre DESC',
+      'login-asc': 'u.ultimo_acceso ASC',
+      'login-desc': 'u.ultimo_acceso DESC',
     }
 
     if (sortBy && sortOptions[sortBy]) {
       sql += ` ORDER BY ${sortOptions[sortBy]}`
     } else {
-      sql += ` ORDER BY u.created_at DESC`
+      sql += ` ORDER BY u.creado_at DESC`
     }
 
     const offset = (page - 1) * limit
     sql += ` LIMIT ? OFFSET ?`
     params.push(limit, offset)
 
-    // Query de conteo (con los mismos filtros)
     const countSql = `
-    SELECT COUNT(*) as count
-    FROM user u
-    JOIN person p ON u.person_id = p.id
-    JOIN status s ON u.status_id = s.id
-    JOIN role r ON u.role_id = r.id
-    LEFT JOIN area a ON u.area_id = a.id
+    SELECT COUNT(*) as total
+    FROM usuarios u
+    JOIN estados e ON u.estado_id = e.id
+    JOIN roles r ON u.rol_id = r.id
+    LEFT JOIN areas a ON u.area_id = a.id
     ${whereClause}
-  `
+    `
 
-    // Ejecutar queries
-    const [[{ count }]] = await pool.query(countSql, params.slice(0, -2))
+    const [[{ total }]] = await pool.query(countSql, params.slice(0, -2))
     const [users] = await pool.query(sql, params)
 
-    return { users, count }
+    return { users, count: total }
   }
 
-  // Traer un usuario por id
   static async getById(id) {
     const sql = `
       SELECT 
-        BIN_TO_UUID(u.person_id) AS id,
+        BIN_TO_UUID(u.id) AS id,
         u.password_hash,
-        s.code AS status,
-        r.code AS role,
-        a.name AS area,
-        u.created_at,
-        u.last_login,
-        u.picture,
-        p.name,
-        p.email,
-        p.birth_date,
-        p.phone
-      FROM user u
-      JOIN person p ON u.person_id = p.id
-      JOIN status s ON u.status_id = s.id
-      JOIN role r ON u.role_id = r.id
-      LEFT JOIN area a ON u.area_id = a.id
-      WHERE u.person_id = UUID_TO_BIN(?)
+        e.codigo AS estado,
+        r.codigo AS rol,
+        a.nombre AS area,
+        u.creado_at,
+        u.ultimo_acceso,
+        u.foto,
+        u.nombre,
+        u.correo,
+        u.fecha_nacimiento,
+        u.telefono,
+        u.matricula,
+        u.inicio_servicio,
+        u.fin_servicio
+      FROM usuarios u
+      JOIN estados e ON u.estado_id = e.id
+      JOIN roles r ON u.rol_id = r.id
+      LEFT JOIN areas a ON u.area_id = a.id
+      WHERE u.id = UUID_TO_BIN(?)
     `
     const [rows] = await pool.query(sql, [id])
     return rows[0] || null
   }
 
-  // Eliminar un usuario por id (solo se borra person y todo lo demás cae en cascada)
   static async delete(id) {
-    const conn = await pool.getConnection()
-    try {
-      await conn.beginTransaction()
-
-      // Solo debes eliminar la PERSON
-      await conn.query(`DELETE FROM person WHERE id = UUID_TO_BIN(?)`, [id])
-
-      await conn.commit()
-      return true
-    } catch (err) {
-      await conn.rollback()
-      throw err
-    } finally {
-      conn.release()
-    }
+    const [result] = await pool.query(`DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`, [id])
+    return result.affectedRows > 0
   }
 
-  // Actualizar campos de un usuario
   static async update(id, data) {
     const fields = []
     const values = []
+
+    // Nota: El objeto 'data' debe venir con las llaves en español (nombre, correo, etc.)
     for (const [key, value] of Object.entries(data)) {
       fields.push(`${key} = ?`)
       values.push(value)
     }
+
     if (fields.length === 0) return null
 
-    const sql = `UPDATE user SET ${fields.join(', ')} WHERE person_id = UUID_TO_BIN(?)`
+    const sql = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = UUID_TO_BIN(?)`
     values.push(id)
+
     const [result] = await pool.query(sql, values)
     return result.affectedRows > 0 ? await this.getById(id) : null
   }
 
-  // Pre-registrar varios usuarios (status PENDING)
   static async preRegister(newUsers, conn) {
     const registeredUsers = []
 
     for (const u of newUsers) {
-      // Insertar en person
-      await conn.query(
-        `INSERT INTO person (id, name, email, birth_date, phone)
-         VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)`,
-        [u.personId, u.name || null, u.email, u.birthDay || null, u.phone || null]
-      )
+      const userId = u.id || randomUUID()
 
-      // Traer IDs
-      const [[statusRow]] = await conn.query('SELECT id FROM status WHERE code = ?', [
-        u.status || 'PENDIENTE',
+      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', [
+        u.estado || 'PENDIENTE',
       ])
-      const [[roleRow]] = await conn.query('SELECT id FROM role WHERE code = ?', [
-        u.role || 'PASANTE',
+
+      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
+        u.rol || 'PASANTE',
       ])
-      const [[areaRow]] = await conn.query('SELECT id FROM area WHERE name = ?', [u.area || null])
 
-      // Insert en user
+      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
+        u.area || null,
+      ])
+
       await conn.query(
-        `INSERT INTO user (person_id, status_id, role_id, area_id, created_at)
-         VALUES (UUID_TO_BIN(?), ?, ?, ?, NOW())`,
-        [u.personId, statusRow.id, roleRow.id, areaRow?.id || null]
+        `INSERT INTO usuarios 
+        (id, nombre, correo, fecha_nacimiento, telefono, estado_id, rol_id, area_id)
+        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
+          u.nombre || null,
+          u.correo,
+          u.fechaNacimiento || null,
+          u.telefono || null,
+          estadoRow.id,
+          rolRow.id,
+          areaRow?.id || null,
+        ],
       )
 
-      // Obtener datos ya combinados
-      const [[row]] = await conn.query(
-        `
-        SELECT 
-          BIN_TO_UUID(u.person_id) AS id,
-          s.code AS status,
-          r.code AS role,
-          a.name AS area,
-          u.created_at,
-          u.last_login,
-          p.name,
-          p.email,
-          p.birth_date,
-          p.phone
-        FROM user u
-        JOIN person p ON u.person_id = p.id
-        JOIN status s ON u.status_id = s.id
-        JOIN role r ON u.role_id = r.id
-        LEFT JOIN area a ON u.area_id = a.id
-        WHERE u.person_id = UUID_TO_BIN(?)
-        `,
-        [u.personId]
-      )
-
-      registeredUsers.push(row)
+      const user = await this.getById(userId)
+      registeredUsers.push(user)
     }
 
     return registeredUsers
   }
 
-  // Registrar un usuario completo (status ACTIVE)
   static async fullRegister(user) {
     const conn = await pool.getConnection()
+
     try {
       await conn.beginTransaction()
 
-      // Generar UUID
-      const personId = randomUUID()
+      const userId = randomUUID()
+      const foto =
+        user.foto ||
+        `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
 
-      // Generar avatar aleatorio si no se envía
-      const picture =
-        user.picture ||
-        `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${
-          Math.floor(Math.random() * 99) + 1
-        }.jpg`
-
-      // Insertar en person
-      await conn.query(
-        `INSERT INTO person (id, name, email, birth_date, phone) VALUES (UUID_TO_BIN(?), ?, ?, ?, ?)`,
-        [personId, user.name, user.email, user.birthDay, user.phone]
-      )
-
-      // Traer IDs de status, role y area
-      const [[statusRow]] = await conn.query('SELECT id FROM status WHERE code = ?', ['ACTIVO'])
-      const [[roleRow]] = await conn.query('SELECT id FROM role WHERE code = ?', [
+      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
+      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
         user.rol?.toUpperCase() || 'PASANTE',
       ])
-      const [[areaRow]] = await conn.query('SELECT id FROM area WHERE name = ?', [
+      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
         user.area?.toUpperCase() || null,
       ])
 
-      // Insertar en user con UUID de Node y avatar aleatorio
       await conn.query(
-        `INSERT INTO user (person_id, password_hash, status_id, role_id, area_id, picture, created_at) 
-       VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, NOW())`,
-        [personId, user.password, statusRow.id, roleRow.id, areaRow?.id || null, picture]
+        `INSERT INTO usuarios 
+        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, area_id, foto)
+        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          userId,
+          user.nombre,
+          user.correo,
+          user.fechaNacimiento,
+          user.telefono,
+          user.password, // Asegúrate de hashear esto antes de enviarlo aquí
+          estadoRow.id,
+          rolRow.id,
+          areaRow?.id || null,
+          foto,
+        ],
       )
 
-      // Traer usuario completo legible
-      const [[row]] = await conn.query(
-        `
-      SELECT 
-        BIN_TO_UUID(u.person_id) AS id,
-        u.password_hash,
-        s.code AS status,
-        r.code AS role,
-        a.name AS area,
-        u.created_at,
-        u.last_login,
-        u.picture,
-        p.name,
-        p.email,
-        p.birth_date,
-        p.phone
-      FROM user u
-      JOIN person p ON u.person_id = p.id
-      JOIN status s ON u.status_id = s.id
-      JOIN role r ON u.role_id = r.id
-      LEFT JOIN area a ON u.area_id = a.id
-      WHERE u.person_id = UUID_TO_BIN(?)
-      `,
-        [personId]
-      )
-
+      const createdUser = await this.getById(userId)
       await conn.commit()
-      return row
+      return createdUser
     } catch (err) {
       await conn.rollback()
       throw err

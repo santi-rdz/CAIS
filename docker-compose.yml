@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   frontend:
     build: ./frontend
@@ -11,7 +9,7 @@ services:
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
-      - /app/dist
+    command: sh -c "npm install && npm run dev -- --host"
 
   backend:
     build: ./backend
@@ -20,6 +18,8 @@ services:
     restart: always
     volumes:
       - ./backend:/app
+      - backend_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run start"
     depends_on:
       - db
 
@@ -41,3 +41,4 @@ services:
 volumes:
   db_data:
   frontend_node_modules:
+  backend_node_modules:
