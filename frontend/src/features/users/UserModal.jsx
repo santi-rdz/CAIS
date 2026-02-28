@@ -1,5 +1,6 @@
 import Tab from '@ui/Tab'
 import InvitationalLinksForm from './InvitationalLinksForm'
+import UserForm from './UserForm'
 
 const options = [
   {
@@ -14,7 +15,7 @@ const options = [
     desc: 'Completa la información del usuario',
     label: 'Registro completo',
     value: 'full',
-    component: (onClose) => <InvitationalLinksForm onClose={onClose} />,
+    component: (onClose) => <UserForm onClose={onClose} />,
   },
 ]
 

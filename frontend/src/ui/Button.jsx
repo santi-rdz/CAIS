@@ -3,7 +3,7 @@ import SpinnerMini from './SpinnerMini'
 const variants = {
   primary: 'bg-green-800 text-white hover:bg-green-900',
   secondary: 'bg-white border border-green-800 hover:bg-green-100',
-  outline: 'bg-white ring ring-gray-200 hover:ring-green-800',
+  outline: 'bg-white border border-gray-200 hover:border-green-800',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   ghost: 'text-gray-700 hover:bg-gray-200',
 }
@@ -22,11 +22,12 @@ export default function Button({
   isLoading = false,
   icon,
   disabled,
+  iconPos = 'left',
   ...props
 }) {
   const isButtonDisabled = disabled || isLoading
   const baseStyle = `flex items-center justify-center gap-2 rounded-lg transition-colors duration-300 ${variants[variant] || variants.primary} ${sizes[size]}  ${isButtonDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`
-
+  const iconLeft = iconPos === 'left'
   return (
     <button className={baseStyle} disabled={isButtonDisabled} {...props}>
       {isLoading ? (
@@ -36,8 +37,17 @@ export default function Button({
         </>
       ) : (
         <>
-          {icon}
-          {children}
+          {iconLeft ? (
+            <>
+              {icon}
+              {children}
+            </>
+          ) : (
+            <>
+              {children}
+              {icon}
+            </>
+          )}
         </>
       )}
     </button>

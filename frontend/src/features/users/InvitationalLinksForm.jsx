@@ -102,7 +102,7 @@ export default function InvitationalLinksForm({ onClose }) {
               suffix={<Suffix />}
             />
           </FormRow>
-          <Button size="md" variant="secondary" className="w-full">
+          <Button size="md" variant="outline" className="w-full border border-gray-300">
             {isEditMode ? (
               <>
                 <HiOutlinePencil /> Guardar cambios
@@ -118,27 +118,24 @@ export default function InvitationalLinksForm({ onClose }) {
         <EmailsDisplay />
       </div>
 
-      <ModalActions className="shrink-0 border-t border-gray-100 bg-white shadow-lg">
-        <Button variant="secondary" onClick={onClose}>
-          Cancelar
-        </Button>
-        <Button
-          icon={<HiCheck size={20} />}
-          isLoading={isCreating}
-          disabled={!users.length || isCreating}
-          onClick={() =>
+      <ModalActions
+        variant="primary"
+        onClose={onClose}
+        primaryAction={{
+          label: 'Enviar Correos',
+          icon: <HiOutlineEnvelope size={20} />,
+          onClick: () =>
             createPreUser(users, {
               onSuccess: () => {
                 onClose()
                 setUsers([])
                 reset()
               },
-            })
-          }
-        >
-          Enviar Correos
-        </Button>
-      </ModalActions>
+            }),
+          disabled: users.length === 0 || isCreating,
+          isLoading: isCreating,
+        }}
+      />
     </EmailsContext.Provider>
   )
 }
@@ -214,12 +211,12 @@ function InvitationCard({ user }) {
 
 function EmailsEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl bg-gray-100 p-6 text-neutral-500">
+    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-gray-200 bg-gray-100 p-6 text-neutral-500">
       <div className="rounded-full bg-white p-3 shadow-sm">
         <HiOutlineEnvelope size={24} />
       </div>
       <p className="text-4 text-neutral-500">No hay correos ingresados aún</p>
-      <span className="text-5 text-neutral-400">Agregue usuarios para enviar invitaciones</span>
+      <span className="text-5 text-neutral-400">Agregue usuarios para enviar invitaciones de registro.</span>
     </div>
   )
 }

@@ -4,12 +4,12 @@ import ModalHeading from './ModalHeading'
 
 const TabContext = createContext()
 
-export default function Tab({ children, defaultTab, options }) {
+export default function Tab({ children, defaultTab, options, variant = 'primary' }) {
   const defaultOption = defaultTab ? options.find((op) => op.value === defaultTab) : options[0]
   const [activeOption, setActiveOption] = useState(defaultOption)
 
   return (
-    <TabContext.Provider value={{ activeOption, setActiveOption, options }}>
+    <TabContext.Provider value={{ activeOption, setActiveOption, options, variant }}>
       <div className="flex h-full flex-col overflow-hidden">{children}</div>
     </TabContext.Provider>
   )
@@ -30,30 +30,29 @@ Tab.Description = function TabDescription() {
 }
 
 Tab.Options = function TabOptions() {
-  const { options } = useContext(TabContext)
-
+  const { options, variant } = useContext(TabContext)
+  const tabStyle = variant === 'primary' ? 'bg-gray-100  mt-6 rounded-lg' : 'bg-gray-50 mt-4 w-54 rounded-md'
   return (
-    <div className="shrink-0 px-8 py-2 pt-6">
-      <nav className="flex gap-1 rounded-lg bg-gray-100 p-1">
-        {options.map((option) => (
-          <Tab.Button key={option.value} option={option} />
-        ))}
-      </nav>
-    </div>
+    <nav className={`mx-8 flex gap-1 p-1 ${tabStyle}`}>
+      {options.map((option) => (
+        <Tab.Button key={option.value} option={option} />
+      ))}
+    </nav>
   )
 }
 
 Tab.Button = function TabButton({ option }) {
-  const { activeOption, setActiveOption } = useContext(TabContext)
+  const { activeOption, setActiveOption, variant } = useContext(TabContext)
 
   const isActive = activeOption.value === option.value
-
+  const buttonStyle =
+    variant === 'primary'
+      ? `${isActive ? 'bg-green-800 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`
+      : `text-gray-500 ${isActive ? 'bg-white text-green-800 shadow-sm' : ' hover:bg-gray-200'}`
   return (
     <button
       onClick={() => setActiveOption(option)}
-      className={`flex-1 cursor-pointer rounded py-2 text-sm font-medium duration-300 ${
-        isActive ? 'bg-white text-green-800 shadow-sm' : 'text-gray-500 hover:bg-gray-200'
-      }`}
+      className={`flex-1 cursor-pointer rounded py-2 text-sm duration-300 ${buttonStyle}`}
     >
       {option.label}
     </button>

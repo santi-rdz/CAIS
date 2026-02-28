@@ -7,13 +7,12 @@ export async function login(req, res) {
     // Buscar usuario
     const [rows] = await pool.query(
       `SELECT 
-        BIN_TO_UUID(u.person_id) AS id,
-        p.email,
-        u.password_hash AS password
-       FROM user u
-       JOIN person p ON u.person_id = p.id
-       WHERE p.email = ?`,
-      [email]
+      BIN_TO_UUID(u.id) AS id,
+      u.correo,
+      u.password_hash AS password
+      FROM usuarios u
+      WHERE u.correo = ?`,
+      [email],
     )
 
     const user = rows[0]

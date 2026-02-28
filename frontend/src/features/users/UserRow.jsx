@@ -9,7 +9,16 @@ import { HiEllipsisVertical, HiTrash } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
-  const { name, role: roleUp, last_login: lastLogin, email, status: statusUp, picture, id } = user
+  // Solo cambian los nombres de las propiedades extraídas para coincidir con la DB
+  const {
+    nombre: name,
+    rol: roleUp,
+    ultimo_acceso: lastLogin,
+    correo: email,
+    estado: statusUp,
+    foto: picture,
+    id,
+  } = user
   const status = statusUp.toLowerCase()
   const role = roleUp.toLowerCase()
 
