@@ -25,7 +25,7 @@ export default function UserForm() {
   return (
     <Tab options={options} defaultTab="pasante" variant="secondary">
       <Tab.Options />
-      <Tab.Content />
+      <Tab.Content scrollable={false} />
     </Tab>
   )
 }

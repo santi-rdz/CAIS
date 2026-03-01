@@ -9,9 +9,7 @@ export default function Tab({ children, defaultTab, options, variant = 'primary'
   const [activeOption, setActiveOption] = useState(defaultOption)
 
   return (
-    <TabContext.Provider value={{ activeOption, setActiveOption, options, variant }}>
-      <div className="flex h-full flex-col overflow-hidden">{children}</div>
-    </TabContext.Provider>
+    <TabContext.Provider value={{ activeOption, setActiveOption, options, variant }}>{children}</TabContext.Provider>
   )
 }
 
@@ -31,9 +29,9 @@ Tab.Description = function TabDescription() {
 
 Tab.Options = function TabOptions() {
   const { options, variant } = useContext(TabContext)
-  const tabStyle = variant === 'primary' ? 'bg-gray-100  mt-6 rounded-lg' : 'bg-gray-50 mt-4 w-54 rounded-md'
+  const tabStyle = variant === 'primary' ? ' mt-6 rounded-lg' : ' mt-4 w-54 rounded-md'
   return (
-    <nav className={`mx-8 flex gap-1 p-1 ${tabStyle}`}>
+    <nav className={`shrink-0 mx-8 flex gap-1 bg-gray-100 p-1 ${tabStyle}`}>
       {options.map((option) => (
         <Tab.Button key={option.value} option={option} />
       ))}
@@ -59,9 +57,13 @@ Tab.Button = function TabButton({ option }) {
   )
 }
 
-Tab.Content = function TabContent({ onClose }) {
+Tab.Content = function TabContent({ onClose, scrollable = true }) {
   const { activeOption } = useContext(TabContext)
   const ActiveComponent = activeOption.component
 
-  return <div className="h-[500px] w-2xl flex-1 overflow-y-auto">{ActiveComponent(onClose)}</div>
+  return (
+    <div className={`w-2xl flex-1 min-h-0 flex flex-col ${scrollable ? 'overflow-y-auto' : ''}`}>
+      {ActiveComponent(onClose)}
+    </div>
+  )
 }
