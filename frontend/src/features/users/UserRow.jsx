@@ -1,12 +1,29 @@
 import useClickOutside from '@hooks/useClickOutside'
-import ConfirmDelete from '@ui/ConfirmDelete'
-import Modal from '@ui/Modal'
 import Table from '@ui/Table'
 import Tag from '@ui/Tag'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { HiEllipsisVertical, HiTrash } from 'react-icons/hi2'
+import {
+  HiEllipsisVertical,
+  HiLockClosed,
+  HiMiniBellAlert,
+  HiOutlineLockClosed,
+  HiOutlineTrash,
+  HiTrash,
+} from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@ui/components/ui/alert-dialog'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
   // Solo cambian los nombres de las propiedades extraídas para coincidir con la DB
@@ -30,6 +47,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
   function handleClick() {
     setOpenMenu(isMenuOpen ? null : id)
   }
+
   return (
     <Table.Row>
       <UserPicture>
@@ -51,7 +69,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
         <Tag type={status}>{status}</Tag>
       </div>
 
-      <Modal>
+      <AlertDialog>
         <div className="relative">
           <button
             onClick={handleClick}
@@ -65,24 +83,31 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
               ref={ref}
               className="absolute top-full right-0 z-10 mt-2 rounded-md bg-white px-3 py-2 shadow-lg"
             >
-              <Modal.Open opens="delete">
-                <button className="flex gap-2 px-4 py-3 text-nowrap">
-                  <HiTrash />
-                  Borrar usuario
+              <AlertDialogTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-3 text-nowrap">
+                  <HiLockClosed />
+                  Bloquear usuario
                 </button>
-              </Modal.Open>
+              </AlertDialogTrigger>
             </div>
           )}
         </div>
-        <Modal.Content name="delete">
-          <ConfirmDelete
-            disabled={isDeleting}
-            isDeleting={isDeleting}
-            resourceName="usuario"
-            onConfirm={() => deleteUser(id)}
-          />
-        </Modal.Content>
-      </Modal>
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive size-12">
+              <HiOutlineLockClosed />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Bloquear usuario</AlertDialogTitle>
+            <AlertDialogDescription className="">Estas seguro de bloquear a este usuario?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" disabled={isDeleting} onClick={() => deleteUser(id)}>
+              Borrar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Table.Row>
   )
 }

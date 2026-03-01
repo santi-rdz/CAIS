@@ -15,7 +15,7 @@ export default function useDropdownPosition(dropdownHeight, { ignoreSelector = n
     setOpenAbove(above)
     setPositionStyle(
       above
-        ? { top: rect.top - dropdownHeight - 4, right: window.innerWidth - rect.right }
+        ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
         : { top: rect.bottom + 4, right: window.innerWidth - rect.right },
     )
     setIsOpen(true)
@@ -34,7 +34,9 @@ export default function useDropdownPosition(dropdownHeight, { ignoreSelector = n
     if (!isOpen) return
     function handleClickOutside(e) {
       if (ignoreSelector && e.target.closest(ignoreSelector)) return
-      if (!triggerRef.current?.contains(e.target)) close()
+      const isClickedInside = triggerRef.current?.contains(e.target)
+      const isClickedInMenu = e.target.closest?.('[data-select-menu]')
+      if (!isClickedInside && !isClickedInMenu) close()
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)

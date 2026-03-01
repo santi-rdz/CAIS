@@ -2,7 +2,7 @@ import DomainEmailInput from '@ui/DomainEmailInput'
 import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
-import Select from '@ui/Select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 
@@ -47,13 +47,22 @@ export default function AcademicInfoForm() {
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
-                  options={YEARS}
-                  value={YEARS.find((y) => y.value === field.value) ?? null}
-                  onChange={field.onChange}
-                  placeholder="Año"
+                  value={field.value ?? ''}
+                  onValueChange={field.onChange}
                   hasError={!!errors?.servicioInicioAnio}
                   className="flex-1"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Año" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {YEARS.map((y) => (
+                      <SelectItem key={y.value} value={y.value}>
+                        {y.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             <Controller
@@ -62,13 +71,22 @@ export default function AcademicInfoForm() {
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
-                  options={PERIODS}
-                  value={PERIODS.find((p) => p.value === field.value) ?? null}
-                  onChange={field.onChange}
-                  placeholder="Periodo"
+                  value={field.value ?? ''}
+                  onValueChange={field.onChange}
                   hasError={!!errors?.servicioInicioPeriodo}
                   className="flex-1"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Periodo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PERIODS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
           </div>
@@ -87,13 +105,22 @@ export default function AcademicInfoForm() {
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
-                  options={YEARS}
-                  value={YEARS.find((y) => y.value === field.value) ?? null}
-                  onChange={field.onChange}
-                  placeholder="Año"
+                  value={field.value ?? ''}
+                  onValueChange={field.onChange}
                   hasError={!!errors?.servicioFinAnio}
                   className="flex-1"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Año" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {YEARS.map((y) => (
+                      <SelectItem key={y.value} value={y.value}>
+                        {y.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             <Controller
@@ -102,13 +129,22 @@ export default function AcademicInfoForm() {
               rules={{ required: true }}
               render={({ field }) => (
                 <Select
-                  options={PERIODS}
-                  value={PERIODS.find((p) => p.value === field.value) ?? null}
-                  onChange={field.onChange}
-                  placeholder="Periodo"
+                  value={field.value ?? ''}
+                  onValueChange={field.onChange}
                   hasError={!!errors?.servicioFinPeriodo}
                   className="flex-1"
-                />
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Periodo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PERIODS.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
           </div>
