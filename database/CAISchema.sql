@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS pacientes (
 );
 
 -- ===============================
--- TABLAS MÉDICAS SIN FK
+-- TABLAS MEDICAS SIN FK
 -- ===============================
 CREATE TABLE IF NOT EXISTS antecedentes_familiares (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS planes_estudio (
 );
 
 -- ===============================
--- TABLAS NUTRICIÓN SIN FK
+-- TABLAS NUTRICION SIN FK
 -- ===============================
 CREATE TABLE IF NOT EXISTS adicciones(
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -188,8 +188,8 @@ CREATE TABLE IF NOT EXISTS adicciones(
 
 CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    eritrocitos FLOAT, 
-    hemoglobina FLOAT, 
+    eritrocitos FLOAT,
+    hemoglobina FLOAT,
     hematocrito FLOAT,
     vcm FLOAT,
     homocisteina FLOAT,
@@ -210,19 +210,19 @@ CREATE TABLE IF NOT EXISTS perfil_endocrino(
 
 CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    osmolaridad FLOAT, --calculo
+    osmolaridad FLOAT,
     urea FLOAT,
     bun FLOAT,
     creatinina FLOAT,
     acido_urico FLOAT,
     sodio FLOAT,
     peso_sin_edema FLOAT,
-    agua FLOAT, --calculo
+    agua FLOAT,
     potasio FLOAT,
     fosforo FLOAT,
     calcio_serico FLOAT,
-    ca_corregido FLOAT, --calculo
-    producto_caP FLOAT, --calculo
+    ca_corregido FLOAT,
+    producto_caP FLOAT,
     pth FLOAT,
     vitamina_d FLOAT,
     tfge FLOAT,
@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     leucocitos FLOAT,
     linfocitos FLOAT,
-    ctl FLOAT, --calculo
+    ctl FLOAT,
     albumina FLOAT,
     pre_albumina FLOAT,
     transferrina FLOAT
@@ -293,9 +293,9 @@ CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
     apetito VARCHAR(20),
     lleno VARCHAR(20),
     sabor_comida VARCHAR(20),
-    comidas_al_día VARCHAR(20),
+    comidas_al_dia VARCHAR(20),
     puntaje_total TINYINT,
-    clasif_alteración_apetito VARCHAR(20)
+    clasif_alteracion_apetito VARCHAR(20)
 );
 
 CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
     frutas VARCHAR(20),
     verduras_cocidas VARCHAR(20),
     verduras_crudas VARCHAR(20),
-    pesacado VARCHAR(20),
+    pescado VARCHAR(20),
     mariscos VARCHAR(20),
     pollo VARCHAR(20),
     carne_roja VARCHAR(20),
@@ -312,7 +312,7 @@ CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
     clara_huevo VARCHAR(20),
     embutidos VARCHAR(20),
     leguminosas VARCHAR(20),
-    tortilla_maíz VARCHAR(20),
+    tortilla_maiz VARCHAR(20),
     cant_tortilla_maiz VARCHAR(20),
     tortilla_harina VARCHAR(20),
     cant_tortilla_harina VARCHAR(20),
@@ -347,59 +347,58 @@ CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     peso_habitual FLOAT,
     peso_perdido FLOAT,
-    porcentaje_peso_perdido FLOAT, --calculo
+    porcentaje_peso_perdido FLOAT
 );
 
 CREATE TABLE IF NOT EXISTS signos_vitales_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    tas	FLOAT,
-    tad	FLOAT,
-    temperatura	FLOAT,
+    tas FLOAT,
+    tad FLOAT,
+    temperatura FLOAT,
     dificultad_respiratoria BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    pcb VARCHAR(10),	
-    pct VARCHAR(10),	
-    fondo_ojo VARCHAR(10),	
-    diag_reservagrasa VARCHAR(10),	
-    sienes VARCHAR(10),	
-    clavicula VARCHAR(10),	
-    hombros VARCHAR(10),	
-    omoplato VARCHAR(10),	
-    interoseos_mano VARCHAR(10),	
-    costillas VARCHAR(10),	
-    espalda_alta VARCHAR(10),	
-    cuadriceps VARCHAR(10),	
-    pantorrilla VARCHAR(10),	
-    diag_reserva_muscular VARCHAR(15),	
+    pcb VARCHAR(10),
+    pct VARCHAR(10),
+    fondo_ojo VARCHAR(10),
+    diag_reservagrasa VARCHAR(10),
+    sienes VARCHAR(10),
+    clavicula VARCHAR(10),
+    hombros VARCHAR(10),
+    omoplato VARCHAR(10),
+    interoseos_mano VARCHAR(10),
+    costillas VARCHAR(10),
+    espalda_alta VARCHAR(10),
+    cuadriceps VARCHAR(10),
+    pantorrilla VARCHAR(10),
+    diag_reserva_muscular VARCHAR(15),
     edema VARCHAR(20),
-    descripcion TEXT, -- descripcion de lo que observa el paciente en su cuerpo
-    descripcion_sist_genito_urinario TEXT   -- descripcion de lo que observa el paciente en base al sistema genito_urinario
+    descripcion TEXT,
+    descripcion_sist_genito_urinario TEXT
 );
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	percentiles_imc FLOAT,
-	interpretacion_imc VARCHAR(255),
-	percentiles_cintura FLOAT,
-	percentiles_pb FLOAT,
-	percentiles_pct FLOAT,
-	percentiles_pcse FLOAT,
-	peso_para_talla FLOAT,
-	peso_ideal FLOAT,
-	desviacion_estandar_peso FLOAT,
-	interpretacion_nom_peso VARCHAR(50),
-	talla_para_edad FLOAT,
-	talla_ideal FLOAT,
-	desviacion_estandar_talla FLOAT,
-	interpretacion_nom_talla VARCHAR(50),
-	peso_para_edad FLOAT,
-	desviacion_estandar_peso_edad FLOAT,
-	interpretacion_nom_peso_edad VARCHAR(50),
-	diagnostico_general VARCHAR(50),
-    --ANALISIS VECTORIAL
+    percentiles_imc FLOAT,
+    interpretacion_imc VARCHAR(255),
+    percentiles_cintura FLOAT,
+    percentiles_pb FLOAT,
+    percentiles_pct FLOAT,
+    percentiles_pcse FLOAT,
+    peso_para_talla FLOAT,
+    peso_ideal FLOAT,
+    desviacion_estandar_peso FLOAT,
+    interpretacion_nom_peso VARCHAR(50),
+    talla_para_edad FLOAT,
+    talla_ideal FLOAT,
+    desviacion_estandar_talla FLOAT,
+    interpretacion_nom_talla VARCHAR(50),
+    peso_para_edad FLOAT,
+    desviacion_estandar_peso_edad FLOAT,
+    interpretacion_nom_peso_edad VARCHAR(50),
+    diagnostico_general VARCHAR(50),
     resistencia FLOAT,
     reactancia FLOAT,
     angulo_fase FLOAT,
@@ -408,28 +407,28 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	codo FLOAT,
-	frisancho FLOAT,
-	complexion VARCHAR(20),
-	pi_kg FLOAT,
-	edema_liq FLOAT,
-	peso_sin_edema FLOAT,
-	peso_ajustado FLOAT,
-	peso_ideal_por FLOAT,
-	diagnostico_pi VARCHAR(20),
-	diagnostico_imc VARCHAR(20),
-	pcb FLOAT,
-	pcsi FLOAT,
-	riesgo_cv BOOLEAN,
-	cadera FLOAT,
-	indice_cintura_cadera FLOAT,
-	diagnostico_icc VARCHAR(20),
-	circuf_cuello FLOAT,
-	riesgo_eo_inf BOOLEAN
+    codo FLOAT,
+    frisancho FLOAT,
+    complexion VARCHAR(20),
+    pi_kg FLOAT,
+    edema_liq FLOAT,
+    peso_sin_edema FLOAT,
+    peso_ajustado FLOAT,
+    peso_ideal_por FLOAT,
+    diagnostico_pi VARCHAR(20),
+    diagnostico_imc VARCHAR(20),
+    pcb FLOAT,
+    pcsi FLOAT,
+    riesgo_cv BOOLEAN,
+    cadera FLOAT,
+    indice_cintura_cadera FLOAT,
+    diagnostico_icc VARCHAR(20),
+    circuf_cuello FLOAT,
+    riesgo_eo_inf BOOLEAN
 );
 
 -- ===============================
--- HISTORIA CLÍNICA
+-- HISTORIA CLINICA
 -- ===============================
 CREATE TABLE IF NOT EXISTS historias_medicas (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
@@ -472,12 +471,12 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
 );
 
 -- ===============================
--- HISTORIA CLÍNICA (NUTRICION)
+-- HISTORIA CLINICA (NUTRICION)
 -- ===============================
 CREATE TABLE IF NOT EXISTS historias_pacientes_nutricion(
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
-    fecha_ingreso DATE DEFAULT CURRENT_DATE,
+    fecha_ingreso DATE DEFAULT (CURRENT_DATE),
     motivo_consulta TEXT,
     adicciones_id INT,
     CONSTRAINT fk_historia_nutricion_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
@@ -485,7 +484,7 @@ CREATE TABLE IF NOT EXISTS historias_pacientes_nutricion(
 );
 
 CREATE TABLE IF NOT EXISTS historias_medicas_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY, 
+    id INT AUTO_INCREMENT PRIMARY KEY,
     historia_paciente_id BINARY(16) NOT NULL,
     enfermedad TEXT,
     evol INT,
@@ -495,10 +494,10 @@ CREATE TABLE IF NOT EXISTS historias_medicas_nutricion(
 );
 
 CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY, 
+    id INT AUTO_INCREMENT PRIMARY KEY,
     historia_paciente_id BINARY(16) NOT NULL,
     producto TEXT,
-    cual_producto TEXT, 
+    cual_producto TEXT,
     mejora VARCHAR(10),
     dosis VARCHAR(20),
     CONSTRAINT fk_tratamiento_nutricion_historia_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
@@ -507,34 +506,34 @@ CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
 CREATE TABLE IF NOT EXISTS eval_cal_sueno(
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_DATE, 
+    fecha DATE DEFAULT (CURRENT_DATE),
     horas_sueno TINYINT,
     insomnio TINYINT,
     medicacion TINYINT,
     CONSTRAINT fk_cal_sueno_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
-)
+);
 
 CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_DATE,
+    fecha DATE DEFAULT (CURRENT_DATE),
     tipo VARCHAR(50),
     porque_no VARCHAR(255),
-    frecuencia VARCHAR(20), 
+    frecuencia VARCHAR(20),
     duracion SMALLINT,
     intensidad INT,
     tiempo_de_practica VARCHAR(20),
     pensamientos_con_realizar_AF VARCHAR(50),
     CONSTRAINT fk_eval_act_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
-)
+);
 
 -- ===============================
--- EVALUACIÓN BIOQUÍMICA
+-- EVALUACION BIOQUIMICA
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    fecha DATE DEFAULT (CURRENT_DATE),
     id_perfil_anemia INT,
     id_perfil_endocrino INT,
     id_perfil_renal_electrolitos INT,
@@ -551,16 +550,16 @@ CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
     CONSTRAINT fk_acido_base_eval_bioq FOREIGN KEY (id_balance_acido_base) REFERENCES balance_acido_base(id),
     CONSTRAINT fk_orina_eval_bioq FOREIGN KEY (id_perfil_orina) REFERENCES perfil_orina(id),
     CONSTRAINT fk_inflamatorio_eval_bioq FOREIGN KEY (id_perfil_inflamatorio) REFERENCES perfil_inflamatorio(id),
-    CONSTRAINT fk_estado_eval_bioq FOREIGN KEY (id_eval_estado_nutr) REFERENCES eval_estado_nutricion(id),
+    CONSTRAINT fk_estado_eval_bioq FOREIGN KEY (id_eval_estado_nutr) REFERENCES eval_estado_nutricion(id)
 );
 
 -- ===============================
--- EVALUACIÓN NUTRICIONAL
+-- EVALUACION NUTRICIONAL
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_nutr_fh(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_DATE,
+    fecha DATE DEFAULT (CURRENT_DATE),
     id_horarios_comida INT,
     id_eval_apetito INT,
     id_frec_consumo INT,
@@ -578,7 +577,7 @@ CREATE TABLE IF NOT EXISTS patron_alimentacion_nutricion(
     tiene_alergia BOOLEAN,
     cual_alergia TEXT,
     alimentos_disgusta TEXT,
-    CONSTRAINT fk_paciente_patron_alimentacion FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    CONSTRAINT fk_paciente_patron_alimentacion FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 -- ===============================
@@ -587,7 +586,7 @@ CREATE TABLE IF NOT EXISTS patron_alimentacion_nutricion(
 CREATE TABLE IF NOT EXISTS exam_fis_orien_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    fecha DATE DEFAULT CURRENT_TIMESTAMP(),
+    fecha DATE DEFAULT (CURRENT_DATE),
     id_perdida_peso INT NOT NULL,
     id_signos_vitales INT NOT NULL,
     id_semiologia INT NOT NULL,
@@ -599,29 +598,29 @@ CREATE TABLE IF NOT EXISTS exam_fis_orien_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    exam_fis_id INT NOT NULL, -- Aqui debe ser 1:N porque pueden ser varios sintomas
+    exam_fis_id INT NOT NULL,
     presenta_sgi BOOLEAN,
     presencia VARCHAR(50),
     CONSTRAINT fk_exam_fis_sintomas FOREIGN KEY (exam_fis_id) REFERENCES exam_fis_orien_nutricion(id)
 );
 
 -- ===============================
--- EVALUACIÓN ANTROPOMÉTRICA
+-- EVALUACION ANTROPOMETRICA
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	eval_antro_ad_kid_id INT
-	eval_antro_ad_adulto_id INT,
-	fecha DATE DEFAULT CURRENT_DATE,
-	peso_actual FLOAT,
-	estatura FLOAT,
-	imc FLOAT,
-	pantorrilla FLOAT,
-	cintura FLOAT,
-	pb FLOAT,
-	pct FLOAT,
-	pcse FLOAT,
+    paciente_id BINARY(16) NOT NULL,
+    eval_antro_ad_kid_id INT,
+    eval_antro_ad_adulto_id INT,
+    fecha DATE DEFAULT (CURRENT_DATE),
+    peso_actual FLOAT,
+    estatura FLOAT,
+    imc FLOAT,
+    pantorrilla FLOAT,
+    cintura FLOAT,
+    pb FLOAT,
+    pct FLOAT,
+    pcse FLOAT,
     CONSTRAINT fk_paciente_eval_antro FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
     CONSTRAINT fk_kid_eval_antro FOREIGN KEY (eval_antro_ad_kid_id) REFERENCES eval_antro_ad_kid_nutricion(id),
     CONSTRAINT fk_adulto_eval_antro FOREIGN KEY (eval_antro_ad_adulto_id) REFERENCES eval_antro_ad_adulto_nutricion(id)
@@ -632,61 +631,60 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
 -- ===============================
 CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	fecha_eval DATE DEFAULT CURRENT_DATE,
+    paciente_id BINARY(16) NOT NULL,
+    fecha_eval DATE DEFAULT (CURRENT_DATE),
     CONSTRAINT fk_paciente_rec_24h FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 CREATE TABLE IF NOT EXISTS rec_24h_comidas(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	rec_24h_id INT NOT NULL,
-	fecha DATE,
-	comida VARCHAR(100),
-	alimento VARCHAR(100),
-	calorias FLOAT,
-	grasa FLOAT,
-	colesterol FLOAT,
-	sodio FLOAT,
-	carb FLOAT,
-	proteinas FLOAT,
-	azucar FLOAT,
-	fibra FLOAT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    rec_24h_id INT NOT NULL,
+    fecha DATE,
+    comida VARCHAR(100),
+    alimento VARCHAR(100),
+    calorias FLOAT,
+    grasa FLOAT,
+    colesterol FLOAT,
+    sodio FLOAT,
+    carb FLOAT,
+    proteinas FLOAT,
+    azucar FLOAT,
+    fibra FLOAT,
     CONSTRAINT fk_comidas_rec_24h FOREIGN KEY (rec_24h_id) REFERENCES rec_24h_nutricion(id)
 );
 
 -- ===============================
 -- REPORTE EEN
 -- ===============================
-    --REVISAR LO QUE SE DEBE QUITAR POR LA NUEVA JUNTA
 CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	eval_diag_edo_nutr TEXT,
-	solicito_orient BOOLEAN,
-	prescrip_nut_obs VARCHAR(100),
-	educ_nut_obs VARCHAR(100),
-	consejeria_nut_obs VARCHAR(100),
-	coord_aten_nut_obs VARCHAR(100),
+    paciente_id BINARY(16) NOT NULL,
+    eval_diag_edo_nutr TEXT,
+    solicito_orient BOOLEAN,
+    prescrip_nut_obs VARCHAR(100),
+    educ_nut_obs VARCHAR(100),
+    consejeria_nut_obs VARCHAR(100),
+    coord_aten_nut_obs VARCHAR(100),
     CONSTRAINT fk_paciente_reporte_een_kid FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 CREATE TABLE IF NOT EXISTS reporte_een_adulto_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	habitos_ali_obs VARCHAR(100),
-	alteraciones_gastroin VARCHAR(100),
+    paciente_id BINARY(16) NOT NULL,
+    habitos_ali_obs VARCHAR(100),
+    alteraciones_gastroin VARCHAR(100),
     CONSTRAINT fk_paciente_reporte_een_adulto FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
     id INT AUTO_INCREMENT PRIMARY KEY,
-	reporte_een_id INT NOT NULL,
-	pes VARCHAR(255),
-	intervencion VARCHAR(50),
-	objetivos VARCHAR(255),
-	indicadores VARCHAR(255),
-	criterio VARCHAR(255),
-	progreso VARCHAR(20),
+    reporte_een_id INT NOT NULL,
+    pes VARCHAR(255),
+    intervencion VARCHAR(50),
+    objetivos VARCHAR(255),
+    indicadores VARCHAR(255),
+    criterio VARCHAR(255),
+    progreso VARCHAR(20),
     CONSTRAINT fk_reporte_diagnostico FOREIGN KEY (reporte_een_id) REFERENCES reporte_een_adulto_nutricion(id)
 );
 
@@ -694,18 +692,18 @@ CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
 -- TPAN
 -- ===============================
 CREATE TABLE IF NOT EXISTS tpan_nutricion(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	fecha_eval DATE DEFAULT CURRENT_DATE,
-	eval_realizada TEXT,
-	observacion TEXT,
-	estandares_com TEXT,
-	decision TEXT,
-	problema_iden TEXT,
-	causa_probl TEXT,
-	evidencia_probl TEXT,
-	progreso TINYINT,
-	CONSTRAINT fk_paciente_tpan FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    paciente_id BINARY(16) NOT NULL,
+    fecha_eval DATE DEFAULT (CURRENT_DATE),
+    eval_realizada TEXT,
+    observacion TEXT,
+    estandares_com TEXT,
+    decision TEXT,
+    problema_iden TEXT,
+    causa_probl TEXT,
+    evidencia_probl TEXT,
+    progreso TINYINT,
+    CONSTRAINT fk_paciente_tpan FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 -- ===============================
@@ -713,36 +711,36 @@ CREATE TABLE IF NOT EXISTS tpan_nutricion(
 -- GET NUTRICIONAL
 -- ===============================
 CREATE TABLE IF NOT EXISTS cal_get_nutr(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	paciente_id BINARY(16) NOT NULL,
-	fecha_eval DATE DEFAULT CURRENT_DATE,
-	verdura TINYINT,
-	fruta TINYINT,
-	cereal_sin_grasa TINYINT,
-	cereal_con_grasa TINYINT,
-	leguminosas TINYINT,
-	aoa_a TINYINT,
-	aoa_b TINYINT,
-	aoa_c TINYINT,
-	aoa_d TINYINT,
-	leche_a TINYINT,
-	leche_b TINYINT,
-	leche_c TINYINT,
-	grasa_a TINYINT,
-	grasa_b TINYINT,
-	azucares TINYINT,
-	rice_dream TINYINT,
-	silk TINYINT,
-	soyactive TINYINT,
-	almond_breeze TINYINT,
-	aube_baja TINYINT,
-	nan_one TINYINT,
-	aube_alta TINYINT,
-	CONSTRAINT fk_paciente_cal_get FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    paciente_id BINARY(16) NOT NULL,
+    fecha_eval DATE DEFAULT (CURRENT_DATE),
+    verdura TINYINT,
+    fruta TINYINT,
+    cereal_sin_grasa TINYINT,
+    cereal_con_grasa TINYINT,
+    leguminosas TINYINT,
+    aoa_a TINYINT,
+    aoa_b TINYINT,
+    aoa_c TINYINT,
+    aoa_d TINYINT,
+    leche_a TINYINT,
+    leche_b TINYINT,
+    leche_c TINYINT,
+    grasa_a TINYINT,
+    grasa_b TINYINT,
+    azucares TINYINT,
+    rice_dream TINYINT,
+    silk TINYINT,
+    soyactive TINYINT,
+    almond_breeze TINYINT,
+    aube_baja TINYINT,
+    nan_one TINYINT,
+    aube_alta TINYINT,
+    CONSTRAINT fk_paciente_cal_get FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 -- ===============================
--- LOGS (AUDITORÍA)
+-- LOGS (AUDITORIA)
 -- ===============================
 CREATE TABLE IF NOT EXISTS registro_auditoria (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
