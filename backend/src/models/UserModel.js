@@ -122,92 +122,35 @@ export class UserModel {
     return result.affectedRows > 0 ? await this.getById(id) : null
   }
 
-  static async preRegister(newUsers, conn) {
-    const registeredUsers = []
+  static async create(userData, conn) {
+    const userId = randomUUID()
 
-    for (const u of newUsers) {
-      const userId = u.id || randomUUID()
+    const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
+    const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
+      userData.rol.toLowerCase(),
+    ])
 
-      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', [
-        u.estado || 'PENDIENTE',
-      ])
+    await conn.query(
+      `INSERT INTO usuarios
+        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, foto, matricula, cedula, inicio_servicio, fin_servicio)
+       VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        userData.nombre,
+        userData.correo,
+        userData.fechaNacimiento,
+        userData.telefono,
+        userData.passwordHash,
+        estadoRow.id,
+        rolRow.id,
+        userData.foto || null,
+        userData.matricula || null,
+        userData.cedula || null,
+        userData.inicioServicio || null,
+        userData.finServicio || null,
+      ],
+    )
 
-      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
-        u.rol || 'PASANTE',
-      ])
-
-      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
-        u.area || null,
-      ])
-
-      await conn.query(
-        `INSERT INTO usuarios 
-        (id, nombre, correo, fecha_nacimiento, telefono, estado_id, rol_id, area_id)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          userId,
-          u.nombre || null,
-          u.correo,
-          u.fechaNacimiento || null,
-          u.telefono || null,
-          estadoRow.id,
-          rolRow.id,
-          areaRow?.id || null,
-        ],
-      )
-
-      const user = await this.getById(userId)
-      registeredUsers.push(user)
-    }
-
-    return registeredUsers
-  }
-
-  static async fullRegister(user) {
-    const conn = await pool.getConnection()
-
-    try {
-      await conn.beginTransaction()
-
-      const userId = randomUUID()
-      const foto =
-        user.foto ||
-        `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
-
-      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
-      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
-        user.rol?.toUpperCase() || 'PASANTE',
-      ])
-      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
-        user.area?.toUpperCase() || null,
-      ])
-
-      await conn.query(
-        `INSERT INTO usuarios 
-        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, area_id, foto)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          userId,
-          user.nombre,
-          user.correo,
-          user.fechaNacimiento,
-          user.telefono,
-          user.password, // Asegúrate de hashear esto antes de enviarlo aquí
-          estadoRow.id,
-          rolRow.id,
-          areaRow?.id || null,
-          foto,
-        ],
-      )
-
-      const createdUser = await this.getById(userId)
-      await conn.commit()
-      return createdUser
-    } catch (err) {
-      await conn.rollback()
-      throw err
-    } finally {
-      conn.release()
-    }
+    return await this.getById(userId)
   }
 }

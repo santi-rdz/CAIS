@@ -1,0 +1,26 @@
+### Login — credenciales correctas
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "raul.rodriguez39@uabc.edu.mx",
+  "password": "Abc12345!"
+}
+
+### Login — correo no registrado
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "no.existe@test.com",
+  "password": "cualquier"
+}
+
+### Login — contraseña incorrecta
+POST http://localhost:8000/auth/login
+Content-Type: application/json
+
+{
+  "email": "carlos.herrera@cais.com",
+  "password": "incorrecta"
+}

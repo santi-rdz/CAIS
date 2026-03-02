@@ -1,0 +1,139 @@
+### Listar usuarios (paginado)
+GET http://localhost:8000/usuarios?page=1&limit=10
+
+### Listar usuarios — filtrar por estado
+GET http://localhost:8000/usuarios?status=ACTIVO
+
+### Listar usuarios — buscar por nombre/correo
+GET http://localhost:8000/usuarios?search=carlos
+
+### Listar usuarios — ordenar por nombre
+GET http://localhost:8000/usuarios?sortBy=nombre-asc
+
+### Obtener usuario por ID (reemplazar con un ID real)
+GET http://localhost:8000/usuarios/{{userId}}
+
+### Crear pasante (admin)
+POST http://localhost:8000/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Luis",
+  "apellido": "Mendoza",
+  "correo": "luis.test@uabc.edu.mx",
+  "fechaNacimiento": "2000-05-15",
+  "telefono": "6861234567",
+  "rol": "pasante",
+  "password": "abc123",
+  "matricula": "MAT999",
+  "servicioInicioAnio": "2026",
+  "servicioInicioPeriodo": "1",
+  "servicioFinAnio": "2026",
+  "servicioFinPeriodo": "2"
+}
+
+### Crear coordinador (admin)
+POST http://localhost:8000/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "María",
+  "apellido": "García",
+  "correo": "maria.test@uabc.edu.mx",
+  "fechaNacimiento": "1985-03-20",
+  "telefono": "6869876543",
+  "rol": "coordinador",
+  "password": "abc123",
+  "cedula": "CED999"
+}
+
+### Crear usuario — datos inválidos (debe fallar 422)
+POST http://localhost:8000/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Solo nombre"
+}
+
+### Crear usuario — password corta (debe fallar 422)
+POST http://localhost:8000/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Test",
+  "apellido": "Short",
+  "correo": "short@test.com",
+  "fechaNacimiento": "2000-01-01",
+  "telefono": "6861111111",
+  "rol": "pasante",
+  "password": "12",
+  "matricula": "M1",
+  "servicioInicioAnio": "2026",
+  "servicioInicioPeriodo": "1",
+  "servicioFinAnio": "2026",
+  "servicioFinPeriodo": "2"
+}
+
+### Actualizar usuario (reemplazar con un ID real)
+PATCH http://localhost:8000/usuarios/{{userId}}
+Content-Type: application/json
+
+{
+  "nombre": "Nombre Actualizado"
+}
+
+### Eliminar usuario (reemplazar con un ID real)
+DELETE http://localhost:8000/usuarios/{{userId}}
+
+### Registro con token — pasante (reemplazar token)
+POST http://localhost:8000/usuarios/registro
+Content-Type: application/json
+
+{
+  "token": "7aadaa6b-ecbf-4e7c-93fb-1b1268b41ce7",
+  "nombre": "Nuevo",
+  "apellido": "Pasante",
+  "fechaNacimiento": "2000-01-01",
+  "telefono": "6861234567",
+  "password": "Abc12345!",
+  "confirmPassword": "Abc12345!",
+  "matricula": "NMAT01",
+  "servicioInicioAnio": "2026",
+  "servicioInicioPeriodo": "1",
+  "servicioFinAnio": "2026",
+  "servicioFinPeriodo": "2"
+}
+
+### Registro con token — coordinador (reemplazar token)
+POST http://localhost:8000/usuarios/registro
+Content-Type: application/json
+
+{
+  "token": "{{token}}",
+  "nombre": "Nuevo",
+  "apellido": "Coord",
+  "fechaNacimiento": "1990-01-01",
+  "telefono": "6869876543",
+  "password": "Abc12345!",
+  "confirmPassword": "Abc12345!",
+  "cedula": "NCED01"
+}
+
+### Registro — token inválido (debe fallar 404)
+POST http://localhost:8000/usuarios/registro
+Content-Type: application/json
+
+{
+  "token": "00000000-0000-0000-0000-000000000000",
+  "nombre": "X",
+  "apellido": "Y",
+  "fechaNacimiento": "2000-01-01",
+  "telefono": "6861111111",
+  "password": "Abc12345!",
+  "confirmPassword": "Abc12345!",
+  "matricula": "M1",
+  "servicioInicioAnio": "2026",
+  "servicioInicioPeriodo": "1",
+  "servicioFinAnio": "2026",
+  "servicioFinPeriodo": "2"
+}

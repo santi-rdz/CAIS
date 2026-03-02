@@ -103,7 +103,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction variant="destructive" disabled={isDeleting} onClick={() => deleteUser(id)}>
-              Borrar
+              Bloquaer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

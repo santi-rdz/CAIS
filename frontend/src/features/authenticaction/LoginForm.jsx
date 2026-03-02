@@ -23,7 +23,8 @@ export default function LoginForm() {
         id="email"
         register={register}
         error={errors?.email?.message}
-        onDomainChange={setIsUabcDomain}
+        setIsDomain={setIsUabcDomain}
+        isDomain={isUabcDomain}
         className="mb-6"
       />
 

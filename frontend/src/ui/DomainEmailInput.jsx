@@ -12,16 +12,16 @@ export default function DomainEmailInput({
   onDomainChange,
   extraSuffix = null,
   className,
+  setIsDomain,
+  isDomain,
 }) {
-  const [isDomain, setIsDomain] = useState(true)
-
   function handleDomainChange(val) {
     setIsDomain(val)
     onDomainChange?.(val)
   }
 
   const suffix = (
-    <div className="flex items-center gap-2">
+    <div>
       <DomainToggle isDomain={isDomain} setIsDomain={handleDomainChange} />
       {extraSuffix}
     </div>

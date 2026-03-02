@@ -1,29 +1,38 @@
 import { randomUUID } from 'node:crypto'
-import { UserModel } from '../models/user.js'
-import { TokenModel } from '../models/TokenModel.js'
+import { InvitacionModel } from '../models/TokenModel.js'
 import { pool } from '../config/db.js'
 import { sendEmail } from '../lib/sendEmail.js'
 import { registerEmail } from '../lib/registerEmail.js'
 
 export class UserService {
-  static async preRegister(usersData) {
-    const usersWithToken = usersData.map((u) => ({
-      ...u,
-      personId: randomUUID(),
-      token: randomUUID(),
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-    }))
+  /**
+   * Pre-registro: crea invitaciones y envía correos.
+   * Ya NO crea usuarios en estado PENDIENTE.
+   * Solo inserta en invitaciones_registro.
+   */
+  static async preRegister(usersData, creadoPor) {
+    // 1. Resolver rol_id para cada invitación
+    const invitaciones = []
+    for (const u of usersData) {
+      const [[rolRow]] = await pool.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
+        u.role.toLowerCase(),
+      ])
+      if (!rolRow) throw new Error(`Rol "${u.role}" no existe`)
 
+      invitaciones.push({
+        correo: u.email,
+        rolId: rolRow.id,
+        token: randomUUID(),
+        expiraAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // 48 horas
+        creadoPor,
+      })
+    }
+
+    // 2. Insertar invitaciones en transacción
     const conn = await pool.getConnection()
-    let createdUsers = []
-
     try {
       await conn.beginTransaction()
-      // creamos usuario + persona
-      createdUsers = await UserModel.preRegister(usersWithToken, conn)
-      // creamos tokens de registro
-      await TokenModel.insertTokens(usersWithToken, conn)
-      // guardamos cambios
+      await InvitacionModel.insertMany(invitaciones, conn)
       await conn.commit()
     } catch (error) {
       await conn.rollback()
@@ -32,27 +41,24 @@ export class UserService {
       conn.release()
     }
 
-    // ---- Enviar correos fuera de la transacción ----
+    // 3. Enviar correos (fuera de la transacción)
     const emailErrors = []
-    for (const u of usersWithToken) {
-      const url = `https://localhost:5173/register/${u.token}`
-      
-
+    for (const inv of invitaciones) {
+      const url = `http://localhost:5173/registro?token=${inv.token}`
       try {
         await sendEmail({
-          to: u.email,
-          subject: 'Completa tu registro',
-          html: registerEmail(u.email, url),
+          to: inv.correo,
+          subject: 'Completa tu registro — CAIS',
+          html: registerEmail(inv.correo, url),
         })
       } catch (err) {
-        emailErrors.push({ email: u.email, error: err.message })
+        emailErrors.push({ email: inv.correo, error: err.message })
       }
     }
 
     return {
-      users: createdUsers,
+      created: invitaciones.length,
       emailErrors,
-      success: true,
     }
   }
 }

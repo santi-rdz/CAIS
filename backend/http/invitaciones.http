@@ -1,0 +1,61 @@
+### Crear invitación — un correo pasante
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+x-user-id: {908e3188-1608-11f1-a741-a69fb27275b5}
+
+[
+  { "email": "prueba3.pasante@uabc.edu.mx", "role": "pasante" }
+]
+
+### Crear invitaciones — múltiples correos
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+x-user-id: {908e3188-1608-11f1-a741-a69fb27275b5}
+
+[
+  { "email": "inv1@uabc.edu.mx", "role": "pasante" },
+  { "email": "inv2@uabc.edu.mx", "role": "coordinador" }
+]
+
+### Crear invitación — array vacío (debe fallar 400)
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+x-user-id: {908e3188-1608-11f1-a741-a69fb27275b5}
+
+[]
+
+### Crear invitación — email inválido (debe fallar 400)
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+x-user-id: {908e3188-1608-11f1-a741-a69fb27275b5}
+
+[
+  { "email": "no-es-email", "role": "pasante" }
+]
+
+### Crear invitación — rol inválido (debe fallar 400)
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+x-user-id: {908e3188-1608-11f1-a741-a69fb27275b5}
+
+[
+  { "email": "test@test.com", "role": "superadmin" }
+]
+
+### Crear invitación — sin x-user-id (debe fallar por NOT NULL)
+POST http://localhost:8000/invitaciones
+Content-Type: application/json
+
+[
+  { "email": "sin.creador@test.com", "role": "pasante" }
+]
+
+### Validar token (reemplazar con token real)
+# Para obtener tokens: SELECT BIN_TO_UUID(token) AS token FROM invitaciones_registro;
+GET http://localhost:8000/invitaciones/{{token}}
+
+### Validar token — inexistente (debe fallar 404)
+GET http://localhost:8000/invitaciones/00000000-0000-0000-0000-000000000000
+
+### Validar token — formato inválido (debe fallar 404)
+GET http://localhost:8000/invitaciones/no-es-uuid

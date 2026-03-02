@@ -3,6 +3,7 @@ import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
+import { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 
@@ -16,13 +17,34 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function AcademicInfoForm() {
+export default function AcademicInfoForm({ disabledEmail }) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
+  const [isUabcDomain, setIsUabcDomain] = useState(true)
 
   return (
     <div className="space-y-4">
-      <DomainEmailInput id="username" fieldName="username" register={register} error={errors?.username?.message} />
+      {disabledEmail ? (
+        <FormRow htmlFor="username" label="Correo electrónico">
+          <Input
+            {...register('username')}
+            id="username"
+            type="email"
+            defaultValue={disabledEmail}
+            disabled
+            variant="outline"
+          />
+        </FormRow>
+      ) : (
+        <DomainEmailInput
+          id="username"
+          isDomain={isUabcDomain}
+          setIsDomain={setIsUabcDomain}
+          fieldName="username"
+          register={register}
+          error={errors?.username?.message}
+        />
+      )}
 
       <FormRow htmlFor="matricula" label="Matricula">
         <Input

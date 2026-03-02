@@ -1,9 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
-import Login from './pages/Auth'
 import AppLayout from './ui/AppLayout'
 import Dashboard from './pages/Dashboard'
 import Auth from './pages/Auth'
 import LoginForm from '@features/authenticaction/LoginForm'
+import RegisterPage from './pages/RegisterPage'
 import Users from './pages/Users'
 import ProtectedRoute from '@ui/ProtectedRoute'
 
@@ -24,6 +24,7 @@ function App() {
         </Route>
         <Route element={<Auth />}>
           <Route path="login" element={<LoginForm />} />
+          <Route path="registro" element={<RegisterPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
