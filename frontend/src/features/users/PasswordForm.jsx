@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form'
 import { HiInformationCircle } from 'react-icons/hi2'
 
 export default function PasswordForm() {
-  const { register, formState, getValues } = useFormContext()
+  const { register, formState } = useFormContext()
   const { errors } = formState
 
   return (
@@ -21,20 +21,11 @@ export default function PasswordForm() {
       <PasswordInput
         id="password"
         label="Contraseña temporal"
-        placeholder="Contraseña"
+        placeholder="Mínimo 6 caracteres"
         error={errors?.password?.message}
-        registration={register('password', { required: 'Ingresa una contraseña' })}
-        variant="outline"
-      />
-
-      <PasswordInput
-        id="confirmPassword"
-        label="Confirmar contraseña temporal"
-        placeholder="Confirma tu contraseña"
-        error={errors?.confirmPassword?.message}
-        registration={register('confirmPassword', {
-          required: 'Confirma la contraseña',
-          validate: (value) => value === getValues('password') || 'Las contraseñas no coinciden',
+        registration={register('password', {
+          required: 'Ingresa una contraseña',
+          minLength: { value: 6, message: 'La contraseña debe tener al menos 6 caracteres' },
         })}
         variant="outline"
       />

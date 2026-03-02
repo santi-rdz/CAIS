@@ -3,6 +3,9 @@ import Stepper from '@ui/Stepper'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createUser } from '@services/ApiUsers'
+import { toast } from 'sonner'
 import AcademicInfoForm from './AcademicInfoForm'
 import PasswordForm from './PasswordForm'
 import PersonalInfoForm from './PersonalInfoForm'
@@ -12,14 +15,27 @@ const steps = ['Información Personal', 'Información Académica', 'Contraseña'
 const stepsFields = [
   ['firstName', 'lastName', 'birthday', 'phone'],
   ['username', 'matricula', 'servicioInicioAnio', 'servicioInicioPeriodo', 'servicioFinAnio', 'servicioFinPeriodo'],
-  ['password', 'confirmPassword'],
+  ['password'],
 ]
 
-export default function InternForm() {
-  const [currStep, setCurrStep] = useState(2)
+export default function InternForm({ onClose }) {
+  const queryClient = useQueryClient()
+  const [currStep, setCurrStep] = useState(1)
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      toast.success('Usuario creado exitosamente')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      onClose?.()
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
 
   async function handleNext() {
     const isStepValid = await trigger(stepsFields[currStep])
@@ -38,6 +54,23 @@ export default function InternForm() {
     setCurrStep(i)
   }
 
+  function onSubmit(data) {
+    mutate({
+      nombre: data.firstName,
+      apellido: data.lastName,
+      correo: data.username,
+      fechaNacimiento: data.birthday,
+      telefono: data.phone,
+      rol: 'pasante',
+      matricula: data.matricula,
+      servicioInicioAnio: data.servicioInicioAnio,
+      servicioInicioPeriodo: data.servicioInicioPeriodo,
+      servicioFinAnio: data.servicioFinAnio,
+      servicioFinPeriodo: data.servicioFinPeriodo,
+      password: data.password,
+    })
+  }
+
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <FormProvider {...methods}>
@@ -54,12 +87,14 @@ export default function InternForm() {
             label: isLast ? 'Crear usuario' : 'Siguiente',
             icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
             iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(() => {}) : handleNext,
+            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
+            isLoading: isPending,
+            disabled: isPending,
           }}
           secondaryAction={{
             label: 'Anterior',
             onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0,
+            disabled: currStep === 0 || isPending,
             className: 'border-gray-400',
           }}
         />

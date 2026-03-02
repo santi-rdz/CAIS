@@ -771,6 +771,22 @@ CREATE TABLE IF NOT EXISTS bitacora_emergencias (
 );
 
 -- ===============================
+-- INVITACIONES DE REGISTRO
+-- ===============================
+CREATE TABLE IF NOT EXISTS invitaciones_registro (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    correo VARCHAR(255) NOT NULL UNIQUE,
+    rol_id INT NOT NULL,
+    token BINARY(16) NOT NULL UNIQUE,
+    usado BOOLEAN DEFAULT FALSE,
+    expira_at DATETIME NOT NULL,
+    creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    creado_por BINARY(16) NOT NULL,
+    CONSTRAINT fk_invitacion_rol FOREIGN KEY (rol_id) REFERENCES roles(id),
+    CONSTRAINT fk_invitacion_creado_por FOREIGN KEY (creado_por) REFERENCES usuarios(id)
+);
+
+-- ===============================
 -- 2. INSERTAR VALORES BASE
 -- ===============================
 INSERT INTO
@@ -889,4 +905,41 @@ VALUES
         'NUT002',
         '07:00',
         '13:00'
+    );
+
+-- INVITACIONES DE PRUEBA
+INSERT INTO
+    invitaciones_registro (correo, rol_id, token, usado, expira_at, creado_por)
+VALUES
+    (
+        'pasante.prueba@uabc.edu.mx',
+        1,
+        UUID_TO_BIN(UUID()),
+        FALSE,
+        DATE_ADD(NOW(), INTERVAL 7 DAY),
+        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
+    ),
+    (
+        'coord.prueba@uabc.edu.mx',
+        2,
+        UUID_TO_BIN(UUID()),
+        FALSE,
+        DATE_ADD(NOW(), INTERVAL 7 DAY),
+        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
+    ),
+    (
+        'pasante.expirado@uabc.edu.mx',
+        1,
+        UUID_TO_BIN(UUID()),
+        FALSE,
+        DATE_SUB(NOW(), INTERVAL 1 DAY),
+        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
+    ),
+    (
+        'pasante.usado@uabc.edu.mx',
+        1,
+        UUID_TO_BIN(UUID()),
+        TRUE,
+        DATE_ADD(NOW(), INTERVAL 7 DAY),
+        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
     );

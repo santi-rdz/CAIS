@@ -10,7 +10,7 @@ import TabLayout from '@ui/TabLayout'
 import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { HiOutlineEnvelope, HiOutlineUserPlus, HiCheck, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
+import { HiOutlineEnvelope, HiOutlineUserPlus, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
 import DomainEmailInput from '@ui/DomainEmailInput'
 
@@ -38,6 +38,7 @@ export default function InvitationalLinksForm({ onClose }) {
     setIdEdit(user.email)
     setRole(user.role)
     setIsUabcDomain(isUabc)
+    console.log(isUabc)
 
     const displayEmail = isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email
     setValue('email', displayEmail)
@@ -85,7 +86,13 @@ export default function InvitationalLinksForm({ onClose }) {
     >
       <div className="min-h-0 flex-1 overflow-y-auto px-8 py-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <DomainEmailInput register={register} />
+          <DomainEmailInput
+            error={errors?.email?.message}
+            register={register}
+            isDomain={isUabcDomain}
+            setIsDomain={setIsUabcDomain}
+            extraSuffix={<RoleSelect role={role} setRole={setRole} />}
+          />
           <Button size="md" variant="outline" className="w-full border border-gray-300">
             {isEditMode ? (
               <>

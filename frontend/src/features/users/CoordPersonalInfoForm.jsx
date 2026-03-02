@@ -3,11 +3,13 @@ import DomainEmailInput from '@ui/DomainEmailInput'
 import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
+import { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
-export default function CoordPersonalInfoForm() {
+export default function CoordPersonalInfoForm({ disabledEmail }) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
+  const [isUabcDomain, setIsUabcDomain] = useState(true)
 
   return (
     <div className="space-y-4">
@@ -35,13 +37,28 @@ export default function CoordPersonalInfoForm() {
       </Row>
 
       <Row className="gap-4">
-        <DomainEmailInput
-          id="email"
-          fieldName="email"
-          register={register}
-          error={errors?.email?.message}
-          className="w-full"
-        />
+        {disabledEmail ? (
+          <FormRow htmlFor="email" label="Correo electrónico" className="w-full">
+            <Input
+              {...register('email')}
+              id="email"
+              type="email"
+              defaultValue={disabledEmail}
+              disabled
+              variant="outline"
+            />
+          </FormRow>
+        ) : (
+          <DomainEmailInput
+            id="email"
+            isDomain={isUabcDomain}
+            setIsDomain={setIsUabcDomain}
+            fieldName="email"
+            register={register}
+            error={errors?.email?.message}
+            className="w-full"
+          />
+        )}
       </Row>
 
       <Row className="gap-4">

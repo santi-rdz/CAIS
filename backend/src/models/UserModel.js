@@ -2,6 +2,17 @@ import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
 
 export class UserModel {
+  /**
+   * Obtiene una lista paginada de usuarios basada en criterios de búsqueda, estado y ordenamiento.
+   * 
+   * @param {Object} params - Parámetros de consulta.
+   * @param {string} [params.status] - Filtrar por código de estado (ej. 'ACTIVO').
+   * @param {string} [params.sortBy] - Criterio de ordenamiento (ej. 'nombre-asc').
+   * @param {string} [params.search] - Texto para buscar en nombre o correo.
+   * @param {number} params.page - Número de página actual.
+   * @param {number} params.limit - Cantidad de registros por página.
+   * @returns {Promise<{users: Array<Object>, count: number}>} Lista de usuarios y total de registros.
+   */
   static async getAll({ status, sortBy, search, page, limit }) {
     let sql = `
     SELECT 
@@ -70,6 +81,12 @@ export class UserModel {
     return { users, count: total }
   }
 
+  /**
+   * Obtiene la información detallada de un usuario por su ID.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a buscar.
+   * @returns {Promise<Object|null>} Los datos del usuario o null si no se encuentra.
+   */
   static async getById(id) {
     const sql = `
       SELECT 
@@ -98,11 +115,24 @@ export class UserModel {
     return rows[0] || null
   }
 
+  /**
+   * Elimina un usuario de la base de datos de manera física.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a eliminar.
+   * @returns {Promise<boolean>} Retorna true si el usuario fue eliminado, false en caso contrario.
+   */
   static async delete(id) {
     const [result] = await pool.query(`DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`, [id])
     return result.affectedRows > 0
   }
 
+  /**
+   * Actualiza los datos de un usuario de forma dinámica según los campos proporcionados.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a actualizar.
+   * @param {Object} data - Objeto con los campos a actualizar (llaves en español).
+   * @returns {Promise<Object|null>} El usuario actualizado o null si no se modificó nada.
+   */
   static async update(id, data) {
     const fields = []
     const values = []
@@ -122,92 +152,42 @@ export class UserModel {
     return result.affectedRows > 0 ? await this.getById(id) : null
   }
 
-  static async preRegister(newUsers, conn) {
-    const registeredUsers = []
+  /**
+   * Crea un nuevo usuario en la base de datos dentro de una transacción.
+   * 
+   * @param {Object} userData - Datos del usuario a crear.
+   * @param {Object} conn - Conexión de la base de datos usada para la transacción.
+   * @returns {Promise<Object>} El usuario recién creado.
+   */
+  static async create(userData, conn) {
+    const userId = randomUUID()
 
-    for (const u of newUsers) {
-      const userId = u.id || randomUUID()
+    const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
+    const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
+      userData.rol.toLowerCase(),
+    ])
 
-      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', [
-        u.estado || 'PENDIENTE',
-      ])
+    await conn.query(
+      `INSERT INTO usuarios
+        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, foto, matricula, cedula, inicio_servicio, fin_servicio)
+       VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        userData.nombre,
+        userData.correo,
+        userData.fechaNacimiento,
+        userData.telefono,
+        userData.passwordHash,
+        estadoRow.id,
+        rolRow.id,
+        userData.foto || null,
+        userData.matricula || null,
+        userData.cedula || null,
+        userData.inicioServicio || null,
+        userData.finServicio || null,
+      ],
+    )
 
-      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
-        u.rol || 'PASANTE',
-      ])
-
-      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
-        u.area || null,
-      ])
-
-      await conn.query(
-        `INSERT INTO usuarios 
-        (id, nombre, correo, fecha_nacimiento, telefono, estado_id, rol_id, area_id)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          userId,
-          u.nombre || null,
-          u.correo,
-          u.fechaNacimiento || null,
-          u.telefono || null,
-          estadoRow.id,
-          rolRow.id,
-          areaRow?.id || null,
-        ],
-      )
-
-      const user = await this.getById(userId)
-      registeredUsers.push(user)
-    }
-
-    return registeredUsers
-  }
-
-  static async fullRegister(user) {
-    const conn = await pool.getConnection()
-
-    try {
-      await conn.beginTransaction()
-
-      const userId = randomUUID()
-      const foto =
-        user.foto ||
-        `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
-
-      const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
-      const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE codigo = ?', [
-        user.rol?.toUpperCase() || 'PASANTE',
-      ])
-      const [[areaRow]] = await conn.query('SELECT id FROM areas WHERE nombre = ?', [
-        user.area?.toUpperCase() || null,
-      ])
-
-      await conn.query(
-        `INSERT INTO usuarios 
-        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, area_id, foto)
-        VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          userId,
-          user.nombre,
-          user.correo,
-          user.fechaNacimiento,
-          user.telefono,
-          user.password, // Asegúrate de hashear esto antes de enviarlo aquí
-          estadoRow.id,
-          rolRow.id,
-          areaRow?.id || null,
-          foto,
-        ],
-      )
-
-      const createdUser = await this.getById(userId)
-      await conn.commit()
-      return createdUser
-    } catch (err) {
-      await conn.rollback()
-      throw err
-    } finally {
-      conn.release()
-    }
+    return await this.getById(userId)
   }
 }

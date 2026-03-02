@@ -1,6 +1,4 @@
-import { PAGE_SIZE } from '@lib/constants'
-
-const BASE_URL = 'http://localhost:8000'
+import { PAGE_SIZE, BASE_URL } from '@lib/constants'
 
 export async function getUsers({ status, sortBy, search, page }) {
   try {
@@ -24,46 +22,43 @@ export async function getUsers({ status, sortBy, search, page }) {
   }
 }
 
-export async function createPreUser(preUser) {
-  try {
-    const res = await fetch(`${BASE_URL}/usuarios/pre`, {
-      method: 'POST',
-      body: JSON.stringify(preUser),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    if (!res.ok) throw Error()
-    return await res.json()
-  } catch {
-    throw Error('Error al crear usuario')
+export async function getUser(id) {
+  const res = await fetch(`${BASE_URL}/usuarios/${id}`)
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}))
+    throw new Error(errorData.message || 'Error al obtener usuario')
   }
+  return await res.json()
+}
+
+export async function createUser(data) {
+  const res = await fetch(`${BASE_URL}/usuarios`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.message || 'Error al crear usuario')
+  }
+  return await res.json()
+}
+
+export async function registroUsuario(data) {
+  const res = await fetch(`${BASE_URL}/usuarios/registro`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.message || 'Error al completar el registro')
+  }
+  return await res.json()
 }
 
 export async function deleteUser(id) {
-  try {
-    const res = await fetch(`${BASE_URL}/usuarios/${id}`, {
-      method: 'DELETE',
-    })
-    if (!res.ok) throw Error()
-    return await res.json()
-  } catch {
-    throw Error('No se ha podido borrar el usuario')
-  }
-}
-
-export async function getUser(id) {
-  try {
-    const res = await fetch(`http://localhost:8000/usuarios/${id}`)
-
-    if (!res.ok) {
-      const errorData = await res.json()
-      throw new Error(errorData.message || 'Error fetching user')
-    }
-
-    return await res.json()
-  } catch (error) {
-    throw new Error(error.message)
-  }
+  const res = await fetch(`${BASE_URL}/usuarios/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error('No se ha podido borrar el usuario')
+  return await res.json()
 }

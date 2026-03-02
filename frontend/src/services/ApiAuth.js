@@ -1,7 +1,7 @@
-const BASE_URL = 'http://localhost:8000'
+import { BASE_URL } from '@lib/constants'
 
 export async function login({ email, password }) {
-  const res = await fetch('http://localhost:8000/api/auth/login', {
+  const res = await fetch('http://localhost:8000/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

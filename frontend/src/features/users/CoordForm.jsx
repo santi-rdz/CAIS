@@ -3,6 +3,9 @@ import Stepper from '@ui/Stepper'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createUser } from '@services/ApiUsers'
+import { toast } from 'sonner'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 
@@ -10,14 +13,27 @@ const steps = ['Información Personal', 'Contraseña']
 
 const stepsFields = [
   ['firstName', 'lastName', 'email', 'birthday', 'phone', 'cedula'],
-  ['password', 'confirmPassword'],
+  ['password'],
 ]
 
-export default function CoordForm() {
-  const [currStep, setCurrStep] = useState(1)
+export default function CoordForm({ onClose }) {
+  const queryClient = useQueryClient()
+  const [currStep, setCurrStep] = useState(0)
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      toast.success('Usuario creado exitosamente')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      onClose?.()
+    },
+    onError: (err) => {
+      toast.error(err.message)
+    },
+  })
 
   async function handleNext() {
     const isStepValid = await trigger(stepsFields[currStep])
@@ -36,6 +52,19 @@ export default function CoordForm() {
     setCurrStep(i)
   }
 
+  function onSubmit(data) {
+    mutate({
+      nombre: data.firstName,
+      apellido: data.lastName,
+      correo: data.email,
+      fechaNacimiento: data.birthday,
+      telefono: data.phone,
+      rol: 'coordinador',
+      cedula: data.cedula,
+      password: data.password,
+    })
+  }
+
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <FormProvider {...methods}>
@@ -51,12 +80,14 @@ export default function CoordForm() {
             label: isLast ? 'Crear usuario' : 'Siguiente',
             icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
             iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(() => {}) : handleNext,
+            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
+            isLoading: isPending,
+            disabled: isPending,
           }}
           secondaryAction={{
             label: 'Anterior',
             onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0,
+            disabled: currStep === 0 || isPending,
             className: 'border-gray-400',
           }}
         />
