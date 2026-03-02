@@ -4,13 +4,28 @@ import DomainToggle from './DomainToggle'
 import FormRow from './FormRow'
 import Input from './Input'
 
-export default function DomainEmailInput({ id, fieldName = 'email', register, error, onDomainChange, className }) {
+export default function DomainEmailInput({
+  id,
+  fieldName = 'email',
+  register,
+  error,
+  onDomainChange,
+  extraSuffix = null,
+  className,
+}) {
   const [isDomain, setIsDomain] = useState(true)
 
   function handleDomainChange(val) {
     setIsDomain(val)
     onDomainChange?.(val)
   }
+
+  const suffix = (
+    <div className="flex items-center gap-2">
+      <DomainToggle isDomain={isDomain} setIsDomain={handleDomainChange} />
+      {extraSuffix}
+    </div>
+  )
 
   return (
     <FormRow htmlFor={id} label={isDomain ? 'Usuario' : 'Correo electrónico'} className={className}>
@@ -22,10 +37,10 @@ export default function DomainEmailInput({ id, fieldName = 'email', register, er
         id={id}
         type="text"
         offset={6}
-        placeholder={isDomain ? 'e.g. raul.rodriguez39' : 'e.g. raul@example.com'}
+        placeholder={isDomain ? 'Ej. raul.rodriguez39' : 'Ej raul@ejemplo.com'}
         hasError={error}
         variant="outline"
-        suffix={<DomainToggle isDomain={isDomain} setIsDomain={handleDomainChange} />}
+        suffix={suffix}
       />
     </FormRow>
   )

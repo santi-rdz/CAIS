@@ -7,7 +7,7 @@ import Filter from '@ui/Filter'
 import Input from '@ui/Input'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Dialog, DialogContent, DialogTrigger } from '@ui/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@ui/components/ui/dialog'
 
 const SORT_BY_OPTIONS = [
   { label: 'Nombre (asc)', value: 'nombre-asc' },

@@ -41,9 +41,9 @@ export default function InternForm() {
   return (
     <section className="flex min-h-0 flex-1 flex-col">
       <FormProvider {...methods}>
-        <div className="min-h-0 flex-1 overflow-y-auto p-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
           <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
-          <form action="" className="mt-16">
+          <form action="" className="mt-20">
             {currStep === 0 && <PersonalInfoForm />}
             {currStep === 1 && <AcademicInfoForm />}
             {currStep === 2 && <PasswordForm />}

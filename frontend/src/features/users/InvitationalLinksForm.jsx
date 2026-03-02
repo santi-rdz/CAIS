@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { HiOutlineEnvelope, HiOutlineUserPlus, HiCheck, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
+import DomainEmailInput from '@ui/DomainEmailInput'
 
 const EmailsContext = createContext()
 
@@ -82,26 +83,9 @@ export default function InvitationalLinksForm({ onClose }) {
         onEdit: handleEdit,
       }}
     >
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-8 py-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <FormRow htmlFor="email">
-            <Input
-              offset="0"
-              {...register('email', {
-                required: isUabcDomain ? 'Ingresa un usuario' : 'Ingresa un correo electrónico',
-                validate: (email) => isUabcDomain || isValidEmail(email) || 'Ingresa un correo válido',
-              })}
-              id="email"
-              type="text"
-              name="email"
-              variant="outline-b"
-              size="xl"
-              hasError={errors?.email?.message}
-              placeholder={isUabcDomain ? 'e.g. jhon.martinez29' : 'e.g. jhon.martinez@example.com'}
-              aria-label="Ingresar email"
-              suffix={<Suffix />}
-            />
-          </FormRow>
+      <div className="min-h-0 flex-1 overflow-y-auto px-8 py-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <DomainEmailInput register={register} />
           <Button size="md" variant="outline" className="w-full border border-gray-300">
             {isEditMode ? (
               <>
@@ -115,7 +99,9 @@ export default function InvitationalLinksForm({ onClose }) {
           </Button>
         </form>
 
-        <EmailsDisplay />
+        <div className="mt-10">
+          <EmailsDisplay />
+        </div>
       </div>
 
       <ModalActions
@@ -146,10 +132,10 @@ function EmailsDisplay() {
   const isGrid = layout === 'grid'
 
   return (
-    <div className="mt-8 border-t border-t-gray-100 pt-6">
+    <div className="border-t border-t-gray-100 pt-8">
       {users.length > 0 && (
-        <div className="text-4 mb-4 flex items-center justify-between font-bold">
-          <p className="text-4 font-semibold"> Registros ({users.length})</p>
+        <div className="text-4 mb-6 flex items-center justify-between font-bold">
+          <p className="text-4 font-semibold">Registros ({users.length})</p>
           <TabLayout layout={layout} setLayout={setLayout} />
         </div>
       )}
@@ -158,7 +144,7 @@ function EmailsDisplay() {
         <EmailsEmptyState />
       ) : (
         <ul
-          className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-60 gap-2 overflow-y-auto`}
+          className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-64 gap-3 overflow-y-auto`}
         >
           {users.map((user) => (
             <InvitationCard key={user.email} user={user} size="md" type="white" className="shadow-sm">
@@ -224,7 +210,7 @@ function EmailsEmptyState() {
 function Suffix({ className, style }) {
   const { role, isUabcDomain, setIsUabcDomain, setRole } = useContext(EmailsContext)
   return (
-    <div style={style} className={`flex items-center gap-2 pb-4 ${className}`}>
+    <div style={style} className={`flex items-center gap-2 ${className}`}>
       <DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} className="relative" />
       <RoleSelect role={role} setRole={setRole} />
     </div>

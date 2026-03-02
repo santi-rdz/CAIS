@@ -50,7 +50,7 @@ export function SelectTrigger({ children, className = '', ...props }) {
     <button
       type="button"
       onClick={toggle}
-      className={`text-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 font-medium transition-colors duration-300 hover:border-green-800 ${className}`}
+      className={`text-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-300 hover:border-green-800 ${className}`}
       {...props}
     >
       {children}

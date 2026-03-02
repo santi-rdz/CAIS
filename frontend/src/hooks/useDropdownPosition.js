@@ -22,6 +22,7 @@ export default function useDropdownPosition(dropdownHeight, { ignoreSelector = n
   }
 
   function close() {
+    console.log('cerrar')
     setIsOpen(false)
   }
 
