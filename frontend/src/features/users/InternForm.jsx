@@ -16,7 +16,7 @@ const stepsFields = [
 ]
 
 export default function InternForm() {
-  const [currStep, setCurrStep] = useState(1)
+  const [currStep, setCurrStep] = useState(2)
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
@@ -39,11 +39,11 @@ export default function InternForm() {
   }
 
   return (
-    <section className="flex flex-col flex-1 min-h-0">
+    <section className="flex min-h-0 flex-1 flex-col">
       <FormProvider {...methods}>
-        <div className="flex-1 min-h-0 overflow-y-auto p-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
           <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
-          <form action="" className="mt-16">
+          <form action="" className="mt-20">
             {currStep === 0 && <PersonalInfoForm />}
             {currStep === 1 && <AcademicInfoForm />}
             {currStep === 2 && <PasswordForm />}

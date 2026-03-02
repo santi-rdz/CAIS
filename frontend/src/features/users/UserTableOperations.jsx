@@ -1,6 +1,5 @@
 import { HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
 import Button from '@ui/Button'
-import Modal from '@ui/Modal'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
 import UserModal from './UserModal'
@@ -8,6 +7,7 @@ import Filter from '@ui/Filter'
 import Input from '@ui/Input'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@ui/components/ui/dialog'
 
 const SORT_BY_OPTIONS = [
   { label: 'Nombre (asc)', value: 'nombre-asc' },
@@ -49,6 +49,7 @@ function useDebouncedSearch(delay = 500) {
 
 export default function UserTableOperations() {
   const { searchValue, setSearchValue } = useDebouncedSearch()
+  const [open, setOpen] = useState(false)
 
   return (
     <TableOperations>
@@ -64,18 +65,18 @@ export default function UserTableOperations() {
 
       <Filter filterField="status" options={FILTER_OPTIONS} />
       <SortBy options={SORT_BY_OPTIONS} />
-      
-      <Modal>
-        <Modal.Open opens="userModal">
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
           <Button size="md" className="py-2.5">
             <HiOutlinePlus size="16" strokeWidth="2.5" />
             Agregar usuario
           </Button>
-        </Modal.Open>
-        <Modal.Content name="userModal" noPadding>
-          <UserModal />
-        </Modal.Content>
-      </Modal>
+        </DialogTrigger>
+        <DialogContent className="flex max-h-[95vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+          <UserModal onCloseModal={() => setOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </TableOperations>
   )
 }

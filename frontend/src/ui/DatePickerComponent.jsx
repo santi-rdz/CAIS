@@ -30,7 +30,12 @@ export default function DatePickerComponent({ date, setDate, label, hasError }) 
 
         {isOpen &&
           createPortal(
-            <div data-datepicker-calendar className="fixed z-999 rounded-xl bg-white shadow-lg" style={positionStyle}>
+            <div
+              data-datepicker-calendar
+              onMouseDown={(e) => e.stopPropagation()}
+              className="fixed z-[999] rounded-xl bg-white shadow-lg"
+              style={positionStyle}
+            >
               <DateCalendar
                 value={date ?? null}
                 onChange={(newDate) => {

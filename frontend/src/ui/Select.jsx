@@ -1,61 +1,108 @@
-import useDropdownPosition from '@hooks/useDropdownPosition'
-import { HiChevronRight } from 'react-icons/hi2'
+import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import Button from './Button'
+import { HiChevronRight } from 'react-icons/hi2'
+import useDropdownPosition from '@hooks/useDropdownPosition'
 
-export default function Select({ options, value, onChange, placeholder = 'Seleccionar', hasError, className = '' }) {
-  const dropdownHeight = options.length * 48 + 20
-  const { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle } = useDropdownPosition(dropdownHeight)
+const SelectContext = createContext()
 
-  const label = value?.label || placeholder
+export function Select({ children, value, onValueChange, dropdownHeight = 300, className = '', hasError }) {
+  const { triggerRef, isOpen, openAbove, positionStyle, close, toggle } = useDropdownPosition(dropdownHeight)
+  const labelsRef = useRef({})
+  const [, forceUpdate] = useState(0)
+  const seeded = useRef(false)
 
+  function registerLabel(val, label) {
+    labelsRef.current[val] = label
+  }
+
+  function getLabelForValue(val) {
+    return labelsRef.current[val] ?? null
+  }
+
+  function handleValueChange(val) {
+    onValueChange?.(val)
+    close()
+  }
+
+  // SelectValue renders before SelectItems (sibling subtree renders after).
+  // One layout-effect re-render seeds the label registry before the browser paints.
+  useLayoutEffect(() => {
+    if (!seeded.current) {
+      seeded.current = true
+      forceUpdate((n) => n + 1)
+    }
+  }, [])
+
+  return (
+    <SelectContext.Provider
+      value={{ value, handleValueChange, isOpen, openAbove, positionStyle, registerLabel, getLabelForValue, toggle }}
+    >
+      <div className={`relative ${hasError ? 'rounded-lg ring-1 ring-red-400' : ''} ${className}`} ref={triggerRef}>
+        {children}
+      </div>
+    </SelectContext.Provider>
+  )
+}
+
+export function SelectTrigger({ children, className = '', ...props }) {
+  const { toggle, isOpen } = useContext(SelectContext)
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      className={`text-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-300 hover:border-green-800 ${className}`}
+      {...props}
+    >
+      {children}
+      <HiChevronRight
+        size="16"
+        className={`ml-auto inline-block duration-400 ${isOpen ? 'rotate-270' : 'rotate-90'}`}
+      />
+    </button>
+  )
+}
+
+export function SelectValue({ placeholder = 'Seleccionar' }) {
+  const { value, getLabelForValue } = useContext(SelectContext)
+  const label = value ? getLabelForValue(value) : null
+  return <span>{label ?? placeholder}</span>
+}
+
+export function SelectContent({ children }) {
+  const { isOpen, openAbove, positionStyle } = useContext(SelectContext)
   const menuClass = [
-    'fixed z-50 w-fit space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300',
+    'fixed z-[9999] w-fit space-y-1 rounded-lg border border-neutral-100 bg-white p-2 shadow-md duration-300',
     isOpen
       ? `pointer-events-auto scale-100 opacity-100 ${openAbove ? '-translate-y-1' : 'translate-y-1'}`
       : 'pointer-events-none scale-95 opacity-0',
   ].join(' ')
 
-  return (
-    <div
-      className={`text-5 group relative ${hasError ? 'rounded-lg ring-1 ring-red-400' : ''} ${className}`}
-      ref={triggerRef}
-    >
-      <Button variant="outline" size="md" type="button" className="w-full" onClick={toggle}>
-        <span>{label}</span>
-        <HiChevronRight size="16" className={`ml-2 inline-block duration-400 ${isOpen ? 'rotate-270' : 'rotate-90'}`} />
-      </Button>
-      {createPortal(
-        <div className={menuClass} style={positionStyle}>
-          {options.map((option) => (
-            <SelectOption
-              key={option.value}
-              option={option}
-              isActive={value?.value === option.value}
-              onClick={(v) => {
-                onChange(v)
-                close()
-              }}
-            />
-          ))}
-        </div>,
-        document.body,
-      )}
-    </div>
+  return createPortal(
+    <div data-select-menu className={menuClass} style={positionStyle}>
+      {children}
+    </div>,
+    document.body,
   )
 }
 
-function SelectOption({ option, isActive, onClick }) {
-  const { label, value } = option
+export function SelectItem({ children, value, hideRadio = false }) {
+  const { handleValueChange, value: selectedValue, registerLabel } = useContext(SelectContext)
+  const isActive = selectedValue === value
+
+  // Register the label during render (sync). SelectValue reads this on the
+  // second render triggered by useLayoutEffect in Select.
+  if (typeof children === 'string') {
+    registerLabel(value, children)
+  }
 
   return (
     <button
       type="button"
-      onClick={() => onClick(value)}
+      onClick={() => handleValueChange(value)}
       className={`flex w-full cursor-pointer items-center gap-3 rounded-sm px-4 py-3 text-start text-nowrap hover:bg-gray-100 ${isActive ? 'bg-white-mint pointer-events-none' : ''}`}
     >
-      {value !== 'clear' && <Radio isActive={isActive} />}
-      {label}
+      {!hideRadio && <Radio isActive={isActive} />}
+      {children}
     </button>
   )
 }
