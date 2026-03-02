@@ -10,7 +10,7 @@ export class UserController {
   /**
    * GET /usuarios
    * Obtiene una lista paginada de todos los usuarios, con opciones de filtrado y ordenamiento.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -25,7 +25,7 @@ export class UserController {
   /**
    * GET /usuarios/:id
    * Obtiene los detalles de un usuario específico mediante su ID.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -39,7 +39,7 @@ export class UserController {
   /**
    * DELETE /usuarios/:id
    * Elimina un usuario del sistema mediante su ID.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -51,9 +51,9 @@ export class UserController {
   }
 
   /**
-   * PUT/PATCH /usuarios/:id
+   * PATCH /usuarios/:id
    * Actualiza parcialmente la información de un usuario existente.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -71,7 +71,7 @@ export class UserController {
   /**
    * POST /usuarios
    * Crea un usuario directamente en el sistema (flujo para coordinador/admin).
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -148,7 +148,7 @@ export class UserController {
   /**
    * POST /usuarios/registro
    * Completa el registro de un nuevo usuario utilizando un token de invitación válido.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */

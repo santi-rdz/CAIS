@@ -1,12 +1,12 @@
 import { InvitacionModel } from '../models/TokenModel.js'
 import { UserService } from '../services/users.js'
-import { validateInvitedUser } from '../schemas/createPreUser.js'
+import { validateInvitedUser } from '../schemas/invitedUser.js'
 
 export class InvitacionController {
   /**
    * POST /invitaciones
    * Crea invitaciones de registro y envía correos a los usuarios invitados.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
@@ -40,7 +40,7 @@ export class InvitacionController {
   /**
    * GET /invitaciones/:token
    * Valida un token de registro y retorna el correo y rol asociados si es válido.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */

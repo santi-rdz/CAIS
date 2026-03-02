@@ -5,7 +5,7 @@ export class AuthController {
   /**
    * POST /login
    * Autentica a un usuario verificando sus credenciales y retorna su id y correo.
-   * 
+   *
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
