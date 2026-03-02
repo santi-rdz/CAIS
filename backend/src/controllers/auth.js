@@ -2,6 +2,13 @@ import { pool } from '../config/db.js'
 import bcrypt from 'bcryptjs'
 
 export class AuthController {
+  /**
+   * POST /login
+   * Autentica a un usuario verificando sus credenciales y retorna su id y correo.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
+   */
   static async login(req, res) {
     const { email, password } = req.body
 

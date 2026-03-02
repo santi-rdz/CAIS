@@ -5,7 +5,10 @@ import { validateInvitedUser } from '../schemas/createPreUser.js'
 export class InvitacionController {
   /**
    * POST /invitaciones
-   * Crea invitaciones de registro y envía correos.
+   * Crea invitaciones de registro y envía correos a los usuarios invitados.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
    */
   static async create(req, res) {
     const result = validateInvitedUser(req.body)
@@ -36,7 +39,10 @@ export class InvitacionController {
 
   /**
    * GET /invitaciones/:token
-   * Valida un token de registro y retorna correo + rol.
+   * Valida un token de registro y retorna el correo y rol asociados si es válido.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
    */
   static async validateToken(req, res) {
     const { token } = req.params

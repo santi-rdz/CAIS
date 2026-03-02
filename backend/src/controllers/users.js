@@ -7,6 +7,13 @@ import { pool } from '../config/db.js'
 import bcrypt from 'bcryptjs'
 
 export class UserController {
+  /**
+   * GET /usuarios
+   * Obtiene una lista paginada de todos los usuarios, con opciones de filtrado y ordenamiento.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
+   */
   static async getAll(req, res) {
     const { status, sortBy, search } = req.query
     const page = +req.query.page || 1
@@ -15,6 +22,13 @@ export class UserController {
     res.json(users)
   }
 
+  /**
+   * GET /usuarios/:id
+   * Obtiene los detalles de un usuario específico mediante su ID.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
+   */
   static async getById(req, res) {
     const { id } = req.params
     const user = await UserModel.getById(id)
@@ -22,6 +36,13 @@ export class UserController {
     res.json(user)
   }
 
+  /**
+   * DELETE /usuarios/:id
+   * Elimina un usuario del sistema mediante su ID.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
+   */
   static async delete(req, res) {
     const { id } = req.params
     const success = await UserModel.delete(id)
@@ -29,6 +50,13 @@ export class UserController {
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
+  /**
+   * PUT/PATCH /usuarios/:id
+   * Actualiza parcialmente la información de un usuario existente.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
+   */
   static async update(req, res) {
     const result = validatePartialUser(req.body)
     if (result.error) return res.status(400).json({ error: JSON.parse(result.error.message) })
@@ -42,7 +70,10 @@ export class UserController {
 
   /**
    * POST /usuarios
-   * Crea un usuario directamente (flujo de coordinador/admin).
+   * Crea un usuario directamente en el sistema (flujo para coordinador/admin).
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
    */
   static async create(req, res) {
     const result = validateUser(req.body)
@@ -116,7 +147,10 @@ export class UserController {
 
   /**
    * POST /usuarios/registro
-   * Completa el registro de un usuario a partir de un token de invitación.
+   * Completa el registro de un nuevo usuario utilizando un token de invitación válido.
+   * 
+   * @param {Object} req - Objeto de petición de Express.
+   * @param {Object} res - Objeto de respuesta de Express.
    */
   static async registro(req, res) {
     const { token } = req.body

@@ -2,6 +2,17 @@ import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
 
 export class UserModel {
+  /**
+   * Obtiene una lista paginada de usuarios basada en criterios de búsqueda, estado y ordenamiento.
+   * 
+   * @param {Object} params - Parámetros de consulta.
+   * @param {string} [params.status] - Filtrar por código de estado (ej. 'ACTIVO').
+   * @param {string} [params.sortBy] - Criterio de ordenamiento (ej. 'nombre-asc').
+   * @param {string} [params.search] - Texto para buscar en nombre o correo.
+   * @param {number} params.page - Número de página actual.
+   * @param {number} params.limit - Cantidad de registros por página.
+   * @returns {Promise<{users: Array<Object>, count: number}>} Lista de usuarios y total de registros.
+   */
   static async getAll({ status, sortBy, search, page, limit }) {
     let sql = `
     SELECT 
@@ -70,6 +81,12 @@ export class UserModel {
     return { users, count: total }
   }
 
+  /**
+   * Obtiene la información detallada de un usuario por su ID.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a buscar.
+   * @returns {Promise<Object|null>} Los datos del usuario o null si no se encuentra.
+   */
   static async getById(id) {
     const sql = `
       SELECT 
@@ -98,11 +115,24 @@ export class UserModel {
     return rows[0] || null
   }
 
+  /**
+   * Elimina un usuario de la base de datos de manera física.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a eliminar.
+   * @returns {Promise<boolean>} Retorna true si el usuario fue eliminado, false en caso contrario.
+   */
   static async delete(id) {
     const [result] = await pool.query(`DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`, [id])
     return result.affectedRows > 0
   }
 
+  /**
+   * Actualiza los datos de un usuario de forma dinámica según los campos proporcionados.
+   * 
+   * @param {string} id - El ID (UUID) del usuario a actualizar.
+   * @param {Object} data - Objeto con los campos a actualizar (llaves en español).
+   * @returns {Promise<Object|null>} El usuario actualizado o null si no se modificó nada.
+   */
   static async update(id, data) {
     const fields = []
     const values = []
@@ -122,6 +152,13 @@ export class UserModel {
     return result.affectedRows > 0 ? await this.getById(id) : null
   }
 
+  /**
+   * Crea un nuevo usuario en la base de datos dentro de una transacción.
+   * 
+   * @param {Object} userData - Datos del usuario a crear.
+   * @param {Object} conn - Conexión de la base de datos usada para la transacción.
+   * @returns {Promise<Object>} El usuario recién creado.
+   */
   static async create(userData, conn) {
     const userId = randomUUID()
 
