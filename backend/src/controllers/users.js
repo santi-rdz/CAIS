@@ -1,5 +1,5 @@
-import { validatePartialUser, validateUser } from '../schemas/usuario.js'
-import { validateRegistro } from '../schemas/registro.js'
+import { validatePartialUser, validateUser } from '../schemas/user.js'
+import { validateRegistro } from '../schemas/register.js'
 import { randomUUID } from 'node:crypto'
 import { UserModel } from '../models/UserModel.js'
 import { InvitacionModel } from '../models/TokenModel.js'
