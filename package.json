@@ -30,7 +30,8 @@
     "docker:logs": "docker compose logs -f",
     "docker:start": "docker compose start",
     "docker:stop": "docker compose stop",
-    "docker:exec:frontend": "docker compose exec frontend sh"
+    "docker:exec:frontend": "docker compose exec frontend sh",
+    "dock:sql": "docker exec -it mysql_db mysql -u user -p"
   },
   "dependencies": {
     "frontend": "^0.0.0"
