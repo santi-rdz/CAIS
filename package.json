@@ -20,18 +20,17 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up",
-    "docker:up:d": "docker compose up -d",
-    "docker:up:b": "docker compose up --build",
-    "docker:down": "docker compose down",
-    "docker:restart": "docker compose restart",
-    "docker:logs": "docker compose logs -f",
-    "docker:start": "docker compose start",
-    "docker:stop": "docker compose stop",
-    "docker:exec:frontend": "docker compose exec frontend sh",
-    "dock:sql": "docker exec -it mysql_db mysql -u user -p"
+    "dc:build": "docker compose build",
+    "dc:up": "docker compose up -d",
+    "dc:rebuild": "docker compose up -d --build",
+    "dc:down": "docker compose down",
+    "dc:down:v": "docker compose down -v",
+    "dc:restart": "docker compose restart",
+    "dc:logs": "docker compose logs -f",
+    "dc:ps": "docker compose ps",
+    "dc:exec:fe": "docker compose exec frontend sh",
+    "dc:exec:be": "docker compose exec backend sh",
+    "dc:sql": "docker compose exec mysql mysql -u user -p"
   },
   "dependencies": {
     "frontend": "^0.0.0"

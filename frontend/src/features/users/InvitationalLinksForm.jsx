@@ -1,4 +1,3 @@
-import { isValidEmail } from '@lib/utils'
 import Button from '@ui/Button'
 import DomainToggle from '@ui/DomainToggle'
 import FormRow from '@ui/FormRow'
@@ -10,6 +9,7 @@ import TabLayout from '@ui/TabLayout'
 import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import useEmailDomain from '@hooks/useEmailDomain'
 import { HiOutlineEnvelope, HiOutlineUserPlus, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
 import DomainEmailInput from '@ui/DomainEmailInput'
@@ -22,7 +22,7 @@ export default function InvitationalLinksForm({ onClose }) {
   const [users, setUsers] = useState([])
   const [idEdit, setIdEdit] = useState('')
   const [role, setRole] = useState('pasante')
-  const [isUabcDomain, setIsUabcDomain] = useState(true)
+  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
 
   const isEditMode = Boolean(idEdit)
   const {
@@ -38,10 +38,7 @@ export default function InvitationalLinksForm({ onClose }) {
     setIdEdit(user.email)
     setRole(user.role)
     setIsUabcDomain(isUabc)
-    console.log(isUabc)
-
-    const displayEmail = isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email
-    setValue('email', displayEmail)
+    setValue('email', isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email)
   }
 
   const handleDelete = (email) => {
@@ -50,8 +47,7 @@ export default function InvitationalLinksForm({ onClose }) {
   }
 
   const onSubmit = (data) => {
-    const { email } = data
-    const fullEmail = isUabcDomain ? `${email.replace('@uabc.edu.mx', '')}@uabc.edu.mx` : email
+    const fullEmail = resolveEmail(data.email)
 
     if (isEditMode) {
       setUsers(users.map((u) => (u.email === idEdit ? { email: fullEmail, role, status: 'pendiente' } : u)))

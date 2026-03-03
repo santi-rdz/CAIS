@@ -3,7 +3,6 @@ import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
-import { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 
@@ -17,10 +16,9 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function AcademicInfoForm({ disabledEmail }) {
+export default function AcademicInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
-  const [isUabcDomain, setIsUabcDomain] = useState(true)
 
   return (
     <div className="space-y-4">

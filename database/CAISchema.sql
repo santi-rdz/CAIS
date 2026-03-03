@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     ultimo_acceso DATETIME DEFAULT NULL,
     foto VARCHAR(255) DEFAULT NULL,
     matricula VARCHAR(20) DEFAULT NULL,
+    cedula VARCHAR(20) DEFAULT NULL,
     inicio_servicio VARCHAR(8) DEFAULT NULL,
     fin_servicio VARCHAR(8) DEFAULT NULL,
     CONSTRAINT fk_usuario_estado FOREIGN KEY (estado_id) REFERENCES estados(id),

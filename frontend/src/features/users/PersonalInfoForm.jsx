@@ -1,8 +1,8 @@
-import DatePickerComponent from '@ui/DatePickerComponent'
+import BirthdayField from '@ui/BirthdayField'
 import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
-import { Controller, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 
 export default function PersonalInfoForm() {
   const { register, control, formState } = useFormContext()
@@ -33,21 +33,7 @@ export default function PersonalInfoForm() {
         </FormRow>
       </Row>
       <Row className="gap-4">
-        <FormRow className="w-full" htmlFor="birthday" label="Fecha de nacimiento">
-          <Controller
-            name="birthday"
-            control={control}
-            rules={{ required: 'Ingresa la fecha de nacimiento' }}
-            render={({ field: { onChange, value } }) => (
-              <DatePickerComponent
-                date={value ?? null}
-                setDate={onChange}
-                label="DD/MM/YYYY"
-                hasError={!!errors?.birthday}
-              />
-            )}
-          />
-        </FormRow>
+        <BirthdayField control={control} errors={errors} />
         <FormRow htmlFor="phone" label="Número telefónico" className="w-full">
           <Input
             {...register('phone', {

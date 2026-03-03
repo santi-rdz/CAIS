@@ -8,6 +8,7 @@ export default function useUser() {
   const { data: user, isPending } = useQuery({
     queryKey: ['user'],
     queryFn: () => getUserApi(userQuery.id),
+    enabled: !!userQuery,
     retry: false,
   })
   if (!userQuery) return { isAuthenticated: false }

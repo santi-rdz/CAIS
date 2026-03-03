@@ -1,6 +1,7 @@
 import { createInvitaciones } from '@services/ApiInvitaciones'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { toastApiError } from '@lib/ApiError'
 
 export default function useCreatePreUser() {
   const queryClient = useQueryClient()
@@ -9,7 +10,6 @@ export default function useCreatePreUser() {
   const { mutate: createPreUser, isPending: isCreating } = useMutation({
     mutationFn: (invitaciones) => createInvitaciones(invitaciones, user?.id),
     onSuccess: (data) => {
-      console.log(data)
       const plural = data.created > 1 ? 's' : ''
       const intro = `${data.created} usuario${plural} creado${plural}`
       data.emailErrors.length > 0
@@ -19,9 +19,7 @@ export default function useCreatePreUser() {
         queryKey: ['users'],
       })
     },
-    onError: (err) => {
-      toast.error(err.message)
-    },
+    onError: toastApiError,
   })
   return { createPreUser, isCreating }
 }
