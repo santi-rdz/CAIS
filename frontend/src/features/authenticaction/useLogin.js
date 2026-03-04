@@ -1,4 +1,4 @@
-import { login as loginApi } from '@services/apiAuth'
+import { login as loginApi } from '@services/ApiAuth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -11,6 +11,8 @@ export default function useLogin() {
     onSuccess: (data) => {
       console.log(data)
       queryClient.setQueryData(['user'], data)
+      // Guardar usuario en localStorage para persistir sesión
+      localStorage.setItem('user', JSON.stringify(data))
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {

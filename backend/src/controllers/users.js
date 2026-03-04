@@ -1,5 +1,5 @@
-import { validatePartialUser, validateUser } from '../schemas/usuario.js'
-import { validateRegistro } from '../schemas/registro.js'
+import { validatePartialUser, validateUser } from '../schemas/user.js'
+import { validateRegistro } from '../schemas/register.js'
 import { randomUUID } from 'node:crypto'
 import { UserModel } from '../models/UserModel.js'
 import { InvitacionModel } from '../models/TokenModel.js'
@@ -15,6 +15,7 @@ export class UserController {
    * @param {Object} res - Objeto de respuesta de Express.
    */
   static async getAll(req, res) {
+
     const { status, sortBy, search } = req.query
     const page = +req.query.page || 1
     const limit = +req.query.limit || 10

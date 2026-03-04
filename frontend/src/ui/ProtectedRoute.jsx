@@ -5,7 +5,7 @@ import useUser from '@features/users/useUser'
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, isPending } = useUser()
 
-  // Loading
+  // Loading - solo mostrar spinner si está pendiente y hay usuario
   if (isPending)
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
