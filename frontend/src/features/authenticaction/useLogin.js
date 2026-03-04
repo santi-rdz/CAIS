@@ -10,6 +10,8 @@ export default function useLogin() {
     mutationFn: loginApi,
     onSuccess: (data) => {
       queryClient.setQueryData(['user'], data)
+      // Guardar usuario en localStorage para persistir sesión
+      localStorage.setItem('user', JSON.stringify(data))
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {

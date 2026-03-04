@@ -16,6 +16,7 @@ export class UserController {
    * @param {Object} res - Objeto de respuesta de Express.
    */
   static async getAll(req, res) {
+
     const { status, sortBy, search } = req.query
     const page = +req.query.page || 1
     const limit = +req.query.limit || 10
