@@ -184,6 +184,9 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+.error {
+  @apply outline-[1.5px] outline-offset-2 outline-red-400;
+}
 
 @layer base {
   * {

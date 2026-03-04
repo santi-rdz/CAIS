@@ -27,6 +27,7 @@ export async function throwApiError(res, fallback) {
  * @param {unknown} error
  */
 export function toastApiError(error) {
+  console.log(error)
   if (error instanceof ApiError && error.fields.length > 0) {
     const description = error.fields.map((f) => `• ${f.message}`).join('\n')
     toast.error(error.message, { description })

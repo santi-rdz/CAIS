@@ -2,6 +2,7 @@ import { createContext, useContext, useLayoutEffect, useRef, useState } from 're
 import { createPortal } from 'react-dom'
 import { HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
+import { cn } from './lib/utils'
 
 const SelectContext = createContext()
 
@@ -35,7 +36,17 @@ export function Select({ children, value, onValueChange, dropdownHeight = 300, c
 
   return (
     <SelectContext.Provider
-      value={{ value, handleValueChange, isOpen, openAbove, positionStyle, registerLabel, getLabelForValue, toggle }}
+      value={{
+        value,
+        handleValueChange,
+        isOpen,
+        hasError,
+        openAbove,
+        positionStyle,
+        registerLabel,
+        getLabelForValue,
+        toggle,
+      }}
     >
       <div className={`relative ${hasError ? 'rounded-lg ring-1 ring-red-400' : ''} ${className}`} ref={triggerRef}>
         {children}
@@ -45,15 +56,19 @@ export function Select({ children, value, onValueChange, dropdownHeight = 300, c
 }
 
 export function SelectTrigger({ children, className = '', ...props }) {
-  const { toggle, isOpen } = useContext(SelectContext)
+  const { toggle, isOpen, hasError } = useContext(SelectContext)
   return (
     <button
       type="button"
       onClick={toggle}
-      className={`text-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-300 hover:border-green-800 ${className}`}
+      className={cn(
+        hasError && 'error',
+        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-300 hover:border-green-800',
+        className,
+      )}
       {...props}
     >
-      {children}
+      <span className="max-w-[11ch] truncate">{children}</span>
       <HiChevronRight
         size="16"
         className={`ml-auto inline-block duration-400 ${isOpen ? 'rotate-270' : 'rotate-90'}`}
