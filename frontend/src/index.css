@@ -55,6 +55,10 @@
   font-size: clamp(0.625rem, 0.581rem + 0.1878vw, 0.75rem);
   line-height: 1.25;
 }
+@utility text-7 {
+  font-size: clamp(0.5rem, 0.47rem + 0.15vw, 0.625rem);
+  line-height: 1.2;
+}
 
 .layout {
   display: grid;
