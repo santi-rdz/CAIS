@@ -1,63 +1,63 @@
-import { NavLink } from "react-router";
+import { NavLink } from 'react-router'
 import {
   HiOutlineSquares2X2,
   HiOutlineUserGroup,
   HiOutlineIdentification,
   HiOutlineChartBar,
   HiOutlineBookOpen,
-} from "react-icons/hi2";
+} from 'react-icons/hi2'
 
 const routes = [
   {
-    path: "/dashboard",
-    name: "Dashboard",
+    path: '/dashboard',
+    name: 'Dashboard',
     icon: HiOutlineSquares2X2,
   },
   {
-    path: "/pacientes",
-    name: "Pacientes",
+    path: '/pacientes',
+    name: 'Pacientes',
     icon: HiOutlineUserGroup,
   },
   {
-    path: "bitacora",
-    name: "Bitácora",
+    path: 'bitacora',
+    name: 'Bitácora',
     icon: HiOutlineBookOpen,
   },
   {
-    path: "estadisticas",
-    name: "Estadísticas",
+    path: 'estadisticas',
+    name: 'Estadísticas',
     icon: HiOutlineChartBar,
   },
   {
-    path: "usuarios",
-    name: "Usuarios",
+    path: 'usuarios',
+    name: 'Usuarios',
     icon: HiOutlineIdentification,
   },
-];
+]
 
 export default function MainNav({ isExpanded }) {
   return (
     <nav>
-      <ul className={`flex flex-col gap-2 ${isExpanded ? "" : "items-center"}`}>
+      <ul className={`flex flex-col gap-2 ${isExpanded ? '' : 'items-center'}`}>
         {routes.map((r) => (
           <NavLi route={r} key={r.path} isExpanded={isExpanded} />
         ))}
       </ul>
     </nav>
-  );
+  )
 }
 
 function NavLi({ route, isExpanded }) {
-  const { path, name, icon: Icon } = route;
+  const { path, name, icon: Icon } = route
   return (
     <li className="">
       <NavLink
         to={path}
-        className={`text-4 group active-route:bg-green-600 active-route:pointer-events-none active-route:text-white hover:bg-white-mint relative flex items-center rounded-md px-4 py-3 tracking-wide duration-300 ${isExpanded ? "w-full gap-3" : "w-fit gap-0"}`}
+        className={`text-4 group active-route:bg-green-100 active-route:pointer-events-none active-route:text-green-800 relative flex items-center rounded-md px-4 py-3 tracking-wide duration-300 hover:bg-gray-100 ${isExpanded ? 'w-full gap-3' : 'w-fit gap-0'}`}
       >
         <Icon size={24} className="group-hover:text-green-800" />
         <span
-          className={`overflow-hidden font-medium transition-all duration-300 ease-in-out ${isExpanded ? "w-32" : "w-0"}`}
+          className={`overflow-hidden font-medium transition-all duration-300 ease-in-out ${isExpanded ? 'w-32' : 'w-0'}`}
         >
           {name}
         </span>
@@ -68,5 +68,5 @@ function NavLi({ route, isExpanded }) {
         )}
       </NavLink>
     </li>
-  );
+  )
 }
