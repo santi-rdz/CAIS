@@ -18,7 +18,7 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, () => console.log(errors))} role="form">
+    <form onSubmit={handleSubmit(onSubmit)} role="form">
       <DomainEmailInput
         id="email"
         register={register}
@@ -39,7 +39,7 @@ export default function LoginForm() {
       <Footer />
 
       <Button isLoading={isPending} className="mt-10 w-full">
-        Iniciar Sesion
+        Iniciar Sesión
       </Button>
     </form>
   )

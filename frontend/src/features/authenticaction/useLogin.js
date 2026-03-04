@@ -9,7 +9,6 @@ export default function useLogin() {
   const { mutate: login, isPending } = useMutation({
     mutationFn: loginApi,
     onSuccess: (data) => {
-      console.log(data)
       queryClient.setQueryData(['user'], data)
       // Guardar usuario en localStorage para persistir sesión
       localStorage.setItem('user', JSON.stringify(data))

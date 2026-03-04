@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function useDropdownPosition(dropdownHeight, { ignoreSelector = null } = {}) {
+export default function useDropdownPosition(dropdownHeight, { ignoreSelector = null, dropdownWidth = null } = {}) {
   const triggerRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
   const [openAbove, setOpenAbove] = useState(false)
@@ -12,17 +12,25 @@ export default function useDropdownPosition(dropdownHeight, { ignoreSelector = n
     const spaceBelow = window.innerHeight - rect.bottom
     const above = spaceBelow < dropdownHeight
 
+    const vertical = above
+      ? { bottom: window.innerHeight - rect.top + 4 }
+      : { top: rect.bottom + 4 }
+
+    let horizontal
+    if (dropdownWidth && rect.left + dropdownWidth > window.innerWidth - 8) {
+      // No cabe a la derecha del trigger → alinear por la derecha
+      horizontal = { right: window.innerWidth - rect.right }
+    } else {
+      // Alinear por la izquierda del trigger
+      horizontal = { left: Math.max(8, rect.left) }
+    }
+
     setOpenAbove(above)
-    setPositionStyle(
-      above
-        ? { bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right }
-        : { top: rect.bottom + 4, right: window.innerWidth - rect.right },
-    )
+    setPositionStyle({ ...vertical, ...horizontal })
     setIsOpen(true)
   }
 
   function close() {
-    console.log('cerrar')
     setIsOpen(false)
   }
 

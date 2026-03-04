@@ -1,6 +1,7 @@
 import { InvitacionModel } from '../models/TokenModel.js'
 import { UserService } from '../services/users.js'
 import { validateInvitedUser } from '../schemas/invitedUser.js'
+import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class InvitacionController {
   /**
@@ -13,10 +14,10 @@ export class InvitacionController {
   static async create(req, res) {
     const result = validateInvitedUser(req.body)
     if (result.error) {
-      return res.status(400).json({
+      return res.status(422).json({
         error: 'ValidationError',
         message: 'Datos de invitación inválidos',
-        details: JSON.parse(result.error.message),
+        fields: formatZodErrors(result.error),
       })
     }
 

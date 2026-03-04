@@ -5,6 +5,7 @@ import { UserModel } from '../models/UserModel.js'
 import { InvitacionModel } from '../models/TokenModel.js'
 import { pool } from '../config/db.js'
 import bcrypt from 'bcryptjs'
+import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class UserController {
   /**
@@ -82,7 +83,7 @@ export class UserController {
       return res.status(422).json({
         error: 'ValidationError',
         message: 'Datos de usuario inválidos',
-        details: JSON.parse(result.error.message),
+        fields: formatZodErrors(result.error),
       })
     }
 
@@ -172,7 +173,7 @@ export class UserController {
         return res.status(422).json({
           error: 'ValidationError',
           message: 'Datos de registro inválidos',
-          details: JSON.parse(result.error.message),
+          fields: formatZodErrors(result.error),
         })
       }
 

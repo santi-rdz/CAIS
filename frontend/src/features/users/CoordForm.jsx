@@ -6,6 +6,8 @@ import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createUser } from '@services/ApiUsers'
 import { toast } from 'sonner'
+import { toastApiError } from '@lib/ApiError'
+import useEmailDomain from '@hooks/useEmailDomain'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 
@@ -19,6 +21,7 @@ const stepsFields = [
 export default function CoordForm({ onClose }) {
   const queryClient = useQueryClient()
   const [currStep, setCurrStep] = useState(0)
+  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
@@ -30,9 +33,7 @@ export default function CoordForm({ onClose }) {
       queryClient.invalidateQueries({ queryKey: ['users'] })
       onClose?.()
     },
-    onError: (err) => {
-      toast.error(err.message)
-    },
+    onError: toastApiError,
   })
 
   async function handleNext() {
@@ -56,7 +57,7 @@ export default function CoordForm({ onClose }) {
     mutate({
       nombre: data.firstName,
       apellido: data.lastName,
-      correo: data.email,
+      correo: resolveEmail(data.email),
       fechaNacimiento: data.birthday,
       telefono: data.phone,
       rol: 'coordinador',
@@ -71,7 +72,7 @@ export default function CoordForm({ onClose }) {
         <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
           <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
           <form action="" className="mt-20">
-            {currStep === 0 && <CoordPersonalInfoForm />}
+            {currStep === 0 && <CoordPersonalInfoForm isUabcDomain={isUabcDomain} setIsUabcDomain={setIsUabcDomain} />}
             {currStep === 1 && <PasswordForm />}
           </form>
         </div>

@@ -6,6 +6,8 @@ import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createUser } from '@services/ApiUsers'
 import { toast } from 'sonner'
+import { toastApiError } from '@lib/ApiError'
+import useEmailDomain from '@hooks/useEmailDomain'
 import AcademicInfoForm from './AcademicInfoForm'
 import PasswordForm from './PasswordForm'
 import PersonalInfoForm from './PersonalInfoForm'
@@ -20,7 +22,8 @@ const stepsFields = [
 
 export default function InternForm({ onClose }) {
   const queryClient = useQueryClient()
-  const [currStep, setCurrStep] = useState(1)
+  const [currStep, setCurrStep] = useState(0)
+  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
@@ -32,9 +35,7 @@ export default function InternForm({ onClose }) {
       queryClient.invalidateQueries({ queryKey: ['users'] })
       onClose?.()
     },
-    onError: (err) => {
-      toast.error(err.message)
-    },
+    onError: toastApiError,
   })
 
   async function handleNext() {
@@ -58,7 +59,7 @@ export default function InternForm({ onClose }) {
     mutate({
       nombre: data.firstName,
       apellido: data.lastName,
-      correo: data.username,
+      correo: resolveEmail(data.username),
       fechaNacimiento: data.birthday,
       telefono: data.phone,
       rol: 'pasante',
@@ -78,7 +79,7 @@ export default function InternForm({ onClose }) {
           <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
           <form action="" className="mt-20">
             {currStep === 0 && <PersonalInfoForm />}
-            {currStep === 1 && <AcademicInfoForm />}
+            {currStep === 1 && <AcademicInfoForm isUabcDomain={isUabcDomain} setIsUabcDomain={setIsUabcDomain} />}
             {currStep === 2 && <PasswordForm />}
           </form>
         </div>

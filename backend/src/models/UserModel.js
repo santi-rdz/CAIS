@@ -175,7 +175,7 @@ export class UserModel {
         userId,
         userData.nombre,
         userData.correo,
-        userData.fechaNacimiento,
+        new Date(userData.fechaNacimiento).toISOString().split('T')[0],
         userData.telefono,
         userData.passwordHash,
         estadoRow.id,

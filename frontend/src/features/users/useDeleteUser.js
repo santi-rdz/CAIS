@@ -1,6 +1,7 @@
 import { deleteUser as deleteUserApi } from '@services/ApiUsers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { toastApiError } from '@lib/ApiError'
 
 export default function useDeleteUser() {
   const queryClient = useQueryClient()
@@ -12,9 +13,7 @@ export default function useDeleteUser() {
         queryKey: ['users'],
       })
     },
-    onError: (err) => {
-      toast.error(err.message)
-    },
+    onError: toastApiError,
   })
   return { deleteUser, isPending }
 }

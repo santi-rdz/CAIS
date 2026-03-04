@@ -7,6 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { registroUsuario } from '@services/ApiUsers'
 import { toast } from 'sonner'
+import { toastApiError } from '@lib/ApiError'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
 
@@ -35,9 +36,7 @@ export default function CoordRegistrationForm({ email }) {
       toast.success('Registro completado exitosamente')
       navigate('/login')
     },
-    onError: (err) => {
-      toast.error(err.message)
-    },
+    onError: toastApiError,
   })
 
   async function handleNext() {
