@@ -30,7 +30,7 @@
     "dc:ps": "docker compose ps",
     "dc:exec:fe": "docker compose exec frontend sh",
     "dc:exec:be": "docker compose exec backend sh",
-    "dc:sql": "docker compose exec mysql mysql -u user -p"
+    "dc:sql": "docker compose exec db mysql -u user -p"
   },
   "dependencies": {
     "frontend": "^0.0.0"
