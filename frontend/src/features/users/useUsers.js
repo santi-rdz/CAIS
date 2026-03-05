@@ -8,13 +8,14 @@ export function useUsers() {
   const [params] = useSearchParams()
   const queryClient = useQueryClient()
   const status = params.get('status')
+  const rol = params.get('rol')
   const sortBy = params.get('ordenarPor')
   const search = params.get('buscar')
   const page = +(params.get('page') ?? 1)
 
   const { data: { users, count } = {}, isPending } = useQuery({
-    queryKey: ['users', status, sortBy, search, page],
-    queryFn: () => getUsers({ status, sortBy, search, page }),
+    queryKey: ['users', status, rol, sortBy, search, page],
+    queryFn: () => getUsers({ status, rol, sortBy, search, page }),
     staleTime: 1000 * 60 * 5, // Opcional: reduce refetches
   })
 
@@ -25,18 +26,20 @@ export function useUsers() {
 
     if (page < pageCount) {
       queryClient.prefetchQuery({
-        queryKey: ['users', status, sortBy, search, page + 1],
-        queryFn: () => getUsers({ status, sortBy, search, page: page + 1 }),
+        queryKey: ['users', status, rol, sortBy, search, page + 1],
+        queryFn: () =>
+          getUsers({ status, rol, sortBy, search, page: page + 1 }),
       })
     }
 
     if (page > 1) {
       queryClient.prefetchQuery({
-        queryKey: ['users', status, sortBy, search, page - 1],
-        queryFn: () => getUsers({ status, sortBy, search, page: page - 1 }),
+        queryKey: ['users', status, rol, sortBy, search, page - 1],
+        queryFn: () =>
+          getUsers({ status, rol, sortBy, search, page: page - 1 }),
       })
     }
-  }, [queryClient, status, sortBy, search, page, pageCount, count])
+  }, [queryClient, status, rol, sortBy, search, page, pageCount, count])
 
   return { users, count, isPending }
 }

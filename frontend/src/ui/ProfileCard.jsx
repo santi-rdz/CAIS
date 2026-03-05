@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback } from 'react'
 import useUser from '@features/users/useUser'
 import useClickOutside from '@hooks/useClickOutside'
+import useHoverOpen from '@hooks/useHoverOpen'
 import { HiOutlineChevronUpDown } from 'react-icons/hi2'
 import Spinner from './Spinner'
 import ProfileDropdown from './ProfileDropdown'
@@ -8,19 +9,12 @@ import ProfileDropdown from './ProfileDropdown'
 export default function ProfileCard({ isExpanded }) {
   const { user = {}, isPending, logout } = useUser()
   const [isOpen, setIsOpen] = useState(false)
-  const closeTimeout = useRef(null)
 
+  const open = useCallback(() => setIsOpen(true), [])
   const close = useCallback(() => setIsOpen(false), [])
   const ref = useClickOutside(close)
 
-  function handleMouseEnter() {
-    clearTimeout(closeTimeout.current)
-    setIsOpen(true)
-  }
-
-  function handleMouseLeave() {
-    closeTimeout.current = setTimeout(() => setIsOpen(false), 80)
-  }
+  const { onEnter, onLeave } = useHoverOpen(open, close, 80)
 
   if (isPending) return <Spinner />
 
@@ -32,8 +26,8 @@ export default function ProfileCard({ isExpanded }) {
     <div
       ref={ref}
       className="relative mt-auto"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
     >
       {isOpen && (
         <>

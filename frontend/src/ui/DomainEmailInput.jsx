@@ -35,8 +35,8 @@ export default function DomainEmailInput({
       <Input
         {...register(fieldName, {
           required: isDomain
-            ? 'Ingresa tu usuario'
-            : 'Ingresa tu correo electrónico',
+            ? 'Ingresa un usuario'
+            : 'Ingresa un correo electrónico ',
           validate: (val) =>
             isDomain || isValidEmail(val) || 'Ingresa un correo válido',
         })}

@@ -1,4 +1,9 @@
-import { HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
+import {
+  HiArrowDown,
+  HiArrowUp,
+  HiMagnifyingGlass,
+  HiOutlinePlus,
+} from 'react-icons/hi2'
 import Button from '@ui/Button'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
@@ -10,18 +15,40 @@ import { useSearchParams } from 'react-router'
 import { Dialog, DialogContent, DialogTrigger } from '@ui/components/ui/dialog'
 
 const SORT_BY_OPTIONS = [
-  { label: 'Nombre (asc)', value: 'nombre-asc' },
-  { label: 'Nombre (desc)', value: 'nombre-desc' },
-  { label: 'Login (asc)', value: 'login-asc' },
-  { label: 'Login (desc)', value: 'login-desc' },
-  { label: 'Limpiar', value: 'clear' },
+  {
+    label: 'Por Nombre',
+    options: [
+      { label: 'A → Z', value: 'nombre-asc', icon: HiArrowUp },
+      { label: 'Z → A', value: 'nombre-desc', icon: HiArrowDown },
+    ],
+  },
+  {
+    label: 'Por Último Login',
+    options: [
+      { label: 'Más reciente', value: 'login-desc', icon: HiArrowDown },
+      { label: 'Más antiguo', value: 'login-asc', icon: HiArrowUp },
+    ],
+  },
 ]
 
-const FILTER_OPTIONS = [
-  { value: 'default', label: 'Todos' },
-  { value: 'activo', label: 'Activo' },
-  { value: 'inactivo', label: 'Inactivo' },
-  { value: 'pendiente', label: 'Pendiente' },
+const FILTER_GROUPS = [
+  {
+    label: 'ROL',
+    field: 'rol',
+    options: [
+      { label: 'Pasante', value: 'pasante' },
+      { label: 'Coordinador', value: 'coordinador' },
+    ],
+  },
+  {
+    label: 'ESTADO',
+    field: 'status',
+    options: [
+      { label: 'Activo', value: 'activo' },
+      { label: 'Inactivo', value: 'inactivo' },
+      { label: 'Pendiente', value: 'pendiente' },
+    ],
+  },
 ]
 
 function useDebouncedSearch(delay = 500) {
@@ -63,7 +90,7 @@ export default function UserTableOperations() {
         suffix={<HiMagnifyingGlass className="" />}
       />
 
-      <Filter filterField="status" options={FILTER_OPTIONS} />
+      <Filter groups={FILTER_GROUPS} placeholder="Filtrar" />
       <SortBy options={SORT_BY_OPTIONS} />
 
       <Dialog open={open} onOpenChange={setOpen}>
