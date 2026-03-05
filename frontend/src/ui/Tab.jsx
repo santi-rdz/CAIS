@@ -11,7 +11,7 @@ export default function Tab({
   variant = 'primary',
 }) {
   const defaultOption = defaultTab
-    ? options.find((op) => op.value === defaultTab)
+    ? (options.find((op) => op.value === defaultTab) ?? options[0])
     : options[0]
   const [activeOption, setActiveOption] = useState(defaultOption)
 
