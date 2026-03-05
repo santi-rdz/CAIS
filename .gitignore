@@ -28,3 +28,5 @@ Thumbs.db
 docker-compose.override.yml
 .claude/settings.local.json
 .claude/*.local.json
+
+docs/plans/
