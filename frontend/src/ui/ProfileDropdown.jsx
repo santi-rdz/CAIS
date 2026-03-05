@@ -28,7 +28,9 @@ export default function ProfileDropdown({ user, onClose, logout }) {
       {/* User info */}
       <div className="flex items-center gap-3 p-4">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-gray-900">{formattedName}</p>
+          <p className="truncate text-sm font-semibold text-gray-900">
+            {formattedName}
+          </p>
           <p className="truncate text-xs text-gray-400">{correo}</p>
           <div className="mt-2 space-x-2">
             <Tag rounded="full" size="xs" type="activo">
@@ -48,7 +50,10 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
         >
           <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-green-800">
-            <HiOutlineUser size={16} className="text-gray-500 transition-colors group-hover:text-white" />
+            <HiOutlineUser
+              size={16}
+              className="text-gray-500 transition-colors group-hover:text-white"
+            />
           </span>
           Mi Perfil <HiChevronRight className="ml-auto" />
         </button>
@@ -57,7 +62,10 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
         >
           <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-green-800">
-            <HiOutlineCog6Tooth size={16} className="text-gray-500 transition-colors group-hover:text-white" />
+            <HiOutlineCog6Tooth
+              size={16}
+              className="text-gray-500 transition-colors group-hover:text-white"
+            />
           </span>
           Configuración <HiChevronRight className="ml-auto" />
         </button>
@@ -70,7 +78,10 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
         >
           <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-red-600">
-            <HiOutlineArrowRightOnRectangle size={16} className="text-gray-500 transition-colors group-hover:text-white" />
+            <HiOutlineArrowRightOnRectangle
+              size={16}
+              className="text-gray-500 transition-colors group-hover:text-white"
+            />
           </span>
           Cerrar Sesión
         </button>

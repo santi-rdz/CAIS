@@ -7,7 +7,10 @@ const requirements = [
   { label: 'Una letra mayúscula', test: (v) => /[A-Z]/.test(v) },
   { label: 'Una letra minúscula', test: (v) => /[a-z]/.test(v) },
   { label: 'Un número', test: (v) => /[0-9]/.test(v) },
-  { label: 'Un carácter especial (!@#$%^&*)', test: (v) => /[!@#$%^&*]/.test(v) },
+  {
+    label: 'Un carácter especial (!@#$%^&*)',
+    test: (v) => /[!@#$%^&*]/.test(v),
+  },
 ]
 
 function RequirementItem({ met, label }) {
@@ -16,9 +19,15 @@ function RequirementItem({ met, label }) {
       <span
         className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${met ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}
       >
-        {met ? <HiCheck strokeWidth={2} size={12} /> : <HiXMark strokeWidth={2} size={12} />}
+        {met ? (
+          <HiCheck strokeWidth={2} size={12} />
+        ) : (
+          <HiXMark strokeWidth={2} size={12} />
+        )}
       </span>
-      <span className={`text-5 ${met ? 'text-green-700' : 'text-gray-500'}`}>{label}</span>
+      <span className={`text-5 ${met ? 'text-green-700' : 'text-gray-500'}`}>
+        {label}
+      </span>
     </div>
   )
 }
@@ -42,7 +51,8 @@ export default function RegistrationPasswordForm() {
             if (!/[A-Z]/.test(v)) return 'Debe contener una letra mayúscula'
             if (!/[a-z]/.test(v)) return 'Debe contener una letra minúscula'
             if (!/[0-9]/.test(v)) return 'Debe contener un número'
-            if (!/[!@#$%^&*]/.test(v)) return 'Debe contener un carácter especial'
+            if (!/[!@#$%^&*]/.test(v))
+              return 'Debe contener un carácter especial'
             return true
           },
         })}
@@ -56,16 +66,23 @@ export default function RegistrationPasswordForm() {
         error={errors?.confirmPassword?.message}
         registration={register('confirmPassword', {
           required: 'Confirma la contraseña',
-          validate: (value) => value === getValues('password') || 'Las contraseñas no coinciden',
+          validate: (value) =>
+            value === getValues('password') || 'Las contraseñas no coinciden',
         })}
         variant="outline"
       />
 
       <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs">
-        <p className="text-5 mb-3 font-semibold text-gray-700">Tu contraseña debe contener:</p>
+        <p className="text-5 mb-3 font-semibold text-gray-700">
+          Tu contraseña debe contener:
+        </p>
         <div className="space-y-2">
           {requirements.map((req) => (
-            <RequirementItem key={req.label} met={req.test(password)} label={req.label} />
+            <RequirementItem
+              key={req.label}
+              met={req.test(password)}
+              label={req.label}
+            />
           ))}
         </div>
       </div>

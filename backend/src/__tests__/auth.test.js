@@ -1,5 +1,6 @@
 import request from 'supertest'
 import app from '../app.js'
+import { test, describe, expect } from 'vitest'
 
 const api = request(app)
 

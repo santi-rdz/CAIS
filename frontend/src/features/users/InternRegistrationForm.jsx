@@ -16,7 +16,14 @@ const steps = ['Información Personal', 'Información Académica', 'Contraseña'
 
 const stepsFields = [
   ['firstName', 'lastName', 'birthday', 'phone'],
-  ['username', 'matricula', 'servicioInicioAnio', 'servicioInicioPeriodo', 'servicioFinAnio', 'servicioFinPeriodo'],
+  [
+    'username',
+    'matricula',
+    'servicioInicioAnio',
+    'servicioInicioPeriodo',
+    'servicioFinAnio',
+    'servicioFinPeriodo',
+  ],
   ['password', 'confirmPassword'],
 ]
 
@@ -26,7 +33,10 @@ export default function InternRegistrationForm({ email }) {
   const token = searchParams.get('token')
 
   const [currStep, setCurrStep] = useState(0)
-  const methods = useForm({ mode: 'onChange', defaultValues: { username: email } })
+  const methods = useForm({
+    mode: 'onChange',
+    defaultValues: { username: email },
+  })
   const { trigger, handleSubmit } = methods
 
   const isFirst = currStep === 0
@@ -104,7 +114,13 @@ export default function InternRegistrationForm({ email }) {
             variant="primary"
             onClick={isLast ? handleSubmit(onSubmit) : handleNext}
             className={isFirst ? 'w-full' : 'flex-[70%]'}
-            icon={isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />}
+            icon={
+              isLast ? (
+                <HiCheck strokeWidth={1} />
+              ) : (
+                <HiChevronRight strokeWidth={1} />
+              )
+            }
             iconPos={isLast ? 'left' : 'right'}
             isLoading={isPending}
             disabled={isPending}

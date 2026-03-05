@@ -24,14 +24,26 @@ function isWithinRange(date, minDate, maxDate) {
   return !date.isBefore(minDate, 'day') && !date.isAfter(maxDate, 'day')
 }
 
-export default function DatePickerComponent({ name, control, rules, label, hasError, birthdate = true, minDate = DEFAULT_MIN, maxDate = DEFAULT_MAX }) {
-  const { field: { value: date, onChange: setDate } } = useController({ name, control, rules })
+export default function DatePickerComponent({
+  name,
+  control,
+  rules,
+  label,
+  hasError,
+  birthdate = true,
+  minDate = DEFAULT_MIN,
+  maxDate = DEFAULT_MAX,
+}) {
+  const {
+    field: { value: date, onChange: setDate },
+  } = useController({ name, control, rules })
   const resolvedMax = birthdate ? dayjs() : maxDate
   const [digits, setDigits] = useState('')
-  const { triggerRef, isOpen, positionStyle, toggle, close } = useDropdownPosition(CALENDAR_HEIGHT, {
-    ignoreSelector: '[data-datepicker-calendar]',
-    dropdownWidth: 320,
-  })
+  const { triggerRef, isOpen, positionStyle, toggle, close } =
+    useDropdownPosition(CALENDAR_HEIGHT, {
+      ignoreSelector: '[data-datepicker-calendar]',
+      dropdownWidth: 320,
+    })
 
   const handleChange = (e) => {
     const newDigits = e.target.value.replace(/\D/g, '').slice(0, 8)
@@ -67,7 +79,11 @@ export default function DatePickerComponent({ name, control, rules, label, hasEr
     close()
   }
 
-  const inputValue = digits ? formatDigits(digits) : (date && date !== 'invalid') ? dayjs(date).format('DD/MM/YYYY') : ''
+  const inputValue = digits
+    ? formatDigits(digits)
+    : date && date !== 'invalid'
+      ? dayjs(date).format('DD/MM/YYYY')
+      : ''
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
@@ -87,7 +103,9 @@ export default function DatePickerComponent({ name, control, rules, label, hasEr
           <div
             data-datepicker-calendar
             className={`fixed z-[9999] rounded-xl bg-white shadow-lg transition-opacity ${
-              isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+              isOpen
+                ? 'pointer-events-auto opacity-100'
+                : 'pointer-events-none opacity-0'
             }`}
             style={positionStyle}
             onWheel={(e) => e.stopPropagation()}
@@ -101,7 +119,7 @@ export default function DatePickerComponent({ name, control, rules, label, hasEr
               />
             )}
           </div>,
-          document.body,
+          document.body
         )}
       </div>
     </LocalizationProvider>

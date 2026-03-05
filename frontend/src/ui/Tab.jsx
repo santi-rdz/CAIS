@@ -4,12 +4,23 @@ import ModalHeading from './ModalHeading'
 
 const TabContext = createContext()
 
-export default function Tab({ children, defaultTab, options, variant = 'primary' }) {
-  const defaultOption = defaultTab ? options.find((op) => op.value === defaultTab) : options[0]
+export default function Tab({
+  children,
+  defaultTab,
+  options,
+  variant = 'primary',
+}) {
+  const defaultOption = defaultTab
+    ? options.find((op) => op.value === defaultTab)
+    : options[0]
   const [activeOption, setActiveOption] = useState(defaultOption)
 
   return (
-    <TabContext.Provider value={{ activeOption, setActiveOption, options, variant }}>{children}</TabContext.Provider>
+    <TabContext.Provider
+      value={{ activeOption, setActiveOption, options, variant }}
+    >
+      {children}
+    </TabContext.Provider>
   )
 }
 
@@ -29,9 +40,10 @@ Tab.Description = function TabDescription() {
 
 Tab.Options = function TabOptions() {
   const { options, variant } = useContext(TabContext)
-  const tabStyle = variant === 'primary' ? ' mt-6 rounded-lg' : ' mt-4 w-54 rounded-md'
+  const tabStyle =
+    variant === 'primary' ? ' mt-6 rounded-lg' : ' mt-4 w-54 rounded-md'
   return (
-    <nav className={`shrink-0 mx-8 flex gap-1 bg-gray-100 p-1 ${tabStyle}`}>
+    <nav className={`mx-8 flex shrink-0 gap-1 bg-gray-100 p-1 ${tabStyle}`}>
       {options.map((option) => (
         <Tab.Button key={option.value} option={option} />
       ))}
@@ -62,7 +74,9 @@ Tab.Content = function TabContent({ onClose, scrollable = true }) {
   const ActiveComponent = activeOption.component
 
   return (
-    <div className={`w-2xl flex-1 min-h-0 flex flex-col ${scrollable ? 'overflow-y-auto' : ''}`}>
+    <div
+      className={`flex min-h-0 w-2xl flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}
+    >
       {ActiveComponent(onClose)}
     </div>
   )

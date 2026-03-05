@@ -1,5 +1,6 @@
 import request from 'supertest'
 import app from '../app.js'
+import { describe, test, expect, beforeAll, afterAll } from 'node:test'
 
 const api = request(app)
 
@@ -120,7 +121,9 @@ describe('POST /usuarios — creación directa por admin', () => {
   })
 
   test('422 — rechaza password corta', async () => {
-    const res = await api.post('/usuarios').send({ ...pasanteValido, password: '12' })
+    const res = await api
+      .post('/usuarios')
+      .send({ ...pasanteValido, password: '12' })
     expect(res.status).toBe(422)
   })
 
@@ -167,7 +170,9 @@ describe('PATCH /usuarios/:id', () => {
   })
 
   test('200 — actualiza nombre', async () => {
-    const res = await api.patch(`/usuarios/${userId}`).send({ nombre: 'Nombre Actualizado' })
+    const res = await api
+      .patch(`/usuarios/${userId}`)
+      .send({ nombre: 'Nombre Actualizado' })
     expect(res.status).toBe(200)
     expect(res.body.nombre).toBe('Nombre Actualizado')
   })
@@ -206,7 +211,9 @@ describe('DELETE /usuarios/:id', () => {
   })
 
   test('404 — usuario no existe', async () => {
-    const res = await api.delete('/usuarios/00000000-0000-0000-0000-000000000000')
+    const res = await api.delete(
+      '/usuarios/00000000-0000-0000-0000-000000000000'
+    )
     expect(res.status).toBe(404)
   })
 })

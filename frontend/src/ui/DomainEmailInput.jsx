@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { isValidEmail } from '@lib/utils'
 import DomainToggle from './DomainToggle'
 import FormRow from './FormRow'
@@ -28,11 +27,18 @@ export default function DomainEmailInput({
   )
 
   return (
-    <FormRow htmlFor={id} label={isDomain ? 'Usuario' : 'Correo electrónico'} className={className}>
+    <FormRow
+      htmlFor={id}
+      label={isDomain ? 'Usuario' : 'Correo electrónico'}
+      className={className}
+    >
       <Input
         {...register(fieldName, {
-          required: isDomain ? 'Ingresa tu usuario' : 'Ingresa tu correo electrónico',
-          validate: (val) => isDomain || isValidEmail(val) || 'Ingresa un correo válido',
+          required: isDomain
+            ? 'Ingresa tu usuario'
+            : 'Ingresa tu correo electrónico',
+          validate: (val) =>
+            isDomain || isValidEmail(val) || 'Ingresa un correo válido',
         })}
         id={id}
         type="text"

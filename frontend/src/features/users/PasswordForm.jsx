@@ -14,7 +14,8 @@ export default function PasswordForm() {
           <span>Contraseña temporal</span>
         </div>
         <p className="text-5 mt-1 text-blue-700">
-          El usuario deberá cambiar su contraseña en el primer inicio de sesión por seguridad.
+          El usuario deberá cambiar su contraseña en el primer inicio de sesión
+          por seguridad.
         </p>
       </div>
 
@@ -25,7 +26,10 @@ export default function PasswordForm() {
         error={errors?.password?.message}
         registration={register('password', {
           required: 'Ingresa una contraseña',
-          minLength: { value: 6, message: 'La contraseña debe tener al menos 6 caracteres' },
+          minLength: {
+            value: 6,
+            message: 'La contraseña debe tener al menos 6 caracteres',
+          },
         })}
         variant="outline"
       />

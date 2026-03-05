@@ -1,6 +1,7 @@
 import { validateUser, validatePartialUser } from '../schemas/usuario.js'
 import { validateRegistro } from '../schemas/registro.js'
 import { validateInvitedUser } from '../schemas/createPreUser.js'
+import { describe, test, expect } from 'node:test'
 
 // ─── usuario.js (admin creation) ────────────────────────────────────
 
@@ -138,32 +139,50 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza password sin mayúscula', () => {
-    const result = validateRegistro({ ...basePasante, password: 'abc12345!', confirmPassword: 'abc12345!' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, password: 'abc12345!', confirmPassword: 'abc12345!' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 
   test('rechaza password sin número', () => {
-    const result = validateRegistro({ ...basePasante, password: 'Abcdefgh!', confirmPassword: 'Abcdefgh!' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, password: 'Abcdefgh!', confirmPassword: 'Abcdefgh!' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 
   test('rechaza password sin carácter especial', () => {
-    const result = validateRegistro({ ...basePasante, password: 'Abc12345x', confirmPassword: 'Abc12345x' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, password: 'Abc12345x', confirmPassword: 'Abc12345x' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 
   test('rechaza password menor a 8 caracteres', () => {
-    const result = validateRegistro({ ...basePasante, password: 'Ab1!', confirmPassword: 'Ab1!' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, password: 'Ab1!', confirmPassword: 'Ab1!' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 
   test('rechaza confirmPassword que no coincide', () => {
-    const result = validateRegistro({ ...basePasante, confirmPassword: 'Diferente1!' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, confirmPassword: 'Diferente1!' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 
   test('rechaza token no UUID', () => {
-    const result = validateRegistro({ ...basePasante, token: 'no-es-uuid' }, 'PASANTE')
+    const result = validateRegistro(
+      { ...basePasante, token: 'no-es-uuid' },
+      'PASANTE'
+    )
     expect(result.success).toBe(false)
   })
 })
@@ -190,12 +209,17 @@ describe('validateInvitedUser — invitaciones', () => {
   })
 
   test('rechaza rol inválido', () => {
-    const result = validateInvitedUser([{ email: 'a@uabc.edu.mx', role: 'admin' }])
+    const result = validateInvitedUser([
+      { email: 'a@uabc.edu.mx', role: 'admin' },
+    ])
     expect(result.success).toBe(false)
   })
 
   test('rechaza objeto sin array', () => {
-    const result = validateInvitedUser({ email: 'a@uabc.edu.mx', role: 'pasante' })
+    const result = validateInvitedUser({
+      email: 'a@uabc.edu.mx',
+      role: 'pasante',
+    })
     expect(result.success).toBe(false)
   })
 })

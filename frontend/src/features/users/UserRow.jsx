@@ -6,10 +6,7 @@ import { es } from 'date-fns/locale'
 import {
   HiEllipsisVertical,
   HiLockClosed,
-  HiMiniBellAlert,
   HiOutlineLockClosed,
-  HiOutlineTrash,
-  HiTrash,
 } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
 import {
@@ -54,7 +51,9 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
         {hasPicture ? (
           <img src={picture} className="size-full" />
         ) : (
-          <div className="flex size-full items-center justify-center text-base uppercase">{email.at(0)}</div>
+          <div className="flex size-full items-center justify-center text-base uppercase">
+            {email.at(0)}
+          </div>
         )}
       </UserPicture>
       <div className="">
@@ -64,7 +63,9 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
         </Stacked>
       </div>
       <div className="capitalize">{role}</div>
-      <div>{lastLogin ? format(lastLogin, 'dd MMM yyyy', { locale: es }) : '---'}</div>
+      <div>
+        {lastLogin ? format(lastLogin, 'dd MMM yyyy', { locale: es }) : '---'}
+      </div>
       <div>
         <Tag type={status}>{status}</Tag>
       </div>
@@ -98,11 +99,19 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
               <HiOutlineLockClosed />
             </AlertDialogMedia>
             <AlertDialogTitle>Bloquear usuario</AlertDialogTitle>
-            <AlertDialogDescription className="">Estas seguro de bloquear a este usuario?</AlertDialogDescription>
+            <AlertDialogDescription className="">
+              Estas seguro de bloquear a este usuario?
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" disabled={isDeleting} onClick={() => deleteUser(id)}>
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={() => deleteUser(id)}
+            >
               Bloquear
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -118,7 +127,10 @@ function Stacked({ children }) {
 
 function UserPicture({ children }) {
   return (
-    <div alt="User Picture" className="h-10 w-10 overflow-hidden rounded-full bg-gray-200 object-cover">
+    <div
+      alt="User Picture"
+      className="h-10 w-10 overflow-hidden rounded-full bg-gray-200 object-cover"
+    >
       {children}
     </div>
   )

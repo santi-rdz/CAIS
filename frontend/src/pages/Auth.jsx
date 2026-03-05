@@ -16,12 +16,18 @@ export default function Auth() {
 
 const routeMeta = {
   '/login': { title: 'Iniciar Sesión', subtitle: 'Bienvenido de vuelta!' },
-  '/registro': { title: 'Crear cuenta', subtitle: 'Completa tu registro para acceder al sistema.' },
+  '/registro': {
+    title: 'Crear cuenta',
+    subtitle: 'Completa tu registro para acceder al sistema.',
+  },
 }
 
 function Main() {
   const path = useLocation().pathname
-  const { title, subtitle } = routeMeta[path] ?? { title: 'Registrarme', subtitle: 'Completa tu registro.' }
+  const { title, subtitle } = routeMeta[path] ?? {
+    title: 'Registrarme',
+    subtitle: 'Completa tu registro.',
+  }
   return (
     <main className="space-y-10">
       <header>

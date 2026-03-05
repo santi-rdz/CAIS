@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function useDropdownPosition(dropdownHeight, { ignoreSelector = null, dropdownWidth = null } = {}) {
+export default function useDropdownPosition(
+  dropdownHeight,
+  { ignoreSelector = null, dropdownWidth = null } = {}
+) {
   const triggerRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
   const [openAbove, setOpenAbove] = useState(false)

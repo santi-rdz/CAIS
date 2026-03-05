@@ -13,7 +13,9 @@ export default function PersonalInfoForm() {
       <Row className="gap-4">
         <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
           <Input
-            {...register('firstName', { required: 'Ingresa el nombre del pasante' })}
+            {...register('firstName', {
+              required: 'Ingresa el nombre del pasante',
+            })}
             id="firstName"
             type="text"
             placeholder="Ej. Juan Carlos"
@@ -23,7 +25,9 @@ export default function PersonalInfoForm() {
         </FormRow>
         <FormRow htmlFor="lastName" label="Apellidos" className="w-full">
           <Input
-            {...register('lastName', { required: 'Ingresa apellidos del pasante' })}
+            {...register('lastName', {
+              required: 'Ingresa apellidos del pasante',
+            })}
             id="lastName"
             type="text"
             placeholder="Ej. Perez Lopez"
@@ -38,7 +42,10 @@ export default function PersonalInfoForm() {
           <Input
             {...register('phone', {
               required: 'Ingresa el número telefónico',
-              pattern: { value: /^[0-9]{10}$/, message: 'Ingresa un número de 10 dígitos' },
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: 'Ingresa un número de 10 dígitos',
+              },
             })}
             id="phone"
             type="tel"

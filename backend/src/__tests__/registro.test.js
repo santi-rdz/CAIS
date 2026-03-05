@@ -2,6 +2,7 @@ import request from 'supertest'
 import app from '../app.js'
 import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
+import { describe, test, expect, beforeAll, afterAll } from 'node:test'
 
 const api = request(app)
 
@@ -14,8 +15,12 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
   let coordCorreo
 
   beforeAll(async () => {
-    const [[rolPasante]] = await pool.query("SELECT id FROM roles WHERE codigo = 'PASANTE'")
-    const [[rolCoord]] = await pool.query("SELECT id FROM roles WHERE codigo = 'COORDINADOR'")
+    const [[rolPasante]] = await pool.query(
+      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
+    )
+    const [[rolCoord]] = await pool.query(
+      "SELECT id FROM roles WHERE codigo = 'COORDINADOR'"
+    )
     const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
 
     pasanteToken = randomUUID()
@@ -28,15 +33,27 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
        VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?),
               (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
       [
-        pasanteCorreo, rolPasante.id, pasanteToken, userRow.id,
-        coordCorreo, rolCoord.id, coordToken, userRow.id,
-      ],
+        pasanteCorreo,
+        rolPasante.id,
+        pasanteToken,
+        userRow.id,
+        coordCorreo,
+        rolCoord.id,
+        coordToken,
+        userRow.id,
+      ]
     )
   })
 
   afterAll(async () => {
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo IN (?, ?)', [pasanteCorreo, coordCorreo])
-    await pool.query('DELETE FROM usuarios WHERE correo IN (?, ?)', [pasanteCorreo, coordCorreo])
+    await pool.query(
+      'DELETE FROM invitaciones_registro WHERE correo IN (?, ?)',
+      [pasanteCorreo, coordCorreo]
+    )
+    await pool.query('DELETE FROM usuarios WHERE correo IN (?, ?)', [
+      pasanteCorreo,
+      coordCorreo,
+    ])
   })
 
   test('201 — registra pasante con token válido', async () => {
@@ -56,7 +73,10 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     })
 
     expect(res.status).toBe(201)
-    expect(res.body).toHaveProperty('message', 'Registro completado exitosamente')
+    expect(res.body).toHaveProperty(
+      'message',
+      'Registro completado exitosamente'
+    )
     expect(res.body.usuario).toHaveProperty('id')
     expect(res.body.usuario.correo).toBe(pasanteCorreo)
   })
@@ -120,13 +140,15 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
   test('422 — password débil rechazada', async () => {
     const weakToken = randomUUID()
     const weakCorreo = `weak.${Date.now()}@test.com`
-    const [[rolRow]] = await pool.query("SELECT id FROM roles WHERE codigo = 'PASANTE'")
+    const [[rolRow]] = await pool.query(
+      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
+    )
     const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
 
     await pool.query(
       `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
        VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
-      [weakCorreo, rolRow.id, weakToken, userRow.id],
+      [weakCorreo, rolRow.id, weakToken, userRow.id]
     )
 
     const res = await api.post('/usuarios/registro').send({
@@ -146,6 +168,8 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
 
     expect(res.status).toBe(422)
 
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [weakCorreo])
+    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
+      weakCorreo,
+    ])
   })
 })

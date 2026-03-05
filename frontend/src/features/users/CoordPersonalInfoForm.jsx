@@ -5,7 +5,11 @@ import Input from '@ui/Input'
 import Row from '@ui/Row'
 import { useFormContext } from 'react-hook-form'
 
-export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
+export default function CoordPersonalInfoForm({
+  disabledEmail,
+  isUabcDomain,
+  setIsUabcDomain,
+}) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -14,7 +18,9 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
       <Row className="gap-4">
         <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
           <Input
-            {...register('firstName', { required: 'Ingresa el nombre del coordinador' })}
+            {...register('firstName', {
+              required: 'Ingresa el nombre del coordinador',
+            })}
             id="firstName"
             type="text"
             placeholder="Ej. Juan Carlos"
@@ -24,7 +30,9 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
         </FormRow>
         <FormRow htmlFor="lastName" label="Apellidos" className="w-full">
           <Input
-            {...register('lastName', { required: 'Ingresa apellidos del coordinador' })}
+            {...register('lastName', {
+              required: 'Ingresa apellidos del coordinador',
+            })}
             id="lastName"
             type="text"
             placeholder="Ej. Perez Lopez"
@@ -36,7 +44,11 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
 
       <Row className="gap-4">
         {disabledEmail ? (
-          <FormRow htmlFor="email" label="Correo electrónico" className="w-full">
+          <FormRow
+            htmlFor="email"
+            label="Correo electrónico"
+            className="w-full"
+          >
             <Input
               {...register('email')}
               id="email"
@@ -65,7 +77,10 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
           <Input
             {...register('phone', {
               required: 'Ingresa el número telefónico',
-              pattern: { value: /^[0-9]{10}$/, message: 'Ingresa un número de 10 dígitos' },
+              pattern: {
+                value: /^[0-9]{10}$/,
+                message: 'Ingresa un número de 10 dígitos',
+              },
             })}
             id="phone"
             type="tel"
@@ -79,7 +94,9 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
       <Row className="gap-4">
         <FormRow htmlFor="cedula" label="Cédula Profesional" className="w-full">
           <Input
-            {...register('cedula', { required: 'Ingresa la cédula profesional' })}
+            {...register('cedula', {
+              required: 'Ingresa la cédula profesional',
+            })}
             id="cedula"
             type="text"
             placeholder="Ej. 1234567"

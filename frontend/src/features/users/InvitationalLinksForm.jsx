@@ -1,7 +1,4 @@
 import Button from '@ui/Button'
-import DomainToggle from '@ui/DomainToggle'
-import FormRow from '@ui/FormRow'
-import Input from '@ui/Input'
 import RoleSelect from '@ui/RoleSelect'
 import ModalActions from '@ui/ModalActions'
 import TabLayout from '@ui/TabLayout'
@@ -10,7 +7,12 @@ import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import useEmailDomain from '@hooks/useEmailDomain'
-import { HiOutlineEnvelope, HiOutlineUserPlus, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi2'
+import {
+  HiOutlineEnvelope,
+  HiOutlineUserPlus,
+  HiOutlineTrash,
+  HiOutlinePencil,
+} from 'react-icons/hi2'
 import useCreatePreUser from './useCreatePreUser'
 import DomainEmailInput from '@ui/DomainEmailInput'
 
@@ -38,7 +40,10 @@ export default function InvitationalLinksForm({ onClose }) {
     setIdEdit(user.email)
     setRole(user.role)
     setIsUabcDomain(isUabc)
-    setValue('email', isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email)
+    setValue(
+      'email',
+      isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email
+    )
   }
 
   const handleDelete = (email) => {
@@ -50,10 +55,17 @@ export default function InvitationalLinksForm({ onClose }) {
     const fullEmail = resolveEmail(data.email)
 
     if (isEditMode) {
-      setUsers(users.map((u) => (u.email === idEdit ? { email: fullEmail, role, status: 'pendiente' } : u)))
+      setUsers(
+        users.map((u) =>
+          u.email === idEdit
+            ? { email: fullEmail, role, status: 'pendiente' }
+            : u
+        )
+      )
       setIdEdit('')
     } else {
-      if (users.some((u) => u.email === fullEmail)) return toast.error('Este correo ya ha sido agregado a la lista')
+      if (users.some((u) => u.email === fullEmail))
+        return toast.error('Este correo ya ha sido agregado a la lista')
       setUsers([{ email: fullEmail, role, status: 'pendiente' }, ...users])
     }
 
@@ -89,7 +101,11 @@ export default function InvitationalLinksForm({ onClose }) {
             setIsDomain={setIsUabcDomain}
             extraSuffix={<RoleSelect role={role} setRole={setRole} />}
           />
-          <Button size="md" variant="outline" className="w-full border border-gray-300">
+          <Button
+            size="md"
+            variant="outline"
+            className="w-full border border-gray-300"
+          >
             {isEditMode ? (
               <>
                 <HiOutlinePencil /> Guardar cambios
@@ -150,7 +166,13 @@ function EmailsDisplay() {
           className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-64 gap-3 overflow-y-auto`}
         >
           {users.map((user) => (
-            <InvitationCard key={user.email} user={user} size="md" type="white" className="shadow-sm">
+            <InvitationCard
+              key={user.email}
+              user={user}
+              size="md"
+              type="white"
+              className="shadow-sm"
+            >
               {user.email}
             </InvitationCard>
           ))}
@@ -205,17 +227,9 @@ function EmailsEmptyState() {
         <HiOutlineEnvelope size={24} />
       </div>
       <p className="text-4 text-neutral-500">No hay correos ingresados aún</p>
-      <span className="text-5 text-neutral-400">Agregue usuarios para enviar invitaciones de registro.</span>
-    </div>
-  )
-}
-
-function Suffix({ className, style }) {
-  const { role, isUabcDomain, setIsUabcDomain, setRole } = useContext(EmailsContext)
-  return (
-    <div style={style} className={`flex items-center gap-2 ${className}`}>
-      <DomainToggle isDomain={isUabcDomain} setIsDomain={setIsUabcDomain} className="relative" />
-      <RoleSelect role={role} setRole={setRole} />
+      <span className="text-5 text-neutral-400">
+        Agregue usuarios para enviar invitaciones de registro.
+      </span>
     </div>
   )
 }
