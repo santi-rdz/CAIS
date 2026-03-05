@@ -170,10 +170,16 @@ export class UserModel {
       'SELECT id FROM estados WHERE codigo = ?',
       ['ACTIVO']
     )
+    if (!userData?.rol) {
+      throw new Error('El rol es requerido')
+    }
     const [[rolRow]] = await conn.query(
       'SELECT id FROM roles WHERE LOWER(codigo) = ?',
       [userData.rol.toLowerCase()]
     )
+    if (!estadoRow || !rolRow) {
+      throw new Error('Estado o rol inválido')
+    }
 
     await conn.query(
       `INSERT INTO usuarios
