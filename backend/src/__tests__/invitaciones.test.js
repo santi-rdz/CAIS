@@ -1,6 +1,8 @@
 import request from 'supertest'
 import app from '../app.js'
 import { pool } from '../config/db.js'
+import { describe, test, beforeAll, afterAll } from 'node:test'
+import assert from 'node:assert'
 
 const api = request(app)
 
@@ -11,7 +13,7 @@ describe('POST /invitaciones', () => {
 
   beforeAll(async () => {
     const [rows] = await pool.query(
-      `SELECT BIN_TO_UUID(id) AS id FROM usuarios LIMIT 1`,
+      `SELECT BIN_TO_UUID(id) AS id FROM usuarios LIMIT 1`
     )
     creadorId = rows[0]?.id
   })
@@ -23,11 +25,13 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([{ email: correo, role: 'pasante' }])
 
-    expect(res.status).toBe(201)
-    expect(res.body).toHaveProperty('created')
+    assert.equal(res.status, 201)
+    assert(res.body['created'] !== undefined, 'property created should exist')
 
     // limpiar
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [correo])
+    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
+      correo,
+    ])
   })
 
   test('201 — crea múltiples invitaciones', async () => {
@@ -41,12 +45,14 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send(correos)
 
-    expect(res.status).toBe(201)
-    expect(res.body.created).toBe(2)
+    assert.equal(res.status, 201)
+    assert.equal(res.body.created, 2)
 
     // limpiar
     for (const c of correos) {
-      await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [c.email])
+      await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
+        c.email,
+      ])
     }
   })
 
@@ -56,8 +62,8 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([])
 
-    expect(res.status).toBe(400)
-    expect(res.body).toHaveProperty('error', 'ValidationError')
+    assert.equal(res.status, 400)
+    assert.equal(res.body['error'], 'ValidationError')
   })
 
   test('400 — rechaza email inválido', async () => {
@@ -66,7 +72,7 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([{ email: 'no-valido', role: 'pasante' }])
 
-    expect(res.status).toBe(400)
+    assert.equal(res.status, 400)
   })
 
   test('400 — rechaza rol inválido', async () => {
@@ -75,7 +81,7 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([{ email: 'test@test.com', role: 'superadmin' }])
 
-    expect(res.status).toBe(400)
+    assert.equal(res.status, 400)
   })
 
   test('409 — rechaza correo duplicado', async () => {
@@ -83,11 +89,16 @@ describe('POST /invitaciones', () => {
     const payload = [{ email: correo, role: 'pasante' }]
 
     await api.post('/invitaciones').set('x-user-id', creadorId).send(payload)
-    const res = await api.post('/invitaciones').set('x-user-id', creadorId).send(payload)
+    const res = await api
+      .post('/invitaciones')
+      .set('x-user-id', creadorId)
+      .send(payload)
 
-    expect(res.status).toBe(409)
+    assert.equal(res.status, 409)
 
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [correo])
+    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
+      correo,
+    ])
   })
 })
 
@@ -103,35 +114,41 @@ describe('GET /invitaciones/:token', () => {
     testToken = randomUUID()
     testCorreo = `token.test.${Date.now()}@test.com`
 
-    const [[rolRow]] = await pool.query("SELECT id FROM roles WHERE codigo = 'PASANTE'")
+    const [[rolRow]] = await pool.query(
+      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
+    )
     const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
 
     await pool.query(
       `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
        VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
-      [testCorreo, rolRow.id, testToken, userRow.id],
+      [testCorreo, rolRow.id, testToken, userRow.id]
     )
   })
 
   afterAll(async () => {
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [testCorreo])
+    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
+      testCorreo,
+    ])
   })
 
   test('200 — retorna correo y rol para token válido', async () => {
     const res = await api.get(`/invitaciones/${testToken}`)
-    expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('correo', testCorreo)
-    expect(res.body).toHaveProperty('rol', 'PASANTE')
+    assert.equal(res.status, 200)
+    assert.equal(res.body['correo'], testCorreo)
+    assert.equal(res.body['rol'], 'PASANTE')
   })
 
   test('404 — token inexistente', async () => {
-    const res = await api.get('/invitaciones/00000000-0000-0000-0000-000000000000')
-    expect(res.status).toBe(404)
-    expect(res.body).toHaveProperty('error', 'NotFound')
+    const res = await api.get(
+      '/invitaciones/00000000-0000-0000-0000-000000000000'
+    )
+    assert.equal(res.status, 404)
+    assert.equal(res.body['error'], 'NotFound')
   })
 
   test('404 — token con formato inválido', async () => {
     const res = await api.get('/invitaciones/no-es-uuid')
-    expect(res.status).toBe(404)
+    assert.equal(res.status, 404)
   })
 })

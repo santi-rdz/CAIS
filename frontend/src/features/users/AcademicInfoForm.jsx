@@ -2,7 +2,13 @@ import DomainEmailInput from '@ui/DomainEmailInput'
 import FormRow from '@ui/FormRow'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@ui/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 
@@ -16,7 +22,11 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function AcademicInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
+export default function AcademicInfoForm({
+  disabledEmail,
+  isUabcDomain,
+  setIsUabcDomain,
+}) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -52,7 +62,9 @@ export default function AcademicInfoForm({ disabledEmail, isUabcDomain, setIsUab
           placeholder="e.g 1299332"
           hasError={errors?.matricula?.message}
           variant="outline"
-          suffix={<HiOutlineIdentification size={20} className="text-gray-400" />}
+          suffix={
+            <HiOutlineIdentification size={20} className="text-gray-400" />
+          }
         />
       </FormRow>
 
@@ -111,7 +123,9 @@ export default function AcademicInfoForm({ disabledEmail, isUabcDomain, setIsUab
             />
           </div>
           {(errors?.servicioInicioAnio || errors?.servicioInicioPeriodo) && (
-            <span className="text-5 mt-1.5 inline-block text-red-600">Selecciona año y periodo de inicio</span>
+            <span className="text-5 mt-1.5 inline-block text-red-600">
+              Selecciona año y periodo de inicio
+            </span>
           )}
         </div>
 
@@ -169,7 +183,9 @@ export default function AcademicInfoForm({ disabledEmail, isUabcDomain, setIsUab
             />
           </div>
           {(errors?.servicioFinAnio || errors?.servicioFinPeriodo) && (
-            <span className="text-5 mt-1.5 inline-block text-red-600">Selecciona año y periodo de fin</span>
+            <span className="text-5 mt-1.5 inline-block text-red-600">
+              Selecciona año y periodo de fin
+            </span>
           )}
         </div>
       </Row>

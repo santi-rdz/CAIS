@@ -1,5 +1,3 @@
-import RoleSelect from '@ui/RoleSelect'
-
 import InternForm from './InternForm'
 import CoordForm from './CoordForm'
 import Tab from '@ui/Tab'

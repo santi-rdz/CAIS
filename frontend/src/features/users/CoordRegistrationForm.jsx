@@ -97,7 +97,13 @@ export default function CoordRegistrationForm({ email }) {
             variant="primary"
             onClick={isLast ? handleSubmit(onSubmit) : handleNext}
             className={isFirst ? 'w-full' : 'flex-[70%]'}
-            icon={isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />}
+            icon={
+              isLast ? (
+                <HiCheck strokeWidth={1} />
+              ) : (
+                <HiChevronRight strokeWidth={1} />
+              )
+            }
             iconPos={isLast ? 'left' : 'right'}
             isLoading={isPending}
             disabled={isPending}

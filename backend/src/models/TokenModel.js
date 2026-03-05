@@ -3,7 +3,7 @@ import { pool } from '../config/db.js'
 export class InvitacionModel {
   /**
    * Inserta múltiples invitaciones de registro en bloque (bulk) usando una transacción.
-   * 
+   *
    * @param {Array<Object>} invitaciones - Lista de objetos de invitación.
    * @param {Object} conn - Conexión de base de datos activa para la transacción.
    * @returns {Promise<void>}
@@ -13,14 +13,14 @@ export class InvitacionModel {
       await conn.query(
         `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
          VALUES (?, ?, UUID_TO_BIN(?), ?, UUID_TO_BIN(?))`,
-        [inv.correo, inv.rolId, inv.token, inv.expiraAt, inv.creadoPor],
+        [inv.correo, inv.rolId, inv.token, inv.expiraAt, inv.creadoPor]
       )
     }
   }
 
   /**
    * Busca una invitación por su token y verifica que sea válida (no usada y no expirada).
-   * 
+   *
    * @param {string} token - El token UUID de la invitación.
    * @returns {Promise<Object|null>} Los datos de la invitación o null si no es válida.
    */
@@ -37,14 +37,14 @@ export class InvitacionModel {
        WHERE i.token = UUID_TO_BIN(?)
          AND i.usado = FALSE
          AND i.expira_at > NOW()`,
-      [token],
+      [token]
     )
     return rows[0] || null
   }
 
   /**
    * Marca una invitación específica como usada en la base de datos.
-   * 
+   *
    * @param {string} token - El token UUID de la invitación.
    * @param {Object} [conn] - Opcional. Conexión de base de datos activa para usar en una transacción.
    * @returns {Promise<void>}
@@ -53,7 +53,7 @@ export class InvitacionModel {
     const connection = conn || pool
     await connection.query(
       `UPDATE invitaciones_registro SET usado = TRUE WHERE token = UUID_TO_BIN(?)`,
-      [token],
+      [token]
     )
   }
 }

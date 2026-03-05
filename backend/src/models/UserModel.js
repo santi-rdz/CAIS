@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 export class UserModel {
   /**
    * Obtiene una lista paginada de usuarios basada en criterios de búsqueda, estado y ordenamiento.
-   * 
+   *
    * @param {Object} params - Parámetros de consulta.
    * @param {string} [params.status] - Filtrar por código de estado (ej. 'ACTIVO').
    * @param {string} [params.sortBy] - Criterio de ordenamiento (ej. 'nombre-asc').
@@ -46,7 +46,8 @@ export class UserModel {
       params.push(`%${search}%`)
     }
 
-    const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
+    const whereClause =
+      conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
     sql += whereClause
 
     const sortOptions = {
@@ -83,7 +84,7 @@ export class UserModel {
 
   /**
    * Obtiene la información detallada de un usuario por su ID.
-   * 
+   *
    * @param {string} id - El ID (UUID) del usuario a buscar.
    * @returns {Promise<Object|null>} Los datos del usuario o null si no se encuentra.
    */
@@ -117,18 +118,21 @@ export class UserModel {
 
   /**
    * Elimina un usuario de la base de datos de manera física.
-   * 
+   *
    * @param {string} id - El ID (UUID) del usuario a eliminar.
    * @returns {Promise<boolean>} Retorna true si el usuario fue eliminado, false en caso contrario.
    */
   static async delete(id) {
-    const [result] = await pool.query(`DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`, [id])
+    const [result] = await pool.query(
+      `DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`,
+      [id]
+    )
     return result.affectedRows > 0
   }
 
   /**
    * Actualiza los datos de un usuario de forma dinámica según los campos proporcionados.
-   * 
+   *
    * @param {string} id - El ID (UUID) del usuario a actualizar.
    * @param {Object} data - Objeto con los campos a actualizar (llaves en español).
    * @returns {Promise<Object|null>} El usuario actualizado o null si no se modificó nada.
@@ -154,7 +158,7 @@ export class UserModel {
 
   /**
    * Crea un nuevo usuario en la base de datos dentro de una transacción.
-   * 
+   *
    * @param {Object} userData - Datos del usuario a crear.
    * @param {Object} conn - Conexión de la base de datos usada para la transacción.
    * @returns {Promise<Object>} El usuario recién creado.
@@ -162,10 +166,20 @@ export class UserModel {
   static async create(userData, conn) {
     const userId = randomUUID()
 
-    const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', ['ACTIVO'])
-    const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
-      userData.rol.toLowerCase(),
-    ])
+    const [[estadoRow]] = await conn.query(
+      'SELECT id FROM estados WHERE codigo = ?',
+      ['ACTIVO']
+    )
+    if (!userData?.rol) {
+      throw new Error('El rol es requerido')
+    }
+    const [[rolRow]] = await conn.query(
+      'SELECT id FROM roles WHERE LOWER(codigo) = ?',
+      [userData.rol.toLowerCase()]
+    )
+    if (!estadoRow || !rolRow) {
+      throw new Error('Estado o rol inválido')
+    }
 
     await conn.query(
       `INSERT INTO usuarios
@@ -185,7 +199,7 @@ export class UserModel {
         userData.cedula || null,
         userData.inicioServicio || null,
         userData.finServicio || null,
-      ],
+      ]
     )
 
     return await this.getById(userId)

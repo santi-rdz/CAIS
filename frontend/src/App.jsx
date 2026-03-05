@@ -24,6 +24,7 @@ function App() {
         </Route>
         <Route element={<Auth />}>
           <Route path="login" element={<LoginForm />} />
+
           <Route path="registro" element={<RegisterPage />} />
         </Route>
       </Routes>

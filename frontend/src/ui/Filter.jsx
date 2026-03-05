@@ -16,13 +16,17 @@ export default function Filter({ filterField, options, className }) {
   }
 
   return (
-    <div className={`flex gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-xs ${className}`}>
+    <div
+      className={`flex gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-xs ${className}`}
+    >
       {options.map((op) => (
         <button
           key={op.value}
           onClick={() => handleClick(op.value)}
           className={`cursor-pointer rounded-md px-2 py-1 text-sm font-medium transition-all ${
-            op.value === currentFilter ? 'pointer-events-none bg-green-800 text-blue-50' : 'bg-white hover:bg-gray-100'
+            op.value === currentFilter
+              ? 'pointer-events-none bg-green-800 text-blue-50'
+              : 'bg-white hover:bg-gray-100'
           }`}
         >
           {op.label}

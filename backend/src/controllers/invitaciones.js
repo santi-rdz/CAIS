@@ -34,7 +34,10 @@ export class InvitacionController {
         })
       }
       console.error('Error en preRegister:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al crear invitaciones' })
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al crear invitaciones',
+      })
     }
   }
 
@@ -64,7 +67,9 @@ export class InvitacionController {
       })
     } catch (err) {
       console.error('Error validando token:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al validar token' })
+      res
+        .status(500)
+        .json({ error: 'InternalError', message: 'Error al validar token' })
     }
   }
 }

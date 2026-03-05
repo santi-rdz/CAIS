@@ -70,16 +70,29 @@ export default function CoordForm({ onClose }) {
     <section className="flex min-h-0 flex-1 flex-col">
       <FormProvider {...methods}>
         <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
-          <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+          <Stepper
+            steps={steps}
+            current={currStep}
+            setCurrStep={handleStepClick}
+          />
           <form action="" className="mt-20">
-            {currStep === 0 && <CoordPersonalInfoForm isUabcDomain={isUabcDomain} setIsUabcDomain={setIsUabcDomain} />}
+            {currStep === 0 && (
+              <CoordPersonalInfoForm
+                isUabcDomain={isUabcDomain}
+                setIsUabcDomain={setIsUabcDomain}
+              />
+            )}
             {currStep === 1 && <PasswordForm />}
           </form>
         </div>
         <ModalActions
           primaryAction={{
             label: isLast ? 'Crear usuario' : 'Siguiente',
-            icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
+            icon: isLast ? (
+              <HiCheck strokeWidth={1} />
+            ) : (
+              <HiChevronRight strokeWidth={1} />
+            ),
             iconPos: isLast ? 'left' : 'right',
             onClick: isLast ? handleSubmit(onSubmit) : handleNext,
             isLoading: isPending,

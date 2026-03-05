@@ -22,7 +22,14 @@ export default function UsersTable() {
       </Table.Header>
       <Table.Body
         data={users}
-        render={(user) => <UserRow user={user} key={user.id} openMenu={openMenu} setOpenMenu={setOpenMenu} />}
+        render={(user) => (
+          <UserRow
+            user={user}
+            key={user.id}
+            openMenu={openMenu}
+            setOpenMenu={setOpenMenu}
+          />
+        )}
       />
       <Table.Footer>
         <Pagination count={count} />

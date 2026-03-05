@@ -16,11 +16,16 @@ export class UserController {
    * @param {Object} res - Objeto de respuesta de Express.
    */
   static async getAll(req, res) {
-
     const { status, sortBy, search } = req.query
     const page = +req.query.page || 1
     const limit = +req.query.limit || 10
-    const users = await UserModel.getAll({ status, sortBy, search, page, limit })
+    const users = await UserModel.getAll({
+      status,
+      sortBy,
+      search,
+      page,
+      limit,
+    })
     res.json(users)
   }
 
@@ -48,7 +53,8 @@ export class UserController {
   static async delete(req, res) {
     const { id } = req.params
     const success = await UserModel.delete(id)
-    if (!success) return res.status(404).json({ message: 'Usuario no encontrado' })
+    if (!success)
+      return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
@@ -61,11 +67,13 @@ export class UserController {
    */
   static async update(req, res) {
     const result = validatePartialUser(req.body)
-    if (result.error) return res.status(400).json({ error: JSON.parse(result.error.message) })
+    if (result.error)
+      return res.status(400).json({ error: JSON.parse(result.error.message) })
 
     const { id } = req.params
     const updatedUser = await UserModel.update(id, result.data)
-    if (!updatedUser) return res.status(404).json({ message: 'Usuario no encontrado' })
+    if (!updatedUser)
+      return res.status(404).json({ message: 'Usuario no encontrado' })
 
     res.json(updatedUser)
   }
@@ -121,7 +129,7 @@ export class UserController {
             inicioServicio,
             finServicio,
           },
-          conn,
+          conn
         )
 
         await conn.commit()
@@ -143,7 +151,9 @@ export class UserController {
         })
       }
       console.error('Error al crear usuario:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al crear usuario' })
+      res
+        .status(500)
+        .json({ error: 'InternalError', message: 'Error al crear usuario' })
     }
   }
 
@@ -189,12 +199,14 @@ export class UserController {
 
         const userId = randomUUID()
 
-        const [[estadoRow]] = await conn.query('SELECT id FROM estados WHERE codigo = ?', [
-          'ACTIVO',
-        ])
-        const [[rolRow]] = await conn.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
-          invitacion.rol.toLowerCase(),
-        ])
+        const [[estadoRow]] = await conn.query(
+          'SELECT id FROM estados WHERE codigo = ?',
+          ['ACTIVO']
+        )
+        const [[rolRow]] = await conn.query(
+          'SELECT id FROM roles WHERE LOWER(codigo) = ?',
+          [invitacion.rol.toLowerCase()]
+        )
 
         const nombre = `${data.nombre} ${data.apellido}`
         const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
@@ -227,7 +239,7 @@ export class UserController {
             matricula,
             inicioServicio,
             finServicio,
-          ],
+          ]
         )
 
         // Marcar invitación como usada
@@ -254,7 +266,10 @@ export class UserController {
         })
       }
       console.error('Error en registro:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al completar registro' })
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al completar registro',
+      })
     }
   }
 }

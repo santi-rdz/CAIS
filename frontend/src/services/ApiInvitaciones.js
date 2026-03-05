@@ -12,7 +12,9 @@ export async function createInvitaciones(invitaciones, userId) {
 }
 
 export async function validateToken(token) {
-  const res = await fetch(`${BASE_URL}/invitaciones/${encodeURIComponent(token)}`)
+  const res = await fetch(
+    `${BASE_URL}/invitaciones/${encodeURIComponent(token)}`
+  )
   if (!res.ok) await throwApiError(res, 'Token inválido o expirado')
   return await res.json()
 }

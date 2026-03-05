@@ -1,5 +1,7 @@
 import request from 'supertest'
 import app from '../app.js'
+import { test, describe } from 'node:test'
+import assert from 'node:assert'
 
 const api = request(app)
 
@@ -13,9 +15,9 @@ describe('POST /auth/login', () => {
       password: '$123',
     })
 
-    expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('id')
-    expect(res.body).toHaveProperty('email', 'carlos.herrera@cais.com')
+    assert.equal(res.status, 200)
+    assert(res.body.id !== undefined, 'body.id should exist')
+    assert.equal(res.body.email, 'carlos.herrera@cais.com')
   })
 
   test('401 — correo no registrado', async () => {
@@ -24,8 +26,8 @@ describe('POST /auth/login', () => {
       password: 'cualquier',
     })
 
-    expect(res.status).toBe(401)
-    expect(res.body).toHaveProperty('error')
+    assert.equal(res.status, 401)
+    assert(res.body.error !== undefined, 'body.error should exist')
   })
 
   test('401 — contraseña incorrecta', async () => {
@@ -34,12 +36,15 @@ describe('POST /auth/login', () => {
       password: 'incorrecta',
     })
 
-    expect(res.status).toBe(401)
-    expect(res.body).toHaveProperty('error')
+    assert.equal(res.status, 401)
+    assert(res.body.error !== undefined, 'body.error should exist')
   })
 
   test('500 / 400 — body vacío', async () => {
     const res = await api.post('/auth/login').send({})
-    expect([400, 401, 500]).toContain(res.status)
+    assert(
+      [400, 401, 500].includes(res.status),
+      `status should be 400, 401, or 500, got ${res.status}`
+    )
   })
 })

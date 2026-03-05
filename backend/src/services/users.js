@@ -14,9 +14,10 @@ export class UserService {
     // 1. Resolver rol_id para cada invitación
     const invitaciones = []
     for (const u of usersData) {
-      const [[rolRow]] = await pool.query('SELECT id FROM roles WHERE LOWER(codigo) = ?', [
-        u.role.toLowerCase(),
-      ])
+      const [[rolRow]] = await pool.query(
+        'SELECT id FROM roles WHERE LOWER(codigo) = ?',
+        [u.role.toLowerCase()]
+      )
       if (!rolRow) throw new Error(`Rol "${u.role}" no existe`)
 
       invitaciones.push({

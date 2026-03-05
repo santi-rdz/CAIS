@@ -10,7 +10,11 @@ export default function Modal({ children, heading, description }) {
   const close = () => setOpenName('')
   const open = setOpenName
   return (
-    <ModalContext.Provider value={{ openName, close, open, heading, description }}>{children}</ModalContext.Provider>
+    <ModalContext.Provider
+      value={{ openName, close, open, heading, description }}
+    >
+      {children}
+    </ModalContext.Provider>
   )
 }
 
@@ -24,7 +28,7 @@ Modal.Content = function Content({ children, name, noPadding = false }) {
   const ref = useClickOutside(
     close,
     true,
-    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar]',
+    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar]'
   )
   const showModal = openName === name
 
@@ -43,11 +47,13 @@ Modal.Content = function Content({ children, name, noPadding = false }) {
           <HiXMark className="size-5" />
         </button>
 
-        <div className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto p-8'}`}>
+        <div
+          className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto p-8'}`}
+        >
           {cloneElement(children, { onCloseModal: close })}
         </div>
       </div>
     </div>,
-    document.body,
+    document.body
   )
 }

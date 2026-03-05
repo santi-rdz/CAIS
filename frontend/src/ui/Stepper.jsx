@@ -8,7 +8,11 @@ export default function Stepper({ steps, current, setCurrStep, gap = '' }) {
         const isCompleted = current > i
         const isActive = current === i
         return (
-          <div key={i} className={`flex flex-1 items-center ${isLast ? 'grow-0' : ''}`} style={{ gap }}>
+          <div
+            key={i}
+            className={`flex flex-1 items-center ${isLast ? 'grow-0' : ''}`}
+            style={{ gap }}
+          >
             <div className="relative">
               <button
                 onClick={() => setCurrStep(i)}

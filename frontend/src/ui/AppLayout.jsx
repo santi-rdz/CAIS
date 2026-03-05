@@ -1,6 +1,6 @@
-import { Outlet } from "react-router";
-import { Sidebar } from "./Sidebar";
-import { Header } from "./Header";
+import { Outlet } from 'react-router'
+import { Sidebar } from './Sidebar'
+import { Header } from './Header'
 
 export default function AppLayout() {
   return (
@@ -14,5 +14,5 @@ export default function AppLayout() {
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -1,5 +1,11 @@
 import { useSearchParams } from 'react-router'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/Select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@ui/Select'
 
 export default function SortBy({ options }) {
   const [params, setParams] = useSearchParams()
@@ -22,7 +28,11 @@ export default function SortBy({ options }) {
       </SelectTrigger>
       <SelectContent>
         {options.map((option) => (
-          <SelectItem key={option.value} value={option.value} hideRadio={option.value === 'clear'}>
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            hideRadio={option.value === 'clear'}
+          >
             {option.label}
           </SelectItem>
         ))}

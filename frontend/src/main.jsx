@@ -21,6 +21,7 @@ createRoot(document.getElementById('root')).render(
       <ReactQueryDevtools initialIsOpen={false} />
       <App />
     </QueryClientProvider>
+
     <Toaster
       position="top-right"
       gutter={12}
@@ -37,5 +38,5 @@ createRoot(document.getElementById('root')).render(
         },
       }}
     />
-  </StrictMode>,
+  </StrictMode>
 )

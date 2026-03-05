@@ -1,4 +1,10 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
@@ -6,8 +12,16 @@ import { cn } from './lib/utils'
 
 const SelectContext = createContext()
 
-export function Select({ children, value, onValueChange, dropdownHeight = 300, className = '', hasError }) {
-  const { triggerRef, isOpen, openAbove, positionStyle, close, toggle } = useDropdownPosition(dropdownHeight)
+export function Select({
+  children,
+  value,
+  onValueChange,
+  dropdownHeight = 300,
+  className = '',
+  hasError,
+}) {
+  const { triggerRef, isOpen, openAbove, positionStyle, close, toggle } =
+    useDropdownPosition(dropdownHeight)
   const labelsRef = useRef({})
   const [, forceUpdate] = useState(0)
   const seeded = useRef(false)
@@ -48,7 +62,10 @@ export function Select({ children, value, onValueChange, dropdownHeight = 300, c
         toggle,
       }}
     >
-      <div className={`relative ${hasError ? 'rounded-lg ring-1 ring-red-400' : ''} ${className}`} ref={triggerRef}>
+      <div
+        className={`relative ${hasError ? 'rounded-lg ring-1 ring-red-400' : ''} ${className}`}
+        ref={triggerRef}
+      >
         {children}
       </div>
     </SelectContext.Provider>
@@ -64,7 +81,7 @@ export function SelectTrigger({ children, className = '', ...props }) {
       className={cn(
         hasError && 'error',
         'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-300 hover:border-green-800',
-        className,
+        className
       )}
       {...props}
     >
@@ -96,12 +113,16 @@ export function SelectContent({ children }) {
     <div data-select-menu className={menuClass} style={positionStyle}>
       {children}
     </div>,
-    document.body,
+    document.body
   )
 }
 
 export function SelectItem({ children, value, hideRadio = false }) {
-  const { handleValueChange, value: selectedValue, registerLabel } = useContext(SelectContext)
+  const {
+    handleValueChange,
+    value: selectedValue,
+    registerLabel,
+  } = useContext(SelectContext)
   const isActive = selectedValue === value
 
   // Register the label during render (sync). SelectValue reads this on the

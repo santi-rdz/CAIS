@@ -15,13 +15,23 @@ function ToggleShowPassword({ show, setShow, className, style }) {
       {show ? (
         <HiOutlineEye size={20} />
       ) : (
-        <HiOutlineEyeSlash size={20} className="transition-transform duration-300 hover:scale-105" />
+        <HiOutlineEyeSlash
+          size={20}
+          className="transition-transform duration-300 hover:scale-105"
+        />
       )}
     </button>
   )
 }
 
-export default function PasswordInput({ id, label, placeholder, error, registration, variant }) {
+export default function PasswordInput({
+  id,
+  label,
+  placeholder,
+  error,
+  registration,
+  variant,
+}) {
   const [show, setShow] = useState(false)
   return (
     <FormRow htmlFor={id} label={label}>

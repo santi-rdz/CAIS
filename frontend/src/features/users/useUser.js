@@ -6,9 +6,14 @@ export default function useUser() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null
+  const userId =
+    typeof window !== 'undefined' ? localStorage.getItem('userId') : null
 
-  const { data: user, isLoading, isError } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
       try {
@@ -33,5 +38,10 @@ export default function useUser() {
   if (!userId) return { isAuthenticated: false }
   if (isError) return { isAuthenticated: false }
 
-  return { user, isPending: isLoading, isAuthenticated: Boolean(user?.id), logout }
+  return {
+    user,
+    isPending: isLoading,
+    isAuthenticated: Boolean(user?.id),
+    logout,
+  }
 }

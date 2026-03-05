@@ -13,7 +13,10 @@ export default function useCreatePreUser() {
       const plural = data.created > 1 ? 's' : ''
       const intro = `${data.created} usuario${plural} creado${plural}`
       data.emailErrors.length > 0
-        ? toast.success(`${intro} pero ${data.emailErrors.length} correos fallaron`, { icon: '⚠️' })
+        ? toast.success(
+            `${intro} pero ${data.emailErrors.length} correos fallaron`,
+            { icon: '⚠️' }
+          )
         : toast.success(` ${intro} y correo${plural} enviado${plural}!`)
       queryClient.invalidateQueries({
         queryKey: ['users'],

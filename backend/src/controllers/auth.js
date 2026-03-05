@@ -18,14 +18,16 @@ export class AuthController {
         `SELECT BIN_TO_UUID(u.id) AS id, u.correo, u.password_hash AS password
          FROM usuarios u
          WHERE u.correo = ?`,
-        [email],
+        [email]
       )
 
       const user = rows[0]
 
       // Usuario no encontrado
       if (!user) {
-        return res.status(401).json({ error: 'Correo electronico no encontrado' })
+        return res
+          .status(401)
+          .json({ error: 'Correo electronico no encontrado' })
       }
 
       // Comparar password usando bcrypt

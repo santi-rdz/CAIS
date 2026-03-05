@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useForm } from 'react-hook-form'
-import Button from '@ui/Button'
 import DomainEmailInput from '@ui/DomainEmailInput'
 import PasswordInput from '@ui/PasswordInput'
 import useLogin from './useLogin'
+import Button from '@ui/Button'
 
 export default function LoginForm() {
   const [isUabcDomain, setIsUabcDomain] = useState(true)
@@ -33,7 +33,9 @@ export default function LoginForm() {
         label="Contraseña"
         placeholder="Contraseña"
         error={errors?.password?.message}
-        registration={register('password', { required: 'Ingresa tu contraseña' })}
+        registration={register('password', {
+          required: 'Ingresa tu contraseña',
+        })}
       />
 
       <Footer />
