@@ -1,6 +1,7 @@
 import request from 'supertest'
 import app from '../app.js'
-import { describe, test, expect, beforeAll, afterAll } from 'node:test'
+import { describe, test, beforeAll, afterAll } from 'node:test'
+import assert from 'node:assert'
 
 const api = request(app)
 
@@ -9,34 +10,34 @@ const api = request(app)
 describe('GET /usuarios', () => {
   test('200 — retorna lista paginada', async () => {
     const res = await api.get('/usuarios')
-    expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('users')
-    expect(res.body).toHaveProperty('count')
-    expect(Array.isArray(res.body.users)).toBe(true)
+    assert.equal(res.status, 200)
+    assert(res.body['users'] !== undefined, 'property users should exist')
+    assert(res.body['count'] !== undefined, 'property count should exist')
+    assert(Array.isArray(res.body.users), 'users should be an array')
   })
 
   test('200 — respeta parámetros de paginación', async () => {
     const res = await api.get('/usuarios?page=1&limit=2')
-    expect(res.status).toBe(200)
-    expect(res.body.users.length).toBeLessThanOrEqual(2)
+    assert.equal(res.status, 200)
+    assert(res.body.users.length <= 2, 'users.length should be <= 2')
   })
 
   test('200 — filtra por status', async () => {
     const res = await api.get('/usuarios?status=ACTIVO')
-    expect(res.status).toBe(200)
+    assert.equal(res.status, 200)
     for (const user of res.body.users) {
-      expect(user.estado).toBe('ACTIVO')
+      assert.equal(user.estado, 'ACTIVO')
     }
   })
 
   test('200 — busca por nombre o correo', async () => {
     const res = await api.get('/usuarios?search=carlos')
-    expect(res.status).toBe(200)
+    assert.equal(res.status, 200)
   })
 
   test('200 — ordena por nombre ascendente', async () => {
     const res = await api.get('/usuarios?sortBy=nombre-asc')
-    expect(res.status).toBe(200)
+    assert.equal(res.status, 200)
   })
 })
 
@@ -53,16 +54,16 @@ describe('GET /usuarios/:id', () => {
   test('200 — retorna usuario existente', async () => {
     if (!userId) return
     const res = await api.get(`/usuarios/${userId}`)
-    expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('id', userId)
-    expect(res.body).toHaveProperty('correo')
-    expect(res.body).toHaveProperty('rol')
+    assert.equal(res.status, 200)
+    assert.equal(res.body['id'], userId)
+    assert(res.body['correo'] !== undefined, 'property correo should exist')
+    assert(res.body['rol'] !== undefined, 'property rol should exist')
   })
 
   test('404 — usuario no existe', async () => {
     const res = await api.get('/usuarios/00000000-0000-0000-0000-000000000000')
-    expect(res.status).toBe(404)
-    expect(res.body).toHaveProperty('message')
+    assert.equal(res.status, 404)
+    assert(res.body['message'] !== undefined, 'property message should exist')
   })
 })
 
@@ -97,10 +98,10 @@ describe('POST /usuarios — creación directa por admin', () => {
 
   test('201 — crea pasante', async () => {
     const res = await api.post('/usuarios').send(pasanteValido)
-    expect(res.status).toBe(201)
-    expect(res.body).toHaveProperty('message', 'Usuario creado exitosamente')
-    expect(res.body.usuario).toHaveProperty('id')
-    expect(res.body.usuario.correo).toBe(pasanteValido.correo)
+    assert.equal(res.status, 201)
+    assert.equal(res.body['message'], 'Usuario creado exitosamente')
+    assert(res.body.usuario['id'] !== undefined, 'property should exist')
+    assert.equal(res.body.usuario.correo, pasanteValido.correo)
 
     // limpiar
     await api.delete(`/usuarios/${res.body.usuario.id}`)
@@ -108,23 +109,23 @@ describe('POST /usuarios — creación directa por admin', () => {
 
   test('201 — crea coordinador', async () => {
     const res = await api.post('/usuarios').send(coordValido)
-    expect(res.status).toBe(201)
-    expect(res.body.usuario).toHaveProperty('id')
+    assert.equal(res.status, 201)
+    assert(res.body.usuario['id'] !== undefined, 'property should exist')
 
     await api.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
   test('422 — rechaza datos inválidos', async () => {
     const res = await api.post('/usuarios').send({ nombre: 'Solo nombre' })
-    expect(res.status).toBe(422)
-    expect(res.body).toHaveProperty('error', 'ValidationError')
+    assert.equal(res.status, 422)
+    assert.equal(res.body['error'], 'ValidationError')
   })
 
   test('422 — rechaza password corta', async () => {
     const res = await api
       .post('/usuarios')
       .send({ ...pasanteValido, password: '12' })
-    expect(res.status).toBe(422)
+    assert.equal(res.status, 422)
   })
 
   test('409 — rechaza correo duplicado', async () => {
@@ -132,11 +133,11 @@ describe('POST /usuarios — creación directa por admin', () => {
     const data = { ...pasanteValido, correo }
 
     const first = await api.post('/usuarios').send(data)
-    expect(first.status).toBe(201)
+    assert.equal(first.status, 201)
 
     const second = await api.post('/usuarios').send(data)
-    expect(second.status).toBe(409)
-    expect(second.body).toHaveProperty('error', 'Conflict')
+    assert.equal(second.status, 409)
+    assert.equal(second.body['error'], 'Conflict')
 
     await api.delete(`/usuarios/${first.body.usuario.id}`)
   })
@@ -173,15 +174,15 @@ describe('PATCH /usuarios/:id', () => {
     const res = await api
       .patch(`/usuarios/${userId}`)
       .send({ nombre: 'Nombre Actualizado' })
-    expect(res.status).toBe(200)
-    expect(res.body.nombre).toBe('Nombre Actualizado')
+    assert.equal(res.status, 200)
+    assert.equal(res.body.nombre, 'Nombre Actualizado')
   })
 
   test('404 — usuario no existe', async () => {
     const res = await api
       .patch('/usuarios/00000000-0000-0000-0000-000000000000')
       .send({ nombre: 'X' })
-    expect(res.status).toBe(404)
+    assert.equal(res.status, 404)
   })
 })
 
@@ -206,14 +207,14 @@ describe('DELETE /usuarios/:id', () => {
     const id = create.body.usuario.id
 
     const res = await api.delete(`/usuarios/${id}`)
-    expect(res.status).toBe(200)
-    expect(res.body).toHaveProperty('message')
+    assert.equal(res.status, 200)
+    assert(res.body['message'] !== undefined, 'property message should exist')
   })
 
   test('404 — usuario no existe', async () => {
     const res = await api.delete(
       '/usuarios/00000000-0000-0000-0000-000000000000'
     )
-    expect(res.status).toBe(404)
+    assert.equal(res.status, 404)
   })
 })

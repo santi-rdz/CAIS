@@ -2,7 +2,8 @@ import request from 'supertest'
 import app from '../app.js'
 import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
-import { describe, test, expect, beforeAll, afterAll } from 'node:test'
+import { describe, test, beforeAll, afterAll } from 'node:test'
+import assert from 'node:assert'
 
 const api = request(app)
 
@@ -72,13 +73,10 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
       servicioFinPeriodo: '2',
     })
 
-    expect(res.status).toBe(201)
-    expect(res.body).toHaveProperty(
-      'message',
-      'Registro completado exitosamente'
-    )
-    expect(res.body.usuario).toHaveProperty('id')
-    expect(res.body.usuario.correo).toBe(pasanteCorreo)
+    assert.equal(res.status, 201)
+    assert.equal(res.body.message, 'Registro completado exitosamente')
+    assert(res.body.usuario['id'] !== undefined, 'property id should exist')
+    assert.equal(res.body.usuario.correo, pasanteCorreo)
   })
 
   test('201 — registra coordinador con token válido', async () => {
@@ -93,8 +91,8 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
       cedula: 'RCED01',
     })
 
-    expect(res.status).toBe(201)
-    expect(res.body.usuario).toHaveProperty('id')
+    assert.equal(res.status, 201)
+    assert(res.body.usuario['id'] !== undefined, 'property id should exist')
   })
 
   test('404 — token ya usado', async () => {
@@ -114,8 +112,8 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
       servicioFinPeriodo: '2',
     })
 
-    expect(res.status).toBe(404)
-    expect(res.body).toHaveProperty('error', 'NotFound')
+    assert.equal(res.status, 404)
+    assert.equal(res.body['error'], 'NotFound')
   })
 
   test('404 — token inexistente', async () => {
@@ -134,7 +132,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
       servicioFinPeriodo: '2',
     })
 
-    expect(res.status).toBe(404)
+    assert.equal(res.status, 404)
   })
 
   test('422 — password débil rechazada', async () => {
@@ -166,7 +164,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
       servicioFinPeriodo: '2',
     })
 
-    expect(res.status).toBe(422)
+    assert.equal(res.status, 422)
 
     await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
       weakCorreo,
