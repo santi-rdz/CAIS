@@ -1,10 +1,11 @@
 import { PAGE_SIZE, BASE_URL } from '@lib/constants'
 import { throwApiError } from '@lib/ApiError'
 
-export async function getUsers({ status, sortBy, search, page }) {
+export async function getUsers({ status, rol, sortBy, search, page }) {
   const params = new URLSearchParams()
 
   if (status) params.append('status', status)
+  if (rol) params.append('rol', rol)
   if (sortBy && sortBy !== 'clear') params.append('sortBy', sortBy)
   if (search) params.append('search', search)
   if (page) {

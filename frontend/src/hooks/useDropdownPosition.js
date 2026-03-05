@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function useDropdownPosition(
   dropdownHeight,
-  { ignoreSelector = null, dropdownWidth = null } = {}
+  { ignoreSelector = null, dropdownWidth = null, align = 'left' } = {}
 ) {
   const triggerRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -20,8 +20,11 @@ export default function useDropdownPosition(
       : { top: rect.bottom + 4 }
 
     let horizontal
-    if (dropdownWidth && rect.left + dropdownWidth > window.innerWidth - 8) {
-      // No cabe a la derecha del trigger → alinear por la derecha
+    if (
+      align === 'right' ||
+      (dropdownWidth && rect.left + dropdownWidth > window.innerWidth - 8)
+    ) {
+      // Alinear por la derecha del trigger
       horizontal = { right: window.innerWidth - rect.right }
     } else {
       // Alinear por la izquierda del trigger

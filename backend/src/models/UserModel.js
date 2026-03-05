@@ -13,9 +13,9 @@ export class UserModel {
    * @param {number} params.limit - Cantidad de registros por página.
    * @returns {Promise<{users: Array<Object>, count: number}>} Lista de usuarios y total de registros.
    */
-  static async getAll({ status, sortBy, search, page, limit }) {
+  static async getAll({ status, rol, sortBy, search, page, limit }) {
     let sql = `
-    SELECT 
+    SELECT
       BIN_TO_UUID(u.id) AS id,
       e.codigo AS estado,
       r.codigo AS rol,
@@ -36,8 +36,17 @@ export class UserModel {
     const conditions = []
 
     if (status) {
-      conditions.push('LOWER(e.codigo) = ?')
-      params.push(status.toLowerCase())
+      const statuses = status.split(',').map((s) => s.toLowerCase().trim())
+      conditions.push(
+        `LOWER(e.codigo) IN (${statuses.map(() => '?').join(',')})`
+      )
+      params.push(...statuses)
+    }
+
+    if (rol) {
+      const roles = rol.split(',').map((r) => r.toLowerCase().trim())
+      conditions.push(`LOWER(r.codigo) IN (${roles.map(() => '?').join(',')})`)
+      params.push(...roles)
     }
 
     if (search) {

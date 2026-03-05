@@ -7,6 +7,7 @@ import {
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 import Tag from './Tag'
+import DropdownPanel from './DropdownPanel'
 
 export default function ProfileDropdown({ user, onClose, logout }) {
   const navigate = useNavigate()
@@ -24,7 +25,7 @@ export default function ProfileDropdown({ user, onClose, logout }) {
   }
 
   return (
-    <div className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-lg">
+    <DropdownPanel className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden">
       {/* User info */}
       <div className="flex items-center gap-3 p-4">
         <div className="min-w-0">
@@ -90,6 +91,6 @@ export default function ProfileDropdown({ user, onClose, logout }) {
         <HiBuildingLibrary size={14} />
         CAIS · UABC
       </footer>
-    </div>
+    </DropdownPanel>
   )
 }

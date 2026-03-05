@@ -170,3 +170,12 @@ Prettier: no semicolons, single quotes, trailing commas (`es5`), 80-char line wi
 ## CI
 
 GitHub Actions (`.github/workflows/ci.yml`) runs on PRs to `main`: `npm ci` → `npm run lint` → `npm run format:check`. No build or test steps run in CI yet.
+
+## Lint
+
+After each implementation run:
+
+```js
+npm run lint
+npm run format:check
+```
