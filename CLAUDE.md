@@ -50,7 +50,7 @@ npm run test      # Jest + Supertest integration tests (requires live DB contain
 ### Services (Docker Compose)
 
 | Service    | Port | Tech                |
-|------------|------|---------------------|
+| ---------- | ---- | ------------------- |
 | `frontend` | 5173 | React 19 + Vite 7   |
 | `backend`  | 8000 | Node.js + Express 5 |
 | `db`       | 3307 | MySQL 8.0           |
@@ -86,6 +86,7 @@ Feature code lives in `src/features/`. Each feature has co-located custom hooks 
 - **bcryptjs** for password hashing
 
 Backend structure:
+
 ```
 backend/src/
   app.js          # Express app + middleware + listen
@@ -114,42 +115,56 @@ All routes are in Spanish:
 ## Key Conventions
 
 ### UI Language
+
 All user-facing text, route names, and many variable/field names are in **Spanish** (`nombre`, `correo`, `estado`, `/usuarios`, etc.). Keep new UI text in Spanish.
 
 ### Auth State
+
 Auth lives **only in TanStack Query cache** (`queryKey: ['user']`). `useUser` reads `queryClient.getQueryData(['user'])` — unauthenticated if missing. Auth does not survive a page refresh by design.
 
 ### Database UUIDs
+
 UUIDs stored as `BINARY(16)`. All queries use `BIN_TO_UUID()` / `UUID_TO_BIN()` for conversion.
 
 ### Zod Validation Pattern
+
 Controllers call `validateUser(input)` / `validatePartialUser(input)`. Validation is role-aware: `pasante` requires `matricula`; `coordinador` requires `cedula`. On failure, respond `422` with `error.errors`.
 
 ### Compound Component Pattern
+
 `Modal` and `Tab` use Context + compound components:
 
 ```jsx
 <Modal>
-  <Modal.Open opens="my-window"><Button>Open</Button></Modal.Open>
-  <Modal.Content name="my-window"><MyForm onCloseModal={close} /></Modal.Content>
+  <Modal.Open opens="my-window">
+    <Button>Open</Button>
+  </Modal.Open>
+  <Modal.Content name="my-window">
+    <MyForm onCloseModal={close} />
+  </Modal.Content>
 </Modal>
 ```
 
 `Tab` `options` entries must have `{ title, desc, label, value, component: (onClose) => <JSX /> }`.
 
 ### Multi-Step Forms
+
 `InternForm` uses `Stepper` + `FormProvider`. Validate per step via `trigger(stepsFields[currStep])` before advancing. `stepsFields` is an array of field-name arrays matching each step index.
 
 ### Typo in Folder Name
+
 `src/features/authenticaction/` — the extra `c` is intentional. Do not rename it.
 
 ### Testing (Frontend)
+
 Vitest + jsdom + `@testing-library/react`. Import `@testing-library/jest-dom` at the top of test files that use matchers like `toBeInTheDocument`.
 
 ### Testing (Backend)
+
 Jest + Supertest integration tests. Tests hit a real database — ensure the DB container is running.
 
 ### Code Style
+
 Prettier: no semicolons, single quotes, trailing commas (`es5`), 80-char line width. `prettier-plugin-tailwindcss` auto-sorts Tailwind classes. ESLint uses flat config format (v9).
 
 ## CI
