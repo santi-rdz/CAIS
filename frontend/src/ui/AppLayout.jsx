@@ -2,7 +2,6 @@ import { Outlet } from 'react-router'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 
-
 export default function AppLayout() {
   return (
     <div className="layout grid h-dvh">
