@@ -25,7 +25,6 @@ function formatUser(u) {
     matricula: u.matricula,
     inicio_servicio: u.inicio_servicio,
     fin_servicio: u.fin_servicio,
-    password_hash: u.password_hash,
   }
 }
 
