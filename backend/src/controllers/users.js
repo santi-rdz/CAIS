@@ -1,22 +1,30 @@
 import { validatePartialUser, validateUser } from '../schemas/user.js'
-import { validateRegistro } from '../schemas/register.js'
+import { validateRegistration } from '../schemas/register.js'
 import { randomUUID } from 'node:crypto'
 import { UserModel } from '../models/UserModel.js'
-import { InvitacionModel } from '../models/TokenModel.js'
-import { pool } from '../config/db.js'
+import { InvitationModel } from '../models/InvitationModel.js'
+import { prisma } from '../config/prisma.js'
+import { uuidToBuffer } from '../lib/uuid.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '../lib/formatErrors.js'
 
+async function getAreaIdFromCreator(creatorId) {
+  if (!creatorId) return null
+  try {
+    const creator = await prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(creatorId) },
+      select: { area_id: true },
+    })
+    return creator?.area_id ?? null
+  } catch {
+    return null
+  }
+}
+
 export class UserController {
-  /**
-   * GET /usuarios
-   * Obtiene una lista paginada de todos los usuarios, con opciones de filtrado y ordenamiento.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getAll(req, res) {
     const { status, rol, sortBy, search } = req.query
+
     const page = +req.query.page || 1
     const limit = +req.query.limit || 10
     const users = await UserModel.getAll({
@@ -30,13 +38,6 @@ export class UserController {
     res.json(users)
   }
 
-  /**
-   * GET /usuarios/:id
-   * Obtiene los detalles de un usuario específico mediante su ID.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getById(req, res) {
     const { id } = req.params
     const user = await UserModel.getById(id)
@@ -44,13 +45,6 @@ export class UserController {
     res.json(user)
   }
 
-  /**
-   * DELETE /usuarios/:id
-   * Elimina un usuario del sistema mediante su ID.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async delete(req, res) {
     const { id } = req.params
     const success = await UserModel.delete(id)
@@ -59,33 +53,30 @@ export class UserController {
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
-  /**
-   * PATCH /usuarios/:id
-   * Actualiza parcialmente la información de un usuario existente.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async update(req, res) {
     const result = validatePartialUser(req.body)
-    if (result.error)
-      return res.status(400).json({ error: JSON.parse(result.error.message) })
+    if (result.error) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        fields: formatZodErrors(result.error),
+      })
+    }
 
     const { id } = req.params
-    const updatedUser = await UserModel.update(id, result.data)
-    if (!updatedUser)
-      return res.status(404).json({ message: 'Usuario no encontrado' })
-
-    res.json(updatedUser)
+    try {
+      const updatedUser = await UserModel.update(id, result.data)
+      if (!updatedUser)
+        return res.status(404).json({ message: 'Usuario no encontrado' })
+      res.json(updatedUser)
+    } catch (err) {
+      console.error('Error al actualizar usuario:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al actualizar usuario',
+      })
+    }
   }
 
-  /**
-   * POST /usuarios
-   * Crea un usuario directamente en el sistema (flujo para coordinador/admin).
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async create(req, res) {
     const result = validateUser(req.body)
     if (result.error) {
@@ -100,7 +91,7 @@ export class UserController {
 
     try {
       const passwordHash = await bcrypt.hash(data.password, 12)
-      const nombre = `${data.nombre} ${data.apellido}`
+      const fullName = `${data.nombre} ${data.apellido}`
       const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
 
       const inicioServicio =
@@ -112,40 +103,34 @@ export class UserController {
           ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
           : null
 
-      const conn = await pool.getConnection()
-      try {
-        await conn.beginTransaction()
+      const areaId = await getAreaIdFromCreator(req.headers['x-user-id'])
 
-        const createdUser = await UserModel.create(
+      const createdUser = await prisma.$transaction(async (tx) => {
+        return await UserModel.create(
           {
-            nombre,
+            nombre: fullName,
             correo: data.correo,
             fechaNacimiento: data.fechaNacimiento,
             telefono: data.telefono,
             passwordHash,
             rol: data.rol,
+            areaId,
             foto,
             matricula: data.matricula || null,
             cedula: data.cedula || null,
             inicioServicio,
             finServicio,
           },
-          conn
+          tx
         )
+      })
 
-        await conn.commit()
-        res.status(201).json({
-          message: 'Usuario creado exitosamente',
-          usuario: createdUser,
-        })
-      } catch (err) {
-        await conn.rollback()
-        throw err
-      } finally {
-        conn.release()
-      }
+      res.status(201).json({
+        message: 'Usuario creado exitosamente',
+        usuario: createdUser,
+      })
     } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
+      if (err.code === 'P2002') {
         return res.status(409).json({
           error: 'Conflict',
           message: 'El correo ya está registrado',
@@ -158,19 +143,11 @@ export class UserController {
     }
   }
 
-  /**
-   * POST /usuarios/registro
-   * Completa el registro de un nuevo usuario utilizando un token de invitación válido.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async registro(req, res) {
     const { token } = req.body
 
     try {
-      // 1. Validar que el token existe y es válido
-      const invitacion = await InvitacionModel.findByToken(token)
+      const invitacion = await InvitationModel.findByToken(token)
       if (!invitacion) {
         return res.status(404).json({
           error: 'NotFound',
@@ -178,8 +155,7 @@ export class UserController {
         })
       }
 
-      // 2. Validar datos según el rol
-      const result = validateRegistro(req.body, invitacion.rol)
+      const result = validateRegistration(req.body, invitacion.rol)
       if (result.error) {
         return res.status(422).json({
           error: 'ValidationError',
@@ -189,78 +165,63 @@ export class UserController {
       }
 
       const data = result.data
-
-      // 3. Hashear contraseña
       const passwordHash = await bcrypt.hash(data.password, 12)
 
-      // 4. Crear usuario en transacción
-      const conn = await pool.getConnection()
-      try {
-        await conn.beginTransaction()
+      const fullName = `${data.nombre} ${data.apellido}`
+      const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
+      const matricula = data.matricula || null
+      const cedula = data.cedula || null
+      const inicioServicio =
+        data.servicioInicioAnio && data.servicioInicioPeriodo
+          ? `${data.servicioInicioAnio}-${data.servicioInicioPeriodo}`
+          : null
+      const finServicio =
+        data.servicioFinAnio && data.servicioFinPeriodo
+          ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
+          : null
 
-        const userId = randomUUID()
+      const userId = randomUUID()
 
-        const [[estadoRow]] = await conn.query(
-          'SELECT id FROM estados WHERE codigo = ?',
-          ['ACTIVO']
-        )
-        const [[rolRow]] = await conn.query(
-          'SELECT id FROM roles WHERE LOWER(codigo) = ?',
-          [invitacion.rol.toLowerCase()]
-        )
+      const createdUser = await prisma.$transaction(async (tx) => {
+        const activeStatus = await tx.estados.findFirst({
+          where: { codigo: 'ACTIVO' },
+        })
+        const roleRow = await tx.roles.findFirst({
+          where: { codigo: invitacion.rol.toUpperCase() },
+        })
 
-        const nombre = `${data.nombre} ${data.apellido}`
-        const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
+        if (!activeStatus || !roleRow) throw new Error('Estado o rol inválido')
 
-        // Campos específicos por rol
-        const matricula = data.matricula || null
-        const inicioServicio =
-          data.servicioInicioAnio && data.servicioInicioPeriodo
-            ? `${data.servicioInicioAnio}-${data.servicioInicioPeriodo}`
-            : null
-        const finServicio =
-          data.servicioFinAnio && data.servicioFinPeriodo
-            ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
-            : null
-
-        await conn.query(
-          `INSERT INTO usuarios
-            (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, foto, matricula, inicio_servicio, fin_servicio)
-           VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            userId,
-            nombre,
-            invitacion.correo,
-            new Date(data.fechaNacimiento).toISOString().split('T')[0],
-            data.telefono,
-            passwordHash,
-            estadoRow.id,
-            rolRow.id,
+        await tx.usuarios.create({
+          data: {
+            id: uuidToBuffer(userId),
+            nombre: fullName,
+            correo: invitacion.correo,
+            fecha_nacimiento: new Date(data.fechaNacimiento),
+            telefono: data.telefono,
+            password_hash: passwordHash,
+            estado_id: activeStatus.id,
+            rol_id: roleRow.id,
+            area_id: invitacion.area_id ?? null,
             foto,
             matricula,
-            inicioServicio,
-            finServicio,
-          ]
-        )
-
-        // Marcar invitación como usada
-        await InvitacionModel.markAsUsed(token, conn)
-
-        await conn.commit()
-
-        const createdUser = await UserModel.getById(userId)
-        res.status(201).json({
-          message: 'Registro completado exitosamente',
-          usuario: createdUser,
+            cedula,
+            inicio_servicio: inicioServicio,
+            fin_servicio: finServicio,
+          },
         })
-      } catch (err) {
-        await conn.rollback()
-        throw err
-      } finally {
-        conn.release()
-      }
+
+        await InvitationModel.markAsUsed(token, tx)
+
+        return await UserModel.getById(userId, tx)
+      })
+
+      res.status(201).json({
+        message: 'Registro completado exitosamente',
+        usuario: createdUser,
+      })
     } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
+      if (err.code === 'P2002') {
         return res.status(409).json({
           error: 'Conflict',
           message: 'El correo ya está registrado',

@@ -1,10 +1,10 @@
 import { BASE_URL } from '@lib/constants'
 import { throwApiError } from '@lib/ApiError'
 
-export async function createInvitaciones(invitaciones, userId) {
+export async function createInvitations(invitations, userId) {
   const res = await fetch(`${BASE_URL}/invitaciones`, {
     method: 'POST',
-    body: JSON.stringify(invitaciones),
+    body: JSON.stringify(invitations),
     headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
   })
   if (!res.ok) await throwApiError(res, 'Error al enviar invitaciones')

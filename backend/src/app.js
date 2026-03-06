@@ -1,6 +1,6 @@
 import { userRouter } from './routes/users.js'
 import { authRouter } from './routes/auth.js'
-import { invitacionRouter } from './routes/invitaciones.js'
+import { invitationRouter } from './routes/invitations.js'
 import express from 'express'
 import cors from 'cors'
 
@@ -16,7 +16,7 @@ app.use(
 
 app.use('/usuarios', userRouter)
 app.use('/auth', authRouter)
-app.use('/invitaciones', invitacionRouter)
+app.use('/invitaciones', invitationRouter)
 
 export default app
 

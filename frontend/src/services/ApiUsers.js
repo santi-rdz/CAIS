@@ -25,11 +25,13 @@ export async function getUser(id) {
   return await res.json()
 }
 
-export async function createUser(data) {
+export async function createUser(data, creatorId) {
+  const headers = { 'Content-Type': 'application/json' }
+  if (creatorId) headers['x-user-id'] = creatorId
   const res = await fetch(`${BASE_URL}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
+    headers,
   })
   if (!res.ok) await throwApiError(res, 'Error al crear usuario')
   return await res.json()

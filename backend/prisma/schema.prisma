@@ -1,0 +1,890 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model acciones {
+  id                 Int                  @id @default(autoincrement())
+  codigo             String               @unique(map: "codigo") @db.VarChar(50)
+  registro_auditoria registro_auditoria[]
+}
+
+model adicciones {
+  id                            Int                             @id @default(autoincrement())
+  adicto_tabaco                 String?                         @db.VarChar(10)
+  tabaco_frecuencia             String?                         @db.VarChar(20)
+  num_cigarros_d                Int?                            @db.TinyInt
+  adicto_alcohol                String?                         @db.VarChar(10)
+  alcohol_frecuencia            String?                         @db.VarChar(20)
+  ml_ocasion                    Int?                            @db.SmallInt
+  adicto_droga                  String?                         @db.VarChar(10)
+  drogas_frecuencia             String?                         @db.VarChar(20)
+  cual_droga                    String?                         @db.Text
+  adicto_med_contr              String?                         @db.VarChar(10)
+  med_contr_frecuencia          String?                         @db.VarChar(20)
+  cual_med_contr                String?                         @db.Text
+  historias_pacientes_nutricion historias_pacientes_nutricion[]
+}
+
+model antecedentes_familiares {
+  id                Int                 @id @default(autoincrement())
+  padre             String?             @db.VarChar(255)
+  madre             String?             @db.VarChar(255)
+  abuelo_paterno    String?             @db.VarChar(255)
+  abuelo_materno    String?             @db.VarChar(255)
+  abuela_paterna    String?             @db.VarChar(255)
+  abuela_materna    String?             @db.VarChar(255)
+  otros             String?             @db.VarChar(255)
+  historias_medicas historias_medicas[]
+}
+
+model antecedentes_patologicos {
+  id                      Int                 @id @default(autoincrement())
+  cronico_degenerativos   String?             @db.Text
+  quirurgicos             String?             @db.Text
+  hospitalizaciones       String?             @db.Text
+  traumaticos             String?             @db.Text
+  transfusionales         String?             @db.Text
+  transplantes            String?             @db.Text
+  alergicos               String?             @db.Text
+  infectocontagiosos      String?             @db.Text
+  toxicomanias            String?             @db.Text
+  covid_19                String?             @db.Text
+  psicologia_psiquiatria  String?             @db.Text
+  gyo                     String?             @db.Text
+  enfermedades_congenitas String?             @db.Text
+  enfermedades_infancia   String?             @db.Text
+  historias_medicas       historias_medicas[]
+}
+
+model aparatos_sistemas {
+  id                 Int                 @id @default(autoincrement())
+  neurologico        String?             @db.Text
+  cardiovascular     String?             @db.Text
+  respiratorio       String?             @db.Text
+  hematologico       String?             @db.Text
+  digestivo          String?             @db.Text
+  musculoesqueletico String?             @db.Text
+  genitourinario     String?             @db.Text
+  endocrinologico    String?             @db.Text
+  metabolico         String?             @db.Text
+  nutricional        String?             @db.Text
+  historias_medicas  historias_medicas[]
+  notas_evolucion    notas_evolucion[]
+}
+
+model areas {
+  id       Int        @id @default(autoincrement())
+  nombre   String     @unique(map: "nombre") @db.VarChar(100)
+  usuarios usuarios[]
+}
+
+model balance_acido_base {
+  id                  Int                   @id @default(autoincrement())
+  ph_serico           Float?                @db.Float
+  saturacion_o2       Float?                @db.Float
+  bicarbonato         Float?                @db.Float
+  pco2_total          Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model bitacora_emergencias {
+  id                Bytes     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  usuario_id        Bytes     @db.Binary(16)
+  fecha_hora        DateTime? @default(now()) @db.DateTime(0)
+  ubicacion         String    @db.VarChar(255)
+  nombre            String?   @db.VarChar(255)
+  matricula         String?   @db.VarChar(20)
+  telefono          String?   @db.VarChar(30)
+  diagnostico       String?   @db.VarChar(255)
+  accion_realizada  String?   @db.VarChar(255)
+  tratamiento_admin String?   @db.VarChar(255)
+  recurrente        Boolean?  @default(false)
+  usuarios          usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bitacora_usuario")
+
+  @@index([usuario_id], map: "fk_bitacora_usuario")
+}
+
+model cal_get_nutr {
+  id               Int       @id @default(autoincrement())
+  paciente_id      Bytes     @db.Binary(16)
+  fecha_eval       DateTime? @default(dbgenerated("(curdate())")) @db.Date
+  verdura          Int?      @db.TinyInt
+  fruta            Int?      @db.TinyInt
+  cereal_sin_grasa Int?      @db.TinyInt
+  cereal_con_grasa Int?      @db.TinyInt
+  leguminosas      Int?      @db.TinyInt
+  aoa_a            Int?      @db.TinyInt
+  aoa_b            Int?      @db.TinyInt
+  aoa_c            Int?      @db.TinyInt
+  aoa_d            Int?      @db.TinyInt
+  leche_a          Int?      @db.TinyInt
+  leche_b          Int?      @db.TinyInt
+  leche_c          Int?      @db.TinyInt
+  grasa_a          Int?      @db.TinyInt
+  grasa_b          Int?      @db.TinyInt
+  azucares         Int?      @db.TinyInt
+  rice_dream       Int?      @db.TinyInt
+  silk             Int?      @db.TinyInt
+  soyactive        Int?      @db.TinyInt
+  almond_breeze    Int?      @db.TinyInt
+  aube_baja        Int?      @db.TinyInt
+  nan_one          Int?      @db.TinyInt
+  aube_alta        Int?      @db.TinyInt
+  pacientes        pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_cal_get")
+
+  @@index([paciente_id], map: "fk_paciente_cal_get")
+}
+
+model diagnostico_nutricional_adulto {
+  id                           Int                          @id @default(autoincrement())
+  reporte_een_id               Int
+  pes                          String?                      @db.VarChar(255)
+  intervencion                 String?                      @db.VarChar(50)
+  objetivos                    String?                      @db.VarChar(255)
+  indicadores                  String?                      @db.VarChar(255)
+  criterio                     String?                      @db.VarChar(255)
+  progreso                     String?                      @db.VarChar(20)
+  reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
+
+  @@index([reporte_een_id], map: "fk_reporte_diagnostico")
+}
+
+model entidades {
+  id                 Int                  @id @default(autoincrement())
+  nombre             String               @unique(map: "nombre") @db.VarChar(50)
+  registro_auditoria registro_auditoria[]
+}
+
+model estados {
+  id       Int        @id @default(autoincrement())
+  codigo   String     @unique(map: "codigo") @db.VarChar(50)
+  usuarios usuarios[]
+}
+
+model eval_act_fisica_nutricion {
+  id                            Int                           @id @default(autoincrement())
+  historia_paciente_id          Bytes                         @db.Binary(16)
+  fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  tipo                          String?                       @db.VarChar(50)
+  porque_no                     String?                       @db.VarChar(255)
+  frecuencia                    String?                       @db.VarChar(20)
+  duracion                      Int?                          @db.SmallInt
+  intensidad                    Int?
+  tiempo_de_practica            String?                       @db.VarChar(20)
+  pensamientos_con_realizar_AF  String?                       @db.VarChar(50)
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_act_paciente")
+
+  @@index([historia_paciente_id], map: "fk_eval_act_paciente")
+}
+
+model eval_antro_ad_adulto_nutricion {
+  id                      Int                       @id @default(autoincrement())
+  codo                    Float?                    @db.Float
+  frisancho               Float?                    @db.Float
+  complexion              String?                   @db.VarChar(20)
+  pi_kg                   Float?                    @db.Float
+  edema_liq               Float?                    @db.Float
+  peso_sin_edema          Float?                    @db.Float
+  peso_ajustado           Float?                    @db.Float
+  peso_ideal_por          Float?                    @db.Float
+  diagnostico_pi          String?                   @db.VarChar(20)
+  diagnostico_imc         String?                   @db.VarChar(20)
+  pcb                     Float?                    @db.Float
+  pcsi                    Float?                    @db.Float
+  riesgo_cv               Boolean?
+  cadera                  Float?                    @db.Float
+  indice_cintura_cadera   Float?                    @db.Float
+  diagnostico_icc         String?                   @db.VarChar(20)
+  circuf_cuello           Float?                    @db.Float
+  riesgo_eo_inf           Boolean?
+  eval_antro_ad_nutricion eval_antro_ad_nutricion[]
+}
+
+model eval_antro_ad_kid_nutricion {
+  id                            Int                       @id @default(autoincrement())
+  percentiles_imc               Float?                    @db.Float
+  interpretacion_imc            String?                   @db.VarChar(255)
+  percentiles_cintura           Float?                    @db.Float
+  percentiles_pb                Float?                    @db.Float
+  percentiles_pct               Float?                    @db.Float
+  percentiles_pcse              Float?                    @db.Float
+  peso_para_talla               Float?                    @db.Float
+  peso_ideal                    Float?                    @db.Float
+  desviacion_estandar_peso      Float?                    @db.Float
+  interpretacion_nom_peso       String?                   @db.VarChar(50)
+  talla_para_edad               Float?                    @db.Float
+  talla_ideal                   Float?                    @db.Float
+  desviacion_estandar_talla     Float?                    @db.Float
+  interpretacion_nom_talla      String?                   @db.VarChar(50)
+  peso_para_edad                Float?                    @db.Float
+  desviacion_estandar_peso_edad Float?                    @db.Float
+  interpretacion_nom_peso_edad  String?                   @db.VarChar(50)
+  diagnostico_general           String?                   @db.VarChar(50)
+  resistencia                   Float?                    @db.Float
+  reactancia                    Float?                    @db.Float
+  angulo_fase                   Float?                    @db.Float
+  tan_angulo_fase               Float?                    @db.Float
+  eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
+}
+
+model eval_antro_ad_nutricion {
+  id                             Int                             @id @default(autoincrement())
+  paciente_id                    Bytes                           @db.Binary(16)
+  eval_antro_ad_kid_id           Int?
+  eval_antro_ad_adulto_id        Int?
+  fecha                          DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
+  peso_actual                    Float?                          @db.Float
+  estatura                       Float?                          @db.Float
+  imc                            Float?                          @db.Float
+  pantorrilla                    Float?                          @db.Float
+  cintura                        Float?                          @db.Float
+  pb                             Float?                          @db.Float
+  pct                            Float?                          @db.Float
+  pcse                           Float?                          @db.Float
+  eval_antro_ad_adulto_nutricion eval_antro_ad_adulto_nutricion? @relation(fields: [eval_antro_ad_adulto_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_adulto_eval_antro")
+  eval_antro_ad_kid_nutricion    eval_antro_ad_kid_nutricion?    @relation(fields: [eval_antro_ad_kid_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_kid_eval_antro")
+  pacientes                      pacientes                       @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_antro")
+
+  @@index([eval_antro_ad_adulto_id], map: "fk_adulto_eval_antro")
+  @@index([eval_antro_ad_kid_id], map: "fk_kid_eval_antro")
+  @@index([paciente_id], map: "fk_paciente_eval_antro")
+}
+
+model eval_apetito_nutricion {
+  id                        Int            @id @default(autoincrement())
+  apetito                   String?        @db.VarChar(20)
+  lleno                     String?        @db.VarChar(20)
+  sabor_comida              String?        @db.VarChar(20)
+  comidas_al_dia            String?        @db.VarChar(20)
+  puntaje_total             Int?           @db.TinyInt
+  clasif_alteracion_apetito String?        @db.VarChar(20)
+  eval_nutr_fh              eval_nutr_fh[]
+}
+
+model eval_bioq_nutricion {
+  id                           Int                        @id @default(autoincrement())
+  paciente_id                  Bytes                      @db.Binary(16)
+  fecha                        DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
+  id_perfil_anemia             Int?
+  id_perfil_endocrino          Int?
+  id_perfil_renal_electrolitos Int?
+  id_perfil_lipidos            Int?
+  id_balance_acido_base        Int?
+  id_perfil_orina              Int?
+  id_perfil_inflamatorio       Int?
+  id_eval_estado_nutr          Int?
+  balance_acido_base           balance_acido_base?        @relation(fields: [id_balance_acido_base], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_acido_base_eval_bioq")
+  perfil_anemia_nutricion      perfil_anemia_nutricion?   @relation(fields: [id_perfil_anemia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_anemia_eval_bioq")
+  perfil_endocrino             perfil_endocrino?          @relation(fields: [id_perfil_endocrino], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_endocrino_eval_bioq")
+  eval_estado_nutricion        eval_estado_nutricion?     @relation(fields: [id_eval_estado_nutr], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_estado_eval_bioq")
+  perfil_inflamatorio          perfil_inflamatorio?       @relation(fields: [id_perfil_inflamatorio], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inflamatorio_eval_bioq")
+  perfil_lipidos               perfil_lipidos?            @relation(fields: [id_perfil_lipidos], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_lipidos_eval_bioq")
+  perfil_orina                 perfil_orina?              @relation(fields: [id_perfil_orina], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orina_eval_bioq")
+  pacientes                    pacientes                  @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
+  perfil_renal_electrolitos    perfil_renal_electrolitos? @relation(fields: [id_perfil_renal_electrolitos], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_renal_eval_bioq")
+
+  @@index([id_balance_acido_base], map: "fk_acido_base_eval_bioq")
+  @@index([id_perfil_anemia], map: "fk_anemia_eval_bioq")
+  @@index([id_perfil_endocrino], map: "fk_endocrino_eval_bioq")
+  @@index([id_eval_estado_nutr], map: "fk_estado_eval_bioq")
+  @@index([id_perfil_inflamatorio], map: "fk_inflamatorio_eval_bioq")
+  @@index([id_perfil_lipidos], map: "fk_lipidos_eval_bioq")
+  @@index([id_perfil_orina], map: "fk_orina_eval_bioq")
+  @@index([paciente_id], map: "fk_paciente_eval_bioq")
+  @@index([id_perfil_renal_electrolitos], map: "fk_renal_eval_bioq")
+}
+
+model eval_cal_sueno {
+  id                            Int                           @id @default(autoincrement())
+  historia_paciente_id          Bytes                         @db.Binary(16)
+  fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  horas_sueno                   Int?                          @db.TinyInt
+  insomnio                      Int?                          @db.TinyInt
+  medicacion                    Int?                          @db.TinyInt
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
+
+  @@index([historia_paciente_id], map: "fk_cal_sueno_paciente")
+}
+
+model eval_estado_nutricion {
+  id                  Int                   @id @default(autoincrement())
+  leucocitos          Float?                @db.Float
+  linfocitos          Float?                @db.Float
+  ctl                 Float?                @db.Float
+  albumina            Float?                @db.Float
+  pre_albumina        Float?                @db.Float
+  transferrina        Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model eval_nutr_fh {
+  id                               Int                               @id @default(autoincrement())
+  paciente_id                      Bytes                             @db.Binary(16)
+  fecha                            DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
+  id_horarios_comida               Int?
+  id_eval_apetito                  Int?
+  id_frec_consumo                  Int?
+  eval_apetito_nutricion           eval_apetito_nutricion?           @relation(fields: [id_eval_apetito], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_apetito_eval_nutr")
+  frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion? @relation(fields: [id_frec_consumo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_frec_consumo_eval_nutr")
+  horarios_comida_nutricion        horarios_comida_nutricion?        @relation(fields: [id_horarios_comida], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
+  pacientes                        pacientes                         @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_nutr")
+
+  @@index([id_eval_apetito], map: "fk_apetito_eval_nutr")
+  @@index([id_frec_consumo], map: "fk_frec_consumo_eval_nutr")
+  @@index([id_horarios_comida], map: "fk_horarios_eval_nutr")
+  @@index([paciente_id], map: "fk_paciente_eval_nutr")
+}
+
+model eval_perdida_peso_nutricion {
+  id                       Int                        @id @default(autoincrement())
+  peso_habitual            Float?                     @db.Float
+  peso_perdido             Float?                     @db.Float
+  porcentaje_peso_perdido  Float?                     @db.Float
+  exam_fis_orien_nutricion exam_fis_orien_nutricion[]
+}
+
+model eval_semiologia_nutricional {
+  id                               Int                        @id @default(autoincrement())
+  pcb                              String?                    @db.VarChar(10)
+  pct                              String?                    @db.VarChar(10)
+  fondo_ojo                        String?                    @db.VarChar(10)
+  diag_reservagrasa                String?                    @db.VarChar(10)
+  sienes                           String?                    @db.VarChar(10)
+  clavicula                        String?                    @db.VarChar(10)
+  hombros                          String?                    @db.VarChar(10)
+  omoplato                         String?                    @db.VarChar(10)
+  interoseos_mano                  String?                    @db.VarChar(10)
+  costillas                        String?                    @db.VarChar(10)
+  espalda_alta                     String?                    @db.VarChar(10)
+  cuadriceps                       String?                    @db.VarChar(10)
+  pantorrilla                      String?                    @db.VarChar(10)
+  diag_reserva_muscular            String?                    @db.VarChar(15)
+  edema                            String?                    @db.VarChar(20)
+  descripcion                      String?                    @db.Text
+  descripcion_sist_genito_urinario String?                    @db.Text
+  exam_fis_orien_nutricion         exam_fis_orien_nutricion[]
+}
+
+model eval_sintomas_gastroin_nutricion {
+  id                       Int                      @id @default(autoincrement())
+  exam_fis_id              Int
+  presenta_sgi             Boolean?
+  presencia                String?                  @db.VarChar(50)
+  exam_fis_orien_nutricion exam_fis_orien_nutricion @relation(fields: [exam_fis_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exam_fis_sintomas")
+
+  @@index([exam_fis_id], map: "fk_exam_fis_sintomas")
+}
+
+model exam_fis_orien_nutricion {
+  id                               Int                                @id @default(autoincrement())
+  paciente_id                      Bytes                              @db.Binary(16)
+  fecha                            DateTime?                          @default(dbgenerated("(curdate())")) @db.Date
+  id_perdida_peso                  Int
+  id_signos_vitales                Int
+  id_semiologia                    Int
+  eval_sintomas_gastroin_nutricion eval_sintomas_gastroin_nutricion[]
+  pacientes                        pacientes                          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_exam_fis")
+  eval_perdida_peso_nutricion      eval_perdida_peso_nutricion        @relation(fields: [id_perdida_peso], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_perdida_peso_exam_fis")
+  eval_semiologia_nutricional      eval_semiologia_nutricional        @relation(fields: [id_semiologia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_semiologia_exam_fis")
+  signos_vitales_nutricion         signos_vitales_nutricion           @relation(fields: [id_signos_vitales], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_signos_vitales_exam_fis")
+
+  @@index([paciente_id], map: "fk_paciente_exam_fis")
+  @@index([id_perdida_peso], map: "fk_perdida_peso_exam_fis")
+  @@index([id_semiologia], map: "fk_semiologia_exam_fis")
+  @@index([id_signos_vitales], map: "fk_signos_vitales_exam_fis")
+}
+
+model frec_consumo_alimentos_nutricion {
+  id                         Int            @id @default(autoincrement())
+  frutas                     String?        @db.VarChar(20)
+  verduras_cocidas           String?        @db.VarChar(20)
+  verduras_crudas            String?        @db.VarChar(20)
+  pescado                    String?        @db.VarChar(20)
+  mariscos                   String?        @db.VarChar(20)
+  pollo                      String?        @db.VarChar(20)
+  carne_roja                 String?        @db.VarChar(20)
+  quesos                     String?        @db.VarChar(20)
+  huevo_entero               String?        @db.VarChar(20)
+  clara_huevo                String?        @db.VarChar(20)
+  embutidos                  String?        @db.VarChar(20)
+  leguminosas                String?        @db.VarChar(20)
+  tortilla_maiz              String?        @db.VarChar(20)
+  cant_tortilla_maiz         String?        @db.VarChar(20)
+  tortilla_harina            String?        @db.VarChar(20)
+  cant_tortilla_harina       String?        @db.VarChar(20)
+  pan_de_caja                String?        @db.VarChar(20)
+  galletas_industr           String?        @db.VarChar(20)
+  pan_dulce                  String?        @db.VarChar(20)
+  cereal_de_caja             String?        @db.VarChar(20)
+  frituras_papas             String?        @db.VarChar(20)
+  birote_bolillo             String?        @db.VarChar(20)
+  pastas_arroz               String?        @db.VarChar(20)
+  aderezos_capsu             String?        @db.VarChar(20)
+  comida_rapida              String?        @db.VarChar(20)
+  grasa_animal               String?        @db.VarChar(20)
+  grasa_vegetal              String?        @db.VarChar(20)
+  cafe_te                    String?        @db.VarChar(20)
+  litros_al_dia_cafe_te      String?        @db.VarChar(20)
+  bebida_az                  String?        @db.VarChar(20)
+  litros_al_dia_beb_az       String?        @db.VarChar(20)
+  bebida_endul_art           String?        @db.VarChar(20)
+  litros_al_dia_beb_endul    String?        @db.VarChar(20)
+  leche_sin_az               String?        @db.VarChar(20)
+  litros_al_dia_leche_sin_az String?        @db.VarChar(20)
+  agua_simple                String?        @db.VarChar(20)
+  litros_al_dia_agua_simple  String?        @db.VarChar(20)
+  agrega_sal_extra           String?        @db.VarChar(20)
+  cdas_al_dia_sal_extra      Int?           @db.TinyInt
+  agrega_azucar              String?        @db.VarChar(20)
+  cdas_sobres_al_dia_azucar  Int?           @db.TinyInt
+  eval_nutr_fh               eval_nutr_fh[]
+}
+
+model historias_medicas {
+  id                          Bytes                     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  paciente_id                 Bytes                     @db.Binary(16)
+  antecedentes_familiares_id  Int?
+  antecedentes_patologicos_id Int?
+  servicios_id                Int?
+  inmunizaciones_id           Int?
+  informacion_fisica_id       Int?
+  aparatos_sistemas_id        Int?
+  plan_estudio_id             Int?
+  tipo_sangre                 String?                   @db.VarChar(5)
+  vacunas_infancia_completas  Boolean?
+  motivo_consulta             String?                   @db.Text
+  historia_enfermedad_actual  String?                   @db.Text
+  antecedentes_familiares     antecedentes_familiares?  @relation(fields: [antecedentes_familiares_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_af")
+  antecedentes_patologicos    antecedentes_patologicos? @relation(fields: [antecedentes_patologicos_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_ap")
+  aparatos_sistemas           aparatos_sistemas?        @relation(fields: [aparatos_sistemas_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_as")
+  informacion_fisica          informacion_fisica?       @relation(fields: [informacion_fisica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_info")
+  inmunizaciones              inmunizaciones?           @relation(fields: [inmunizaciones_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_inm")
+  pacientes                   pacientes                 @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_paciente")
+  planes_estudio              planes_estudio?           @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_plan")
+  servicios                   servicios?                @relation(fields: [servicios_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_serv")
+  notas_evolucion             notas_evolucion[]
+
+  @@index([antecedentes_familiares_id], map: "fk_historia_af")
+  @@index([antecedentes_patologicos_id], map: "fk_historia_ap")
+  @@index([aparatos_sistemas_id], map: "fk_historia_as")
+  @@index([informacion_fisica_id], map: "fk_historia_info")
+  @@index([inmunizaciones_id], map: "fk_historia_inm")
+  @@index([paciente_id], map: "fk_historia_paciente")
+  @@index([plan_estudio_id], map: "fk_historia_plan")
+  @@index([servicios_id], map: "fk_historia_serv")
+}
+
+model historias_medicas_nutricion {
+  id                            Int                           @id @default(autoincrement())
+  historia_paciente_id          Bytes                         @db.Binary(16)
+  enfermedad                    String?                       @db.Text
+  evol                          Int?
+  farmacos                      String?                       @db.Text
+  dosis                         String?                       @db.VarChar(20)
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_medica_historia_paciente")
+
+  @@index([historia_paciente_id], map: "fk_historia_medica_historia_paciente")
+}
+
+model historias_pacientes_nutricion {
+  id                          Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  paciente_id                 Bytes                         @db.Binary(16)
+  fecha_ingreso               DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  motivo_consulta             String?                       @db.Text
+  adicciones_id               Int?
+  eval_act_fisica_nutricion   eval_act_fisica_nutricion[]
+  eval_cal_sueno              eval_cal_sueno[]
+  historias_medicas_nutricion historias_medicas_nutricion[]
+  adicciones                  adicciones?                   @relation(fields: [adicciones_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_nutricion_adiccion")
+  pacientes                   pacientes                     @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_nutricion_paciente")
+  tratamiento_alt_nutricion   tratamiento_alt_nutricion[]
+
+  @@index([adicciones_id], map: "fk_historia_nutricion_adiccion")
+  @@index([paciente_id], map: "fk_historia_nutricion_paciente")
+}
+
+model horarios_comida_nutricion {
+  id                       Int            @id @default(autoincrement())
+  hora_desayuno            String?        @db.VarChar(20)
+  hora_comida              String?        @db.VarChar(20)
+  hora_cena                String?        @db.VarChar(20)
+  hora_colac_1             String?        @db.VarChar(20)
+  hora_colac_2             String?        @db.VarChar(20)
+  hora_colac_3             String?        @db.VarChar(20)
+  hora_despierto           String?        @db.VarChar(20)
+  tipo_alimentacion        String?        @db.VarChar(10)
+  problemas_masticar       Boolean?
+  problemas_pasar_alimento Boolean?
+  perdida_dientes          Boolean?
+  pensamientos_sobre_dieta String?        @db.VarChar(255)
+  eval_nutr_fh             eval_nutr_fh[]
+}
+
+model informacion_fisica {
+  id                 Int                 @id @default(autoincrement())
+  peso               Float               @db.Float
+  altura             Float               @db.Float
+  pa_sistolica       Int
+  pa_diastolica      Int
+  fc                 Int
+  fr                 Int
+  circ_cintura       Float               @db.Float
+  circ_cadera        Float               @db.Float
+  sp_o2              Float               @db.Float
+  glucosa_capilar    Float               @db.Float
+  temperatura        Float               @db.Float
+  exploracion_fisica String?             @db.Text
+  habito_exterior    String?             @db.Text
+  historias_medicas  historias_medicas[]
+  notas_evolucion    notas_evolucion[]
+}
+
+model inmunizaciones {
+  id                Int                 @id @default(autoincrement())
+  influenza         DateTime?           @db.Timestamp(0)
+  tetanos           DateTime?           @db.Timestamp(0)
+  hepatitis_b       DateTime?           @db.Timestamp(0)
+  covid_19          DateTime?           @db.Timestamp(0)
+  otros             String?             @db.Text
+  historias_medicas historias_medicas[]
+}
+
+model invitaciones_registro {
+  id         Int       @id @default(autoincrement())
+  correo     String    @unique(map: "correo") @db.VarChar(255)
+  rol_id     Int
+  token      Bytes     @unique(map: "token") @db.Binary(16)
+  usado      Boolean?  @default(false)
+  expira_at  DateTime  @db.DateTime(0)
+  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  creado_por Bytes     @db.Binary(16)
+  usuarios   usuarios  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_creado_por")
+  roles      roles     @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_rol")
+
+  @@index([creado_por], map: "fk_invitacion_creado_por")
+  @@index([rol_id], map: "fk_invitacion_rol")
+}
+
+model notas_evolucion {
+  id                    Bytes               @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  historia_medica_id    Bytes?              @db.Binary(16)
+  paciente_id           Bytes?              @db.Binary(16)
+  motivo_consulta       String?             @db.Text
+  ant_gine_andro        String?             @db.Text
+  aparatos_sistemas_id  Int?
+  informacion_fisica_id Int?
+  plan_estudio_id       Int?
+  aparatos_sistemas     aparatos_sistemas?  @relation(fields: [aparatos_sistemas_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_as")
+  historias_medicas     historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_historia")
+  informacion_fisica    informacion_fisica? @relation(fields: [informacion_fisica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_info")
+  pacientes             pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
+  planes_estudio        planes_estudio?     @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_plan")
+
+  @@index([aparatos_sistemas_id], map: "fk_nota_as")
+  @@index([historia_medica_id], map: "fk_nota_historia")
+  @@index([informacion_fisica_id], map: "fk_nota_info")
+  @@index([paciente_id], map: "fk_nota_paciente")
+  @@index([plan_estudio_id], map: "fk_nota_plan")
+}
+
+model pacientes {
+  id                            Bytes                           @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  doctor_id                     Bytes                           @db.Binary(16)
+  nombre                        String?                         @db.VarChar(255)
+  fecha_nacimiento              DateTime?                       @db.Date
+  es_externo                    Boolean?                        @default(false)
+  correo                        String?                         @db.VarChar(255)
+  telefono                      String?                         @db.VarChar(30)
+  genero                        String?                         @db.VarChar(20)
+  domicilio                     String?                         @db.VarChar(255)
+  ocupacion                     String?                         @db.VarChar(100)
+  estado_civil                  String?                         @db.VarChar(50)
+  nivel_educativo               String?                         @db.VarChar(100)
+  religion                      String?                         @db.VarChar(100)
+  nss                           String?                         @db.VarChar(50)
+  contacto_emergencia           String?                         @db.VarChar(255)
+  telefono_emergencia           String?                         @db.VarChar(30)
+  parentesco_emergencia         String?                         @db.VarChar(100)
+  creado_at                     DateTime?                       @default(now()) @db.DateTime(0)
+  cal_get_nutr                  cal_get_nutr[]
+  eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
+  eval_bioq_nutricion           eval_bioq_nutricion[]
+  eval_nutr_fh                  eval_nutr_fh[]
+  exam_fis_orien_nutricion      exam_fis_orien_nutricion[]
+  historias_medicas             historias_medicas[]
+  historias_pacientes_nutricion historias_pacientes_nutricion[]
+  notas_evolucion               notas_evolucion[]
+  usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
+  patron_alimentacion_nutricion patron_alimentacion_nutricion[]
+  rec_24h_nutricion             rec_24h_nutricion[]
+  registro_auditoria            registro_auditoria[]
+  reporte_een_adulto_nutricion  reporte_een_adulto_nutricion[]
+  reporte_een_kids_nutricion    reporte_een_kids_nutricion[]
+  tpan_nutricion                tpan_nutricion[]
+
+  @@index([doctor_id], map: "fk_pacientes_usuario")
+}
+
+model patron_alimentacion_nutricion {
+  id                 Int       @id @default(autoincrement())
+  paciente_id        Bytes     @db.Binary(16)
+  fecha              DateTime? @db.Date
+  sigue_dieta        Boolean?
+  tiene_alergia      Boolean?
+  cual_alergia       String?   @db.Text
+  alimentos_disgusta String?   @db.Text
+  pacientes          pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_patron_alimentacion")
+
+  @@index([paciente_id], map: "fk_paciente_patron_alimentacion")
+}
+
+model perfil_anemia_nutricion {
+  id                  Int                   @id @default(autoincrement())
+  eritrocitos         Float?                @db.Float
+  hemoglobina         Float?                @db.Float
+  hematocrito         Float?                @db.Float
+  vcm                 Float?                @db.Float
+  homocisteina        Float?                @db.Float
+  ferritina           Float?                @db.Float
+  hierro              Float?                @db.Float
+  cap_fij_tot_he      Float?                @db.Float
+  saturacion_hierro   Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model perfil_endocrino {
+  id                  Int                   @id @default(autoincrement())
+  glucosa             Float?                @db.Float
+  hbAlc               Float?                @db.Float
+  insulina            Float?                @db.Float
+  tiroxina_libre      Float?                @db.Float
+  triyodotironina     Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model perfil_inflamatorio {
+  id                  Int                   @id @default(autoincrement())
+  pcr                 Float?                @db.Float
+  plaquetas           Int?
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model perfil_lipidos {
+  id                  Int                   @id @default(autoincrement())
+  colesterol          Float?                @db.Float
+  c_hdl               Float?                @db.Float
+  c_ldl               Float?                @db.Float
+  trigliceridos       Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model perfil_orina {
+  id                     Int                   @id @default(autoincrement())
+  volumen_urinario       Float?                @db.Float
+  densidad               Float?                @db.Float
+  alteraciones_urinarias String?               @db.VarChar(20)
+  litos                  String?               @db.VarChar(50)
+  ph                     Float?                @db.Float
+  cetonas                String?               @db.VarChar(50)
+  sodio                  Int?                  @db.SmallInt
+  eval_bioq_nutricion    eval_bioq_nutricion[]
+}
+
+model perfil_renal_electrolitos {
+  id                  Int                   @id @default(autoincrement())
+  osmolaridad         Float?                @db.Float
+  urea                Float?                @db.Float
+  bun                 Float?                @db.Float
+  creatinina          Float?                @db.Float
+  acido_urico         Float?                @db.Float
+  sodio               Float?                @db.Float
+  peso_sin_edema      Float?                @db.Float
+  agua                Float?                @db.Float
+  potasio             Float?                @db.Float
+  fosforo             Float?                @db.Float
+  calcio_serico       Float?                @db.Float
+  ca_corregido        Float?                @db.Float
+  producto_caP        Float?                @db.Float
+  pth                 Float?                @db.Float
+  vitamina_d          Float?                @db.Float
+  tfge                Float?                @db.Float
+  albuminuria         Float?                @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion[]
+}
+
+model planes_estudio {
+  id                Int                 @id @default(autoincrement())
+  codigo_cie10      String              @db.VarChar(50)
+  plan_tratamiento  String?             @db.Text
+  usuario_id        Bytes               @db.Binary(16)
+  generado_en       DateTime?           @default(now()) @db.DateTime(0)
+  tratamiento       String?             @db.Text
+  historias_medicas historias_medicas[]
+  notas_evolucion   notas_evolucion[]
+  usuarios          usuarios            @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
+
+  @@index([usuario_id], map: "fk_plan_usuario")
+}
+
+model rec_24h_comidas {
+  id                Int               @id @default(autoincrement())
+  rec_24h_id        Int
+  fecha             DateTime?         @db.Date
+  comida            String?           @db.VarChar(100)
+  alimento          String?           @db.VarChar(100)
+  calorias          Float?            @db.Float
+  grasa             Float?            @db.Float
+  colesterol        Float?            @db.Float
+  sodio             Float?            @db.Float
+  carb              Float?            @db.Float
+  proteinas         Float?            @db.Float
+  azucar            Float?            @db.Float
+  fibra             Float?            @db.Float
+  rec_24h_nutricion rec_24h_nutricion @relation(fields: [rec_24h_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comidas_rec_24h")
+
+  @@index([rec_24h_id], map: "fk_comidas_rec_24h")
+}
+
+model rec_24h_nutricion {
+  id              Int               @id @default(autoincrement())
+  paciente_id     Bytes             @db.Binary(16)
+  fecha_eval      DateTime?         @default(dbgenerated("(curdate())")) @db.Date
+  rec_24h_comidas rec_24h_comidas[]
+  pacientes       pacientes         @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_rec_24h")
+
+  @@index([paciente_id], map: "fk_paciente_rec_24h")
+}
+
+model registro_auditoria {
+  id          Bytes      @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  usuario_id  Bytes      @db.Binary(16)
+  accion_id   Int
+  entidad_id  Int
+  objetivo_id Bytes?     @db.Binary(16)
+  fecha_hora  DateTime?  @default(now()) @db.DateTime(0)
+  acciones    acciones   @relation(fields: [accion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_accion")
+  entidades   entidades  @relation(fields: [entidad_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_entidad")
+  pacientes   pacientes? @relation(fields: [objetivo_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_objetivo")
+  usuarios    usuarios   @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_usuario")
+
+  @@index([accion_id], map: "fk_audit_accion")
+  @@index([entidad_id], map: "fk_audit_entidad")
+  @@index([objetivo_id], map: "fk_audit_objetivo")
+  @@index([usuario_id], map: "fk_audit_usuario")
+}
+
+model reporte_een_adulto_nutricion {
+  id                             Int                              @id @default(autoincrement())
+  paciente_id                    Bytes                            @db.Binary(16)
+  habitos_ali_obs                String?                          @db.VarChar(100)
+  alteraciones_gastroin          String?                          @db.VarChar(100)
+  diagnostico_nutricional_adulto diagnostico_nutricional_adulto[]
+  pacientes                      pacientes                        @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_reporte_een_adulto")
+
+  @@index([paciente_id], map: "fk_paciente_reporte_een_adulto")
+}
+
+model reporte_een_kids_nutricion {
+  id                 Int       @id @default(autoincrement())
+  paciente_id        Bytes     @db.Binary(16)
+  eval_diag_edo_nutr String?   @db.Text
+  solicito_orient    Boolean?
+  prescrip_nut_obs   String?   @db.VarChar(100)
+  educ_nut_obs       String?   @db.VarChar(100)
+  consejeria_nut_obs String?   @db.VarChar(100)
+  coord_aten_nut_obs String?   @db.VarChar(100)
+  pacientes          pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_reporte_een_kid")
+
+  @@index([paciente_id], map: "fk_paciente_reporte_een_kid")
+}
+
+model roles {
+  id                    Int                     @id @default(autoincrement())
+  codigo                String                  @unique(map: "codigo") @db.VarChar(50)
+  invitaciones_registro invitaciones_registro[]
+  usuarios              usuarios[]
+}
+
+model servicios {
+  id                Int                 @id @default(autoincrement())
+  gas               Boolean?
+  luz               Boolean?
+  agua              Boolean?
+  drenaje           Boolean?
+  cable_tel         Boolean?
+  internet          Boolean?
+  historias_medicas historias_medicas[]
+}
+
+model signos_vitales_nutricion {
+  id                       Int                        @id @default(autoincrement())
+  tas                      Float?                     @db.Float
+  tad                      Float?                     @db.Float
+  temperatura              Float?                     @db.Float
+  dificultad_respiratoria  Boolean?
+  exam_fis_orien_nutricion exam_fis_orien_nutricion[]
+}
+
+model tpan_nutricion {
+  id              Int       @id @default(autoincrement())
+  paciente_id     Bytes     @db.Binary(16)
+  fecha_eval      DateTime? @default(dbgenerated("(curdate())")) @db.Date
+  eval_realizada  String?   @db.Text
+  observacion     String?   @db.Text
+  estandares_com  String?   @db.Text
+  decision        String?   @db.Text
+  problema_iden   String?   @db.Text
+  causa_probl     String?   @db.Text
+  evidencia_probl String?   @db.Text
+  progreso        Int?      @db.TinyInt
+  pacientes       pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_tpan")
+
+  @@index([paciente_id], map: "fk_paciente_tpan")
+}
+
+model tratamiento_alt_nutricion {
+  id                            Int                           @id @default(autoincrement())
+  historia_paciente_id          Bytes                         @db.Binary(16)
+  producto                      String?                       @db.Text
+  cual_producto                 String?                       @db.Text
+  mejora                        String?                       @db.VarChar(10)
+  dosis                         String?                       @db.VarChar(20)
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
+
+  @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
+}
+
+model usuarios {
+  id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  nombre                String?                 @db.VarChar(255)
+  fecha_nacimiento      DateTime?               @db.Date
+  correo                String?                 @unique(map: "correo") @db.VarChar(255)
+  telefono              String?                 @db.VarChar(30)
+  password_hash         String?                 @db.VarChar(255)
+  estado_id             Int
+  rol_id                Int
+  area_id               Int?
+  creado_at             DateTime?               @default(now()) @db.DateTime(0)
+  ultimo_acceso         DateTime?               @db.DateTime(0)
+  foto                  String?                 @db.VarChar(255)
+  matricula             String?                 @db.VarChar(20)
+  cedula                String?                 @db.VarChar(20)
+  inicio_servicio       String?                 @db.VarChar(8)
+  fin_servicio          String?                 @db.VarChar(8)
+  bitacora_emergencias  bitacora_emergencias[]
+  invitaciones_registro invitaciones_registro[]
+  pacientes             pacientes[]
+  planes_estudio        planes_estudio[]
+  registro_auditoria    registro_auditoria[]
+  areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
+  estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
+  roles                 roles                   @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
+
+  @@index([area_id], map: "fk_usuario_area")
+  @@index([estado_id], map: "fk_usuario_estado")
+  @@index([rol_id], map: "fk_usuario_rol")
+}

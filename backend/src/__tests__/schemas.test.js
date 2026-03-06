@@ -1,8 +1,7 @@
-import { validateUser, validatePartialUser } from '../schemas/usuario.js'
-import { validateRegistro } from '../schemas/registro.js'
-import { validateInvitedUser } from '../schemas/createPreUser.js'
-import { describe, test } from 'node:test'
-import assert from 'node:assert'
+import { validateUser, validatePartialUser } from '../schemas/user.js'
+import { validateRegistration } from '../schemas/register.js'
+import { validateInvitedUser } from '../schemas/invitedUser.js'
+import assert from 'assert'
 
 // ─── usuario.js (admin creation) ────────────────────────────────────
 
@@ -100,7 +99,7 @@ describe('validatePartialUser — actualización parcial', () => {
 
 // ─── registro.js (auto-registro con token) ──────────────────────────
 
-describe('validateRegistro — auto-registro', () => {
+describe('validateRegistration — auto-registro', () => {
   const validToken = '550e8400-e29b-41d4-a716-446655440000'
 
   const basePasante = {
@@ -130,17 +129,17 @@ describe('validateRegistro — auto-registro', () => {
   }
 
   test('acepta registro pasante válido', () => {
-    const result = validateRegistro(basePasante, 'PASANTE')
+    const result = validateRegistration(basePasante, 'PASANTE')
     assert.equal(result.success, true)
   })
 
   test('acepta registro coordinador válido', () => {
-    const result = validateRegistro(baseCoord, 'COORDINADOR')
+    const result = validateRegistration(baseCoord, 'COORDINADOR')
     assert.equal(result.success, true)
   })
 
   test('rechaza password sin mayúscula', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, password: 'abc12345!', confirmPassword: 'abc12345!' },
       'PASANTE'
     )
@@ -148,7 +147,7 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza password sin número', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, password: 'Abcdefgh!', confirmPassword: 'Abcdefgh!' },
       'PASANTE'
     )
@@ -156,7 +155,7 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza password sin carácter especial', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, password: 'Abc12345x', confirmPassword: 'Abc12345x' },
       'PASANTE'
     )
@@ -164,7 +163,7 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza password menor a 8 caracteres', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, password: 'Ab1!', confirmPassword: 'Ab1!' },
       'PASANTE'
     )
@@ -172,7 +171,7 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza confirmPassword que no coincide', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, confirmPassword: 'Diferente1!' },
       'PASANTE'
     )
@@ -180,7 +179,7 @@ describe('validateRegistro — auto-registro', () => {
   })
 
   test('rechaza token no UUID', () => {
-    const result = validateRegistro(
+    const result = validateRegistration(
       { ...basePasante, token: 'no-es-uuid' },
       'PASANTE'
     )

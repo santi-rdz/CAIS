@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { validateToken } from '@services/ApiInvitaciones'
+import { validateToken } from '@services/ApiInvitations'
 
-export function usePreUser(token) {
+export function useInvitedUser(token) {
   return useQuery({
-    queryKey: ['preUser', token],
+    queryKey: ['invitedUser', token],
     queryFn: () => validateToken(token),
     enabled: !!token,
     retry: false,

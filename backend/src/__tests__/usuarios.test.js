@@ -1,7 +1,6 @@
 import request from 'supertest'
 import app from '../app.js'
-import { describe, test, beforeAll, afterAll } from 'node:test'
-import assert from 'node:assert'
+import assert from 'assert'
 
 const api = request(app)
 
@@ -181,7 +180,7 @@ describe('PATCH /usuarios/:id', () => {
   test('404 — usuario no existe', async () => {
     const res = await api
       .patch('/usuarios/00000000-0000-0000-0000-000000000000')
-      .send({ nombre: 'X' })
+      .send({ nombre: 'No existe' })
     assert.equal(res.status, 404)
   })
 })

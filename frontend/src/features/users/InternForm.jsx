@@ -3,10 +3,7 @@ import Stepper from '@ui/Stepper'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createUser } from '@services/ApiUsers'
-import { toast } from 'sonner'
-import { toastApiError } from '@lib/ApiError'
+import useCreateUser from './useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import AcademicInfoForm from './AcademicInfoForm'
 import PasswordForm from './PasswordForm'
@@ -28,22 +25,12 @@ const stepsFields = [
 ]
 
 export default function InternForm({ onClose }) {
-  const queryClient = useQueryClient()
+  const { createUser, isCreating } = useCreateUser()
   const [currStep, setCurrStep] = useState(0)
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
   const methods = useForm({ mode: 'onChange' })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: createUser,
-    onSuccess: () => {
-      toast.success('Usuario creado exitosamente')
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      onClose?.()
-    },
-    onError: toastApiError,
-  })
 
   async function handleNext() {
     const isStepValid = await trigger(stepsFields[currStep])
@@ -63,20 +50,23 @@ export default function InternForm({ onClose }) {
   }
 
   function onSubmit(data) {
-    mutate({
-      nombre: data.firstName,
-      apellido: data.lastName,
-      correo: resolveEmail(data.username),
-      fechaNacimiento: data.birthday,
-      telefono: data.phone,
-      rol: 'pasante',
-      matricula: data.matricula,
-      servicioInicioAnio: data.servicioInicioAnio,
-      servicioInicioPeriodo: data.servicioInicioPeriodo,
-      servicioFinAnio: data.servicioFinAnio,
-      servicioFinPeriodo: data.servicioFinPeriodo,
-      password: data.password,
-    })
+    createUser(
+      {
+        nombre: data.firstName,
+        apellido: data.lastName,
+        correo: resolveEmail(data.username),
+        fechaNacimiento: data.birthday,
+        telefono: data.phone,
+        rol: 'pasante',
+        matricula: data.matricula,
+        servicioInicioAnio: data.servicioInicioAnio,
+        servicioInicioPeriodo: data.servicioInicioPeriodo,
+        servicioFinAnio: data.servicioFinAnio,
+        servicioFinPeriodo: data.servicioFinPeriodo,
+        password: data.password,
+      },
+      { onSuccess: () => onClose?.() }
+    )
   }
 
   return (
@@ -109,13 +99,13 @@ export default function InternForm({ onClose }) {
             ),
             iconPos: isLast ? 'left' : 'right',
             onClick: isLast ? handleSubmit(onSubmit) : handleNext,
-            isLoading: isPending,
-            disabled: isPending,
+            isLoading: isCreating,
+            disabled: isCreating,
           }}
           secondaryAction={{
             label: 'Anterior',
             onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0 || isPending,
+            disabled: currStep === 0 || isCreating,
             className: 'border-gray-400',
           }}
         />
