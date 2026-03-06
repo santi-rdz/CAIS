@@ -888,3 +888,11 @@ model usuarios {
   @@index([estado_id], map: "fk_usuario_estado")
   @@index([rol_id], map: "fk_usuario_rol")
 }
+
+model sessions {
+  sid    String   @id @db.VarChar(255)
+  data   String   @db.Text
+  expire DateTime
+
+  @@index([expire])
+}

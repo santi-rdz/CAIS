@@ -7,8 +7,7 @@ export default function useLogin() {
   const navigate = useNavigate()
   const { mutate: login, isPending } = useMutation({
     mutationFn: loginApi,
-    onSuccess: (data) => {
-      localStorage.setItem('userId', data.id)
+    onSuccess: () => {
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {

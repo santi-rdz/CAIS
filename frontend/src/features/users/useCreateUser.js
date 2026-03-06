@@ -5,10 +5,9 @@ import { toastApiError } from '@lib/ApiError'
 
 export default function useCreateUser() {
   const queryClient = useQueryClient()
-  const currentUser = queryClient.getQueryData(['user'])
 
   const { mutate: createUser, isPending: isCreating } = useMutation({
-    mutationFn: (data) => apiCreateUser(data, currentUser?.id),
+    mutationFn: (data) => apiCreateUser(data),
     onSuccess: () => {
       toast.success('Usuario creado exitosamente')
       queryClient.invalidateQueries({ queryKey: ['users'] })

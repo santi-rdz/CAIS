@@ -1,5 +1,5 @@
 import { prisma } from '../config/prisma.js'
-import { bufferToUUID } from '../lib/uuid.js'
+import { bufferToUUID, uuidToBuffer } from '../lib/uuid.js'
 import bcrypt from 'bcryptjs'
 
 export class AuthController {
@@ -16,7 +16,12 @@ export class AuthController {
 
       const user = await prisma.usuarios.findUnique({
         where: { correo: email },
-        select: { id: true, correo: true, password_hash: true },
+        select: {
+          id: true,
+          correo: true,
+          password_hash: true,
+          roles: { select: { codigo: true } },
+        },
       })
 
       if (!user) {
@@ -30,10 +35,42 @@ export class AuthController {
         return res.status(401).json({ error: 'Contraseña invalida' })
       }
 
-      return res.json({ email, id: bufferToUUID(user.id) })
+      req.session.userId = bufferToUUID(user.id)
+      req.session.role = user.roles.codigo
+
+      return res.json({ ok: true })
     } catch (err) {
       console.error(err)
       return res.status(500).json({ error: 'Server error' })
     }
+  }
+
+  static async me(req, res) {
+    try {
+      const user = await prisma.usuarios.findUnique({
+        where: { id: uuidToBuffer(req.session.userId) },
+        select: {
+          id: true,
+          nombre: true,
+          correo: true,
+          foto: true,
+          roles: { select: { codigo: true } },
+          areas: { select: { nombre: true } },
+        },
+      })
+      if (!user) return res.status(404).json({ error: 'Usuario no encontrado' })
+      return res.json({ ...user, id: bufferToUUID(user.id) })
+    } catch (err) {
+      console.error(err)
+      return res.status(500).json({ error: 'Server error' })
+    }
+  }
+
+  static logout(req, res) {
+    req.session.destroy((err) => {
+      if (err) console.error('Error al destruir sesión:', err)
+      res.clearCookie('connect.sid')
+      return res.json({ ok: true })
+    })
   }
 }
