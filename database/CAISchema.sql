@@ -802,7 +802,7 @@ INSERT INTO
 VALUES
     ('PASANTE'),
     ('COORDINADOR'),
-    ('SUPER_ADMIN');
+    ('ADMIN');
 
 INSERT INTO
     areas (nombre)
