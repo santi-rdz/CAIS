@@ -1,81 +1,12 @@
-# Prisma en CAIS — Guía para el equipo
+# Prisma — Guía para el equipo
 
-## Stack actual
-
-| Componente                | Versión | Descripción                              |
-| ------------------------- | ------- | ---------------------------------------- |
-| `prisma` (CLI)            | 7.4.2   | Generador del cliente y migraciones      |
-| `@prisma/client`          | 7.4.2   | Cliente generado, importado en el código |
-| `@prisma/adapter-mariadb` | 7.4.2   | Adapter de conexión para MySQL 8.0       |
-| `mariadb` (driver)        | 3.x     | Driver Node.js subyacente                |
-
-Prisma v7 eliminó el engine binario nativo (que causaba problemas de OpenSSL en Alpine ARM64).
-Ahora usa un engine JavaScript puro via driver adapters, sin binarios por plataforma.
+Prisma es un ORM para Node.js. En lugar de escribir SQL a mano, se interactúa con la base de datos a través de un cliente JavaScript generado automáticamente a partir del schema. El cliente expone métodos tipados por tabla (`prisma.usuarios`, `prisma.roles`, etc.), y cada método acepta un objeto de opciones en vez de un string SQL.
 
 ---
 
-## Arquitectura de conexión
+## Configuración mínima
 
-```
-app.js
-  └── src/config/prisma.js   ← singleton del PrismaClient
-        └── PrismaMariaDb (adapter)
-              └── mariadb pool → MySQL 8.0 (container db:3306)
-```
-
-### `src/config/prisma.js`
-
-```js
-import { PrismaClient } from '@prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-
-const url = new URL(process.env.DATABASE_URL)
-const adapter = new PrismaMariaDb({
-  host: url.hostname,
-  port: parseInt(url.port) || 3306,
-  user: decodeURIComponent(url.username),
-  password: decodeURIComponent(url.password),
-  database: url.pathname.slice(1),
-  allowPublicKeyRetrieval: true, // requerido para MySQL 8 (caching_sha2_password)
-})
-
-export const prisma = new PrismaClient({ adapter })
-```
-
-**Importante:** `PrismaMariaDb` recibe un `PoolConfig`, no un pool ya creado.
-Internamente crea el pool en `connect()`.
-
-### `prisma.config.js` (solo para CLI)
-
-Este archivo solo lo usa la Prisma CLI (`prisma db pull`, `prisma migrate`, etc.).
-El backend en runtime **no lo importa**. Configura el adapter para que el CLI
-pueda conectarse sin depender de un `url` en el schema.
-
----
-
-## Schema (`prisma/schema.prisma`)
-
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "mysql"
-  // Sin url — la conexión viene del adapter en prisma.config.js (CLI)
-  //           y de src/config/prisma.js (runtime)
-}
-```
-
-**Por qué no hay `url` en el datasource:** Prisma v7 eliminó soporte para `url`
-directamente en el schema. La URL se configura en `prisma.config.js` para el CLI
-y en el singleton para el runtime.
-
----
-
-## Cómo usar el cliente en el código
-
-Siempre importa el singleton:
+El cliente vive en un singleton. Siempre importa de ahí:
 
 ```js
 import { prisma } from '../config/prisma.js'
@@ -84,23 +15,29 @@ import { prisma } from '../config/prisma.js'
 Nunca instancies `new PrismaClient()` directamente — genera conexiones extra y
 warnings de múltiples instancias.
 
-### Queries básicas
+El schema en `prisma/schema.prisma` describe el datasource y el generator. Prisma lo
+lee para generar el cliente (`npx prisma generate`). Cuando la DB cambia, se
+resincroniza con `npm run prisma:pull` (introspección).
+
+---
+
+## Queries
+
+Cada tabla del schema se convierte en una propiedad del cliente. Las operaciones
+más comunes:
 
 ```js
-// Buscar uno
+// Buscar un registro por clave única
 const user = await prisma.usuarios.findUnique({ where: { correo: email } })
 
-// Buscar varios con filtros
-const users = await prisma.usuarios.findMany({
-  where: { estados: { codigo: 'ACTIVO' } },
-  include: { roles: true, areas: true },
-  orderBy: { creado_at: 'desc' },
-  skip: 0,
-  take: 10,
-})
+// Buscar el primero que cumpla una condición (no requiere campo único)
+const user = await prisma.usuarios.findFirst({ where: { nombre: 'Ana' } })
+
+// Buscar varios
+const users = await prisma.usuarios.findMany({ where: { activo: true } })
 
 // Crear
-await prisma.usuarios.create({ data: { ... } })
+const user = await prisma.usuarios.create({ data: { nombre: 'Ana', correo: 'a@b.com' } })
 
 // Actualizar
 await prisma.usuarios.update({ where: { id: buffer }, data: { nombre: 'Nuevo' } })
@@ -109,54 +46,136 @@ await prisma.usuarios.update({ where: { id: buffer }, data: { nombre: 'Nuevo' } 
 await prisma.usuarios.delete({ where: { id: buffer } })
 
 // Contar
-const total = await prisma.usuarios.count({ where })
+const total = await prisma.usuarios.count({ where: { activo: true } })
 ```
+
+### Por qué `findUnique` vs `findFirst`
+
+`findUnique` solo acepta campos marcados como `@unique` o `@id` en el schema.
+A cambio, Prisma garantiza que el query usa el índice único y retorna exactamente
+uno o `null`. Usar `findFirst` en un campo no único funciona pero no da esa garantía
+de unicidad — úsalo cuando el campo realmente no es único.
 
 ---
 
-## UUIDs con BINARY(16) — convención obligatoria
+## Filtros (`where`)
 
-La DB guarda los UUIDs como `BINARY(16)` para eficiencia. Prisma v7 con el adapter
-mariadb devuelve estos campos como `Uint8Array` (no `Buffer`).
+`where` acepta los campos del modelo y operadores anidados:
 
-### Helpers en `src/lib/uuid.js`
+```js
+// Igualdad directa
+where: { activo: true }
+
+// Operadores de comparación
+where: { creado_at: { gte: new Date('2024-01-01') } }
+
+// Múltiples condiciones (AND implícito)
+where: { activo: true, rol_id: buffer }
+
+// OR explícito
+where: {
+  OR: [{ nombre: { contains: 'ana' } }, { correo: { contains: 'ana' } }],
+}
+
+// Relación — filtra por un campo del modelo relacionado
+where: { estados: { codigo: 'ACTIVO' } }
+```
+
+### Por qué los filtros de relación se escriben así
+
+Prisma resuelve el JOIN internamente. `where: { estados: { codigo: 'ACTIVO' } }`
+equivale a `JOIN estados ON ... WHERE estados.codigo = 'ACTIVO'`. No se necesita
+especificar la tabla ni las claves foráneas porque el schema ya las define.
+
+---
+
+## Paginación y orden
+
+```js
+const users = await prisma.usuarios.findMany({
+  orderBy: { creado_at: 'desc' },
+  skip: (page - 1) * limit,  // offset
+  take: limit,               // LIMIT
+})
+```
+
+`skip` y `take` corresponden directamente a `OFFSET` y `LIMIT` en SQL.
+
+---
+
+## Relaciones — `include` vs `select`
+
+Por defecto Prisma solo retorna los campos escalares de la tabla. Para traer
+registros de tablas relacionadas hay dos mecanismos:
+
+**`include`** — agrega la relación completa al resultado:
+
+```js
+const user = await prisma.usuarios.findUnique({
+  where: { id: buffer },
+  include: { roles: true, areas: true },
+})
+// user.roles → array de objetos del modelo roles
+```
+
+**`select`** — especifica exactamente qué campos retornar, incluyendo relaciones:
+
+```js
+const user = await prisma.usuarios.findUnique({
+  where: { id: buffer },
+  select: {
+    nombre: true,
+    correo: true,
+    roles: { select: { nombre: true } },  // solo el nombre del rol
+  },
+})
+```
+
+### Por qué no se puede usar `include` y `select` al mismo tiempo
+
+Ambos controlan la forma del resultado. Mezclarlos sería ambiguo. Si necesitas
+filtrar campos y traer relaciones, usa `select` (puede incluir relaciones anidadas).
+
+---
+
+## UUIDs con BINARY(16)
+
+La DB guarda UUIDs como `BINARY(16)` para eficiencia de índices. Prisma retorna esos
+campos como `Uint8Array` — no como string. Por eso existen dos helpers:
 
 ```js
 import { uuidToBuffer, bufferToUUID } from '../lib/uuid.js'
 ```
 
-| Helper               | Uso                                             | Ejemplo                           |
-| -------------------- | ----------------------------------------------- | --------------------------------- |
-| `uuidToBuffer(uuid)` | String UUID → Buffer para queries Prisma        | `where: { id: uuidToBuffer(id) }` |
-| `bufferToUUID(buf)`  | Uint8Array/Buffer → String UUID para respuestas | `id: bufferToUUID(user.id)`       |
-
-### Regla de oro
-
-- **Entrada** (where, data): siempre `uuidToBuffer()`
-- **Salida** (respuesta JSON): siempre `bufferToUUID()`
+| Helper               | Cuándo usarlo                               |
+| -------------------- | ------------------------------------------- |
+| `uuidToBuffer(uuid)` | Antes de pasar un UUID a `where` o `data`   |
+| `bufferToUUID(buf)`  | Al construir la respuesta JSON del endpoint |
 
 ```js
-// ✅ Correcto
+// ✅
 const user = await prisma.usuarios.findUnique({
   where: { id: uuidToBuffer(req.params.id) },
 })
 return res.json({ id: bufferToUUID(user.id), nombre: user.nombre })
 
-// ❌ Incorrecto — el id en JSON saldrá como "0,252,80,..." (bytes)
+// ❌ — el id en JSON sale como "0,252,80,..." (bytes del Uint8Array)
 return res.json(user)
 ```
 
-### Por qué `bufferToUUID` usa `Buffer.from(buf)`
+### Por qué `Uint8Array` y no `Buffer`
 
-Prisma v7 retorna `Uint8Array`, no `Buffer`. `Uint8Array.toString()` produce
-bytes separados por coma (`"0,252,80,..."`). `Buffer.from(buf)` acepta ambos tipos
-y permite `.toString('hex')` correctamente.
+`Buffer` es una subclase de `Uint8Array` específica de Node.js. Prisma usa
+`Uint8Array` para ser agnóstico del entorno. El helper `bufferToUUID` hace
+`Buffer.from(buf)` para poder llamar `.toString('hex')`, que `Uint8Array` por sí solo
+no soporta de esa forma.
 
 ---
 
 ## Transacciones
 
-Usa `prisma.$transaction()` cuando necesites atomicidad entre varias operaciones:
+`prisma.$transaction()` garantiza que todas las operaciones dentro del callback se
+ejecutan atómicamente — si una falla, todas se revierten:
 
 ```js
 const result = await prisma.$transaction(async (tx) => {
@@ -169,7 +188,8 @@ const result = await prisma.$transaction(async (tx) => {
 })
 ```
 
-**Patrón con `tx` como parámetro** (para reusar modelos dentro de transacciones):
+El parámetro `tx` es un cliente Prisma acotado a esa transacción. Para que los
+métodos de los modelos también participen en la transacción, recíbelo como argumento:
 
 ```js
 // En el modelo:
@@ -178,23 +198,17 @@ static async getById(id, tx = prisma) {
 }
 
 // En el controlador:
-const user = await prisma.$transaction(async (tx) => {
+await prisma.$transaction(async (tx) => {
   await tx.usuarios.create({ ... })
-  return UserModel.getById(userId, tx)  // misma transacción
+  return UserModel.getById(userId, tx)  // usa la misma transacción
 })
 ```
 
 ---
 
-## Manejo de errores de Prisma
+## Manejo de errores
 
-Prisma lanza errores tipados. Los más comunes:
-
-| Código  | Causa                                   | Respuesta sugerida |
-| ------- | --------------------------------------- | ------------------ |
-| `P2002` | Unique constraint (correo duplicado)    | 409 Conflict       |
-| `P2025` | Registro no encontrado en update/delete | 404 Not Found      |
-| `P2003` | Foreign key constraint                  | 400 Bad Request    |
+Prisma lanza errores tipados que se pueden inspeccionar sin parsear mensajes de texto:
 
 ```js
 import { Prisma } from '@prisma/client'
@@ -214,7 +228,22 @@ try {
 }
 ```
 
-**Evita bloques `catch {}` vacíos** — ocultan errores reales. Como mínimo loguea:
+Códigos más comunes:
+
+| Código  | Causa                                   | HTTP sugerido |
+| ------- | --------------------------------------- | ------------- |
+| `P2002` | Unique constraint (campo duplicado)     | 409           |
+| `P2025` | Registro no encontrado en update/delete | 404           |
+| `P2003` | Foreign key constraint                  | 400           |
+
+### Por qué `PrismaClientKnownRequestError`
+
+Prisma distingue entre errores que provienen de la DB (conocidos, con código `P20xx`)
+y errores de configuración o red (`PrismaClientInitializationError`,
+`PrismaClientRustPanicError`, etc.). Solo los errores conocidos tienen `.code`.
+El `instanceof` evita tratar un error de conexión como un 409.
+
+Evita bloques `catch {}` vacíos — ocultan errores reales. Como mínimo loguea:
 
 ```js
 } catch (err) {
@@ -225,85 +254,12 @@ try {
 
 ---
 
-## Comandos del CLI de Prisma
+## Comandos del CLI
 
 Ejecutar desde `backend/`:
 
 ```bash
-# Regenerar el cliente después de cambiar el schema
-npx prisma generate
-
-# Sincronizar el schema con la DB (introspección — sobreescribe el schema)
-npm run prisma:pull
-
-# Abrir Prisma Studio (UI visual de la DB)
-npm run prisma:studio
+npx prisma generate    # Regenera el cliente tras cambiar el schema
+npm run prisma:pull    # Sincroniza el schema con la DB actual (introspección)
+npm run prisma:studio  # Abre UI visual de la DB en el navegador
 ```
-
-En Docker, el `prisma generate` se ejecuta automáticamente al iniciar el container:
-
-```
-sh -c "npm install && npx prisma generate && npm run start"
-```
-
----
-
-## Errores conocidos y soluciones
-
-### `allowPublicKeyRetrieval`
-
-MySQL 8.0 usa `caching_sha2_password` por defecto. El driver mariadb necesita
-`allowPublicKeyRetrieval: true` para obtener la clave RSA del servidor en el
-primer handshake. Ya está configurado en el singleton.
-
-### `The datasource property url is no longer supported`
-
-Prisma v7 no admite `url` en `schema.prisma`. Si ves este error al hacer
-`prisma generate`, verifica que el datasource no tenga la propiedad `url`.
-
-### `output is required for prisma-client generator`
-
-Solo aplica cuando el provider es `prisma-client` (el nuevo generator TypeScript).
-Este proyecto usa `prisma-client-js` que genera JavaScript a `node_modules` sin
-requerir `output`.
-
-### Pool timeout / ECONNREFUSED
-
-Si el backend no puede conectar a la DB:
-
-1. Verifica que el container `db` esté corriendo: `npm run dc:logs`
-2. Verifica que `DATABASE_URL` esté seteado: `echo $DATABASE_URL` dentro del container
-3. El formato correcto es `mysql://user:user@db:3306/cais` (host `db`, no `localhost`)
-
----
-
-## Issues resueltos
-
-Los siguientes problemas fueron detectados en el audit y corregidos:
-
-| Archivo                     | Problema                                                 | Estado       |
-| --------------------------- | -------------------------------------------------------- | ------------ |
-| `controllers/users.js`      | `registro()` no persistía `cedula` para coordinadores    | ✅ Corregido |
-| `controllers/users.js`      | Import roto `TokenModel.js` → ahora `InvitacionModel.js` | ✅ Corregido |
-| `controllers/users.js`      | `update()` usaba `JSON.parse()` en errores Zod           | ✅ Corregido |
-| `models/UserModel.js`       | `update()` y `delete()` tenían `catch {}` vacío          | ✅ Corregido |
-| `models/InvitacionModel.js` | `findByToken()` no incluía el `area_id` del creador      | ✅ Corregido |
-| `services/users.js`         | Import roto `TokenModel.js` → ahora `InvitacionModel.js` | ✅ Corregido |
-
-## Issues pendientes (no críticos)
-
-| Archivo               | Problema                                                                   |
-| --------------------- | -------------------------------------------------------------------------- |
-| `config/auth.js`      | Código muerto de better-auth con queries mysql2 a tablas que ya no existen |
-| `config/db.js`        | Pool mysql2 sin uso real tras la migración a Prisma                        |
-| `services/users.js`   | URL de registro hardcodeada a `localhost:5173`                             |
-| `models/UserModel.js` | `status.split(',')` sin límite de elementos — potencial abuso              |
-
----
-
-## Qué NO cambiar
-
-- **No instancies `PrismaClient` fuera de `src/config/prisma.js`**
-- **No agregues `url` al datasource en el schema** — Prisma v7 no lo soporta
-- **No uses `mysql2` para queries nuevas** — todo debe ir por Prisma
-- **No uses el pool de `src/config/db.js`** en código nuevo — es legado de better-auth
