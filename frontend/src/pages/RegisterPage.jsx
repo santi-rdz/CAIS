@@ -1,13 +1,13 @@
 import CoordRegistrationForm from '@features/users/CoordRegistrationForm'
 import InternRegistrationForm from '@features/users/InternRegistrationForm'
-import { usePreUser } from '@features/users/usePreUser'
+import { useInvitedUser } from '@features/users/useInvitedUser'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import Spinner from '@ui/Spinner'
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
-  const { data: preUser, isLoading, isError } = usePreUser(token)
+  const { data: invitedUser, isLoading, isError } = useInvitedUser(token)
 
   if (!token) return <Navigate to="/login" replace />
 
@@ -28,7 +28,7 @@ export default function RegisterPage() {
       </div>
     )
 
-  const { correo, rol } = preUser
+  const { correo, rol } = invitedUser
 
   if (rol === 'COORDINADOR') return <CoordRegistrationForm email={correo} />
   return <InternRegistrationForm email={correo} />

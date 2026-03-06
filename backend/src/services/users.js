@@ -1,50 +1,34 @@
 import { randomUUID } from 'node:crypto'
-import { InvitacionModel } from '../models/TokenModel.js'
-import { pool } from '../config/db.js'
+import { InvitationModel } from '../models/InvitationModel.js'
+import { prisma } from '../config/prisma.js'
 import { sendEmail } from '../lib/sendEmail.js'
 import { registerEmail } from '../lib/registerEmail.js'
 
 export class UserService {
-  /**
-   * Pre-registro: crea invitaciones y envía correos.
-   * Ya NO crea usuarios en estado PENDIENTE.
-   * Solo inserta en invitaciones_registro.
-   */
   static async preRegister(usersData, creadoPor) {
-    // 1. Resolver rol_id para cada invitación
-    const invitaciones = []
-    for (const u of usersData) {
-      const [[rolRow]] = await pool.query(
-        'SELECT id FROM roles WHERE LOWER(codigo) = ?',
-        [u.role.toLowerCase()]
-      )
-      if (!rolRow) throw new Error(`Rol "${u.role}" no existe`)
+    const invitations = []
 
-      invitaciones.push({
+    for (const u of usersData) {
+      const roleRow = await prisma.roles.findFirst({
+        where: { codigo: u.role.toUpperCase() },
+      })
+      if (!roleRow) throw new Error(`Rol "${u.role}" no existe`)
+
+      invitations.push({
         correo: u.email,
-        rolId: rolRow.id,
+        rolId: roleRow.id,
         token: randomUUID(),
-        expiraAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // 48 horas
+        expiraAt: new Date(Date.now() + 1000 * 60 * 60 * 48),
         creadoPor,
       })
     }
 
-    // 2. Insertar invitaciones en transacción
-    const conn = await pool.getConnection()
-    try {
-      await conn.beginTransaction()
-      await InvitacionModel.insertMany(invitaciones, conn)
-      await conn.commit()
-    } catch (error) {
-      await conn.rollback()
-      throw error
-    } finally {
-      conn.release()
-    }
+    await prisma.$transaction(async (tx) => {
+      await InvitationModel.insertMany(invitations, tx)
+    })
 
-    // 3. Enviar correos (fuera de la transacción)
     const emailErrors = []
-    for (const inv of invitaciones) {
+    for (const inv of invitations) {
       const url = `http://localhost:5173/registro?token=${inv.token}`
       try {
         await sendEmail({
@@ -58,7 +42,7 @@ export class UserService {
     }
 
     return {
-      created: invitaciones.length,
+      created: invitations.length,
       emailErrors,
     }
   }

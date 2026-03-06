@@ -16,10 +16,16 @@ export default defineConfig([
     },
   },
 
-  // Vitest files
+  // Vitest files (frontend)
   {
-    files: ['**/*.test.{js,jsx}'],
+    files: ['frontend/**/*.test.{js,jsx}'],
     languageOptions: { globals: globals.vitest },
+  },
+
+  // Jest files (backend)
+  {
+    files: ['backend/**/*.test.{js,mjs,cjs}'],
+    languageOptions: { globals: { ...globals.node, ...globals.jest } },
   },
 
   // Frontend/React files

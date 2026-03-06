@@ -1,216 +1,160 @@
-import { pool } from '../config/db.js'
 import { randomUUID } from 'node:crypto'
+import { prisma } from '../config/prisma.js'
+import { uuidToBuffer, bufferToUUID } from '../lib/uuid.js'
+
+const includeRelations = {
+  estados: true,
+  roles: true,
+  areas: true,
+}
+
+function formatUser(u) {
+  if (!u) return null
+  return {
+    id: bufferToUUID(u.id),
+    estado: u.estados?.codigo ?? null,
+    rol: u.roles?.codigo ?? null,
+    area: u.areas?.nombre ?? null,
+    creado_at: u.creado_at,
+    ultimo_acceso: u.ultimo_acceso,
+    foto: u.foto,
+    nombre: u.nombre,
+    correo: u.correo,
+    telefono: u.telefono,
+    fecha_nacimiento: u.fecha_nacimiento,
+    matricula: u.matricula,
+    inicio_servicio: u.inicio_servicio,
+    fin_servicio: u.fin_servicio,
+    password_hash: u.password_hash,
+  }
+}
 
 export class UserModel {
-  /**
-   * Obtiene una lista paginada de usuarios basada en criterios de búsqueda, estado y ordenamiento.
-   *
-   * @param {Object} params - Parámetros de consulta.
-   * @param {string} [params.status] - Filtrar por código de estado (ej. 'ACTIVO').
-   * @param {string} [params.sortBy] - Criterio de ordenamiento (ej. 'nombre-asc').
-   * @param {string} [params.search] - Texto para buscar en nombre o correo.
-   * @param {number} params.page - Número de página actual.
-   * @param {number} params.limit - Cantidad de registros por página.
-   * @returns {Promise<{users: Array<Object>, count: number}>} Lista de usuarios y total de registros.
-   */
   static async getAll({ status, rol, sortBy, search, page, limit }) {
-    let sql = `
-    SELECT
-      BIN_TO_UUID(u.id) AS id,
-      e.codigo AS estado,
-      r.codigo AS rol,
-      a.nombre AS area,
-      u.creado_at,
-      u.ultimo_acceso,
-      u.foto,
-      u.nombre,
-      u.correo,
-      u.telefono
-    FROM usuarios u
-    JOIN estados e ON u.estado_id = e.id
-    JOIN roles r ON u.rol_id = r.id
-    LEFT JOIN areas a ON u.area_id = a.id
-    `
-
-    const params = []
-    const conditions = []
+    const where = {}
 
     if (status) {
-      const statuses = status.split(',').map((s) => s.toLowerCase().trim())
-      conditions.push(
-        `LOWER(e.codigo) IN (${statuses.map(() => '?').join(',')})`
-      )
-      params.push(...statuses)
+      const statuses = status.split(',').map((s) => s.trim().toUpperCase())
+      where.estados = { codigo: { in: statuses } }
     }
 
     if (rol) {
-      const roles = rol.split(',').map((r) => r.toLowerCase().trim())
-      conditions.push(`LOWER(r.codigo) IN (${roles.map(() => '?').join(',')})`)
-      params.push(...roles)
+      const roles = rol.split(',').map((r) => r.trim().toUpperCase())
+      where.roles = { codigo: { in: roles } }
     }
 
     if (search) {
-      conditions.push('(u.nombre LIKE ? OR u.correo LIKE ?)')
-      params.push(`%${search}%`)
-      params.push(`%${search}%`)
+      where.OR = [
+        { nombre: { contains: search } },
+        { correo: { contains: search } },
+      ]
     }
-
-    const whereClause =
-      conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''
-    sql += whereClause
 
     const sortOptions = {
-      'nombre-asc': 'u.nombre ASC',
-      'nombre-desc': 'u.nombre DESC',
-      'login-asc': 'u.ultimo_acceso ASC',
-      'login-desc': 'u.ultimo_acceso DESC',
+      'nombre-asc': { nombre: 'asc' },
+      'nombre-desc': { nombre: 'desc' },
+      'login-asc': { ultimo_acceso: 'asc' },
+      'login-desc': { ultimo_acceso: 'desc' },
     }
 
-    if (sortBy && sortOptions[sortBy]) {
-      sql += ` ORDER BY ${sortOptions[sortBy]}`
-    } else {
-      sql += ` ORDER BY u.creado_at DESC`
-    }
+    const orderBy =
+      sortBy && sortOptions[sortBy]
+        ? sortOptions[sortBy]
+        : { creado_at: 'desc' }
 
     const offset = (page - 1) * limit
-    sql += ` LIMIT ? OFFSET ?`
-    params.push(limit, offset)
 
-    const countSql = `
-    SELECT COUNT(*) as total
-    FROM usuarios u
-    JOIN estados e ON u.estado_id = e.id
-    JOIN roles r ON u.rol_id = r.id
-    LEFT JOIN areas a ON u.area_id = a.id
-    ${whereClause}
-    `
+    const [users, total] = await prisma.$transaction([
+      prisma.usuarios.findMany({
+        where,
+        include: includeRelations,
+        orderBy,
+        skip: offset,
+        take: limit,
+      }),
+      prisma.usuarios.count({ where }),
+    ])
 
-    const [[{ total }]] = await pool.query(countSql, params.slice(0, -2))
-    const [users] = await pool.query(sql, params)
-
-    return { users, count: total }
+    return { users: users.map(formatUser), count: total }
   }
 
-  /**
-   * Obtiene la información detallada de un usuario por su ID.
-   *
-   * @param {string} id - El ID (UUID) del usuario a buscar.
-   * @returns {Promise<Object|null>} Los datos del usuario o null si no se encuentra.
-   */
-  static async getById(id) {
-    const sql = `
-      SELECT 
-        BIN_TO_UUID(u.id) AS id,
-        u.password_hash,
-        e.codigo AS estado,
-        r.codigo AS rol,
-        a.nombre AS area,
-        u.creado_at,
-        u.ultimo_acceso,
-        u.foto,
-        u.nombre,
-        u.correo,
-        u.fecha_nacimiento,
-        u.telefono,
-        u.matricula,
-        u.inicio_servicio,
-        u.fin_servicio
-      FROM usuarios u
-      JOIN estados e ON u.estado_id = e.id
-      JOIN roles r ON u.rol_id = r.id
-      LEFT JOIN areas a ON u.area_id = a.id
-      WHERE u.id = UUID_TO_BIN(?)
-    `
-    const [rows] = await pool.query(sql, [id])
-    return rows[0] || null
+  static async getById(id, tx = prisma) {
+    const user = await tx.usuarios.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    return formatUser(user)
   }
 
-  /**
-   * Elimina un usuario de la base de datos de manera física.
-   *
-   * @param {string} id - El ID (UUID) del usuario a eliminar.
-   * @returns {Promise<boolean>} Retorna true si el usuario fue eliminado, false en caso contrario.
-   */
   static async delete(id) {
-    const [result] = await pool.query(
-      `DELETE FROM usuarios WHERE id = UUID_TO_BIN(?)`,
-      [id]
-    )
-    return result.affectedRows > 0
+    try {
+      await prisma.usuarios.delete({ where: { id: uuidToBuffer(id) } })
+      return true
+    } catch (err) {
+      if (err.code === 'P2025') return false
+      console.error('Error en UserModel.delete:', err)
+      throw err
+    }
   }
 
-  /**
-   * Actualiza los datos de un usuario de forma dinámica según los campos proporcionados.
-   *
-   * @param {string} id - El ID (UUID) del usuario a actualizar.
-   * @param {Object} data - Objeto con los campos a actualizar (llaves en español).
-   * @returns {Promise<Object|null>} El usuario actualizado o null si no se modificó nada.
-   */
   static async update(id, data) {
-    const fields = []
-    const values = []
-
-    // Nota: El objeto 'data' debe venir con las llaves en español (nombre, correo, etc.)
-    for (const [key, value] of Object.entries(data)) {
-      fields.push(`${key} = ?`)
-      values.push(value)
+    const fieldMap = {
+      nombre: 'nombre',
+      correo: 'correo',
+      fechaNacimiento: 'fecha_nacimiento',
+      telefono: 'telefono',
     }
 
-    if (fields.length === 0) return null
+    const prismaData = Object.fromEntries(
+      Object.entries(data)
+        .filter(([k]) => fieldMap[k])
+        .map(([k, v]) => [fieldMap[k], v])
+    )
 
-    const sql = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = UUID_TO_BIN(?)`
-    values.push(id)
-
-    const [result] = await pool.query(sql, values)
-    return result.affectedRows > 0 ? await this.getById(id) : null
+    try {
+      await prisma.usuarios.update({
+        where: { id: uuidToBuffer(id) },
+        data: prismaData,
+      })
+      return await this.getById(id)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      console.error('Error en UserModel.update:', err)
+      throw err
+    }
   }
 
-  /**
-   * Crea un nuevo usuario en la base de datos dentro de una transacción.
-   *
-   * @param {Object} userData - Datos del usuario a crear.
-   * @param {Object} conn - Conexión de la base de datos usada para la transacción.
-   * @returns {Promise<Object>} El usuario recién creado.
-   */
-  static async create(userData, conn) {
+  static async create(userData, tx = prisma) {
     const userId = randomUUID()
 
-    const [[estadoRow]] = await conn.query(
-      'SELECT id FROM estados WHERE codigo = ?',
-      ['ACTIVO']
-    )
-    if (!userData?.rol) {
-      throw new Error('El rol es requerido')
-    }
-    const [[rolRow]] = await conn.query(
-      'SELECT id FROM roles WHERE LOWER(codigo) = ?',
-      [userData.rol.toLowerCase()]
-    )
-    if (!estadoRow || !rolRow) {
-      throw new Error('Estado o rol inválido')
-    }
+    const activeStatus = await tx.estados.findFirst({
+      where: { codigo: 'ACTIVO' },
+    })
+    const roleRow = await tx.roles.findFirst({
+      where: { codigo: userData.rol.toUpperCase() },
+    })
 
-    await conn.query(
-      `INSERT INTO usuarios
-        (id, nombre, correo, fecha_nacimiento, telefono, password_hash, estado_id, rol_id, foto, matricula, cedula, inicio_servicio, fin_servicio)
-       VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        userId,
-        userData.nombre,
-        userData.correo,
-        new Date(userData.fechaNacimiento).toISOString().split('T')[0],
-        userData.telefono,
-        userData.passwordHash,
-        estadoRow.id,
-        rolRow.id,
-        userData.foto || null,
-        userData.matricula || null,
-        userData.cedula || null,
-        userData.inicioServicio || null,
-        userData.finServicio || null,
-      ]
-    )
+    if (!activeStatus || !roleRow) throw new Error('Estado o rol inválido')
 
-    return await this.getById(userId)
+    await tx.usuarios.create({
+      data: {
+        id: uuidToBuffer(userId),
+        nombre: userData.nombre,
+        correo: userData.correo,
+        fecha_nacimiento: new Date(userData.fechaNacimiento),
+        telefono: userData.telefono,
+        password_hash: userData.passwordHash,
+        estado_id: activeStatus.id,
+        rol_id: roleRow.id,
+        area_id: userData.areaId ?? null,
+        foto: userData.foto ?? null,
+        matricula: userData.matricula ?? null,
+        cedula: userData.cedula ?? null,
+        inicio_servicio: userData.inicioServicio ?? null,
+        fin_servicio: userData.finServicio ?? null,
+      },
+    })
+
+    return await this.getById(userId, tx)
   }
 }

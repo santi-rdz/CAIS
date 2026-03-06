@@ -8,7 +8,7 @@ const passwordSchema = z
   .regex(/[0-9]/, 'Debe contener al menos un número')
   .regex(/[!@#$%^&*]/, 'Debe contener al menos un carácter especial (!@#$%^&*)')
 
-const registroBaseSchema = z.object({
+const registrationBaseSchema = z.object({
   token: z.string().uuid('Token inválido'),
   nombre: z.string().min(2, 'El nombre es requerido'),
   apellido: z.string().min(2, 'El apellido es requerido'),
@@ -18,7 +18,7 @@ const registroBaseSchema = z.object({
   confirmPassword: z.string(),
 })
 
-const registroPasanteSchema = registroBaseSchema
+const internRegistrationSchema = registrationBaseSchema
   .extend({
     matricula: z.string().min(1, 'La matrícula es requerida'),
     servicioInicioAnio: z.string(),
@@ -31,7 +31,7 @@ const registroPasanteSchema = registroBaseSchema
     path: ['confirmPassword'],
   })
 
-const registroCoordSchema = registroBaseSchema
+const coordinatorRegistrationSchema = registrationBaseSchema
   .extend({
     cedula: z.string().min(1, 'La cédula es requerida'),
   })
@@ -40,15 +40,15 @@ const registroCoordSchema = registroBaseSchema
     path: ['confirmPassword'],
   })
 
-export function validateRegistroPasante(input) {
-  return registroPasanteSchema.safeParse(input)
+function validateInternRegistration(input) {
+  return internRegistrationSchema.safeParse(input)
 }
 
-export function validateRegistroCoord(input) {
-  return registroCoordSchema.safeParse(input)
+function validateCoordinatorRegistration(input) {
+  return coordinatorRegistrationSchema.safeParse(input)
 }
 
-export function validateRegistro(input, rol) {
-  if (rol === 'COORDINADOR') return validateRegistroCoord(input)
-  return validateRegistroPasante(input)
+export function validateRegistration(input, rol) {
+  if (rol === 'COORDINADOR') return validateCoordinatorRegistration(input)
+  return validateInternRegistration(input)
 }

@@ -1,16 +1,9 @@
-import { InvitacionModel } from '../models/TokenModel.js'
+import { InvitationModel } from '../models/InvitationModel.js'
 import { UserService } from '../services/users.js'
 import { validateInvitedUser } from '../schemas/invitedUser.js'
 import { formatZodErrors } from '../lib/formatErrors.js'
 
-export class InvitacionController {
-  /**
-   * POST /invitaciones
-   * Crea invitaciones de registro y envía correos a los usuarios invitados.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
+export class InvitationController {
   static async create(req, res) {
     const result = validateInvitedUser(req.body)
     if (result.error) {
@@ -22,12 +15,11 @@ export class InvitacionController {
     }
 
     try {
-      // TODO: obtener creadoPor del token de sesión (auth middleware)
       const creadoPor = req.headers['x-user-id'] || null
       const response = await UserService.preRegister(result.data, creadoPor)
       res.status(201).json(response)
     } catch (err) {
-      if (err.code === 'ER_DUP_ENTRY') {
+      if (err.code === 'P2002') {
         return res.status(409).json({
           error: 'Conflict',
           message: 'Uno o más correos ya tienen una invitación pendiente',
@@ -41,18 +33,11 @@ export class InvitacionController {
     }
   }
 
-  /**
-   * GET /invitaciones/:token
-   * Valida un token de registro y retorna el correo y rol asociados si es válido.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async validateToken(req, res) {
     const { token } = req.params
 
     try {
-      const invitacion = await InvitacionModel.findByToken(token)
+      const invitacion = await InvitationModel.findByToken(token)
 
       if (!invitacion) {
         return res.status(404).json({

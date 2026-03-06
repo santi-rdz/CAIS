@@ -12,7 +12,7 @@ const baseSchema = z.object({
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 })
 
-const createPasanteSchema = baseSchema.extend({
+const internSchema = baseSchema.extend({
   matricula: z.string().min(1, 'La matrícula es requerida'),
   servicioInicioAnio: z.string(),
   servicioInicioPeriodo: z.string(),
@@ -20,14 +20,14 @@ const createPasanteSchema = baseSchema.extend({
   servicioFinPeriodo: z.string(),
 })
 
-const createCoordSchema = baseSchema.extend({
+const coordinatorSchema = baseSchema.extend({
   cedula: z.string().min(1, 'La cédula es requerida'),
 })
 
 export function validateUser(input) {
   const rol = input?.rol
-  if (rol === 'coordinador') return createCoordSchema.safeParse(input)
-  return createPasanteSchema.safeParse(input)
+  if (rol === 'coordinador') return coordinatorSchema.safeParse(input)
+  return internSchema.safeParse(input)
 }
 
 export function validatePartialUser(input) {

@@ -1,9 +1,9 @@
 import request from 'supertest'
 import app from '../app.js'
-import { pool } from '../config/db.js'
+import { prisma } from '../config/prisma.js'
+import { uuidToBuffer } from '../lib/uuid.js'
 import { randomUUID } from 'node:crypto'
-import { describe, test, beforeAll, afterAll } from 'node:test'
-import assert from 'node:assert'
+import assert from 'assert'
 
 const api = request(app)
 
@@ -16,45 +16,50 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
   let coordCorreo
 
   beforeAll(async () => {
-    const [[rolPasante]] = await pool.query(
-      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
-    )
-    const [[rolCoord]] = await pool.query(
-      "SELECT id FROM roles WHERE codigo = 'COORDINADOR'"
-    )
-    const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
+    const rolPasante = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const rolCoord = await prisma.roles.findFirst({
+      where: { codigo: 'COORDINADOR' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
 
     pasanteToken = randomUUID()
     coordToken = randomUUID()
     pasanteCorreo = `reg.pasante.${Date.now()}@test.com`
     coordCorreo = `reg.coord.${Date.now()}@test.com`
 
-    await pool.query(
-      `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
-       VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?),
-              (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
-      [
-        pasanteCorreo,
-        rolPasante.id,
-        pasanteToken,
-        userRow.id,
-        coordCorreo,
-        rolCoord.id,
-        coordToken,
-        userRow.id,
-      ]
-    )
+    const expiraAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    await prisma.invitaciones_registro.createMany({
+      data: [
+        {
+          correo: pasanteCorreo,
+          rol_id: rolPasante.id,
+          token: uuidToBuffer(pasanteToken),
+          expira_at: expiraAt,
+          creado_por: userRow.id,
+        },
+        {
+          correo: coordCorreo,
+          rol_id: rolCoord.id,
+          token: uuidToBuffer(coordToken),
+          expira_at: expiraAt,
+          creado_por: userRow.id,
+        },
+      ],
+    })
   })
 
   afterAll(async () => {
-    await pool.query(
-      'DELETE FROM invitaciones_registro WHERE correo IN (?, ?)',
-      [pasanteCorreo, coordCorreo]
-    )
-    await pool.query('DELETE FROM usuarios WHERE correo IN (?, ?)', [
-      pasanteCorreo,
-      coordCorreo,
-    ])
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: { in: [pasanteCorreo, coordCorreo] } },
+    })
+    await prisma.usuarios.deleteMany({
+      where: { correo: { in: [pasanteCorreo, coordCorreo] } },
+    })
   })
 
   test('201 — registra pasante con token válido', async () => {
@@ -96,7 +101,6 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
   })
 
   test('404 — token ya usado', async () => {
-    // pasanteToken ya fue usado en el test anterior
     const res = await api.post('/usuarios/registro').send({
       token: pasanteToken,
       nombre: 'X',
@@ -138,16 +142,21 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
   test('422 — password débil rechazada', async () => {
     const weakToken = randomUUID()
     const weakCorreo = `weak.${Date.now()}@test.com`
-    const [[rolRow]] = await pool.query(
-      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
-    )
-    const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
 
-    await pool.query(
-      `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
-       VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
-      [weakCorreo, rolRow.id, weakToken, userRow.id]
-    )
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo: weakCorreo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(weakToken),
+        expira_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
 
     const res = await api.post('/usuarios/registro').send({
       token: weakToken,
@@ -166,8 +175,8 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
 
     assert.equal(res.status, 422)
 
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
-      weakCorreo,
-    ])
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: weakCorreo },
+    })
   })
 })

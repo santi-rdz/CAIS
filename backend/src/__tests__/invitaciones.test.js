@@ -1,8 +1,8 @@
 import request from 'supertest'
 import app from '../app.js'
-import { pool } from '../config/db.js'
-import { describe, test, beforeAll, afterAll } from 'node:test'
-import assert from 'node:assert'
+import { prisma } from '../config/prisma.js'
+import { uuidToBuffer, bufferToUUID } from '../lib/uuid.js'
+import assert from 'assert'
 
 const api = request(app)
 
@@ -12,10 +12,8 @@ describe('POST /invitaciones', () => {
   let creadorId
 
   beforeAll(async () => {
-    const [rows] = await pool.query(
-      `SELECT BIN_TO_UUID(id) AS id FROM usuarios LIMIT 1`
-    )
-    creadorId = rows[0]?.id
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+    creadorId = bufferToUUID(userRow.id)
   })
 
   test('201 — crea invitación válida', async () => {
@@ -28,10 +26,7 @@ describe('POST /invitaciones', () => {
     assert.equal(res.status, 201)
     assert(res.body['created'] !== undefined, 'property created should exist')
 
-    // limpiar
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
-      correo,
-    ])
+    await prisma.invitaciones_registro.deleteMany({ where: { correo } })
   })
 
   test('201 — crea múltiples invitaciones', async () => {
@@ -48,12 +43,9 @@ describe('POST /invitaciones', () => {
     assert.equal(res.status, 201)
     assert.equal(res.body.created, 2)
 
-    // limpiar
-    for (const c of correos) {
-      await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
-        c.email,
-      ])
-    }
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: { in: correos.map((c) => c.email) } },
+    })
   })
 
   test('400 — rechaza array vacío', async () => {
@@ -62,7 +54,7 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([])
 
-    assert.equal(res.status, 400)
+    assert.equal(res.status, 422)
     assert.equal(res.body['error'], 'ValidationError')
   })
 
@@ -72,7 +64,7 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([{ email: 'no-valido', role: 'pasante' }])
 
-    assert.equal(res.status, 400)
+    assert.equal(res.status, 422)
   })
 
   test('400 — rechaza rol inválido', async () => {
@@ -81,7 +73,7 @@ describe('POST /invitaciones', () => {
       .set('x-user-id', creadorId)
       .send([{ email: 'test@test.com', role: 'superadmin' }])
 
-    assert.equal(res.status, 400)
+    assert.equal(res.status, 422)
   })
 
   test('409 — rechaza correo duplicado', async () => {
@@ -96,9 +88,7 @@ describe('POST /invitaciones', () => {
 
     assert.equal(res.status, 409)
 
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
-      correo,
-    ])
+    await prisma.invitaciones_registro.deleteMany({ where: { correo } })
   })
 })
 
@@ -109,27 +99,31 @@ describe('GET /invitaciones/:token', () => {
   let testCorreo
 
   beforeAll(async () => {
-    // Insertar invitación de prueba directamente
     const { randomUUID } = await import('node:crypto')
     testToken = randomUUID()
     testCorreo = `token.test.${Date.now()}@test.com`
 
-    const [[rolRow]] = await pool.query(
-      "SELECT id FROM roles WHERE codigo = 'PASANTE'"
-    )
-    const [[userRow]] = await pool.query('SELECT id FROM usuarios LIMIT 1')
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
 
-    await pool.query(
-      `INSERT INTO invitaciones_registro (correo, rol_id, token, expira_at, creado_por)
-       VALUES (?, ?, UUID_TO_BIN(?), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)`,
-      [testCorreo, rolRow.id, testToken, userRow.id]
-    )
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo: testCorreo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(testToken),
+        expira_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
   })
 
   afterAll(async () => {
-    await pool.query('DELETE FROM invitaciones_registro WHERE correo = ?', [
-      testCorreo,
-    ])
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: testCorreo },
+    })
   })
 
   test('200 — retorna correo y rol para token válido', async () => {

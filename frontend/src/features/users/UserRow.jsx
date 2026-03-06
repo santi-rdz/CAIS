@@ -33,8 +33,9 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
     foto: picture,
     id,
   } = user
-  const status = statusUp.toLowerCase()
-  const role = roleUp.toLowerCase()
+
+  const status = statusUp?.toLowerCase() ?? ''
+  const role = roleUp?.toLowerCase() ?? ''
 
   const { deleteUser, isPending: isDeleting } = useDeleteUser()
   const isMenuOpen = openMenu === id
@@ -52,7 +53,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
           <img src={picture} className="size-full" />
         ) : (
           <div className="flex size-full items-center justify-center text-base uppercase">
-            {email.at(0)}
+            {email?.at(0)}
           </div>
         )}
       </UserPicture>

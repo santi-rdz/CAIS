@@ -1,7 +1,6 @@
 import request from 'supertest'
 import app from '../app.js'
-import { test, describe } from 'node:test'
-import assert from 'node:assert'
+import assert from 'assert'
 
 const api = request(app)
 
@@ -12,7 +11,7 @@ describe('POST /auth/login', () => {
     // Usa el usuario de prueba del seed (carlos.herrera@cais.com / $123)
     const res = await api.post('/auth/login').send({
       email: 'carlos.herrera@cais.com',
-      password: '$123',
+      password: '123',
     })
 
     assert.equal(res.status, 200)

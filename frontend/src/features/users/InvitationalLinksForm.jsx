@@ -13,13 +13,13 @@ import {
   HiOutlineTrash,
   HiOutlinePencil,
 } from 'react-icons/hi2'
-import useCreatePreUser from './useCreatePreUser'
+import useCreateInvitations from './useCreateInvitations'
 import DomainEmailInput from '@ui/DomainEmailInput'
 
 const EmailsContext = createContext()
 
 export default function InvitationalLinksForm({ onClose }) {
-  const { createPreUser, isCreating } = useCreatePreUser()
+  const { createInvitations, isCreating } = useCreateInvitations()
 
   const [users, setUsers] = useState([])
   const [idEdit, setIdEdit] = useState('')
@@ -130,7 +130,7 @@ export default function InvitationalLinksForm({ onClose }) {
           label: 'Enviar Correos',
           icon: <HiOutlineEnvelope size={20} />,
           onClick: () =>
-            createPreUser(users, {
+            createInvitations(users, {
               onSuccess: () => {
                 onClose()
                 setUsers([])
