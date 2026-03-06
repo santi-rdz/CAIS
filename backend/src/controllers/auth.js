@@ -2,6 +2,17 @@ import { prisma } from '../config/prisma.js'
 import { bufferToUUID, uuidToBuffer } from '../lib/uuid.js'
 import bcrypt from 'bcryptjs'
 
+function formatUser(user) {
+  return {
+    id: bufferToUUID(user.id),
+    nombre: user.nombre,
+    correo: user.correo,
+    foto: user.foto,
+    rol: user.roles?.codigo,
+    area: user.areas?.nombre,
+  }
+}
+
 export class AuthController {
   static async login(req, res) {
     const { email, password } = req.body
@@ -35,10 +46,12 @@ export class AuthController {
         return res.status(401).json({ error: 'Contraseña invalida' })
       }
 
-      req.session.userId = bufferToUUID(user.id)
-      req.session.role = user.roles.codigo
-
-      return res.json({ ok: true })
+      req.session.regenerate((err) => {
+        if (err) return res.status(500).json({ error: 'Server error' })
+        req.session.userId = bufferToUUID(user.id)
+        req.session.role = user.roles?.codigo
+        return res.json({ ok: true })
+      })
     } catch (err) {
       console.error(err)
       return res.status(500).json({ error: 'Server error' })
@@ -59,7 +72,7 @@ export class AuthController {
         },
       })
       if (!user) return res.status(404).json({ error: 'Usuario no encontrado' })
-      return res.json({ ...user, id: bufferToUUID(user.id) })
+      return res.json(formatUser(user))
     } catch (err) {
       console.error(err)
       return res.status(500).json({ error: 'Server error' })

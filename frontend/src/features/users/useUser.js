@@ -17,7 +17,11 @@ export default function useUser() {
   })
 
   const logout = async () => {
-    await logoutApi()
+    try {
+      await logoutApi()
+    } catch {
+      // sesión ya expirada en el servidor — limpiamos el estado local igual
+    }
     queryClient.removeQueries({ queryKey: ['user'] })
     navigate('/login', { replace: true })
   }
