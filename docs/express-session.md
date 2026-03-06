@@ -16,14 +16,14 @@ la usa para recuperar los datos de la sesión.
 Esta es la pregunta más común. Ambas funcionan, pero para un sistema interno como
 CAIS las sesiones en DB son la mejor opción:
 
-| | Cookie-session | JWT en localStorage |
-|---|---|---|
-| **Revocación** | Inmediata — borra la fila | Imposible hasta que expira |
-| **Forzar logout** | Sí — eliminas la sesión | No |
-| **Almacenamiento** | Cookie httpOnly (invisible para JS) | localStorage (vulnerable a XSS) |
-| **Tamaño del payload** | Solo el session ID | Todo el token decodificable |
-| **DB hit por request** | 1 SELECT a `sessions` | Ninguno |
-| **Adecuado para sistema interno** | ✅ | ❌ |
+|                                   | Cookie-session                      | JWT en localStorage             |
+| --------------------------------- | ----------------------------------- | ------------------------------- |
+| **Revocación**                    | Inmediata — borra la fila           | Imposible hasta que expira      |
+| **Forzar logout**                 | Sí — eliminas la sesión             | No                              |
+| **Almacenamiento**                | Cookie httpOnly (invisible para JS) | localStorage (vulnerable a XSS) |
+| **Tamaño del payload**            | Solo el session ID                  | Todo el token decodificable     |
+| **DB hit por request**            | 1 SELECT a `sessions`               | Ninguno                         |
+| **Adecuado para sistema interno** | ✅                                  | ❌                              |
 
 El costo del SELECT extra por request es insignificante con pocos usuarios. A cambio
 obtienes control total: si un usuario debe ser bloqueado, borras su fila de
@@ -82,12 +82,12 @@ expire  DATETIME(3)       — Cuándo expira (8 horas desde el login)
 
 Implementa la interfaz `Store` de express-session sobre Prisma. Tiene 4 métodos:
 
-| Método | Cuándo se llama | Qué hace |
-|---|---|---|
-| `get(sid)` | Cada request con cookie | SELECT para recuperar la sesión |
-| `set(sid, session)` | Al crear o modificar sesión | UPSERT en la tabla sessions |
-| `destroy(sid)` | En logout | DELETE de la sesión |
-| `touch(sid, session)` | Para extender la expiración | UPDATE del campo expire |
+| Método                | Cuándo se llama             | Qué hace                        |
+| --------------------- | --------------------------- | ------------------------------- |
+| `get(sid)`            | Cada request con cookie     | SELECT para recuperar la sesión |
+| `set(sid, session)`   | Al crear o modificar sesión | UPSERT en la tabla sessions     |
+| `destroy(sid)`        | En logout                   | DELETE de la sesión             |
+| `touch(sid, session)` | Para extender la expiración | UPDATE del campo expire         |
 
 ### `src/middleware/auth.js`
 
@@ -136,7 +136,7 @@ router.post('/registro', UserController.registro)
 router.get('/:token', InvitationController.validateToken)
 
 // Autenticado — cualquier usuario con sesión
-router.use(requireAuth)          // aplica a todas las rutas definidas después
+router.use(requireAuth) // aplica a todas las rutas definidas después
 router.get('/:id', UserController.getById)
 router.patch('/:id', UserController.update)
 
