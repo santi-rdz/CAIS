@@ -103,7 +103,7 @@ export class UserController {
           ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
           : null
 
-      const areaId = await getAreaIdFromCreator(req.headers['x-user-id'])
+      const areaId = await getAreaIdFromCreator(req.session.userId)
 
       const createdUser = await prisma.$transaction(async (tx) => {
         return await UserModel.create(

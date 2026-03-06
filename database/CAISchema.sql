@@ -787,6 +787,13 @@ CREATE TABLE IF NOT EXISTS invitaciones_registro (
     CONSTRAINT fk_invitacion_creado_por FOREIGN KEY (creado_por) REFERENCES usuarios(id)
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+    sid VARCHAR(255) NOT NULL PRIMARY KEY,
+    data TEXT NOT NULL,
+    expire DATETIME(3) NOT NULL,
+    INDEX sessions_expire_idx (expire)
+);
+
 -- ===============================
 -- 2. INSERTAR VALORES BASE
 -- ===============================
@@ -802,7 +809,7 @@ INSERT INTO
 VALUES
     ('PASANTE'),
     ('COORDINADOR'),
-    ('SUPER_ADMIN');
+    ('ADMIN');
 
 INSERT INTO
     areas (nombre)

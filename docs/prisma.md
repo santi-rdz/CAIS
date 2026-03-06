@@ -37,10 +37,15 @@ const user = await prisma.usuarios.findFirst({ where: { nombre: 'Ana' } })
 const users = await prisma.usuarios.findMany({ where: { activo: true } })
 
 // Crear
-const user = await prisma.usuarios.create({ data: { nombre: 'Ana', correo: 'a@b.com' } })
+const user = await prisma.usuarios.create({
+  data: { nombre: 'Ana', correo: 'a@b.com' },
+})
 
 // Actualizar
-await prisma.usuarios.update({ where: { id: buffer }, data: { nombre: 'Nuevo' } })
+await prisma.usuarios.update({
+  where: { id: buffer },
+  data: { nombre: 'Nuevo' },
+})
 
 // Borrar
 await prisma.usuarios.delete({ where: { id: buffer } })
@@ -94,8 +99,8 @@ especificar la tabla ni las claves foráneas porque el schema ya las define.
 ```js
 const users = await prisma.usuarios.findMany({
   orderBy: { creado_at: 'desc' },
-  skip: (page - 1) * limit,  // offset
-  take: limit,               // LIMIT
+  skip: (page - 1) * limit, // offset
+  take: limit, // LIMIT
 })
 ```
 
@@ -126,7 +131,7 @@ const user = await prisma.usuarios.findUnique({
   select: {
     nombre: true,
     correo: true,
-    roles: { select: { nombre: true } },  // solo el nombre del rol
+    roles: { select: { nombre: true } }, // solo el nombre del rol
   },
 })
 ```

@@ -14,24 +14,27 @@ export async function getUsers({ status, rol, sortBy, search, page }) {
   }
   const query = params.toString() ? `?${params.toString()}` : ''
 
-  const res = await fetch(`${BASE_URL}/usuarios${query}`)
+  const res = await fetch(`${BASE_URL}/usuarios${query}`, {
+    credentials: 'include',
+  })
   if (!res.ok) await throwApiError(res, 'Error al obtener los usuarios')
   return await res.json()
 }
 
 export async function getUser(id) {
-  const res = await fetch(`${BASE_URL}/usuarios/${id}`)
+  const res = await fetch(`${BASE_URL}/usuarios/${id}`, {
+    credentials: 'include',
+  })
   if (!res.ok) await throwApiError(res, 'Error al obtener usuario')
   return await res.json()
 }
 
-export async function createUser(data, creatorId) {
-  const headers = { 'Content-Type': 'application/json' }
-  if (creatorId) headers['x-user-id'] = creatorId
+export async function createUser(data) {
   const res = await fetch(`${BASE_URL}/usuarios`, {
     method: 'POST',
     body: JSON.stringify(data),
-    headers,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
   })
   if (!res.ok) await throwApiError(res, 'Error al crear usuario')
   return await res.json()
@@ -42,13 +45,17 @@ export async function registroUsuario(data) {
     method: 'POST',
     body: JSON.stringify(data),
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
   })
   if (!res.ok) await throwApiError(res, 'Error al completar el registro')
   return await res.json()
 }
 
 export async function deleteUser(id) {
-  const res = await fetch(`${BASE_URL}/usuarios/${id}`, { method: 'DELETE' })
+  const res = await fetch(`${BASE_URL}/usuarios/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  })
   if (!res.ok) await throwApiError(res, 'No se ha podido borrar el usuario')
   return await res.json()
 }

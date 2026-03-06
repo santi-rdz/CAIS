@@ -15,7 +15,7 @@ export class InvitationController {
     }
 
     try {
-      const creadoPor = req.headers['x-user-id'] || null
+      const creadoPor = req.session.userId || null
       const response = await UserService.preRegister(result.data, creadoPor)
       res.status(201).json(response)
     } catch (err) {

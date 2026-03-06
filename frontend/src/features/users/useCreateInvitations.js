@@ -5,11 +5,9 @@ import { toastApiError } from '@lib/ApiError'
 
 export default function useCreateInvitations() {
   const queryClient = useQueryClient()
-  const currentUser = queryClient.getQueryData(['user'])
 
   const { mutate: createInvitations, isPending: isCreating } = useMutation({
-    mutationFn: (invitations) =>
-      apiCreateInvitations(invitations, currentUser?.id),
+    mutationFn: (invitations) => apiCreateInvitations(invitations),
     onSuccess: (data) => {
       const plural = data.created > 1 ? 's' : ''
       const intro = `${data.created} invitación${plural === 's' ? 'es' : ''} enviada${plural}`
