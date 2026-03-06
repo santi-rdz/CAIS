@@ -10,6 +10,9 @@ export class AuthController {
       if (!email) {
         return res.status(400).json({ error: 'Correo requerido' })
       }
+      if (!password) {
+        return res.status(400).json({ error: 'Contraseña requerida' })
+      }
 
       const user = await prisma.usuarios.findUnique({
         where: { correo: email },
