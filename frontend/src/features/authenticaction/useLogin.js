@@ -9,7 +9,7 @@ export default function useLogin() {
   const { mutate: login, isPending } = useMutation({
     mutationFn: loginApi,
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['user'] })
+      queryClient.clear()
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {
