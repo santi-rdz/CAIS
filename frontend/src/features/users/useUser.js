@@ -22,7 +22,7 @@ export default function useUser() {
     } catch {
       // sesión ya expirada en el servidor — limpiamos el estado local igual
     }
-    queryClient.removeQueries({ queryKey: ['user'] })
+    queryClient.clear()
     navigate('/login', { replace: true })
   }
 
