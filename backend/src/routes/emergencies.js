@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { EmergencyController } from '../controllers/emergencies.js'
 import { requireAuth } from '../middleware/auth.js'
 
-export const emergencyRouter = new Router()
+export const emergencyRouter = Router()
 
 emergencyRouter.use(requireAuth)
 

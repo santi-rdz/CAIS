@@ -1,7 +1,6 @@
 import z from 'zod'
 
-export function validateEmergency(input) {
-  const schema = z.object({
+const emergencySchema = z.object({
     ubicacion: z.string().min(1, 'La ubicación es requerida'),
     nombre: z.string().optional(),
     matricula: z.string().optional(),
@@ -11,5 +10,7 @@ export function validateEmergency(input) {
     tratamiento_admin: z.string().optional(),
     recurrente: z.boolean().optional().default(false),
   })
-  return schema.safeParse(input)
+
+export function validateEmergency(input) {
+  return emergencySchema.safeParse(input)
 }

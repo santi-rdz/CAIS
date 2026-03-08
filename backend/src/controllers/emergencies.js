@@ -15,8 +15,13 @@ export class EmergencyController {
       return res.status(422).json({ error: validation.error.errors })
     }
     
-    const emergency = await EmergencyModel.create(validation.data, req.session.userId)
-    return res.status(201).json({ message: 'Emergencia registrada', emergency: emergency})
+    try {
+      const emergency = await EmergencyModel.create(validation.data, req.session.userId)
+      return res.status(201).json({ message: 'Emergencia registrada', emergency })
+    } catch (error) {
+      console.error('Error creating emergency:', error)
+      return res.status(500).json({ error: 'Error al registrar emergencia' })
+    }
   }
 
   /**

@@ -45,7 +45,9 @@ export class EmergencyModel {
         ? sortOptions[sortBy]
         : { fecha_hora: 'desc' }
 
-    const offset = (page - 1) * limit
+    const safePage = Math.max(1, page || 1)
+    const safeLimit = Math.max(1, limit || 10)
+    const offset = (safePage - 1) * safeLimit
 
     const [emergencies, total] = await prisma.$transaction([
       prisma.bitacora_emergencias.findMany({
@@ -72,7 +74,7 @@ export class EmergencyModel {
   static async create(data, userId, tx = prisma) {
     const emergencyId = randomUUID()
 
-    const emergency = await tx.bitacora_emergencias.create({
+    await tx.bitacora_emergencias.create({
       data: {
         id: uuidToBuffer(emergencyId),
         usuario_id: uuidToBuffer(userId),
@@ -88,6 +90,6 @@ export class EmergencyModel {
       include: includeRelations,
     })
 
-    await this.getById(emergencyId, tx)
+    return this.getById(emergencyId, tx)
   }
 }
