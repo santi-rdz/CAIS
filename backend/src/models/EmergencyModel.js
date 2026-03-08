@@ -3,7 +3,7 @@ import { prisma } from '../config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '../lib/uuid.js'
 
 const includeRelations = {
-  usuarios: true
+  usuarios: true,
 }
 
 function formatEmergency(u) {
@@ -26,11 +26,9 @@ function formatEmergency(u) {
 export class EmergencyModel {
   static async getAll({ sortBy, search, page, limit }) {
     const where = {}
-    
+
     if (search) {
-      where.OR = [
-        { nombre: { contains: search } }
-      ]
+      where.OR = [{ nombre: { contains: search } }]
     }
 
     const sortOptions = {
@@ -45,8 +43,12 @@ export class EmergencyModel {
         ? sortOptions[sortBy]
         : { fecha_hora: 'desc' }
 
-    const safePage = Math.max(1, page || 1)
-    const safeLimit = Math.max(1, limit || 10)
+    const parsedPage = Number(page)
+    const parsedLimit = Number(limit)
+    const safePage =
+      Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
+    const safeLimit =
+      Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10
     const offset = (safePage - 1) * safeLimit
 
     const [emergencies, total] = await prisma.$transaction([
@@ -55,7 +57,7 @@ export class EmergencyModel {
         include: includeRelations,
         orderBy,
         skip: offset,
-        take: limit,
+        take: safeLimit,
       }),
       prisma.bitacora_emergencias.count({ where }),
     ])
@@ -64,12 +66,12 @@ export class EmergencyModel {
   }
 
   static async getById(id, tx = prisma) {
-      const emergency = await tx.bitacora_emergencias.findUnique({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatEmergency(emergency)
-    }
+    const emergency = await tx.bitacora_emergencias.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    return formatEmergency(emergency)
+  }
 
   static async create(data, userId, tx = prisma) {
     const emergencyId = randomUUID()

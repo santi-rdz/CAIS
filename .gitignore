@@ -30,3 +30,5 @@ docker-compose.override.yml
 .claude/*.local.json
 
 docs/plans/
+
+.agents/*
