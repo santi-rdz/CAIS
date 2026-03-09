@@ -53,9 +53,9 @@ function NavLi({ route, isExpanded }) {
     <li>
       <NavLink
         to={path}
-        className={`text-4 group active-route:pointer-events-none active-route:border-l-green-700 active-route:bg-green-50/60 active-route:text-green-800 relative flex items-center rounded-md border-l-[3px] border-l-transparent py-2.5 pr-3 pl-3 text-zinc-500 tracking-wide transition-all duration-200 hover:bg-zinc-100/70 hover:text-zinc-700 ${isExpanded ? 'w-full gap-3' : 'w-fit gap-0'}`}
+        className={`text-4 group active-route:pointer-events-none active-route:border-l-green-700 active-route:bg-green-50 active-route:text-green-800 relative flex items-center rounded-md border-l-[3px] border-l-transparent py-2.5 pr-3 pl-3 text-zinc-500 tracking-wide transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-700 ${isExpanded ? 'w-full gap-3' : 'w-fit gap-0'}`}
       >
-        <Icon size={20} className="shrink-0" />
+        <Icon size={20} className="shrink-0 transition-colors duration-200 group-hover:text-green-700" />
         <span
           className={`overflow-hidden font-medium transition-all duration-300 ease-in-out ${isExpanded ? 'w-32' : 'w-0'}`}
         >
