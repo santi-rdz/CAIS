@@ -1,32 +1,31 @@
 import { PAGE_SIZE } from '@lib/constants'
-import { getUsers } from '@services/ApiUsers'
+import { getEmergencies } from '@services/ApiEmergencies'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router'
 import { usePrefetchPages } from '@hooks/usePrefetchPages'
 
-export function useUsers() {
+export function useEmergencies() {
   const [params] = useSearchParams()
-  const status = params.get('status')
-  const rol = params.get('rol')
   const sortBy = params.get('ordenarPor')
+  const recurrent = params.get('recurrente')
   const search = params.get('buscar')
   const page = +(params.get('page') ?? 1)
 
-  const { data: { users, count } = {}, isPending } = useQuery({
-    queryKey: ['users', status, rol, sortBy, search, page],
-    queryFn: () => getUsers({ status, rol, sortBy, search, page }),
+  const { data: { emergencies, count } = {}, isPending } = useQuery({
+    queryKey: ['emergencies', sortBy, recurrent, search, page],
+    queryFn: () => getEmergencies({ sortBy, recurrent, search, page }),
     staleTime: 1000 * 60 * 5,
   })
 
   const pageCount = count ? Math.ceil(count / PAGE_SIZE) : 0
 
   usePrefetchPages({
-    queryKey: ['users', status, rol, sortBy, search],
-    queryFn: (p) => getUsers({ status, rol, sortBy, search, page: p }),
+    queryKey: ['emergencies', sortBy, recurrent, search],
+    queryFn: (p) => getEmergencies({ sortBy, recurrent, search, page: p }),
     page,
     pageCount,
     count,
   })
 
-  return { users, count, isPending }
+  return { emergencies, count, isPending }
 }

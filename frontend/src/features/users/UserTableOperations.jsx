@@ -10,9 +10,9 @@ import TableOperations from '@ui/TableOperations'
 import UserModal from './UserModal'
 import Filter from '@ui/Filter'
 import Input from '@ui/Input'
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router'
 import { Dialog, DialogContent, DialogTrigger } from '@ui/components/ui/dialog'
+import { useDebouncedSearch } from '@hooks/useDebouncedSearch'
+import { useState } from 'react'
 
 const SORT_BY_OPTIONS = [
   {
@@ -50,29 +50,6 @@ const FILTER_GROUPS = [
     ],
   },
 ]
-
-function useDebouncedSearch(delay = 500) {
-  const [params, setParams] = useSearchParams()
-  const [searchValue, setSearchValue] = useState(params.get('buscar') || '')
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!searchValue.trim()) {
-        params.delete('buscar')
-        setParams(params)
-        return
-      }
-
-      params.set('buscar', searchValue)
-      params.set('page', 1)
-      setParams(params)
-    }, delay)
-
-    return () => clearTimeout(timer)
-  }, [searchValue, setParams, params, delay])
-
-  return { searchValue, setSearchValue }
-}
 
 export default function UserTableOperations() {
   const { searchValue, setSearchValue } = useDebouncedSearch()
