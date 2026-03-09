@@ -10,6 +10,7 @@ import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
 import DropdownPanel from './DropdownPanel'
+import Checkbox from './Checkbox'
 import { cn } from './lib/utils'
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -250,7 +251,7 @@ export function SelectItem({ children, value, icon: Icon }) {
       onClick={() => handleValueChange(value)}
       className={`${ITEM_BASE} ${isActive && !multiple && ITEM_ACTIVE_SINGLE}`}
     >
-      {multiple && <Checkbox isActive={isActive} />}
+      {multiple && <Checkbox checked={isActive} />}
 
       {!multiple && Icon && (
         <Icon
@@ -285,17 +286,3 @@ export function SelectLabel({ children }) {
   )
 }
 
-// ─── Internal ─────────────────────────────────────────────────────────────────
-
-function Checkbox({ isActive }) {
-  return (
-    <span
-      className={cn(
-        'flex size-3.5 shrink-0 items-center justify-center rounded border transition-colors',
-        isActive ? 'border-green-700 bg-green-700' : 'border-gray-300 bg-white'
-      )}
-    >
-      {isActive && <HiCheck size={9} className="text-white" />}
-    </span>
-  )
-}
