@@ -1,9 +1,9 @@
 const variant = {
-  activo: 'bg-green-200 text-green-700 capitalize',
-  inactivo: 'bg-red-100 text-red-500 capitalize',
-  pendiente: 'bg-blue-100 text-blue-600 capitalize ',
+  activo: 'bg-green-100 text-green-800 font-medium capitalize',
+  inactivo: 'bg-red-100 text-red-700 font-medium capitalize',
+  pendiente: 'bg-blue-100 text-blue-700 font-medium capitalize',
   white: 'bg-white shadow-sm',
-  outline: 'bg-white ring ring-gray-300 text-green-800 font-medium',
+  outline: 'bg-zinc-100 text-zinc-600 font-medium',
 }
 
 const sizes = {

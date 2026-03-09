@@ -42,7 +42,7 @@ function ToggleSidebarButton({ isExpanded, handleToggle }) {
   return (
     <button
       onClick={handleToggle}
-      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors duration-200 hover:bg-zinc-200/80 hover:text-zinc-600"
+      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white text-green-800 shadow-xs ring ring-gray-100 duration-200 hover:scale-105 hover:shadow-lg"
     >
       <HiChevronDoubleLeft
         size={14}
