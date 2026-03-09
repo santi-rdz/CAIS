@@ -17,7 +17,7 @@ Table.Header = function TableHeader({ children }) {
   return (
     <div className="border-b border-zinc-100 bg-zinc-50">
       <CommonRow
-        className="text-6 py-3.5 font-semibold tracking-[0.08em] text-zinc-400 uppercase"
+        className="text-6 py-3 font-semibold tracking-[0.08em] text-zinc-400 uppercase"
         columns={columns}
       >
         {children}

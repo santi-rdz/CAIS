@@ -13,7 +13,10 @@ export default function useLogin() {
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {
-      toast.error(error.message)
+      toast.error(error.message, {
+        position: 'top-center',
+        description: 'Verifica tus credenciales e inténtalo de nuevo.',
+      })
     },
   })
 
