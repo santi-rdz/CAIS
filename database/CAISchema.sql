@@ -951,3 +951,60 @@ VALUES
         DATE_ADD(NOW(), INTERVAL 7 DAY),
         (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
     );
+
+-- ===============================
+-- TEST DATA: bitacora_emergencias
+-- ===============================
+INSERT INTO bitacora_emergencias (id, usuario_id, fecha_hora, ubicacion, nombre, matricula, telefono, diagnostico, accion_realizada, tratamiento_admin, recurrente) VALUES
+(
+    UUID_TO_BIN(UUID()),
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    '2026-03-09 10:30:00',
+    'Sala de Emergencias',
+    'Juan Pérez',
+    'MAT123456',
+    '6641234567',
+    'Lipotimia',
+    'Evaluación inmediata',
+    'Hidratación IV',
+    FALSE
+),
+(
+    UUID_TO_BIN(UUID()),
+    (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1),
+    '2026-03-09 14:15:00',
+    'Área de Triage',
+    'María López',
+    'MAT654321',
+    '6645551234',
+    'Dolor torácico',
+    'Monitoreo cardíaco',
+    'EKG + Aspirina',
+    FALSE
+),
+(
+    UUID_TO_BIN(UUID()),
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    '2026-03-08 22:45:00',
+    'Pasillo de Urgencias',
+    'Carlos Rodríguez',
+    'MAT789012',
+    '6649876543',
+    'Crisis asmática',
+    'Aplicación de salbutamol',
+    'Nebulización + Corticoides',
+    TRUE
+),
+(
+    UUID_TO_BIN(UUID()),
+    (SELECT id FROM usuarios WHERE correo = 'luis.mendoza@uabc.edu.mx' LIMIT 1),
+    '2026-03-07 16:20:00',
+    'Cuarto de Observación',
+    'Ana García',
+    'MAT345678',
+    '6642223333',
+    'Hipoglucemia',
+    'Medición de glucosa',
+    'Glucosa IV',
+    TRUE
+);
