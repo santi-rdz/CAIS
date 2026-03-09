@@ -1,4 +1,5 @@
 import caisLogo from '@assets/images/logo-cais.png'
+import useUser from '@features/users/useUser'
 
 export default function Logo({ children, isExpanded = true }) {
   return (
@@ -16,9 +17,18 @@ export default function Logo({ children, isExpanded = true }) {
 }
 
 Logo.Heading = function Heading() {
-  return <h1 className="font-lato text-2 leading-none text-green-800">CAIS</h1>
+  return (
+    <h1 className="font-lato text-2 leading-none tracking-tight text-green-800">
+      CAIS
+    </h1>
+  )
 }
 
 Logo.Area = function Area() {
-  return <span className="text-6 font-normal text-neutral-400">Medicina</span>
+  const { user } = useUser()
+  return (
+    <span className="text-7 mt-1 inline-flex w-fit items-center rounded-full bg-green-50 px-2 py-0.5 font-medium tracking-wide text-green-700 capitalize">
+      {user?.area.toLowerCase()}
+    </span>
+  )
 }

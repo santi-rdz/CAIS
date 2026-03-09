@@ -3,7 +3,6 @@ import {
   HiOutlineUser,
   HiOutlineCog6Tooth,
   HiBuildingLibrary,
-  HiChevronRight,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 import Tag from './Tag'
@@ -11,7 +10,7 @@ import DropdownPanel from './DropdownPanel'
 
 export default function ProfileDropdown({ user, onClose, logout }) {
   const navigate = useNavigate()
-  const { nombre, correo, area, rol } = user ?? {}
+  const { nombre, correo, area, rol, foto } = user ?? {}
   const formattedName = nombre ? `Dr. ${nombre}` : ''
 
   function handleNavigate(path) {
@@ -28,13 +27,22 @@ export default function ProfileDropdown({ user, onClose, logout }) {
     <DropdownPanel className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden">
       {/* User info */}
       <div className="flex items-center gap-3 p-4">
+        {foto && (
+          <picture className="block w-9 shrink-0">
+            <img
+              src={foto}
+              className="w-full rounded-full object-cover"
+              alt={nombre}
+            />
+          </picture>
+        )}
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-gray-900">
+          <p className="truncate text-sm font-semibold text-zinc-900">
             {formattedName}
           </p>
-          <p className="truncate text-xs text-gray-400">{correo}</p>
-          <div className="mt-2 space-x-2">
-            <Tag rounded="full" size="xs" type="activo">
+          <p className="truncate text-xs text-zinc-400">{correo}</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <Tag rounded="full" size="xs" type="outline">
               {area}
             </Tag>
             <Tag rounded="full" size="xs" type="activo">
@@ -43,52 +51,51 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-100" />
+
+      <div className="border-t border-zinc-100" />
+
       {/* Actions */}
-      <div className="py-1">
+      <div className="p-1.5">
         <button
           onClick={() => handleNavigate('/perfil')}
-          className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+          className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100"
         >
-          <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-green-800">
-            <HiOutlineUser
-              size={16}
-              className="text-gray-500 transition-colors group-hover:text-white"
-            />
-          </span>
-          Mi Perfil <HiChevronRight className="ml-auto" />
+          <HiOutlineUser
+            size={16}
+            className="shrink-0 text-zinc-400 transition-colors group-hover:text-green-700"
+          />
+          Mi Perfil
         </button>
         <button
           onClick={() => handleNavigate('/configuracion')}
-          className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+          className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100"
         >
-          <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-green-800">
-            <HiOutlineCog6Tooth
-              size={16}
-              className="text-gray-500 transition-colors group-hover:text-white"
-            />
-          </span>
-          Configuración <HiChevronRight className="ml-auto" />
+          <HiOutlineCog6Tooth
+            size={16}
+            className="shrink-0 text-zinc-400 transition-colors group-hover:text-green-700"
+          />
+          Configuración
         </button>
       </div>
 
-      <div className="border-t border-gray-100" />
-      <div className="py-1">
+      <div className="border-t border-zinc-100" />
+
+      <div className="p-1.5">
         <button
           onClick={handleLogout}
-          className="group flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+          className="group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-500 transition-colors hover:bg-red-50"
         >
-          <span className="flex items-center justify-center rounded-lg bg-gray-100 p-2 transition-colors group-hover:bg-red-600">
-            <HiOutlineArrowRightOnRectangle
-              size={16}
-              className="text-gray-500 transition-colors group-hover:text-white"
-            />
-          </span>
+          <HiOutlineArrowRightOnRectangle
+            size={16}
+            className="shrink-0 transition-colors"
+          />
           Cerrar Sesión
         </button>
       </div>
-      <footer className="flex items-center gap-2 border-t border-gray-100 bg-gray-50 px-4 py-2.5 text-xs leading-none text-gray-400">
-        <HiBuildingLibrary size={14} />
+
+      <div className="border-t border-zinc-100" />
+      <footer className="flex items-center gap-2 px-4 py-2.5 text-xs leading-none text-zinc-400">
+        <HiBuildingLibrary size={13} />
         CAIS · UABC
       </footer>
     </DropdownPanel>

@@ -5,6 +5,7 @@ import DomainEmailInput from '@ui/DomainEmailInput'
 import PasswordInput from '@ui/PasswordInput'
 import useLogin from './useLogin'
 import Button from '@ui/Button'
+import Checkbox from '@ui/Checkbox'
 
 export default function LoginForm() {
   const [isUabcDomain, setIsUabcDomain] = useState(true)
@@ -48,9 +49,16 @@ export default function LoginForm() {
 }
 
 function Footer() {
+  const [rememberMe, setRememberMe] = useState(false)
+
   return (
     <div className="text-6 mt-3 flex justify-between font-medium">
-      <span>Recordarme</span>
+      <Checkbox
+        id="rememberMe"
+        checked={rememberMe}
+        onChange={(e) => setRememberMe(e.target.checked)}
+        label="Recordarme"
+      />
 
       <Link to="/forgot-password" className="text-blue-600 hover:underline">
         ¿Olvidaste tu contraseña?

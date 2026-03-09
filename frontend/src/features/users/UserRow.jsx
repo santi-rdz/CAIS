@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@ui/components/ui/alert-dialog'
+import useUser from './useUser'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
   // Solo cambian los nombres de las propiedades extraídas para coincidir con la DB
@@ -34,6 +35,10 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
     id,
   } = user
 
+  const {
+    user: { id: userId },
+  } = useUser()
+
   const status = statusUp?.toLowerCase() ?? ''
   const role = roleUp?.toLowerCase() ?? ''
 
@@ -46,8 +51,11 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
     setOpenMenu(isMenuOpen ? null : id)
   }
 
+  const isCurrentUser = userId === id
+  const showedName = isCurrentUser ? `Tú` : name
+
   return (
-    <Table.Row>
+    <Table.Row isCurrentUser={isCurrentUser}>
       <UserPicture>
         {hasPicture ? (
           <img src={picture} className="size-full" />
@@ -59,7 +67,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
       </UserPicture>
       <div className="">
         <Stacked>
-          <span>{name ? name : '---'}</span>
+          <span>{showedName ?? '---'}</span>
           <span className="font-normal text-neutral-500">{email}</span>
         </Stacked>
       </div>
