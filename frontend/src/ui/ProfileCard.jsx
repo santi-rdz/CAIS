@@ -39,10 +39,10 @@ export default function ProfileCard({ isExpanded }) {
 
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`group flex w-full cursor-pointer items-center bg-white shadow-sm transition-shadow duration-300 hover:shadow-md ${
+        className={`group flex w-full cursor-pointer items-center bg-white transition-all duration-200 ${
           isExpanded
-            ? 'justify-between gap-4 rounded-lg p-3'
-            : 'w-fit justify-center rounded-full p-1'
+            ? 'justify-between gap-4 rounded-lg border border-zinc-200 p-3 hover:border-zinc-300 hover:bg-zinc-50'
+            : 'w-fit justify-center rounded-full p-1 hover:bg-zinc-100'
         }`}
       >
         <div className="flex items-center">

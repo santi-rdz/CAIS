@@ -9,7 +9,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`flex flex-col gap-16 border-r border-r-gray-100 bg-white p-6 transition-all duration-300 ease-in-out [grid-area:sidebar] ${isExpanded ? 'w-65' : 'w-24'}`}
+      className={`flex flex-col gap-8 border-r border-zinc-200/60 bg-white px-4 py-6 transition-all duration-300 ease-in-out [grid-area:sidebar] ${isExpanded ? 'w-[260px]' : 'w-20'}`}
     >
       <SidebarHeading
         isExpanded={isExpanded}
@@ -23,7 +23,9 @@ export function Sidebar() {
 
 function SidebarHeading({ isExpanded, handleToggle }) {
   return (
-    <header className="relative flex flex-col">
+    <header
+      className={`flex transition-all duration-300 ${isExpanded ? 'items-center justify-between' : 'flex-col items-center gap-3'}`}
+    >
       <Logo isExpanded={isExpanded}>
         <Logo.Heading />
         <Logo.Area />
@@ -40,13 +42,11 @@ function ToggleSidebarButton({ isExpanded, handleToggle }) {
   return (
     <button
       onClick={handleToggle}
-      className={`absolute top-1/2 right-0 w-fit -translate-y-1/2 transform cursor-pointer rounded-md bg-white p-1 transition-all duration-300 ease-in-out ${
-        isExpanded ? 'translate-x-2' : 'left-1/2 -translate-x-1/2 translate-y-8'
-      }`}
+      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-400 transition-colors duration-200 hover:bg-zinc-200/80 hover:text-zinc-600"
     >
       <HiChevronDoubleLeft
-        size={18}
-        className={`transition-transform duration-300 ${isExpanded ? 'rotate-360' : 'rotate-180'}`}
+        size={14}
+        className={`transition-transform duration-300 ${isExpanded ? '' : 'rotate-180'}`}
       />
     </button>
   )
