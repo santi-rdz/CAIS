@@ -43,12 +43,13 @@ Table.Body = function TableBody({ data, render }) {
   )
 }
 
-Table.Row = function TableRow({ children }) {
+Table.Row = function TableRow({ children, isCurrentUser }) {
   const { columns } = useContext(TableContext)
+
   return (
     <CommonRow
       columns={columns}
-      className="border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 hover:border-l-green-800 hover:bg-green-50/40"
+      className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 hover:border-l-green-800 hover:bg-green-50/40 ${isCurrentUser ? 'bg-green-50/40' : ''}`}
     >
       <>{children}</>
     </CommonRow>
