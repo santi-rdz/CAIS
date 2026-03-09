@@ -50,12 +50,15 @@ export class PacientModel {
         ? sortOptions[sortBy]
         : { creado_at: 'desc' }
 
+    const MAX_PAGE_SIZE = 100
     const parsedPage = Number(page)
     const parsedLimit = Number(limit)
     const safePage =
       Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
     const safeLimit =
-      Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10
+      Number.isFinite(parsedLimit) && parsedLimit > 0
+        ? Math.min(parsedLimit, MAX_PAGE_SIZE)
+        : 10
     const offset = (safePage - 1) * safeLimit
 
     const [pacients, total] = await prisma.$transaction([

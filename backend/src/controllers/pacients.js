@@ -12,7 +12,7 @@ export class PacientController {
   static async create(req, res) {
     const validation = validatePacient(req.body)
     if (!validation.success) {
-      return res.status(422).json({ error: validation.error.errors })
+      return res.status(422).json({ error: validation.error.issues })
     }
 
     try {
