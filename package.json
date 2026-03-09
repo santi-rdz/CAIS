@@ -45,7 +45,8 @@
     "sql": "docker compose exec db mysql -u user -p"
   },
   "dependencies": {
-    "frontend": "^0.0.0"
+    "frontend": "^0.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "eslint": "^9.39.3",
