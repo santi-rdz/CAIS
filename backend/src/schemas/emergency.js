@@ -1,6 +1,7 @@
 import z from 'zod'
 
 const emergencySchema = z.object({
+  fecha_hora: z.iso.datetime(),
   ubicacion: z.string().min(1, 'La ubicación es requerida'),
   nombre: z.string().optional(),
   matricula: z.string().optional(),
