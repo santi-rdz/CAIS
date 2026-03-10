@@ -20,3 +20,7 @@ const emergencySchema = z.object({
 export function validateEmergency(input) {
   return emergencySchema.safeParse(input)
 }
+
+export function validatePartialEmergency(input) {
+  return emergencySchema.partial().safeParse(input)
+}
