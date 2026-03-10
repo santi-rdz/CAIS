@@ -1008,3 +1008,37 @@ INSERT INTO bitacora_emergencias (id, usuario_id, fecha_hora, ubicacion, nombre,
     'Glucosa IV',
     TRUE
 );
+
+INSERT INTO pacientes (
+    doctor_id, nombre, fecha_nacimiento, es_externo, correo, telefono,
+    genero, domicilio, ocupacion, estado_civil, nivel_educativo,
+    religion, nss, contacto_emergencia, telefono_emergencia, parentesco_emergencia
+) VALUES
+(
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    'Carlos Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com',
+    '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC',
+    'Contador', 'Casado', 'Licenciatura', 'Católica',
+    '45678912301', 'Laura Ruiz Pérez', '6641112233', 'Esposa'
+),
+(
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    'Ana Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com',
+    '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC',
+    'Maestra', 'Soltera', 'Maestría', 'Cristiana',
+    '78912345602', 'Pedro Fernández López', '6642223344', 'Padre'
+),
+(
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    'Jorge Reyes Castillo', '1978-11-05 00:00:00', TRUE, 'jorge.reyes@yahoo.com',
+    '6644567890', 'Masculino', 'Blvd. Agua Caliente 321, Tijuana, BC',
+    'Médico', 'Divorciado', 'Doctorado', 'Ninguna',
+    '32165498703', 'María Castillo Vega', '6643334455', 'Madre'
+),
+(
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    'Lucía Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com',
+    '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC',
+    'Estudiante', 'Soltera', 'Bachillerato', 'Católica',
+    '96385274104', 'Rosa Soto Díaz', '6644445566', 'Madre'
+);
