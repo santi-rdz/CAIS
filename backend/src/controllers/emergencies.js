@@ -1,5 +1,8 @@
 import { EmergencyModel } from '../models/EmergencyModel.js'
-import { validateEmergency, validatePartialEmergency } from '../schemas/emergency.js'
+import {
+  validateEmergency,
+  validatePartialEmergency,
+} from '../schemas/emergency.js'
 import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class EmergencyController {
@@ -73,26 +76,26 @@ export class EmergencyController {
    * @param {Object} res - Objeto de respuesta de Express.
    */
   static async update(req, res) {
-      const result = validatePartialEmergency(req.body)
-      if (result.error) {
-        return res.status(422).json({
-          error: 'ValidationError',
-          fields: formatZodErrors(result.error),
-        })
-      }
-  
-      const { id } = req.params
-      try {
-        const updatedEmergency = await EmergencyModel.update(id, result.data)
-        if (!updatedEmergency)
-          return res.status(404).json({ message: 'Emergencia no encontrada' })
-        res.json(updatedEmergency)
-      } catch (err) {
-        console.error('Error al actualizar emergencia:', err)
-        res.status(500).json({
-          error: 'InternalError',
-          message: 'Error al actualizar emergencia',
-        })
-      }
+    const result = validatePartialEmergency(req.body)
+    if (result.error) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        fields: formatZodErrors(result.error),
+      })
     }
+
+    const { id } = req.params
+    try {
+      const updatedEmergency = await EmergencyModel.update(id, result.data)
+      if (!updatedEmergency)
+        return res.status(404).json({ message: 'Emergencia no encontrada' })
+      res.json(updatedEmergency)
+    } catch (err) {
+      console.error('Error al actualizar emergencia:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al actualizar emergencia',
+      })
+    }
+  }
 }
