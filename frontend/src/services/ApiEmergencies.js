@@ -13,7 +13,7 @@ export async function getEmergencies({ sortBy, search, page, recurrent }) {
   if (recurrent !== null) params.append('recurrente', recurrent)
   const query = params.toString() ? `?${params.toString()}` : ''
 
-  const res = await fetch(`${BASE_URL}/emergencias${query}`, {
+  const res = await fetch(`${BASE_URL}/medicina/emergencias${query}`, {
     credentials: 'include',
   })
   if (!res.ok) await throwApiError(res, 'Error al obtener las emergencias')
@@ -21,7 +21,7 @@ export async function getEmergencies({ sortBy, search, page, recurrent }) {
 }
 
 export async function getEmergency(id) {
-  const res = await fetch(`${BASE_URL}/emergencias/${id}`, {
+  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
     credentials: 'include',
   })
   if (!res.ok) await throwApiError(res, 'Error al obtener la emergencia')
@@ -29,7 +29,7 @@ export async function getEmergency(id) {
 }
 
 export async function createEmergency(data) {
-  const res = await fetch(`${BASE_URL}/emergencias`, {
+  const res = await fetch(`${BASE_URL}/medicina/emergencias`, {
     method: 'POST',
     body: JSON.stringify(data),
     headers: { 'Content-Type': 'application/json' },
