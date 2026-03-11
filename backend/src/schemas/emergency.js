@@ -8,8 +8,8 @@ const emergencySchema = z.object({
     .string()
     .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
     .optional(),
-  diagnostico: z.string().min(1, 'El diagnóstico es requerido'),
-  accion_realizada: z.string().min(1, 'La acción realizada es requerida'),
+  diagnostico: z.string().optional(),
+  accion_realizada: z.string().optional(),
   tratamiento_admin: z.string().optional(),
   recurrente: z.boolean().optional().default(false),
 })

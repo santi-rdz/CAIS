@@ -72,7 +72,7 @@ export default function UserTableOperations() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="md" className="py-2.5">
+          <Button size="md">
             <HiOutlinePlus size="16" strokeWidth="2.5" />
             Agregar usuario
           </Button>

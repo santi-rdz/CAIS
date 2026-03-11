@@ -36,7 +36,12 @@ export default function DatePickerComponent({
 }) {
   const {
     field: { value: date, onChange: setDate },
-  } = useController({ name, control, rules })
+  } = useController({
+    name,
+    control,
+    rules,
+    defaultValue: birthdate ? null : dayjs(),
+  })
   const resolvedMax = birthdate ? dayjs() : maxDate
   const [digits, setDigits] = useState('')
   const { triggerRef, isOpen, positionStyle, toggle, close } =

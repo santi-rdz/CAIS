@@ -1,7 +1,7 @@
 import { throwApiError } from '@lib/ApiError'
 import { BASE_URL, PAGE_SIZE } from '@lib/constants'
 
-export async function getEmergencies({ sortBy, search, page }) {
+export async function getEmergencies({ sortBy, search, page, recurrent }) {
   const params = new URLSearchParams()
 
   if (sortBy && sortBy !== 'clear') params.append('sortBy', sortBy)
@@ -10,6 +10,7 @@ export async function getEmergencies({ sortBy, search, page }) {
     params.append('page', page)
     params.append('limit', PAGE_SIZE)
   }
+  if (recurrent !== null) params.append('recurrente', recurrent)
   const query = params.toString() ? `?${params.toString()}` : ''
 
   const res = await fetch(`${BASE_URL}/emergencias${query}`, {

@@ -29,23 +29,29 @@ export default function Input({
   size = 'lg',
   offset,
   className,
+  textarea = false,
   ...props
 }) {
+  const fieldClass = cn(
+    inputVariants({ size, variant }),
+    hasError
+      ? 'error'
+      : 'focus-visible:outline-[1.5px] focus-visible:outline-green-900'
+  )
+
   return (
-    <div className={`relative ${className} `}>
-      <input
-        className={cn(
-          inputVariants({ size, variant }),
-          hasError
-            ? 'error'
-            : 'focus-visible:outline-[1.5px] focus-visible:outline-green-900'
-        )}
-        {...props}
-      />
-      {suffix &&
+    <div className={`relative ${className}`}>
+      {textarea ? (
+        <textarea className={fieldClass} {...props} />
+      ) : (
+        <input className={fieldClass} {...props} />
+      )}
+
+      {!textarea &&
+        suffix &&
         cloneElement(suffix, {
           style: { right: `${offset ?? 12}px` },
-          className: `absolute top-1/2  -translate-y-1/2 flex gap-2 `,
+          className: `absolute top-1/2 -translate-y-1/2 flex gap-2`,
         })}
     </div>
   )

@@ -7,7 +7,7 @@ import { usePrefetchPages } from '@hooks/usePrefetchPages'
 export function useEmergencies() {
   const [params] = useSearchParams()
   const sortBy = params.get('ordenarPor')
-  const recurrent = params.get('recurrente')
+  const recurrent = params.get('recurrente') || null
   const search = params.get('buscar')
   const page = +(params.get('page') ?? 1)
 
