@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { EvolutionNoteController } from '../controllers/evolution_notes.js'
+import { EvolutionNoteController } from '../controllers/evolutionNotes.js'
 import { requireAuth } from '../middleware/auth.js'
 
 export const evolutionNotesRouter = Router()

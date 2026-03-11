@@ -2,7 +2,7 @@ import { EvolutionNoteModel } from '../models/EvolutionNote.js'
 import {
   validateEvolutionNote,
   validatePartialEvolutionNote,
-} from '../schemas/evolution_note.js'
+} from '../schemas/evolutionNote.js'
 import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class EvolutionNoteController {
@@ -16,6 +16,7 @@ export class EvolutionNoteController {
       return res.status(422).json({
         error: 'ValidationError',
         fields: formatZodErrors(validation.error),
+        message: 'Datos de nota de evolución inválidos',
       })
     }
 
