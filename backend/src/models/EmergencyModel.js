@@ -24,18 +24,35 @@ function formatEmergency(u) {
 }
 
 export class EmergencyModel {
-  static async getAll({ sortBy, search, page, limit }) {
+  static async getAll({
+    sortBy,
+    search,
+    page,
+    limit,
+    recurrentBoolean: recurrent,
+  }) {
     const where = {}
 
     if (search) {
-      where.OR = [{ nombre: { contains: search } }]
+      where.OR = [
+        { nombre: { contains: search } },
+        { ubicacion: { contains: search } },
+        { matricula: { contains: search } },
+        { telefono: { contains: search } },
+        { diagnostico: { contains: search } },
+        { accion_realizada: { contains: search } },
+      ]
+    }
+
+    if (recurrent !== null) {
+      where.recurrente = recurrent
     }
 
     const sortOptions = {
       'nombre-asc': { nombre: 'asc' },
       'nombre-desc': { nombre: 'desc' },
-      'date-asc': { fecha_hora: 'asc' },
-      'date-desc': { fecha_hora: 'desc' },
+      'fecha-asc': { fecha_hora: 'asc' },
+      'fecha-desc': { fecha_hora: 'desc' },
     }
 
     const orderBy =

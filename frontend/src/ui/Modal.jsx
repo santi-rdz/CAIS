@@ -23,7 +23,12 @@ Modal.Open = function Open({ children, opens: opensWindowName }) {
   return cloneElement(children, { onClick: () => open(opensWindowName) })
 }
 
-Modal.Content = function Content({ children, name, noPadding = false }) {
+Modal.Content = function Content({
+  children,
+  name,
+  noPadding = false,
+  size = 'md',
+}) {
   const { openName, close } = useContext(ModalContext)
   const ref = useClickOutside(
     close,
@@ -32,12 +37,20 @@ Modal.Content = function Content({ children, name, noPadding = false }) {
   )
   const showModal = openName === name
 
+  const sizeClass =
+    {
+      sm: 'max-w-lg',
+      md: 'max-w-2xl',
+      lg: 'max-w-3xl',
+      xl: 'max-w-4xl',
+    }[size] ?? 'max-w-2xl'
+
   if (!showModal) return null
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div
-        className="relative flex max-h-[95vh] max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl"
+        className={`relative flex max-h-[95vh] w-full ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl`}
         ref={ref}
       >
         <button

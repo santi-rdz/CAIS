@@ -1,9 +1,9 @@
+import { formatZodErrors } from '../lib/formatErrors.js'
 import { EmergencyModel } from '../models/EmergencyModel.js'
 import {
   validateEmergency,
   validatePartialEmergency,
 } from '../schemas/emergency.js'
-import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class EmergencyController {
   /**
@@ -16,7 +16,11 @@ export class EmergencyController {
   static async create(req, res) {
     const validation = validateEmergency(req.body)
     if (!validation.success) {
-      return res.status(422).json({ error: validation.error.errors })
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'Datos de emergencia inválidos',
+        fields: formatZodErrors(validation.error),
+      })
     }
 
     try {
@@ -41,14 +45,18 @@ export class EmergencyController {
    * @param {Object} res - Objeto de respuesta de Express.
    */
   static async getAll(req, res) {
-    const { sortBy, search } = req.query
+    const { sortBy, search, recurrente } = req.query
     const page = +req.query.page || 1
     const limit = +req.query.limit || 10
+    const recurrentBoolean =
+      recurrente === 'true' ? true : recurrente === 'false' ? false : null
+
     const emergencies = await EmergencyModel.getAll({
       sortBy,
       search,
       page,
       limit,
+      recurrentBoolean,
     })
     res.json(emergencies)
   }
