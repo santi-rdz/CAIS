@@ -57,7 +57,11 @@ export default function EmergencyForm({ onCloseModal }) {
             control={control}
             errors={errors}
           />
-          <PatientSection register={register} control={control} errors={errors} />
+          <PatientSection
+            register={register}
+            control={control}
+            errors={errors}
+          />
           <MedicalSection register={register} errors={errors} />
         </div>
         <ModalActions

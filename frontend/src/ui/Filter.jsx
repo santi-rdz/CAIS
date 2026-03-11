@@ -138,7 +138,11 @@ export default function Filter({ groups, placeholder = 'Filtrar' }) {
   return (
     <>
       {singleGroups.map((group) => (
-        <SingleFilter key={group.field} group={group} placeholder={placeholder} />
+        <SingleFilter
+          key={group.field}
+          group={group}
+          placeholder={placeholder}
+        />
       ))}
       {multiGroups.length > 0 && (
         <MultiFilter groups={multiGroups} placeholder={placeholder} />
