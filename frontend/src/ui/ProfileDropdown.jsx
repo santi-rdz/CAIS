@@ -24,7 +24,10 @@ export default function ProfileDropdown({ user, onClose, logout }) {
   }
 
   return (
-    <DropdownPanel className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden">
+    <DropdownPanel
+      portal={false}
+      className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden"
+    >
       {/* User info */}
       <div className="flex items-center gap-3 p-4">
         {foto && (

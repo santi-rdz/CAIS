@@ -1,13 +1,17 @@
+import { createPortal } from 'react-dom'
 import { cn } from './lib/utils'
 
 export default function DropdownPanel({
   children,
   className = '',
   style,
+  portal = true,
+  ref,
   ...props
 }) {
-  return (
+  const panel = (
     <div
+      ref={ref}
       style={style}
       className={cn(
         'rounded-xl border border-gray-200 bg-white shadow-xl',
@@ -18,4 +22,6 @@ export default function DropdownPanel({
       {children}
     </div>
   )
+
+  return portal ? createPortal(panel, document.body) : panel
 }

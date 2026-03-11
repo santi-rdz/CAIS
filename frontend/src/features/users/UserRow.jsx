@@ -1,13 +1,9 @@
-import useClickOutside from '@hooks/useClickOutside'
 import Table from '@ui/Table'
 import Tag from '@ui/Tag'
+import RowActionsMenu from '@ui/RowActionsMenu'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import {
-  HiEllipsisVertical,
-  HiLockClosed,
-  HiOutlineLockClosed,
-} from 'react-icons/hi2'
+import { HiLockClosed, HiOutlineLockClosed } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
 import {
   AlertDialog,
@@ -22,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@ui/components/ui/alert-dialog'
 import useUser from './useUser'
+import Button from '@ui/Button'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
   // Solo cambian los nombres de las propiedades extraídas para coincidir con la DB
@@ -45,7 +42,6 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
   const { deleteUser, isPending: isDeleting } = useDeleteUser()
   const isMenuOpen = openMenu === id
   const hasPicture = Boolean(picture)
-  const ref = useClickOutside(() => setOpenMenu(null), true)
 
   function handleClick() {
     setOpenMenu(isMenuOpen ? null : id)
@@ -80,28 +76,22 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
       </div>
 
       <AlertDialog>
-        <div className="relative">
-          <button
-            onClick={handleClick}
-            className="flex size-8 cursor-pointer items-center justify-center rounded-md hover:bg-gray-100"
-          >
-            <HiEllipsisVertical size={24} />
-          </button>
-          {isMenuOpen && (
-            <div
-              onClick={() => setOpenMenu(null)}
-              ref={ref}
-              className="absolute top-full right-0 z-10 mt-2 rounded-md bg-white px-3 py-2 shadow-lg"
+        <RowActionsMenu
+          isOpen={isMenuOpen}
+          onToggle={handleClick}
+          onClose={() => setOpenMenu(null)}
+        >
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="md"
+              className="flex items-center gap-1 text-nowrap"
             >
-              <AlertDialogTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-3 text-nowrap">
-                  <HiLockClosed />
-                  Bloquear usuario
-                </button>
-              </AlertDialogTrigger>
-            </div>
-          )}
-        </div>
+              <HiLockClosed />
+              Bloquear usuario
+            </Button>
+          </AlertDialogTrigger>
+        </RowActionsMenu>
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
             <AlertDialogMedia className="bg-destructive/10 text-destructive size-12">

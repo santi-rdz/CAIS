@@ -97,11 +97,12 @@ export class EmergencyModel {
       data: {
         id: uuidToBuffer(emergencyId),
         usuario_id: uuidToBuffer(userId),
+        fecha_hora: data.fecha_hora ? new Date(data.fecha_hora) : new Date(),
         ubicacion: data.ubicacion,
         nombre: data.nombre || null,
         matricula: data.matricula || null,
         telefono: data.telefono || null,
-        diagnostico: data.diagnostico,
+        diagnostico: data.diagnostico || null,
         accion_realizada: data.accion_realizada,
         tratamiento_admin: data.tratamiento_admin || null,
         recurrente: data.recurrente || false,
