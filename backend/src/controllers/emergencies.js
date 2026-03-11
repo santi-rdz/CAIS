@@ -4,7 +4,6 @@ import {
   validateEmergency,
   validatePartialEmergency,
 } from '../schemas/emergency.js'
-import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class EmergencyController {
   /**
