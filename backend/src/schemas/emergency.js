@@ -1,6 +1,9 @@
 import z from 'zod'
 
 const emergencySchema = z.object({
+  fecha_hora: z.iso.datetime({
+    error: 'La fecha y hora debe tener un formato ISO 8601 válido',
+  }),
   ubicacion: z.string().min(1, 'La ubicación es requerida'),
   nombre: z.string().optional(),
   matricula: z.string().optional(),
@@ -16,4 +19,8 @@ const emergencySchema = z.object({
 
 export function validateEmergency(input) {
   return emergencySchema.safeParse(input)
+}
+
+export function validatePartialEmergency(input) {
+  return emergencySchema.partial().safeParse(input)
 }
