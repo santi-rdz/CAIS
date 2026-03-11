@@ -94,4 +94,36 @@ export class EmergencyModel {
 
     return this.getById(emergencyId, tx)
   }
+
+  static async update(id, data) {
+    const fieldMap = {
+      fecha_hora: 'fecha_hora',
+      ubicacion: 'ubicacion',
+      nombre: 'nombre',
+      matricula: 'matricula',
+      telefono: 'telefono',
+      diagnostico: 'diagnostico',
+      accion_realizada: 'accion_realizada',
+      tratamiento_admin: 'tratamiento_admin',
+      recurrente: 'recurrente',
+    }
+
+    const prismaData = Object.fromEntries(
+      Object.entries(data)
+        .filter(([k]) => fieldMap[k])
+        .map(([k, v]) => [fieldMap[k], v])
+    )
+
+    try {
+      await prisma.bitacora_emergencias.update({
+        where: { id: uuidToBuffer(id) },
+        data: prismaData,
+      })
+      return await this.getById(id)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      console.error('Error en EmergencyModel.update:', err)
+      throw err
+    }
+  }
 }
