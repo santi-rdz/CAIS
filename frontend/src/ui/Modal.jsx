@@ -37,12 +37,13 @@ Modal.Content = function Content({
   )
   const showModal = openName === name
 
-  const sizeClass = {
-    sm: 'max-w-lg',
-    md: 'max-w-2xl',
-    lg: 'max-w-3xl',
-    xl: 'max-w-4xl',
-  }[size]
+  const sizeClass =
+    {
+      sm: 'max-w-lg',
+      md: 'max-w-2xl',
+      lg: 'max-w-3xl',
+      xl: 'max-w-4xl',
+    }[size] ?? 'max-w-2xl'
 
   if (!showModal) return null
 
