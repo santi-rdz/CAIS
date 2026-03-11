@@ -6,7 +6,7 @@ export default function Emergencies() {
   return (
     <>
       <header className="mb-6">
-        <Heading as="h1">Bitacora de emergencias</Heading>
+        <Heading as="h1">Bitácora de emergencias</Heading>
       </header>
 
       <EmergenciesTableOperations />
