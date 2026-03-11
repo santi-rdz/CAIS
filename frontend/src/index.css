@@ -192,6 +192,32 @@
   @apply outline-[1.5px] outline-offset-2 outline-red-400;
 }
 
+/* MUI Date/Time Picker — primary color override */
+.MuiPickersDay-root.Mui-selected,
+.MuiPickersDay-root.Mui-selected:hover,
+.MuiPickersDay-root.Mui-selected:focus,
+.MuiMultiSectionDigitalClockSection-item.Mui-selected,
+.MuiYearCalendar-button.Mui-selected,
+.MuiMonthCalendar-button.Mui-selected {
+  background-color: #166534 !important;
+  color: #fff !important;
+}
+
+.MuiPickersDay-root:not(.Mui-selected):hover,
+.MuiMultiSectionDigitalClockSection-item:not(.Mui-selected):hover,
+.MuiYearCalendar-button:not(.Mui-selected):hover,
+.MuiMonthCalendar-button:not(.Mui-selected):hover {
+  background-color: #dcfce7 !important;
+}
+
+.MuiPickersDay-today:not(.Mui-selected) {
+  border-color: #166534 !important;
+}
+
+.MuiMultiSectionDigitalClockSection-item {
+  border-radius: 8px !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

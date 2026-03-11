@@ -1,4 +1,5 @@
 import BirthdayField from '@ui/BirthdayField'
+import Checkbox from '@ui/Checkbox'
 import FormRow from '@ui/FormRow'
 import Heading from '@ui/Heading'
 import Input from '@ui/Input'
@@ -8,7 +9,7 @@ import PhoneField from '@ui/PhoneField'
 import Row from '@ui/Row'
 import TimeField from '@ui/TimeField'
 import dayjs from 'dayjs'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useCreateEmergency } from './useCreateEmergency'
 
 export default function EmergencyForm({ onCloseModal }) {
@@ -23,13 +24,18 @@ export default function EmergencyForm({ onCloseModal }) {
   function onSubmit(data) {
     createEmergency(
       {
-        fecha_hora: `${dayjs(data.birthday).format('YYYY-MM-DD')}T${dayjs(data.hora).format('HH:mm:ss')}`,
+        fecha_hora: dayjs(data.birthday)
+          .hour(data.hora.hour())
+          .minute(data.hora.minute())
+          .second(0)
+          .format(),
         ubicacion: data.ubicacion,
+        recurrente: data.recurrente ?? false,
         nombre: data.name || undefined,
         matricula: data.matricula || undefined,
         telefono: data.phone || undefined,
-        diagnostico: data.diagnostico,
-        accion_realizada: data.accion,
+        diagnostico: data.diagnostico || undefined,
+        accion_realizada: data.accion || undefined,
       },
       { onSuccess: onCloseModal }
     )
@@ -51,7 +57,11 @@ export default function EmergencyForm({ onCloseModal }) {
             control={control}
             errors={errors}
           />
-          <PatientSection register={register} errors={errors} />
+          <PatientSection
+            register={register}
+            control={control}
+            errors={errors}
+          />
           <MedicalSection register={register} errors={errors} />
         </div>
         <ModalActions
@@ -89,7 +99,7 @@ function RequiredSection({ register, control, errors }) {
   )
 }
 
-function PatientSection({ register, errors }) {
+function PatientSection({ register, control, errors }) {
   return (
     <section className="space-y-4">
       <Heading as="h4" showBar>
@@ -118,6 +128,19 @@ function PatientSection({ register, errors }) {
         </FormRow>
       </Row>
       <PhoneField required={false} register={register} errors={errors} />
+      <Controller
+        name="recurrente"
+        control={control}
+        defaultValue={false}
+        render={({ field }) => (
+          <Checkbox
+            id="recurrente"
+            checked={field.value}
+            onChange={(e) => field.onChange(e.target.checked)}
+            label="Es recurrente"
+          />
+        )}
+      />
     </section>
   )
 }

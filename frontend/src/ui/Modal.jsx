@@ -33,7 +33,7 @@ Modal.Content = function Content({
   const ref = useClickOutside(
     close,
     true,
-    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar]'
+    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock]'
   )
   const showModal = openName === name
 
