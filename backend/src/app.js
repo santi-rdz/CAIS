@@ -40,7 +40,6 @@ app.use('/auth', authRouter)
 app.use('/invitaciones', invitationRouter)
 app.use('/emergencias', emergencyRouter)
 app.use('/pacientes', patientRouter)
-app.use('/pacientes', pacientRouter)
 app.use('/notas-evolucion', evolutionNotesRouter)
 
 export default app
