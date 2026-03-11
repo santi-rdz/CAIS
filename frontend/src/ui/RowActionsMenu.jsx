@@ -13,7 +13,7 @@ export default function RowActionsMenu({
 
   return (
     <div className="relative">
-      <Button onClick={onToggle} variant="ghost" size="xs" className="p-1">
+      <Button onClick={onToggle} variant="ghost" size="sm" className="p-1">
         <HiEllipsisVertical size={24} />
       </Button>
       {isOpen && (

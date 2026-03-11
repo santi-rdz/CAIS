@@ -17,7 +17,7 @@ export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
     recurrente,
     fecha_hora,
   } = emergency
-  console.log(diagnostico)
+
   const navigate = useNavigate()
   const isMenuOpen = openMenu === id
 
