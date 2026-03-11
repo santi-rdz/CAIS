@@ -45,9 +45,7 @@ describe('GET /notas-evolucion', () => {
 
   test('200 — filtra por paciente_id', async () => {
     if (!pacienteId) return
-    const res = await agent.get(
-      `/notas-evolucion?paciente_id=${pacienteId}`
-    )
+    const res = await agent.get(`/notas-evolucion?paciente_id=${pacienteId}`)
     assert.equal(res.status, 200)
     assert(Array.isArray(res.body.notes), 'notes should be an array')
     for (const note of res.body.notes) {
