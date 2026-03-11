@@ -24,18 +24,35 @@ function formatEmergency(u) {
 }
 
 export class EmergencyModel {
-  static async getAll({ sortBy, search, page, limit }) {
+  static async getAll({
+    sortBy,
+    search,
+    page,
+    limit,
+    recurrentBoolean: recurrent,
+  }) {
     const where = {}
 
     if (search) {
-      where.OR = [{ nombre: { contains: search } }]
+      where.OR = [
+        { nombre: { contains: search } },
+        { ubicacion: { contains: search } },
+        { matricula: { contains: search } },
+        { telefono: { contains: search } },
+        { diagnostico: { contains: search } },
+        { accion_realizada: { contains: search } },
+      ]
+    }
+
+    if (recurrent !== null) {
+      where.recurrente = recurrent
     }
 
     const sortOptions = {
       'nombre-asc': { nombre: 'asc' },
       'nombre-desc': { nombre: 'desc' },
-      'date-asc': { fecha_hora: 'asc' },
-      'date-desc': { fecha_hora: 'desc' },
+      'fecha-asc': { fecha_hora: 'asc' },
+      'fecha-desc': { fecha_hora: 'desc' },
     }
 
     const orderBy =
@@ -93,5 +110,37 @@ export class EmergencyModel {
     })
 
     return this.getById(emergencyId, tx)
+  }
+
+  static async update(id, data) {
+    const fieldMap = {
+      fecha_hora: 'fecha_hora',
+      ubicacion: 'ubicacion',
+      nombre: 'nombre',
+      matricula: 'matricula',
+      telefono: 'telefono',
+      diagnostico: 'diagnostico',
+      accion_realizada: 'accion_realizada',
+      tratamiento_admin: 'tratamiento_admin',
+      recurrente: 'recurrente',
+    }
+
+    const prismaData = Object.fromEntries(
+      Object.entries(data)
+        .filter(([k]) => fieldMap[k])
+        .map(([k, v]) => [fieldMap[k], v])
+    )
+
+    try {
+      await prisma.bitacora_emergencias.update({
+        where: { id: uuidToBuffer(id) },
+        data: prismaData,
+      })
+      return await this.getById(id)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      console.error('Error en EmergencyModel.update:', err)
+      throw err
+    }
   }
 }

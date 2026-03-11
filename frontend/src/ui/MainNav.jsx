@@ -19,8 +19,8 @@ const routes = [
     icon: HiOutlineUserGroup,
   },
   {
-    path: 'bitacora',
-    name: 'Bitácora',
+    path: '/emergencias',
+    name: 'Bitacora de emergencias',
     icon: HiOutlineBookOpen,
   },
   {
@@ -60,7 +60,7 @@ function NavLi({ route, isExpanded }) {
           className="shrink-0 transition-colors duration-200 group-hover:text-green-700"
         />
         <span
-          className={`overflow-hidden font-medium transition-all duration-300 ease-in-out ${isExpanded ? 'w-32' : 'w-0'}`}
+          className={`truncate overflow-hidden font-medium transition-all duration-300 ease-in-out ${isExpanded ? 'w-32' : 'w-0'}`}
         >
           {name}
         </span>

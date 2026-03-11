@@ -6,6 +6,7 @@ import LoginForm from '@features/authenticaction/LoginForm'
 import RegisterPage from './pages/RegisterPage'
 import Users from './pages/Users'
 import ProtectedRoute from '@ui/ProtectedRoute'
+import Emergencies from './pages/Emergencies'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="usuarios" element={<Users />} />
+          <Route path="emergencias" element={<Emergencies />} />
         </Route>
         <Route element={<Auth />}>
           <Route path="login" element={<LoginForm />} />

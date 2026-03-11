@@ -1042,3 +1042,105 @@ INSERT INTO pacientes (
     'Estudiante', 'Soltera', 'Bachillerato', 'Católica',
     '96385274104', 'Rosa Soto Díaz', '6644445566', 'Madre'
 );
+
+-- ===============================
+-- TEST DATA: notas_evolucion
+-- ===============================
+
+INSERT INTO aparatos_sistemas (
+    neurologico, cardiovascular, respiratorio, hematologico,
+    digestivo, musculoesqueletico, genitourinario, endocrinologico,
+    metabolico, nutricional
+) VALUES
+(
+    'Sin alteraciones', 'Ritmo cardíaco regular', 'Respiración normal', 'Sin anemia',
+    'Sin molestias digestivas', 'Sin dolor articular', 'Sin alteraciones urinarias',
+    'Sin alteraciones tiroideas', 'Metabolismo normal', 'Nutrición adecuada'
+),
+(
+    'Cefalea ocasional', 'Palpitaciones leves', 'Tos crónica leve', 'Sin alteraciones',
+    'Gastritis referida', 'Lumbalgia crónica', 'Sin alteraciones',
+    'Hipotiroidismo controlado', 'Dislipidemia', 'Déficit proteico'
+);
+
+INSERT INTO informacion_fisica (
+    peso, altura, pa_sistolica, pa_diastolica, fc, fr,
+    circ_cintura, circ_cadera, sp_o2, glucosa_capilar, temperatura,
+    exploracion_fisica, habito_exterior
+) VALUES
+(
+    72.5, 1.75, 120, 80, 72, 16,
+    88.0, 95.0, 98.0, 95.0, 36.5,
+    'Exploración física sin hallazgos relevantes', 'Paciente en buen estado general'
+),
+(
+    85.0, 1.68, 135, 88, 80, 18,
+    102.0, 108.0, 96.5, 110.0, 37.1,
+    'Obesidad grado I, abdomen globoso', 'Paciente con sobrepeso, consciente y orientado'
+);
+
+INSERT INTO planes_estudio (
+    codigo_cie10, plan_tratamiento, usuario_id, tratamiento
+) VALUES
+(
+    'Z00.0',
+    'Examen médico general de rutina. BH, QS, EGO.',
+    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
+    'Observación y seguimiento en 3 meses'
+),
+(
+    'E11.9',
+    'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
+    (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1),
+    'Metformina 850mg c/12h + dieta hipocalórica'
+);
+
+INSERT INTO historias_medicas (
+    id, paciente_id, informacion_fisica_id, aparatos_sistemas_id, plan_estudio_id,
+    tipo_sangre, vacunas_infancia_completas, motivo_consulta, historia_enfermedad_actual
+) VALUES
+(
+    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+    1, 1, 1,
+    'O+', TRUE,
+    'Revisión anual',
+    'Paciente acude a revisión de rutina sin síntomas agudos'
+),
+(
+    UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+    (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+    2, 2, 2,
+    'A-', TRUE,
+    'Control de diabetes',
+    'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
+);
+
+INSERT INTO notas_evolucion (
+    id, paciente_id, historia_medica_id, motivo_consulta, ant_gine_andro,
+    aparatos_sistemas_id, informacion_fisica_id, plan_estudio_id
+) VALUES
+(
+    UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
+    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+    'Revisión anual. Paciente sin quejas.',
+    'Sin antecedentes gineco-andros relevantes',
+    1, 1, 1
+),
+(
+    UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
+    (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+    UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+    'Control de diabetes. Refiere mejora parcial con medicamento.',
+    'G2 P2 A0, ciclos regulares',
+    2, 2, 2
+),
+(
+    UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'),
+    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+    'Seguimiento post-revisión. Resultados de laboratorio normales.',
+    'Sin cambios',
+    1, 1, 1
+);
