@@ -6,7 +6,7 @@ export default function Checkbox({ checked, onChange, id, label, className }) {
     <label
       htmlFor={id}
       className={cn(
-        'flex cursor-pointer items-center gap-2 select-none',
+        'text-5 flex cursor-pointer items-center gap-2 select-none',
         className
       )}
     >

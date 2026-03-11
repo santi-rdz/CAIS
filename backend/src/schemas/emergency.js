@@ -2,6 +2,8 @@ import z from 'zod'
 
 const emergencySchema = z.object({
   fecha_hora: z.iso.datetime({
+    local: true,
+    offset: true,
     error: 'La fecha y hora debe tener un formato ISO 8601 válido',
   }),
   ubicacion: z.string().min(1, 'La ubicación es requerida'),

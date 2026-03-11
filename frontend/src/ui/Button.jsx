@@ -5,7 +5,7 @@ const variants = {
   secondary: 'bg-white ring ring-green-800 hover:bg-green-100',
   outline: 'bg-white ring ring-gray-300 hover:ring-green-800',
   danger: 'bg-red-600 text-white hover:bg-red-700',
-  ghost: 'text-gray-700 hover:bg-gray-200',
+  ghost: 'text-gray-700 hover:bg-gray-100',
 }
 
 const sizes = {

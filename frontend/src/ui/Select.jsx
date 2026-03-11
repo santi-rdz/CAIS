@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
@@ -174,7 +173,7 @@ export function SelectValue({ placeholder = 'Seleccionar' }) {
 export function SelectContent({ children }) {
   const { isOpen, openAbove, positionStyle } = useSelect()
 
-  return createPortal(
+  return (
     <DropdownPanel
       data-select-menu
       style={positionStyle}
@@ -186,8 +185,7 @@ export function SelectContent({ children }) {
       )}
     >
       {children}
-    </DropdownPanel>,
-    document.body
+    </DropdownPanel>
   )
 }
 

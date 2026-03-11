@@ -34,6 +34,7 @@ const FILTER_GROUPS = [
   {
     label: 'TIPO',
     field: 'recurrente',
+    single: true,
     options: [
       { label: 'Recurrente', value: 'true' },
       { label: 'Única vez', value: 'false' },

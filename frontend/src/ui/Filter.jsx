@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@ui/Select'
 
-function ClearFiltersButton({ onClear }) {
+function ClearButton({ onClear }) {
   const { close } = useContext(SelectContext)
   return (
     <button
@@ -29,11 +29,48 @@ function ClearFiltersButton({ onClear }) {
   )
 }
 
-/**
- * Multi-select filter dropdown.
- * @param {Array} groups - [{ label, field, options: [{ label, value }] }]
- */
-export default function Filter({ groups, placeholder = 'Filtrar' }) {
+/** Single-select group — se ve como RoleSelect. */
+function SingleFilter({ group, placeholder }) {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const current = searchParams.get(group.field) ?? ''
+
+  function handleChange(value) {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.set(group.field, value)
+    if (newParams.get('page')) newParams.set('page', 1)
+    setSearchParams(newParams)
+  }
+
+  function handleClear() {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete(group.field)
+    if (newParams.get('page')) newParams.set('page', 1)
+    setSearchParams(newParams)
+  }
+
+  return (
+    <Select value={current} onValueChange={handleChange}>
+      <SelectTrigger icon={HiOutlineFunnel}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup label={group.label}>
+          {group.options.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+        <SelectFooter>
+          <ClearButton onClear={handleClear} />
+        </SelectFooter>
+      </SelectContent>
+    </Select>
+  )
+}
+
+/** Multi-select groups combinados en un solo Select. */
+function MultiFilter({ groups, placeholder }) {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const allValues = groups.flatMap((group) => {
@@ -51,12 +88,10 @@ export default function Filter({ groups, placeholder = 'Filtrar' }) {
 
   function handleValuesChange(next) {
     const perField = Object.fromEntries(groups.map((g) => [g.field, []]))
-
     for (const entry of next) {
       const [field, val] = entry.split(':')
       perField[field]?.push(val)
     }
-
     const newParams = new URLSearchParams(searchParams)
     for (const [field, vals] of Object.entries(perField)) {
       if (vals.length === 0) newParams.delete(field)
@@ -85,9 +120,29 @@ export default function Filter({ groups, placeholder = 'Filtrar' }) {
           </SelectGroup>
         ))}
         <SelectFooter>
-          <ClearFiltersButton onClear={handleClearAll} />
+          <ClearButton onClear={handleClearAll} />
         </SelectFooter>
       </SelectContent>
     </Select>
+  )
+}
+
+/**
+ * Filter dropdown. Soporta grupos single-select y multi-select.
+ * @param {Array} groups - [{ label, field, single?, options: [{ label, value }] }]
+ */
+export default function Filter({ groups, placeholder = 'Filtrar' }) {
+  const singleGroups = groups.filter((g) => g.single)
+  const multiGroups = groups.filter((g) => !g.single)
+
+  return (
+    <>
+      {singleGroups.map((group) => (
+        <SingleFilter key={group.field} group={group} placeholder={placeholder} />
+      ))}
+      {multiGroups.length > 0 && (
+        <MultiFilter groups={multiGroups} placeholder={placeholder} />
+      )}
+    </>
   )
 }
