@@ -6,7 +6,7 @@ const includeRelations = {
   usuarios: true,
 }
 
-function formatPacient(u) {
+function formatPatient(u) {
   if (!u) return null
   return {
     id: bufferToUUID(u.id),
@@ -30,7 +30,7 @@ function formatPacient(u) {
   }
 }
 
-export class PacientModel {
+export class PatientModel {
   static async getAll({ sortBy, search, page, limit }) {
     const where = {}
 
@@ -61,7 +61,7 @@ export class PacientModel {
         : 10
     const offset = (safePage - 1) * safeLimit
 
-    const [pacients, total] = await prisma.$transaction([
+    const [patients, total] = await prisma.$transaction([
       prisma.pacientes.findMany({
         where,
         include: includeRelations,
@@ -72,23 +72,73 @@ export class PacientModel {
       prisma.pacientes.count({ where }),
     ])
 
-    return { pacients: pacients.map(formatPacient), count: total }
+    return { patients: patients.map(formatPatient), count: total }
   }
 
   static async getById(id, tx = prisma) {
-    const pacient = await tx.pacientes.findUnique({
+    const patient = await tx.pacientes.findUnique({
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
-    return formatPacient(pacient)
+    return formatPatient(patient)
+  }
+
+  static async delete(id) {
+    try {
+      await prisma.pacientes.delete({ where: { id: uuidToBuffer(id) } })
+      return true
+    } catch (err) {
+      if (err.code === 'P2025') return false
+      console.error('Error en PatientModel.delete:', err)
+      throw err
+    }
+  }
+
+  static async update(id, data) {
+    const fieldMap = {
+      doctor_id: 'doctor_id',
+      nombre: 'nombre',
+      fecha_nacimiento: 'fecha_nacimiento',
+      es_externo: 'es_externo',
+      correo: 'correo',
+      telefono: 'telefono',
+      genero: 'genero',
+      domicilio: 'domicilio',
+      ocupacion: 'ocupacion',
+      estado_civil: 'estado_civil',
+      nivel_educativo: 'nivel_educativo',
+      religion: 'religion',
+      nss: 'nss',
+      contacto_emergencia: 'contacto_emergencia',
+      telefono_emergencia: 'telefono_emergencia',
+      parentesco_emergencia: 'parentesco_emergencia',
+    }
+
+    const prismaData = Object.fromEntries(
+      Object.entries(data)
+        .filter(([k]) => fieldMap[k])
+        .map(([k, v]) => [fieldMap[k], v])
+    )
+
+    try {
+      await prisma.pacientes.update({
+        where: { id: uuidToBuffer(id) },
+        data: prismaData,
+      })
+      return await this.getById(id)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      console.error('Error en PatientModel.update:', err)
+      throw err
+    }
   }
 
   static async create(data, userId, tx = prisma) {
-    const pacientId = randomUUID()
+    const patientId = randomUUID()
 
     await tx.pacientes.create({
       data: {
-        id: uuidToBuffer(pacientId),
+        id: uuidToBuffer(patientId),
         doctor_id: uuidToBuffer(userId),
         nombre: data.nombre,
         fecha_nacimiento: data.fecha_nacimiento,
@@ -109,6 +159,6 @@ export class PacientModel {
       include: includeRelations,
     })
 
-    return this.getById(pacientId, tx)
+    return this.getById(patientId, tx)
   }
 }

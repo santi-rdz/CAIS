@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const pacientSchema = z.object({
+const patientSchema = z.object({
   nombre: z.string().optional(),
   fecha_nacimiento: z.string(),
   es_externo: z.boolean().optional().default(false),
@@ -24,6 +24,10 @@ const pacientSchema = z.object({
   parentesco_emergencia: z.string().optional(),
 })
 
-export function validatePacient(input) {
-  return pacientSchema.safeParse(input)
+export function validatePatient(input) {
+  return patientSchema.safeParse(input)
+}
+
+export function validatePartialPatient(input) {
+  return patientSchema.partial().safeParse(input)
 }

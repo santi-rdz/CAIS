@@ -6,7 +6,7 @@ import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
 import { PrismaSessionStore } from './config/sessionStore.js'
-import { pacientRouter } from './routes/pacient.js'
+import { patientRouter } from './routes/patient.js'
 
 const app = express()
 app.use(express.json())
@@ -38,7 +38,7 @@ app.use('/usuarios', userRouter)
 app.use('/auth', authRouter)
 app.use('/invitaciones', invitationRouter)
 app.use('/emergencias', emergencyRouter)
-app.use('/pacientes', pacientRouter)
+app.use('/pacientes', patientRouter)
 
 export default app
 
