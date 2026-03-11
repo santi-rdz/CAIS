@@ -3,7 +3,7 @@ import z from 'zod'
 const patientSchema = z.object({
   nombre: z.string().optional(),
   fecha_nacimiento: z.string(),
-  es_externo: z.boolean().optional().default(false),
+  es_externo: z.boolean().optional(),
   correo: z.email().optional(),
   telefono: z
     .string()
