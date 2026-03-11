@@ -1,5 +1,6 @@
 import { PatientModel } from '../models/PatientModel.js'
 import { validatePatient, validatePartialPatient } from '../schemas/patient.js'
+import { formatZodErrors } from '../lib/formatErrors.js'
 
 export class PatientController {
   /**
