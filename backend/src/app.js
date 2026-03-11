@@ -2,6 +2,7 @@ import { userRouter } from './routes/users.js'
 import { authRouter } from './routes/auth.js'
 import { invitationRouter } from './routes/invitations.js'
 import { emergencyRouter } from './routes/emergencies.js'
+import { evolutionNotesRouter } from './routes/evolution_notes.js'
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
@@ -39,6 +40,7 @@ app.use('/auth', authRouter)
 app.use('/invitaciones', invitationRouter)
 app.use('/emergencias', emergencyRouter)
 app.use('/pacientes', pacientRouter)
+app.use('/notas-evolucion', evolutionNotesRouter)
 
 export default app
 
