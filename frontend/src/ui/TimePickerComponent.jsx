@@ -83,7 +83,7 @@ export default function TimePickerComponent({
       <div ref={triggerRef}>
         <Input
           value={inputValue}
-          placeholder={label ?? 'HH:MM (24h)'}
+          placeholder={label ?? 'HH:MM'}
           onChange={handleChange}
           onBlur={handleBlur}
           suffix={
