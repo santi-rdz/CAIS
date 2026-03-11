@@ -39,6 +39,8 @@ export class EmergencyModel {
         { ubicacion: { contains: search } },
         { matricula: { contains: search } },
         { telefono: { contains: search } },
+        { diagnostico: { contains: search } },
+        { accion_realizada: { contains: search } },
       ]
     }
 
