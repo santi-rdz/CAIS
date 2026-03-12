@@ -249,9 +249,7 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
    */
   test('401 — sin sesión devuelve 401', async () => {
     if (!noteId) return
-    const res = await request(app).delete(
-      `/medicina/notas-evolucion/${noteId}`
-    )
+    const res = await request(app).delete(`/medicina/notas-evolucion/${noteId}`)
     assert.equal(res.status, 401)
   })
 

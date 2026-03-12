@@ -126,7 +126,9 @@ describe('GET /usuarios/:id', () => {
    * @test UUID inexistente devuelve 404 con propiedad message.
    */
   test('404 — usuario no existe', async () => {
-    const res = await agent.get('/usuarios/00000000-0000-0000-0000-000000000000')
+    const res = await agent.get(
+      '/usuarios/00000000-0000-0000-0000-000000000000'
+    )
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })

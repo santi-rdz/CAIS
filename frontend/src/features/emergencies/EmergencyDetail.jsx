@@ -32,7 +32,6 @@ export default function EmergencyDetail() {
       <div className="space-y-6">
         <ActionBar
           onBack={() => navigate('/emergencias')}
-          emergency={emergency}
           onDelete={() => {
             deleteEmergency(emergency.id)
             navigate('/emergencias')
@@ -53,7 +52,7 @@ export default function EmergencyDetail() {
   )
 }
 
-function ActionBar({ onBack, emergency, onDelete, isDeleting }) {
+function ActionBar({ onBack, onDelete, isDeleting }) {
   return (
     <div className="flex items-center justify-between">
       <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
@@ -69,7 +68,11 @@ function ActionBar({ onBack, emergency, onDelete, isDeleting }) {
         </Modal.Open>
         <Modal variant="alert" icon={<HiOutlineTrash size={26} />}>
           <Modal.Open opens="delete-emergency">
-            <Button variant="outline" size="md" className="gap-1.5 text-red-600">
+            <Button
+              variant="outline"
+              size="md"
+              className="gap-1.5 text-red-600"
+            >
               <HiOutlineTrash size={14} />
               Eliminar
             </Button>
@@ -108,8 +111,16 @@ function HeaderCard({ emergency }) {
         )}
       </div>
       <div className="mt-5 flex flex-wrap gap-x-8 gap-y-2 border-t border-gray-100 pt-5">
-        <MetaItem icon={<HiOutlineClock size={14} />} label="Hora" value={hora} />
-        <MetaItem icon={<HiOutlineMapPin size={14} />} label="Ubicación" value={ubicacion} />
+        <MetaItem
+          icon={<HiOutlineClock size={14} />}
+          label="Hora"
+          value={hora}
+        />
+        <MetaItem
+          icon={<HiOutlineMapPin size={14} />}
+          label="Ubicación"
+          value={ubicacion}
+        />
         {registrado_por && (
           <MetaItem
             icon={<HiOutlineUser size={14} />}
@@ -130,9 +141,21 @@ function PatientCard({ emergency }) {
         Paciente
       </Heading>
       <div className="mt-5 space-y-5">
-        <DataField icon={<HiOutlineUser size={14} />} label="Nombre" value={nombre} />
-        <DataField icon={<HiOutlineIdentification size={14} />} label="Matrícula" value={matricula} />
-        <DataField icon={<HiOutlinePhone size={14} />} label="Teléfono" value={telefono} />
+        <DataField
+          icon={<HiOutlineUser size={14} />}
+          label="Nombre"
+          value={nombre}
+        />
+        <DataField
+          icon={<HiOutlineIdentification size={14} />}
+          label="Matrícula"
+          value={matricula}
+        />
+        <DataField
+          icon={<HiOutlinePhone size={14} />}
+          label="Teléfono"
+          value={telefono}
+        />
       </div>
     </section>
   )
@@ -147,9 +170,17 @@ function MedicalCard({ emergency }) {
       </Heading>
       <div className="mt-5 space-y-5">
         <DataField label="Diagnóstico" value={diagnostico} multiline />
-        <DataField label="Acción realizada" value={accion_realizada} multiline />
+        <DataField
+          label="Acción realizada"
+          value={accion_realizada}
+          multiline
+        />
         {tratamiento_admin && (
-          <DataField label="Tratamiento administrativo" value={tratamiento_admin} multiline />
+          <DataField
+            label="Tratamiento administrativo"
+            value={tratamiento_admin}
+            multiline
+          />
         )}
       </div>
     </section>
@@ -173,7 +204,9 @@ function DataField({ icon, label, value, multiline = false }) {
         {icon}
         <span>{label}</span>
       </div>
-      <p className={`text-5 text-zinc-800 ${multiline ? 'whitespace-pre-wrap' : ''}`}>
+      <p
+        className={`text-5 text-zinc-800 ${multiline ? 'whitespace-pre-wrap' : ''}`}
+      >
         {value ?? <span className="text-zinc-300">—</span>}
       </p>
     </div>

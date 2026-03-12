@@ -4,7 +4,12 @@ import DropdownPanel from './DropdownPanel'
 import Button from './Button'
 import { useRef, useEffect, useState } from 'react'
 
-export default function RowActionsMenu({ isOpen, onToggle, onClose, children }) {
+export default function RowActionsMenu({
+  isOpen,
+  onToggle,
+  onClose,
+  children,
+}) {
   const triggerRef = useRef()
   const ref = useClickOutside(onClose, true)
   const [style, setStyle] = useState({})
@@ -17,11 +22,22 @@ export default function RowActionsMenu({ isOpen, onToggle, onClose, children }) 
 
   return (
     <div>
-      <Button ref={triggerRef} onClick={onToggle} variant="ghost" size="sm" className="p-1">
+      <Button
+        ref={triggerRef}
+        onClick={onToggle}
+        variant="ghost"
+        size="sm"
+        className="p-1"
+      >
         <HiEllipsisVertical size={24} />
       </Button>
       {isOpen && (
-        <DropdownPanel ref={ref} style={style} onClick={onClose} className="fixed z-50 p-1">
+        <DropdownPanel
+          ref={ref}
+          style={style}
+          onClick={onClose}
+          className="fixed z-50 p-1"
+        >
           {children}
         </DropdownPanel>
       )}

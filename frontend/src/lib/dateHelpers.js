@@ -21,9 +21,5 @@ export function formatHora(fechaHora) {
 
 /** Combina un dayjs de fecha con uno de hora → ISO con offset para el API */
 export function mergeFechaHora(date, time) {
-  return dayjs(date)
-    .hour(time.hour())
-    .minute(time.minute())
-    .second(0)
-    .format()
+  return dayjs(date).hour(time.hour()).minute(time.minute()).second(0).format()
 }
