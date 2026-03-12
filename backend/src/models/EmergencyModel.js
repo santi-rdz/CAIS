@@ -20,6 +20,9 @@ function formatEmergency(u) {
     accion_realizada: u?.accion_realizada,
     tratamiento_admin: u?.tratamiento_admin,
     recurrente: u?.recurrente,
+    registrado_por: u.usuarios
+      ? { nombre: u.usuarios.nombre, correo: u.usuarios.correo }
+      : null,
   }
 }
 
@@ -111,6 +114,19 @@ export class EmergencyModel {
     })
 
     return this.getById(emergencyId, tx)
+  }
+
+  static async delete(id) {
+    try {
+      const emergency = await prisma.bitacora_emergencias.delete({
+        where: { id: uuidToBuffer(id) },
+        include: includeRelations,
+      })
+      return formatEmergency(emergency)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      throw err
+    }
   }
 
   static async update(id, data) {

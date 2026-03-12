@@ -61,6 +61,28 @@ export class EvolutionNoteController {
   }
 
   /**
+   * DELETE /notas-evolucion/:id
+   * Eliminar una nota de evolución.
+   */
+  static async delete(req, res) {
+    const { id } = req.params
+    try {
+      const note = await EvolutionNoteModel.delete(id)
+      if (!note)
+        return res
+          .status(404)
+          .json({ message: 'Nota de evolución no encontrada' })
+      res.json(note)
+    } catch (err) {
+      console.error('Error al eliminar nota de evolución:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al eliminar nota de evolución',
+      })
+    }
+  }
+
+  /**
    * PATCH /notas-evolucion/:id
    * Actualizar parcialmente una nota de evolución.
    */

@@ -4,6 +4,7 @@
   "main": "server.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles",
+    "file": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles --testPathPatterns",
     "start": "node --watch src/app.js",
     "prisma:pull": "prisma db pull",
     "prisma:generate": "prisma generate",

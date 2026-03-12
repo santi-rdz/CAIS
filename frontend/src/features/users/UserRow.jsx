@@ -1,27 +1,16 @@
 import Table from '@ui/Table'
 import Tag from '@ui/Tag'
 import RowActionsMenu from '@ui/RowActionsMenu'
+import Modal from '@ui/Modal'
+import DangerConfirm from '@ui/DangerConfirm'
+import Button from '@ui/Button'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { HiLockClosed, HiOutlineLockClosed } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@ui/components/ui/alert-dialog'
 import useUser from './useUser'
-import Button from '@ui/Button'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
-  // Solo cambian los nombres de las propiedades extraídas para coincidir con la DB
   const {
     nombre: name,
     rol: roleUp,
@@ -42,13 +31,12 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
   const { deleteUser, isPending: isDeleting } = useDeleteUser()
   const isMenuOpen = openMenu === id
   const hasPicture = Boolean(picture)
+  const isCurrentUser = userId === id
+  const showedName = isCurrentUser ? `Tú` : name
 
   function handleClick() {
     setOpenMenu(isMenuOpen ? null : id)
   }
-
-  const isCurrentUser = userId === id
-  const showedName = isCurrentUser ? `Tú` : name
 
   return (
     <Table.Row isCurrentUser={isCurrentUser}>
@@ -61,7 +49,7 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
           </div>
         )}
       </UserPicture>
-      <div className="">
+      <div>
         <Stacked>
           <span>{showedName ?? '---'}</span>
           <span className="font-normal text-neutral-500">{email}</span>
@@ -75,13 +63,13 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
         <Tag type={status}>{status}</Tag>
       </div>
 
-      <AlertDialog>
+      <Modal variant="alert" icon={<HiOutlineLockClosed size={26} />}>
         <RowActionsMenu
           isOpen={isMenuOpen}
           onToggle={handleClick}
           onClose={() => setOpenMenu(null)}
         >
-          <AlertDialogTrigger asChild>
+          <Modal.Open opens="block-user">
             <Button
               variant="ghost"
               size="md"
@@ -90,32 +78,19 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
               <HiLockClosed />
               Bloquear usuario
             </Button>
-          </AlertDialogTrigger>
+          </Modal.Open>
         </RowActionsMenu>
-        <AlertDialogContent size="sm">
-          <AlertDialogHeader>
-            <AlertDialogMedia className="bg-destructive/10 text-destructive size-12">
-              <HiOutlineLockClosed />
-            </AlertDialogMedia>
-            <AlertDialogTitle>Bloquear usuario</AlertDialogTitle>
-            <AlertDialogDescription className="">
-              Estas seguro de bloquear a este usuario?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              disabled={isDeleting}
-              onClick={() => deleteUser(id)}
-            >
-              Bloquear
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
+        <Modal.Content name="block-user" noPadding>
+          <DangerConfirm
+            title="Bloquear usuario"
+            description="¿Estás seguro de bloquear a este usuario?"
+            confirmLabel="Bloquear"
+            onConfirm={() => deleteUser(id)}
+            isPending={isDeleting}
+          />
+        </Modal.Content>
+      </Modal>
     </Table.Row>
   )
 }

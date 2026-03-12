@@ -1,11 +1,13 @@
 import Table from '@ui/Table'
 import Tag from '@ui/Tag'
 import RowActionsMenu from '@ui/RowActionsMenu'
-import dayjs from 'dayjs'
-import es from 'dayjs/locale/es'
-import { HiOutlineEye } from 'react-icons/hi2'
-import { useNavigate } from 'react-router'
 import Button from '@ui/Button'
+import Modal from '@ui/Modal'
+import DangerConfirm from '@ui/DangerConfirm'
+import { formatFecha, formatHora } from '@lib/dateHelpers'
+import { HiOutlineEye, HiOutlineTrash } from 'react-icons/hi2'
+import { useNavigate } from 'react-router'
+import { useDeleteEmergency } from './useDeleteEmergency'
 
 export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
   const {
@@ -20,10 +22,10 @@ export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
 
   const navigate = useNavigate()
   const isMenuOpen = openMenu === id
+  const { deleteEmergency, isDeleting } = useDeleteEmergency()
 
-  const date = fecha_hora ? dayjs(fecha_hora) : null
-  const fecha = date ? date.locale(es).format('DD MMMM YYYY') : '---'
-  const hora = date ? date.format('HH:mm') : '---'
+  const fecha = formatFecha(fecha_hora)
+  const hora = formatHora(fecha_hora)
 
   function handleClick() {
     setOpenMenu(isMenuOpen ? null : id)
@@ -56,21 +58,43 @@ export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
       </div>
       <div className="truncate pr-4">{diagnostico ?? '---'}</div>
 
-      <RowActionsMenu
-        isOpen={isMenuOpen}
-        onToggle={handleClick}
-        onClose={() => setOpenMenu(null)}
-      >
-        <Button
-          onClick={handleVerDetalles}
-          variant="ghost"
-          size="md"
-          className="flex items-center gap-1 text-nowrap"
+      <Modal variant="alert" icon={<HiOutlineTrash size={26} />}>
+        <RowActionsMenu
+          isOpen={isMenuOpen}
+          onToggle={handleClick}
+          onClose={() => setOpenMenu(null)}
         >
-          <HiOutlineEye size={16} />
-          Ver detalles
-        </Button>
-      </RowActionsMenu>
+          <Button
+            icon={<HiOutlineEye size={16} />}
+            onClick={handleVerDetalles}
+            variant="ghost"
+            size="md"
+            className="w-full justify-start"
+          >
+            Ver detalles
+          </Button>
+          <Modal.Open opens="delete-emergency">
+            <Button
+              icon={<HiOutlineTrash size={16} />}
+              variant="ghost"
+              size="md"
+              className=""
+            >
+              Eliminar emergencia
+            </Button>
+          </Modal.Open>
+        </RowActionsMenu>
+
+        <Modal.Content name="delete-emergency" noPadding>
+          <DangerConfirm
+            title="Eliminar emergencia"
+            description="¿Estás seguro de borrar esta emergencia?"
+            confirmLabel="Eliminar"
+            onConfirm={() => deleteEmergency(id)}
+            isPending={isDeleting}
+          />
+        </Modal.Content>
+      </Modal>
     </Table.Row>
   )
 }

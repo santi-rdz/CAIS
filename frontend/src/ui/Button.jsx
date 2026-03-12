@@ -26,7 +26,7 @@ export default function Button({
   ...props
 }) {
   const isButtonDisabled = disabled || isLoading
-  const baseStyle = `flex items-center justify-center gap-2 rounded-lg transition-colors duration-300 ${variants[variant] || variants.primary} ${sizes[size]}  ${isButtonDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`
+  const baseStyle = `flex items-center text-nowrap justify-center gap-2 rounded-lg transition-colors duration-300 ${variants[variant] || variants.primary} ${sizes[size]}  ${isButtonDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} ${className}`
   const iconLeft = iconPos === 'left'
   return (
     <button className={baseStyle} disabled={isButtonDisabled} {...props}>
