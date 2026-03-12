@@ -16,7 +16,7 @@ function formatUser(user) {
 export class AuthController {
   static async login(req, res) {
     const { email, password } = req.body
-    console.log("Received login request with body:", req.body)
+    //console.log("Received login request with body:", req.body)
 
     try {
       if (!email) {
@@ -105,7 +105,7 @@ export class AuthController {
         return res.status(400).json({ error: 'Las contraseñas nuevas no coinciden' })
       }
 
-      if (newPassword.length < 2) {
+      if (newPassword.length < 6) {
         return res
           .status(400)
           .json({ error: 'La contraseña debe tener al menos 6 caracteres' })
