@@ -4,51 +4,74 @@ import FormRow from '@ui/FormRow'
 import Heading from '@ui/Heading'
 import Input from '@ui/Input'
 import ModalActions from '@ui/ModalActions'
-import ModalHeading, { ModalDescription, ModalTitle } from '@ui/ModalHeading'
 import PhoneField from '@ui/PhoneField'
 import Row from '@ui/Row'
 import TimeField from '@ui/TimeField'
-import dayjs from 'dayjs'
+import { mergeFechaHora } from '@lib/dateHelpers'
 import { Controller, useForm } from 'react-hook-form'
 import { useCreateEmergency } from './useCreateEmergency'
+import { useUpdateEmergency } from './useUpdateEmergency'
+import dayjs from 'dayjs'
+import Modal from '@ui/Modal'
 
-export default function EmergencyForm({ onCloseModal }) {
+export default function EmergencyForm({ onCloseModal, emergency }) {
+  const isEditing = Boolean(emergency)
+
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm()
+  } = useForm({
+    defaultValues: isEditing
+      ? {
+          birthday: dayjs(emergency.fecha_hora),
+          hora: dayjs(emergency.fecha_hora),
+          ubicacion: emergency.ubicacion ?? '',
+          name: emergency.nombre ?? '',
+          matricula: emergency.matricula ?? '',
+          phone: emergency.telefono ?? '',
+          recurrente: emergency.recurrente ?? false,
+          diagnostico: emergency.diagnostico ?? '',
+          accion: emergency.accion_realizada ?? '',
+        }
+      : undefined,
+  })
+
   const { createEmergency, isCreating } = useCreateEmergency()
+  const { updateEmergency, isUpdating } = useUpdateEmergency()
 
   function onSubmit(data) {
-    createEmergency(
-      {
-        fecha_hora: dayjs(data.birthday)
-          .hour(data.hora.hour())
-          .minute(data.hora.minute())
-          .second(0)
-          .format(),
-        ubicacion: data.ubicacion,
-        recurrente: data.recurrente ?? false,
-        nombre: data.name || undefined,
-        matricula: data.matricula || undefined,
-        telefono: data.phone || undefined,
-        diagnostico: data.diagnostico || undefined,
-        accion_realizada: data.accion || undefined,
-      },
-      { onSuccess: onCloseModal }
-    )
+    const payload = {
+      fecha_hora: mergeFechaHora(data.birthday, data.hora),
+      ubicacion: data.ubicacion,
+      recurrente: data.recurrente ?? false,
+      nombre: data.name || undefined,
+      matricula: data.matricula || undefined,
+      telefono: data.phone || undefined,
+      diagnostico: data.diagnostico || undefined,
+      accion_realizada: data.accion || undefined,
+    }
+
+    if (isEditing) {
+      updateEmergency(payload, { onSuccess: onCloseModal })
+    } else {
+      createEmergency(payload, { onSuccess: onCloseModal })
+    }
   }
 
   return (
     <section>
-      <ModalHeading>
-        <ModalTitle>Registrar Emergencia</ModalTitle>
-        <ModalDescription>
-          Completa la información de la emergencia médica
-        </ModalDescription>
-      </ModalHeading>
+      <Modal.Heading>
+        <Modal.Title>
+          {isEditing ? 'Editar Emergencia' : 'Registrar Emergencia'}
+        </Modal.Title>
+        <Modal.Description>
+          {isEditing
+            ? 'Modifica la información de la emergencia médica'
+            : 'Completa la información de la emergencia médica'}
+        </Modal.Description>
+      </Modal.Heading>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="h-[500px] space-y-8 overflow-y-auto px-8 py-4">
@@ -66,7 +89,12 @@ export default function EmergencyForm({ onCloseModal }) {
         </div>
         <ModalActions
           onClose={onCloseModal}
-          primaryAction={{ label: 'Registrar emergencia', isCreating }}
+          primaryAction={{
+            label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
+            isCreating: isEditing ? isUpdating : isCreating,
+            disabled: isEditing ? isUpdating : isCreating,
+            isLoading: isEditing ? isUpdating : isCreating,
+          }}
         />
       </form>
     </section>

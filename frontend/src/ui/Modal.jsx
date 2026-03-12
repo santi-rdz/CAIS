@@ -2,20 +2,58 @@ import { cloneElement, createContext, useContext, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HiXMark } from 'react-icons/hi2'
 import useClickOutside from '@hooks/useClickOutside'
+import Heading from './Heading'
 
 const ModalContext = createContext()
 
-export default function Modal({ children, heading, description }) {
+export default function Modal({ children, variant = 'default', icon }) {
   const [openName, setOpenName] = useState('')
-  const close = () => setOpenName('')
-  const open = setOpenName
   return (
     <ModalContext.Provider
-      value={{ openName, close, open, heading, description }}
+      value={{
+        openName,
+        close: () => setOpenName(''),
+        open: setOpenName,
+        variant,
+        icon,
+      }}
     >
       {children}
     </ModalContext.Provider>
   )
+}
+
+Modal.Heading = function ModalHeadingComp({ children }) {
+  const { variant, icon } = useContext(ModalContext)
+  if (variant === 'alert') {
+    return (
+      <div className="flex flex-col items-center gap-1.5 p-8 text-center">
+        {icon && (
+          <div className="mb-2 rounded-md bg-gray-200 p-2 text-red-600">
+            {icon}
+          </div>
+        )}
+        {children}
+      </div>
+    )
+  }
+  return (
+    <header className="space-y-1 border-b border-b-neutral-200 p-8">
+      {children}
+    </header>
+  )
+}
+
+Modal.Title = function ModalTitleComp({ children }) {
+  const { variant } = useContext(ModalContext)
+  if (variant === 'alert') {
+    return <p className="text-base font-semibold text-zinc-800">{children}</p>
+  }
+  return <Heading as="h2">{children}</Heading>
+}
+
+Modal.Description = function ModalDescriptionComp({ children }) {
+  return <p className="text-sm text-balance text-zinc-500">{children}</p>
 }
 
 Modal.Open = function Open({ children, opens: opensWindowName }) {
@@ -29,28 +67,24 @@ Modal.Content = function Content({
   noPadding = false,
   size = 'md',
 }) {
-  const { openName, close } = useContext(ModalContext)
+  const { openName, close, variant } = useContext(ModalContext)
   const ref = useClickOutside(
     close,
     true,
     '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock]'
   )
-  const showModal = openName === name
+
+  if (openName !== name) return null
 
   const sizeClass =
-    {
-      sm: 'max-w-lg',
-      md: 'max-w-2xl',
-      lg: 'max-w-3xl',
-      xl: 'max-w-4xl',
-    }[size] ?? 'max-w-2xl'
-
-  if (!showModal) return null
+    variant === 'alert'
+      ? 'w-fit'
+      : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div
-        className={`relative flex max-h-[95vh] w-full ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl`}
+        className={`relative flex max-h-[95vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl`}
         ref={ref}
       >
         <button
@@ -59,7 +93,6 @@ Modal.Content = function Content({
         >
           <HiXMark className="size-5" />
         </button>
-
         <div
           className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto p-8'}`}
         >

@@ -28,6 +28,17 @@ export async function getEmergency(id) {
   return await res.json()
 }
 
+export async function updateEmergency(id, data) {
+  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  })
+  if (!res.ok) await throwApiError(res, 'Error al actualizar la emergencia')
+  return await res.json()
+}
+
 export async function createEmergency(data) {
   const res = await fetch(`${BASE_URL}/medicina/emergencias`, {
     method: 'POST',
@@ -36,5 +47,14 @@ export async function createEmergency(data) {
     credentials: 'include',
   })
   if (!res.ok) await throwApiError(res, 'Error al crear la emergencia')
+  return await res.json()
+}
+
+export async function deleteEmergency(id) {
+  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  })
+  if (!res.ok) await throwApiError(res, 'Error al eliminar la emergencia')
   return await res.json()
 }

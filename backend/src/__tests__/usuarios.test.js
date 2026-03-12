@@ -1,66 +1,134 @@
+/**
+ * @file Tests de integración para el CRUD de usuarios.
+ * @description Verifica listado, paginación, filtros, creación, actualización
+ * y eliminación de usuarios. Todas las rutas requieren sesión activa.
+ */
+
 import request from 'supertest'
 import app from '../app.js'
 import assert from 'assert'
 
-const api = request(app)
+// ─── Setup ──────────────────────────────────────────────────────────
+
+/** @type {import('supertest').Agent} Agente con sesión autenticada */
+let agent
+
+beforeAll(async () => {
+  agent = request.agent(app)
+
+  await agent.post('/auth/login').send({
+    email: 'carlos.herrera@cais.com',
+    password: '123',
+  })
+})
 
 // ─── GET /usuarios ──────────────────────────────────────────────────
 
+/**
+ * @description Suite para GET /usuarios.
+ * Verifica listado paginado, filtros y ordenamiento.
+ */
 describe('GET /usuarios', () => {
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app).get('/usuarios')
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test Devuelve 200 con estructura { users, count }.
+   */
   test('200 — retorna lista paginada', async () => {
-    const res = await api.get('/usuarios')
+    const res = await agent.get('/usuarios')
     assert.equal(res.status, 200)
     assert(res.body['users'] !== undefined, 'property users should exist')
     assert(res.body['count'] !== undefined, 'property count should exist')
     assert(Array.isArray(res.body.users), 'users should be an array')
   })
 
+  /**
+   * @test Con limit=2 devuelve como máximo 2 usuarios.
+   */
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await api.get('/usuarios?page=1&limit=2')
+    const res = await agent.get('/usuarios?page=1&limit=2')
     assert.equal(res.status, 200)
     assert(res.body.users.length <= 2, 'users.length should be <= 2')
   })
 
+  /**
+   * @test Filtrando por status=ACTIVO todos los resultados tienen estado ACTIVO.
+   */
   test('200 — filtra por status', async () => {
-    const res = await api.get('/usuarios?status=ACTIVO')
+    const res = await agent.get('/usuarios?status=ACTIVO')
     assert.equal(res.status, 200)
     for (const user of res.body.users) {
       assert.equal(user.estado, 'ACTIVO')
     }
   })
 
+  /**
+   * @test Búsqueda por nombre o correo devuelve 200.
+   */
   test('200 — busca por nombre o correo', async () => {
-    const res = await api.get('/usuarios?search=carlos')
+    const res = await agent.get('/usuarios?search=carlos')
     assert.equal(res.status, 200)
   })
 
+  /**
+   * @test Ordenamiento por nombre ascendente devuelve 200.
+   */
   test('200 — ordena por nombre ascendente', async () => {
-    const res = await api.get('/usuarios?sortBy=nombre-asc')
+    const res = await agent.get('/usuarios?sortBy=nombre-asc')
     assert.equal(res.status, 200)
   })
 })
 
 // ─── GET /usuarios/:id ─────────────────────────────────────────────
 
+/**
+ * @description Suite para GET /usuarios/:id.
+ * Verifica obtención de usuario por ID, 404 y protección con auth.
+ */
 describe('GET /usuarios/:id', () => {
+  /** @type {string} ID del primer usuario de la base de datos */
   let userId
 
   beforeAll(async () => {
-    const res = await api.get('/usuarios?page=1&limit=1')
+    const res = await agent.get('/usuarios?page=1&limit=1')
     userId = res.body.users[0]?.id
   })
 
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app).get(
+      '/usuarios/00000000-0000-0000-0000-000000000000'
+    )
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test ID existente devuelve 200 con id, correo y rol.
+   */
   test('200 — retorna usuario existente', async () => {
     if (!userId) return
-    const res = await api.get(`/usuarios/${userId}`)
+    const res = await agent.get(`/usuarios/${userId}`)
     assert.equal(res.status, 200)
     assert.equal(res.body['id'], userId)
     assert(res.body['correo'] !== undefined, 'property correo should exist')
     assert(res.body['rol'] !== undefined, 'property rol should exist')
   })
 
+  /**
+   * @test UUID inexistente devuelve 404 con propiedad message.
+   */
   test('404 — usuario no existe', async () => {
-    const res = await api.get('/usuarios/00000000-0000-0000-0000-000000000000')
+    const res = await agent.get(
+      '/usuarios/00000000-0000-0000-0000-000000000000'
+    )
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -68,6 +136,10 @@ describe('GET /usuarios/:id', () => {
 
 // ─── POST /usuarios ─────────────────────────────────────────────────
 
+/**
+ * @description Suite para POST /usuarios (creación directa por admin).
+ * Verifica creación de pasante y coordinador, validaciones y conflictos.
+ */
 describe('POST /usuarios — creación directa por admin', () => {
   const pasanteValido = {
     nombre: 'Test',
@@ -95,60 +167,88 @@ describe('POST /usuarios — creación directa por admin', () => {
     cedula: 'TCED01',
   }
 
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app).post('/usuarios').send(pasanteValido)
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test Pasante con datos válidos se crea y devuelve 201 con id y correo.
+   */
   test('201 — crea pasante', async () => {
-    const res = await api.post('/usuarios').send(pasanteValido)
+    const res = await agent.post('/usuarios').send(pasanteValido)
     assert.equal(res.status, 201)
     assert.equal(res.body['message'], 'Usuario creado exitosamente')
     assert(res.body.usuario['id'] !== undefined, 'property should exist')
     assert.equal(res.body.usuario.correo, pasanteValido.correo)
 
     // limpiar
-    await api.delete(`/usuarios/${res.body.usuario.id}`)
+    await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
+  /**
+   * @test Coordinador con datos válidos se crea y devuelve 201 con id.
+   */
   test('201 — crea coordinador', async () => {
-    const res = await api.post('/usuarios').send(coordValido)
+    const res = await agent.post('/usuarios').send(coordValido)
     assert.equal(res.status, 201)
     assert(res.body.usuario['id'] !== undefined, 'property should exist')
 
-    await api.delete(`/usuarios/${res.body.usuario.id}`)
+    await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
+  /**
+   * @test Body con solo nombre (sin campos requeridos) devuelve 422 ValidationError.
+   */
   test('422 — rechaza datos inválidos', async () => {
-    const res = await api.post('/usuarios').send({ nombre: 'Solo nombre' })
+    const res = await agent.post('/usuarios').send({ nombre: 'Solo nombre' })
     assert.equal(res.status, 422)
     assert.equal(res.body['error'], 'ValidationError')
   })
 
+  /**
+   * @test Password menor a 6 caracteres devuelve 422.
+   */
   test('422 — rechaza password corta', async () => {
-    const res = await api
+    const res = await agent
       .post('/usuarios')
       .send({ ...pasanteValido, password: '12' })
     assert.equal(res.status, 422)
   })
 
+  /**
+   * @test Crear dos usuarios con el mismo correo devuelve 409 Conflict en el segundo.
+   */
   test('409 — rechaza correo duplicado', async () => {
     const correo = `dup.${Date.now()}@test.com`
     const data = { ...pasanteValido, correo }
 
-    const first = await api.post('/usuarios').send(data)
+    const first = await agent.post('/usuarios').send(data)
     assert.equal(first.status, 201)
 
-    const second = await api.post('/usuarios').send(data)
+    const second = await agent.post('/usuarios').send(data)
     assert.equal(second.status, 409)
     assert.equal(second.body['error'], 'Conflict')
 
-    await api.delete(`/usuarios/${first.body.usuario.id}`)
+    await agent.delete(`/usuarios/${first.body.usuario.id}`)
   })
 })
 
 // ─── PATCH /usuarios/:id ────────────────────────────────────────────
 
+/**
+ * @description Suite para PATCH /usuarios/:id.
+ * Verifica actualización parcial y protección con auth.
+ */
 describe('PATCH /usuarios/:id', () => {
+  /** @type {string} ID del usuario de prueba creado en beforeAll */
   let userId
 
   beforeAll(async () => {
-    const res = await api.post('/usuarios').send({
+    const res = await agent.post('/usuarios').send({
       nombre: 'Patch',
       apellido: 'Test',
       correo: `patch.${Date.now()}@test.com`,
@@ -166,19 +266,35 @@ describe('PATCH /usuarios/:id', () => {
   })
 
   afterAll(async () => {
-    if (userId) await api.delete(`/usuarios/${userId}`)
+    if (userId) await agent.delete(`/usuarios/${userId}`)
   })
 
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app)
+      .patch('/usuarios/00000000-0000-0000-0000-000000000000')
+      .send({ nombre: 'Sin auth' })
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test Actualizar nombre devuelve 200 con el nuevo valor.
+   */
   test('200 — actualiza nombre', async () => {
-    const res = await api
+    const res = await agent
       .patch(`/usuarios/${userId}`)
       .send({ nombre: 'Nombre Actualizado' })
     assert.equal(res.status, 200)
     assert.equal(res.body.nombre, 'Nombre Actualizado')
   })
 
+  /**
+   * @test UUID inexistente devuelve 404.
+   */
   test('404 — usuario no existe', async () => {
-    const res = await api
+    const res = await agent
       .patch('/usuarios/00000000-0000-0000-0000-000000000000')
       .send({ nombre: 'No existe' })
     assert.equal(res.status, 404)
@@ -187,9 +303,16 @@ describe('PATCH /usuarios/:id', () => {
 
 // ─── DELETE /usuarios/:id ───────────────────────────────────────────
 
+/**
+ * @description Suite para DELETE /usuarios/:id.
+ * Verifica eliminación exitosa, 404 y protección con auth.
+ */
 describe('DELETE /usuarios/:id', () => {
-  test('200 — elimina usuario existente', async () => {
-    const create = await api.post('/usuarios').send({
+  /** @type {string} ID del usuario de prueba creado en beforeAll */
+  let userId
+
+  beforeAll(async () => {
+    const res = await agent.post('/usuarios').send({
       nombre: 'Delete',
       apellido: 'Test',
       correo: `delete.${Date.now()}@test.com`,
@@ -203,17 +326,37 @@ describe('DELETE /usuarios/:id', () => {
       servicioFinAnio: '2026',
       servicioFinPeriodo: '2',
     })
-    const id = create.body.usuario.id
-
-    const res = await api.delete(`/usuarios/${id}`)
-    assert.equal(res.status, 200)
-    assert(res.body['message'] !== undefined, 'property message should exist')
+    userId = res.body.usuario?.id
   })
 
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app).delete(
+      '/usuarios/00000000-0000-0000-0000-000000000000'
+    )
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test UUID inexistente devuelve 404.
+   */
   test('404 — usuario no existe', async () => {
-    const res = await api.delete(
+    const res = await agent.delete(
       '/usuarios/00000000-0000-0000-0000-000000000000'
     )
     assert.equal(res.status, 404)
+  })
+
+  /**
+   * @test Usuario existente se elimina y devuelve 200 con propiedad message.
+   */
+  test('200 — elimina usuario existente', async () => {
+    if (!userId) return
+    const res = await agent.delete(`/usuarios/${userId}`)
+    assert.equal(res.status, 200)
+    assert(res.body['message'] !== undefined, 'property message should exist')
+    userId = null
   })
 })

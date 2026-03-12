@@ -66,7 +66,7 @@ export default function EmergenciesTableOperations() {
             <HiOutlinePlus size="16" strokeWidth="2.5" /> Agregar Emergencia
           </Button>
         </Modal.Open>
-        <Modal.Content name="emergency" noPadding={true}>
+        <Modal.Content name="emergency" size="md" noPadding={true}>
           <EmergencyForm />
         </Modal.Content>
       </Modal>

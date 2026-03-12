@@ -1,3 +1,10 @@
+/**
+ * @file Tests de integración para el auto-registro de usuarios con token.
+ * @description Verifica el flujo completo de registro en /usuarios/registro:
+ * token válido (pasante y coordinador), token ya usado, token inexistente
+ * y password débil. Es una ruta pública que no requiere sesión.
+ */
+
 import request from 'supertest'
 import app from '../app.js'
 import { prisma } from '../config/prisma.js'
@@ -9,10 +16,21 @@ const api = request(app)
 
 // ─── POST /usuarios/registro ────────────────────────────────────────
 
+/**
+ * @description Suite para POST /usuarios/registro.
+ * Crea tokens de invitación en beforeAll y limpia usuarios e invitaciones en afterAll.
+ */
 describe('POST /usuarios/registro — auto-registro con token', () => {
+  /** @type {string} Token UUID para el registro de pasante */
   let pasanteToken
+
+  /** @type {string} Token UUID para el registro de coordinador */
   let coordToken
+
+  /** @type {string} Correo del pasante de prueba */
   let pasanteCorreo
+
+  /** @type {string} Correo del coordinador de prueba */
   let coordCorreo
 
   beforeAll(async () => {
@@ -62,6 +80,9 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     })
   })
 
+  /**
+   * @test Token válido de pasante completa el registro y devuelve 201 con id y correo.
+   */
   test('201 — registra pasante con token válido', async () => {
     const res = await api.post('/usuarios/registro').send({
       token: pasanteToken,
@@ -84,6 +105,9 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     assert.equal(res.body.usuario.correo, pasanteCorreo)
   })
 
+  /**
+   * @test Token válido de coordinador completa el registro y devuelve 201 con id.
+   */
   test('201 — registra coordinador con token válido', async () => {
     const res = await api.post('/usuarios/registro').send({
       token: coordToken,
@@ -100,6 +124,9 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     assert(res.body.usuario['id'] !== undefined, 'property id should exist')
   })
 
+  /**
+   * @test Reutilizar un token ya consumido devuelve 404 NotFound.
+   */
   test('404 — token ya usado', async () => {
     const res = await api.post('/usuarios/registro').send({
       token: pasanteToken,
@@ -120,6 +147,9 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     assert.equal(res.body['error'], 'NotFound')
   })
 
+  /**
+   * @test Token UUID no registrado en la base de datos devuelve 404.
+   */
   test('404 — token inexistente', async () => {
     const res = await api.post('/usuarios/registro').send({
       token: randomUUID(),
@@ -139,6 +169,9 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     assert.equal(res.status, 404)
   })
 
+  /**
+   * @test Password que no cumple los requisitos de seguridad devuelve 422.
+   */
   test('422 — password débil rechazada', async () => {
     const weakToken = randomUUID()
     const weakCorreo = `weak.${Date.now()}@test.com`

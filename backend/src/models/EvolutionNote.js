@@ -88,6 +88,19 @@ export class EvolutionNoteModel {
     return this.getById(noteId, tx)
   }
 
+  static async delete(id) {
+    try {
+      const note = await prisma.notas_evolucion.delete({
+        where: { id: uuidToBuffer(id) },
+        include: includeRelations,
+      })
+      return formatEvolutionNote(note)
+    } catch (err) {
+      if (err.code === 'P2025') return null
+      throw err
+    }
+  }
+
   static async update(id, data) {
     const fieldMap = {
       motivo_consulta: 'motivo_consulta',

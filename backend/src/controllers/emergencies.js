@@ -83,6 +83,22 @@ export class EmergencyController {
    * @param {Object} req - Objeto de petición de Express.
    * @param {Object} res - Objeto de respuesta de Express.
    */
+  static async delete(req, res) {
+    const { id } = req.params
+    try {
+      const emergency = await EmergencyModel.delete(id)
+      if (!emergency)
+        return res.status(404).json({ message: 'Emergencia no encontrada' })
+      res.json(emergency)
+    } catch (err) {
+      console.error('Error al eliminar emergencia:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al eliminar emergencia',
+      })
+    }
+  }
+
   static async update(req, res) {
     const result = validatePartialEmergency(req.body)
     if (result.error) {
