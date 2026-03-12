@@ -92,12 +92,10 @@ export class EmergencyController {
       res.json(emergency)
     } catch (err) {
       console.error('Error al eliminar emergencia:', err)
-      res
-        .status(500)
-        .json({
-          error: 'InternalError',
-          message: 'Error al eliminar emergencia',
-        })
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al eliminar emergencia',
+      })
     }
   }
 
