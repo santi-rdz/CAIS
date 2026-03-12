@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { EmergencyController } from '../../controllers/emergencies.js'
+import { EmergencyController } from '../../controllers/medicina/emergencies.js'
 import { requireAuth } from '../../middleware/auth.js'
 
 export const emergencyRouter = Router()
