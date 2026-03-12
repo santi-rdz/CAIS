@@ -33,8 +33,7 @@ export default function EmergencyDetail() {
         <ActionBar
           onBack={() => navigate('/emergencias')}
           onDelete={() => {
-            deleteEmergency(emergency.id)
-            navigate('/emergencias')
+            deleteEmergency(emergency.id).then(() => navigate('/emergencias'))
           }}
           isDeleting={isDeleting}
         />

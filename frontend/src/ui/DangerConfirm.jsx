@@ -23,7 +23,6 @@ export default function DangerConfirm({
           variant="danger"
           onClick={() => {
             onConfirm()
-            onCloseModal()
           }}
           disabled={isPending}
         >

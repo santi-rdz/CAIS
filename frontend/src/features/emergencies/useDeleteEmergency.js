@@ -13,12 +13,14 @@ export function useDeleteEmergency() {
   })
 
   function deleteEmergency(id) {
-    toast.promise(mutateAsync(id), {
+    const promise = mutateAsync(id)
+    toast.promise(promise, {
       loading: 'Eliminando emergencia...',
       success: (data) =>
         `Emergencia del ${formatFecha(data.fecha_hora)} eliminada`,
       error: 'No se pudo eliminar la emergencia',
     })
+    return promise
   }
 
   return { deleteEmergency, isDeleting }
