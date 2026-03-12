@@ -1,13 +1,31 @@
-import CoordRegistrationForm from '@features/users/CoordRegistrationForm'
-import InternRegistrationForm from '@features/users/InternRegistrationForm'
+import CoordForm from '@features/users/CoordForm'
+import InternForm from '@features/users/InternForm'
 import { useInvitedUser } from '@features/users/useInvitedUser'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { toastApiError } from '@lib/ApiError'
+import { registroUsuario } from '@services/ApiUsers'
+import { useMutation } from '@tanstack/react-query'
 import Spinner from '@ui/Spinner'
+import { toast } from 'sonner'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
 export default function RegisterPage() {
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const token = searchParams.get('token')
   const { data: invitedUser, isLoading, isError } = useInvitedUser(token)
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: registroUsuario,
+    onSuccess: () => {
+      toast.success('Registro completado exitosamente')
+      navigate('/login')
+    },
+    onError: toastApiError,
+  })
+
+  function onSubmit(payload) {
+    mutate({ token, ...payload })
+  }
 
   if (!token) return <Navigate to="/login" replace />
 
@@ -30,6 +48,21 @@ export default function RegisterPage() {
 
   const { correo, rol } = invitedUser
 
-  if (rol === 'COORDINADOR') return <CoordRegistrationForm email={correo} />
-  return <InternRegistrationForm email={correo} />
+  if (rol === 'COORDINADOR')
+    return (
+      <CoordForm
+        registration
+        email={correo}
+        onSubmit={onSubmit}
+        isPending={isPending}
+      />
+    )
+  return (
+    <InternForm
+      registration
+      email={correo}
+      onSubmit={onSubmit}
+      isPending={isPending}
+    />
+  )
 }

@@ -1,83 +1,131 @@
-import { createContext, useContext, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useState,
+} from 'react'
 import Heading from './Heading'
-import ModalHeading from './ModalHeading'
 
 const TabContext = createContext()
 
+/**
+ * Contenedor principal. Maneja el tab activo y metadatos de cada trigger.
+ * @param {string} defaultTab - value del tab activo por defecto
+ * @param {'primary'|'secondary'} variant - estilo de los botones
+ */
 export default function Tab({
   children,
-  defaultTab,
-  options,
+  defaultTab = '',
   variant = 'primary',
 }) {
-  const defaultOption = defaultTab
-    ? (options.find((op) => op.value === defaultTab) ?? options[0])
-    : options[0]
-  const [activeOption, setActiveOption] = useState(defaultOption)
+  const [activeTab, setActiveTab] = useState(defaultTab)
+  const [tabMeta, setTabMeta] = useState({})
+
+  const registerTrigger = useCallback((value, meta) => {
+    setTabMeta((prev) => {
+      if (prev[value]?.title === meta.title && prev[value]?.desc === meta.desc)
+        return prev
+      return { ...prev, [value]: meta }
+    })
+  }, [])
 
   return (
     <TabContext.Provider
-      value={{ activeOption, setActiveOption, options, variant }}
+      value={{ activeTab, setActiveTab, variant, tabMeta, registerTrigger }}
     >
       {children}
     </TabContext.Provider>
   )
 }
 
+/** Wrapper del encabezado del modal. Padding inferior reducido para que Tab.List quede ajustado. */
 Tab.Header = function TabHeader({ children }) {
-  return <ModalHeading className="shrink-0">{children}</ModalHeading>
-}
-
-Tab.Title = function TabTitle() {
-  const { activeOption } = useContext(TabContext)
-  return <Heading as="h2">{activeOption.title}</Heading>
-}
-
-Tab.Description = function TabDescription() {
-  const { activeOption } = useContext(TabContext)
-  return <p className="text-sm text-gray-500">{activeOption.desc}</p>
-}
-
-Tab.Options = function TabOptions() {
-  const { options, variant } = useContext(TabContext)
-  const tabStyle =
-    variant === 'primary' ? ' mt-6 rounded-lg' : ' mt-4 w-54 rounded-md'
   return (
-    <nav className={`mx-8 flex shrink-0 gap-1 bg-gray-100 p-1 ${tabStyle}`}>
-      {options.map((option) => (
-        <Tab.Button key={option.value} option={option} />
-      ))}
+    <header className="shrink-0 space-y-1 border-b border-b-neutral-200 px-8 pt-8 pb-5">
+      {children}
+    </header>
+  )
+}
+
+/** Muestra el título del tab activo (definido en Tab.Trigger via title prop) */
+Tab.Title = function TabTitle() {
+  const { activeTab, tabMeta } = useContext(TabContext)
+  return <Heading as="h2">{tabMeta[activeTab]?.title ?? ''}</Heading>
+}
+
+/** Muestra la descripción del tab activo (definida en Tab.Trigger via desc prop) */
+Tab.Description = function TabDescription() {
+  const { activeTab, tabMeta } = useContext(TabContext)
+  const desc = tabMeta[activeTab]?.desc
+  if (!desc) return null
+  return <p className="mt-2 text-sm text-gray-500">{desc}</p>
+}
+
+/**
+ * Contenedor de los botones de tab.
+ * Sin márgenes horizontales por defecto — pásalos via className si no va dentro de Tab.Header.
+ */
+Tab.List = function TabList({ children, className = '' }) {
+  const { variant } = useContext(TabContext)
+  const style =
+    variant === 'primary' ? 'mt-4 rounded-lg' : 'mt-3 w-54 rounded-md'
+  return (
+    <nav
+      className={`flex shrink-0 gap-0.5 bg-gray-100 p-1 ${style} ${className}`}
+    >
+      {children}
     </nav>
   )
 }
 
-Tab.Button = function TabButton({ option }) {
-  const { activeOption, setActiveOption, variant } = useContext(TabContext)
+/**
+ * Botón de tab individual.
+ * @param {string} value - identificador único del tab
+ * @param {string} [title] - título que Tab.Title mostrará cuando este tab esté activo
+ * @param {string} [desc] - descripción que Tab.Description mostrará cuando esté activo
+ */
+Tab.Trigger = function TabTrigger({ value, title, desc, children }) {
+  const { activeTab, setActiveTab, variant, registerTrigger } =
+    useContext(TabContext)
 
-  const isActive = activeOption.value === option.value
+  useLayoutEffect(() => {
+    if (title !== undefined || desc !== undefined) {
+      registerTrigger(value, { title, desc })
+    }
+  }, [value, title, desc, registerTrigger])
+
+  const isActive = activeTab === value
   const buttonStyle =
     variant === 'primary'
-      ? `${isActive ? 'bg-green-800 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'}`
-      : `text-gray-500 ${isActive ? 'bg-white text-green-800 shadow-sm' : ' hover:bg-gray-200'}`
+      ? isActive
+        ? 'bg-green-800 text-white shadow-sm'
+        : 'text-gray-500 hover:bg-gray-200'
+      : `text-gray-500 ${isActive ? 'bg-white text-green-800 shadow-sm' : 'hover:bg-gray-200'}`
+
   return (
     <button
-      onClick={() => setActiveOption(option)}
-      className={`flex-1 cursor-pointer rounded py-2 text-sm duration-300 ${buttonStyle}`}
+      onClick={() => setActiveTab(value)}
+      className={`text-5 flex-1 cursor-pointer py-1.5 duration-300 ${buttonStyle} ${variant === 'primary' ? 'rounded-md' : 'rounded-sm'} `}
     >
-      {option.label}
+      {children}
     </button>
   )
 }
 
-Tab.Content = function TabContent({ onClose, scrollable = true }) {
-  const { activeOption } = useContext(TabContext)
-  const ActiveComponent = activeOption.component
-
+/**
+ * Contenido de un tab. Solo se renderiza cuando value === activeTab.
+ * @param {string} value - debe coincidir con el value del Tab.Trigger correspondiente
+ * @param {boolean} [scrollable=true] - si el panel maneja su propio scroll internamente, usar false
+ */
+Tab.Panel = function TabPanel({ value, children, scrollable = true }) {
+  const { activeTab } = useContext(TabContext)
+  if (activeTab !== value) return null
   return (
     <div
-      className={`flex min-h-0 w-2xl flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}
+      className={`flex min-h-0 flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}
     >
-      {ActiveComponent(onClose)}
+      {children}
     </div>
   )
 }

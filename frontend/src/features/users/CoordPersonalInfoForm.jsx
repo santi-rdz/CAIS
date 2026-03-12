@@ -1,6 +1,7 @@
 import BirthdayField from '@ui/BirthdayField'
 import DomainEmailInput from '@ui/DomainEmailInput'
 import FormRow from '@ui/FormRow'
+import Heading from '@ui/Heading'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
 import { useFormContext } from 'react-hook-form'
@@ -15,6 +16,9 @@ export default function CoordPersonalInfoForm({
 
   return (
     <div className="space-y-4">
+      <Heading as="h3" showBar required>
+        Información Personal
+      </Heading>
       <Row className="gap-4">
         <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
           <Input
@@ -53,7 +57,6 @@ export default function CoordPersonalInfoForm({
               {...register('email')}
               id="email"
               type="email"
-              defaultValue={disabledEmail}
               disabled
               variant="outline"
             />

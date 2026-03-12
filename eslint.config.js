@@ -5,6 +5,8 @@ import prettier from 'eslint-config-prettier'
 import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
+  { ignores: ['**/dist/**', '**/node_modules/**'] },
+
   // Backend/Node.js files
   {
     files: ['backend/**/*.{js,mjs,cjs}'],

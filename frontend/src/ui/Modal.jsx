@@ -71,7 +71,7 @@ Modal.Content = function Content({
   const ref = useClickOutside(
     close,
     true,
-    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock]'
+    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock], [data-select-menu]'
   )
 
   if (openName !== name) return null
@@ -84,7 +84,7 @@ Modal.Content = function Content({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div
-        className={`relative flex max-h-[95vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl`}
+        className={`relative flex max-h-[80vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl`}
         ref={ref}
       >
         <button

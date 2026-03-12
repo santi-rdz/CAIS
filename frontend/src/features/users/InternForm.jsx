@@ -1,115 +1,185 @@
+import Button from '@ui/Button'
 import ModalActions from '@ui/ModalActions'
 import Stepper from '@ui/Stepper'
-import { useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { HiCheck, HiChevronRight } from 'react-icons/hi2'
+import { FormProvider } from 'react-hook-form'
+import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import useCreateUser from './useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
-import AcademicInfoForm from './AcademicInfoForm'
+import { useStepForm } from './useStepForm'
 import PasswordForm from './PasswordForm'
-import PersonalInfoForm from './PersonalInfoForm'
+import RegistrationPasswordForm from './RegistrationPasswordForm'
+import InterPersonalInfoForm from './InterPersonalInfoForm'
+import InterAcademicInfoForm from './InterAcademicInfoForm'
 
 const steps = ['Información Personal', 'Información Académica', 'Contraseña']
 
-const stepsFields = [
-  ['firstName', 'lastName', 'birthday', 'phone'],
-  [
-    'username',
-    'matricula',
-    'servicioInicioAnio',
-    'servicioInicioPeriodo',
-    'servicioFinAnio',
-    'servicioFinPeriodo',
-  ],
-  ['password'],
-]
-
-export default function InternForm({ onClose }) {
+export default function InternForm({
+  onClose,
+  registration = false,
+  email,
+  onSubmit: externalOnSubmit,
+  isPending = false,
+}) {
   const { createUser, isCreating } = useCreateUser()
-  const [currStep, setCurrStep] = useState(0)
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
-  const methods = useForm({ mode: 'onChange' })
-  const { trigger, handleSubmit } = methods
-  const isLast = currStep === steps.length - 1
 
-  async function handleNext() {
-    const isStepValid = await trigger(stepsFields[currStep])
-    if (isStepValid) setCurrStep((p) => p + 1)
-  }
+  const stepsFields = [
+    ['firstName', 'lastName', 'birthday', 'phone'],
+    [
+      'username',
+      'matricula',
+      'servicioInicioAnio',
+      'servicioInicioPeriodo',
+      'servicioFinAnio',
+      'servicioFinPeriodo',
+    ],
+    registration ? ['password', 'confirmPassword'] : ['password'],
+  ]
 
-  async function handleStepClick(i) {
-    if (i <= currStep) {
-      setCurrStep(i)
-      return
-    }
-    for (let step = currStep; step < i; step++) {
-      const isValid = await trigger(stepsFields[step])
-      if (!isValid) return
-    }
-    setCurrStep(i)
-  }
+  const {
+    currStep,
+    setCurrStep,
+    handleNext,
+    handleStepClick,
+    isLast,
+    methods,
+    handleSubmit,
+  } = useStepForm(steps, stepsFields, registration ? { username: email } : {})
+
+  const busy = registration ? isPending : isCreating
 
   function onSubmit(data) {
-    createUser(
-      {
+    if (registration) {
+      externalOnSubmit({
         nombre: data.firstName,
         apellido: data.lastName,
-        correo: resolveEmail(data.username),
         fechaNacimiento: data.birthday,
         telefono: data.phone,
-        rol: 'pasante',
         matricula: data.matricula,
         servicioInicioAnio: data.servicioInicioAnio,
         servicioInicioPeriodo: data.servicioInicioPeriodo,
         servicioFinAnio: data.servicioFinAnio,
         servicioFinPeriodo: data.servicioFinPeriodo,
         password: data.password,
-      },
-      { onSuccess: () => onClose?.() }
-    )
+        confirmPassword: data.confirmPassword,
+      })
+    } else {
+      createUser(
+        {
+          nombre: data.firstName,
+          apellido: data.lastName,
+          correo: resolveEmail(data.username),
+          fechaNacimiento: data.birthday,
+          telefono: data.phone,
+          rol: 'pasante',
+          matricula: data.matricula,
+          servicioInicioAnio: data.servicioInicioAnio,
+          servicioInicioPeriodo: data.servicioInicioPeriodo,
+          servicioFinAnio: data.servicioFinAnio,
+          servicioFinPeriodo: data.servicioFinPeriodo,
+          password: data.password,
+        },
+        { onSuccess: () => onClose?.() }
+      )
+    }
   }
 
+  const PasswordComponent = registration
+    ? RegistrationPasswordForm
+    : PasswordForm
+
+  const nav = registration ? (
+    <div className="mt-8 flex gap-3">
+      {currStep > 0 && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setCurrStep((p) => p - 1)}
+          className="flex-[30%]"
+          icon={<HiChevronLeft strokeWidth={1} />}
+          iconPos="left"
+          disabled={busy}
+        >
+          Anterior
+        </Button>
+      )}
+      <Button
+        type="button"
+        variant="primary"
+        onClick={isLast ? handleSubmit(onSubmit) : handleNext}
+        className={currStep === 0 ? 'w-full' : 'flex-[70%]'}
+        icon={
+          isLast ? (
+            <HiCheck strokeWidth={1} />
+          ) : (
+            <HiChevronRight strokeWidth={1} />
+          )
+        }
+        iconPos={isLast ? 'left' : 'right'}
+        isLoading={busy}
+        disabled={busy}
+      >
+        {isLast ? 'Registrarme' : 'Siguiente'}
+      </Button>
+    </div>
+  ) : (
+    <ModalActions
+      onClose={onClose}
+      primaryAction={{
+        label: isLast ? 'Crear usuario' : 'Siguiente',
+        icon: isLast ? (
+          <HiCheck strokeWidth={1} />
+        ) : (
+          <HiChevronRight strokeWidth={1} />
+        ),
+        iconPos: isLast ? 'left' : 'right',
+        onClick: isLast ? handleSubmit(onSubmit) : handleNext,
+        isLoading: busy,
+        disabled: busy,
+      }}
+      secondaryAction={{
+        label: 'Anterior',
+        onClick: () => setCurrStep((p) => p - 1),
+        disabled: currStep === 0 || busy,
+        className: 'border-gray-400',
+      }}
+    />
+  )
+
   return (
-    <section className="flex min-h-0 flex-1 flex-col">
-      <FormProvider {...methods}>
-        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
-          <Stepper
-            steps={steps}
-            current={currStep}
-            setCurrStep={handleStepClick}
-          />
-          <form action="" className="mt-20">
-            {currStep === 0 && <PersonalInfoForm />}
-            {currStep === 1 && (
-              <AcademicInfoForm
-                isUabcDomain={isUabcDomain}
-                setIsUabcDomain={setIsUabcDomain}
-              />
-            )}
-            {currStep === 2 && <PasswordForm />}
-          </form>
-        </div>
-        <ModalActions
-          primaryAction={{
-            label: isLast ? 'Crear usuario' : 'Siguiente',
-            icon: isLast ? (
-              <HiCheck strokeWidth={1} />
-            ) : (
-              <HiChevronRight strokeWidth={1} />
-            ),
-            iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
-            isLoading: isCreating,
-            disabled: isCreating,
-          }}
-          secondaryAction={{
-            label: 'Anterior',
-            onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0 || isCreating,
-            className: 'border-gray-400',
-          }}
+    <FormProvider {...methods}>
+      <div
+        className={
+          registration ? undefined : 'min-h-0 flex-1 overflow-y-auto px-8 py-10'
+        }
+      >
+        <Stepper
+          steps={steps}
+          current={currStep}
+          setCurrStep={handleStepClick}
         />
-      </FormProvider>
-    </section>
+        <form
+          className={'mt-16'}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+              e.preventDefault()
+              if (isLast) handleSubmit(onSubmit)()
+              else handleNext()
+            }
+          }}
+        >
+          {currStep === 0 && <InterPersonalInfoForm />}
+          {currStep === 1 && (
+            <InterAcademicInfoForm
+              disabledEmail={registration ? email : undefined}
+              isUabcDomain={isUabcDomain}
+              setIsUabcDomain={setIsUabcDomain}
+            />
+          )}
+          {currStep === 2 && <PasswordComponent />}
+        </form>
+      </div>
+      {nav}
+    </FormProvider>
   )
 }

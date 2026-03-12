@@ -1,3 +1,4 @@
+import Heading from '@ui/Heading'
 import PasswordInput from '@ui/PasswordInput'
 import { useFormContext } from 'react-hook-form'
 import { HiInformationCircle } from 'react-icons/hi2'
@@ -8,6 +9,9 @@ export default function PasswordForm() {
 
   return (
     <div className="space-y-4">
+      <Heading as="h3" showBar required>
+        Contraseña
+      </Heading>
       <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
         <div className="flex items-center gap-2 font-medium text-blue-800">
           <HiInformationCircle size={20} />

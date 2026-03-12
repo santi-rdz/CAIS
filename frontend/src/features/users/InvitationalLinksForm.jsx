@@ -145,6 +145,11 @@ export default function InvitationalLinksForm({ onClose }) {
   )
 }
 
+const ROLE_BADGE = {
+  pasante: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
+  coordinador: 'bg-violet-50 text-violet-700 ring-1 ring-violet-200',
+}
+
 function EmailsDisplay() {
   const { users } = useContext(EmailsContext)
   const [layout, setLayout] = useState('list')
@@ -153,8 +158,13 @@ function EmailsDisplay() {
   return (
     <div className="border-t border-t-gray-100 pt-8">
       {users.length > 0 && (
-        <div className="text-4 mb-6 flex items-center justify-between font-bold">
-          <p className="text-4 font-semibold">Registros ({users.length})</p>
+        <div className="mb-5 flex items-center justify-between">
+          <p className="text-4 font-semibold text-gray-800">
+            Invitaciones{' '}
+            <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+              {users.length}
+            </span>
+          </p>
           <TabLayout layout={layout} setLayout={setLayout} />
         </div>
       )}
@@ -163,7 +173,7 @@ function EmailsDisplay() {
         <EmailsEmptyState />
       ) : (
         <ul
-          className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-64 gap-3 overflow-y-auto`}
+          className={`${isGrid ? 'grid grid-cols-2 content-start ' : 'flex flex-col '} max-h-64 gap-4 overflow-y-auto`}
         >
           {users.map((user) => (
             <InvitationCard
@@ -185,35 +195,52 @@ function EmailsDisplay() {
 function InvitationCard({ user }) {
   const { email, role } = user
   const { onDelete, onEdit, idEdit } = useContext(EmailsContext)
+  const isEditing = idEdit === email
+
   return (
     <li
-      className={`group ${idEdit === email ? 'border-blue-200 bg-blue-50' : 'border-emerald-200 bg-emerald-50'} flex h-fit items-center gap-4 rounded-lg border px-4 py-3 shadow-xs transition-shadow duration-300 hover:shadow-sm`}
+      className={`group flex h-fit items-center gap-3 rounded-lg border px-4 py-3 shadow-xs transition-all duration-200 ${
+        isEditing
+          ? 'border-blue-200 bg-blue-50'
+          : 'border-gray-200 bg-white hover:shadow-sm'
+      }`}
     >
-      <div className="grid size-10 shrink-0 place-items-center rounded-full bg-green-800 shadow-xs">
-        <HiOutlineEnvelope size={20} className="text-white" />
+      <div
+        className={`grid size-9 shrink-0 place-items-center rounded-full ${
+          isEditing ? 'bg-blue-100' : 'bg-green-50 ring-1 ring-green-800/15'
+        }`}
+      >
+        <HiOutlineEnvelope
+          size={16}
+          className={isEditing ? 'text-blue-600' : 'text-green-800'}
+        />
       </div>
 
       <div className="flex-1 overflow-hidden">
         <p className="text-4 truncate font-medium text-gray-900">{email}</p>
-        <span className="text-5 text-gray-500 capitalize">{role}</span>
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[role] ?? 'bg-gray-100 text-gray-600'}`}
+        >
+          {role}
+        </span>
       </div>
 
-      <div className="hidden gap-2 transition-opacity duration-200 group-hover:flex">
+      <div className="hidden gap-1 group-hover:flex">
         <button
           type="button"
-          className={`rounded p-1.5 text-green-900 transition-colors hover:bg-gray-100 hover:text-green-950 ${idEdit === email ? 'pointer-events-none opacity-50' : ''}`}
+          className={`rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 ${isEditing ? 'pointer-events-none opacity-40' : ''}`}
           title="Editar"
           onClick={() => onEdit(user)}
         >
-          <HiOutlinePencil size={18} />
+          <HiOutlinePencil size={15} />
         </button>
         <button
           type="button"
-          className={`rounded p-1.5 text-green-900 transition-colors hover:text-green-950 ${idEdit === email ? 'hover:bg-gray-200' : 'hover:bg-gray-100'}`}
+          className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
           title="Eliminar"
           onClick={() => onDelete(email)}
         >
-          <HiOutlineTrash size={18} />
+          <HiOutlineTrash size={15} />
         </button>
       </div>
     </li>
@@ -222,14 +249,16 @@ function InvitationCard({ user }) {
 
 function EmailsEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-gray-200 bg-gray-100 p-6 text-neutral-500">
-      <div className="rounded-full bg-white p-3 shadow-sm">
-        <HiOutlineEnvelope size={24} />
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+      <div className="rounded-full border border-gray-200 bg-white p-3 shadow-xs">
+        <HiOutlineEnvelope size={20} className="text-gray-400" />
       </div>
-      <p className="text-4 text-neutral-500">No hay correos ingresados aún</p>
-      <span className="text-5 text-neutral-400">
-        Agregue usuarios para enviar invitaciones de registro.
-      </span>
+      <div className="space-y-0.5">
+        <p className="text-4 font-medium text-gray-700">Sin invitaciones aún</p>
+        <span className="text-5 text-gray-400">
+          Agrega correos para enviar invitaciones de registro.
+        </span>
+      </div>
     </div>
   )
 }

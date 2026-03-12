@@ -1,29 +1,21 @@
+import Tab from '@ui/Tab'
 import InternForm from './InternForm'
 import CoordForm from './CoordForm'
-import Tab from '@ui/Tab'
 
-const options = [
-  {
-    title: 'Pasante',
-    desc: 'Completa la información del pasante',
-    label: 'Pasante',
-    value: 'pasante',
-    component: (onClose) => <InternForm onClose={onClose} />,
-  },
-  {
-    title: 'Coordinador',
-    desc: 'Completa la información del coordinador',
-    label: 'Coordinador',
-    value: 'coordinador',
-    component: (onClose) => <CoordForm onClose={onClose} />,
-  },
-]
-
-export default function UserForm() {
+export default function UserForm({ onClose }) {
   return (
-    <Tab options={options} defaultTab="pasante" variant="secondary">
-      <Tab.Options />
-      <Tab.Content scrollable={false} />
+    <Tab defaultTab="pasante" variant="secondary">
+      <Tab.List className="mx-8">
+        <Tab.Trigger value="pasante">Pasante</Tab.Trigger>
+        <Tab.Trigger value="coordinador">Coordinador</Tab.Trigger>
+      </Tab.List>
+
+      <Tab.Panel value="pasante" scrollable={false}>
+        <InternForm onClose={onClose} />
+      </Tab.Panel>
+      <Tab.Panel value="coordinador" scrollable={false}>
+        <CoordForm onClose={onClose} />
+      </Tab.Panel>
     </Tab>
   )
 }

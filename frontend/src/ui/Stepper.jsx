@@ -16,7 +16,7 @@ export default function Stepper({ steps, current, setCurrStep, gap = '' }) {
             <div className="relative">
               <button
                 onClick={() => setCurrStep(i)}
-                className={`flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform ${isActive ? 'scale-105 ring-2 ring-green-800 ring-offset-2' : ''} ${isActive || isCompleted ? 'bg-green-800 text-white' : 'bg-gray-200 text-neutral-500'}`}
+                className={`text-5 flex size-6.5 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform ${isActive ? 'scale-105 ring-2 ring-green-800 ring-offset-2' : ''} ${isActive || isCompleted ? 'bg-green-800 text-white' : 'bg-gray-200 text-neutral-500'}`}
               >
                 {isCompleted ? <HiCheck strokeWidth={1} /> : i + 1}
               </button>

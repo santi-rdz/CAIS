@@ -1,15 +1,19 @@
 import BirthdayField from '@ui/BirthdayField'
 import FormRow from '@ui/FormRow'
+import Heading from '@ui/Heading'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
 import { useFormContext } from 'react-hook-form'
 
-export default function PersonalInfoForm() {
+export default function InterPersonalInfoForm() {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
   return (
     <div className="space-y-4">
+      <Heading as="h3" showBar required>
+        Información Personal
+      </Heading>
       <Row className="gap-4">
         <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
           <Input
