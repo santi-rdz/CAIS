@@ -3,7 +3,7 @@ import { cn } from './lib/utils'
 import { cva } from 'class-variance-authority'
 
 const inputVariants = cva(
-  'text-4 w-full duration-100 placeholder:text-[#808080]',
+  'text-4 w-full duration-100 placeholder:text-[#808080] disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed',
   {
     variants: {
       size: {

@@ -94,6 +94,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
             isCreating: isEditing ? isUpdating : isCreating,
             disabled: isEditing ? isUpdating : isCreating,
             isLoading: isEditing ? isUpdating : isCreating,
+            type: 'submit',
           }}
         />
       </form>

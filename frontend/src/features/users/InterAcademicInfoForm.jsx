@@ -1,5 +1,6 @@
 import DomainEmailInput from '@ui/DomainEmailInput'
 import FormRow from '@ui/FormRow'
+import Heading from '@ui/Heading'
 import Input from '@ui/Input'
 import Row from '@ui/Row'
 import {
@@ -22,7 +23,7 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function AcademicInfoForm({
+export default function InterAcademicInfoForm({
   disabledEmail,
   isUabcDomain,
   setIsUabcDomain,
@@ -32,13 +33,15 @@ export default function AcademicInfoForm({
 
   return (
     <div className="space-y-4">
+      <Heading as="h3" showBar required>
+        Información Académica
+      </Heading>
       {disabledEmail ? (
         <FormRow htmlFor="username" label="Correo electrónico">
           <Input
             {...register('username')}
             id="username"
             type="email"
-            defaultValue={disabledEmail}
             disabled
             variant="outline"
           />

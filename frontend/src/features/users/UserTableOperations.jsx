@@ -7,12 +7,12 @@ import {
 import Button from '@ui/Button'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
-import UserModal from './UserModal'
+import UserRegisterForms from './UserRegisterForms'
 import Filter from '@ui/Filter'
 import Input from '@ui/Input'
-import { Dialog, DialogContent, DialogTrigger } from '@ui/components/ui/dialog'
+
 import { useDebouncedSearch } from '@hooks/useDebouncedSearch'
-import { useState } from 'react'
+import Modal from '@ui/Modal'
 
 const SORT_BY_OPTIONS = [
   {
@@ -53,7 +53,6 @@ const FILTER_GROUPS = [
 
 export default function UserTableOperations() {
   const { searchValue, setSearchValue } = useDebouncedSearch()
-  const [open, setOpen] = useState(false)
 
   return (
     <TableOperations>
@@ -70,17 +69,22 @@ export default function UserTableOperations() {
       <Filter groups={FILTER_GROUPS} placeholder="Filtrar" />
       <SortBy options={SORT_BY_OPTIONS} />
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
+      <Modal>
+        <Modal.Open opens="user-modal">
           <Button size="md">
             <HiOutlinePlus size="16" strokeWidth="2.5" />
             Agregar usuario
           </Button>
-        </DialogTrigger>
-        <DialogContent className="flex max-h-[95vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
-          <UserModal onCloseModal={() => setOpen(false)} />
-        </DialogContent>
-      </Dialog>
+        </Modal.Open>
+        <Modal.Content
+          name="user-modal"
+          noPadding
+          size="md"
+          // className="flex max-h-[95vh] flex-col gap-0 overflow-hidden p-0"
+        >
+          <UserRegisterForms />
+        </Modal.Content>
+      </Modal>
     </TableOperations>
   )
 }

@@ -1,101 +1,167 @@
+import Button from '@ui/Button'
 import ModalActions from '@ui/ModalActions'
 import Stepper from '@ui/Stepper'
-import { useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { HiCheck, HiChevronRight } from 'react-icons/hi2'
+import { FormProvider } from 'react-hook-form'
+import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import useCreateUser from './useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
+import { useStepForm } from './useStepForm'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
+import RegistrationPasswordForm from './RegistrationPasswordForm'
 
 const steps = ['Información Personal', 'Contraseña']
 
-const stepsFields = [
-  ['firstName', 'lastName', 'email', 'birthday', 'phone', 'cedula'],
-  ['password'],
-]
-
-export default function CoordForm({ onClose }) {
+export default function CoordForm({
+  onClose,
+  registration = false,
+  email,
+  onSubmit: externalOnSubmit,
+  isPending = false,
+}) {
   const { createUser, isCreating } = useCreateUser()
-  const [currStep, setCurrStep] = useState(0)
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
-  const methods = useForm({ mode: 'onChange' })
-  const { trigger, handleSubmit } = methods
-  const isLast = currStep === steps.length - 1
 
-  async function handleNext() {
-    const isStepValid = await trigger(stepsFields[currStep])
-    if (isStepValid) setCurrStep((p) => p + 1)
-  }
+  const stepsFields = [
+    ['firstName', 'lastName', 'email', 'birthday', 'phone', 'cedula'],
+    registration ? ['password', 'confirmPassword'] : ['password'],
+  ]
 
-  async function handleStepClick(i) {
-    if (i <= currStep) {
-      setCurrStep(i)
-      return
-    }
-    for (let step = currStep; step < i; step++) {
-      const isValid = await trigger(stepsFields[step])
-      if (!isValid) return
-    }
-    setCurrStep(i)
-  }
+  const {
+    currStep,
+    setCurrStep,
+    handleNext,
+    handleStepClick,
+    isLast,
+    methods,
+    handleSubmit,
+  } = useStepForm(steps, stepsFields, registration ? { email } : {})
+
+  const busy = registration ? isPending : isCreating
 
   function onSubmit(data) {
-    createUser(
-      {
+    if (registration) {
+      externalOnSubmit({
         nombre: data.firstName,
         apellido: data.lastName,
-        correo: resolveEmail(data.email),
         fechaNacimiento: data.birthday,
         telefono: data.phone,
-        rol: 'coordinador',
         cedula: data.cedula,
         password: data.password,
-      },
-      { onSuccess: () => onClose?.() }
-    )
+        confirmPassword: data.confirmPassword,
+      })
+    } else {
+      createUser(
+        {
+          nombre: data.firstName,
+          apellido: data.lastName,
+          correo: resolveEmail(data.email),
+          fechaNacimiento: data.birthday,
+          telefono: data.phone,
+          rol: 'coordinador',
+          cedula: data.cedula,
+          password: data.password,
+        },
+        { onSuccess: () => onClose?.() }
+      )
+    }
   }
 
+  const PasswordComponent = registration
+    ? RegistrationPasswordForm
+    : PasswordForm
+
+  const nav = registration ? (
+    <div className="mt-8 flex gap-3">
+      {currStep > 0 && (
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setCurrStep((p) => p - 1)}
+          className="flex-[30%]"
+          icon={<HiChevronLeft strokeWidth={1} />}
+          iconPos="left"
+          disabled={busy}
+        >
+          Anterior
+        </Button>
+      )}
+      <Button
+        type="button"
+        variant="primary"
+        onClick={isLast ? handleSubmit(onSubmit) : handleNext}
+        className={currStep === 0 ? 'w-full' : 'flex-[70%]'}
+        icon={
+          isLast ? (
+            <HiCheck strokeWidth={1} />
+          ) : (
+            <HiChevronRight strokeWidth={1} />
+          )
+        }
+        iconPos={isLast ? 'left' : 'right'}
+        isLoading={busy}
+        disabled={busy}
+      >
+        {isLast ? 'Registrarme' : 'Siguiente'}
+      </Button>
+    </div>
+  ) : (
+    <ModalActions
+      onClose={onClose}
+      primaryAction={{
+        label: isLast ? 'Crear usuario' : 'Siguiente',
+        icon: isLast ? (
+          <HiCheck strokeWidth={1} />
+        ) : (
+          <HiChevronRight strokeWidth={1} />
+        ),
+        iconPos: isLast ? 'left' : 'right',
+        onClick: isLast ? handleSubmit(onSubmit) : handleNext,
+        isLoading: busy,
+        disabled: busy,
+      }}
+      secondaryAction={{
+        label: 'Anterior',
+        onClick: () => setCurrStep((p) => p - 1),
+        disabled: currStep === 0 || busy,
+        className: 'border-gray-400',
+      }}
+    />
+  )
+
   return (
-    <section className="flex min-h-0 flex-1 flex-col">
-      <FormProvider {...methods}>
-        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-10">
-          <Stepper
-            steps={steps}
-            current={currStep}
-            setCurrStep={handleStepClick}
-          />
-          <form action="" className="mt-20">
-            {currStep === 0 && (
-              <CoordPersonalInfoForm
-                isUabcDomain={isUabcDomain}
-                setIsUabcDomain={setIsUabcDomain}
-              />
-            )}
-            {currStep === 1 && <PasswordForm />}
-          </form>
-        </div>
-        <ModalActions
-          primaryAction={{
-            label: isLast ? 'Crear usuario' : 'Siguiente',
-            icon: isLast ? (
-              <HiCheck strokeWidth={1} />
-            ) : (
-              <HiChevronRight strokeWidth={1} />
-            ),
-            iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
-            isLoading: isCreating,
-            disabled: isCreating,
-          }}
-          secondaryAction={{
-            label: 'Anterior',
-            onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0 || isCreating,
-            className: 'border-gray-400',
-          }}
+    <FormProvider {...methods}>
+      <div
+        className={
+          registration ? undefined : 'min-h-0 flex-1 overflow-y-auto px-8 py-10'
+        }
+      >
+        <Stepper
+          steps={steps}
+          current={currStep}
+          setCurrStep={handleStepClick}
         />
-      </FormProvider>
-    </section>
+        <form
+          className={registration ? 'mt-20 space-y-6' : 'mt-20'}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+              e.preventDefault()
+              if (isLast) handleSubmit(onSubmit)()
+              else handleNext()
+            }
+          }}
+        >
+          {currStep === 0 && (
+            <CoordPersonalInfoForm
+              disabledEmail={registration ? email : undefined}
+              isUabcDomain={isUabcDomain}
+              setIsUabcDomain={setIsUabcDomain}
+            />
+          )}
+          {currStep === 1 && <PasswordComponent />}
+        </form>
+      </div>
+      {nav}
+    </FormProvider>
   )
 }
