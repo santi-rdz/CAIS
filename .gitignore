@@ -32,3 +32,8 @@ docker-compose.override.yml
 docs/plans/
 
 .agents/*
+
+# Workspace lockfiles (only root package-lock.json is used)
+frontend/package-lock.json
+backend/package-lock.json
+shared/package-lock.json
