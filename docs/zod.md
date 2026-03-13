@@ -156,7 +156,7 @@ const coordinadorSchema = baseSchema.extend({
 
 ```js
 const rolSchema = z.enum(['pasante', 'coordinador'], {
-  errorMap: () => ({ message: 'El rol debe ser pasante o coordinador' }),
+  error: 'El rol debe ser pasante o coordinador',
 })
 ```
 

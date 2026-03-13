@@ -1,5 +1,10 @@
 import { z } from 'zod'
-import { personaBaseFields, correoSchema, passwordSchema } from './fields.js'
+import {
+  personaBaseFields,
+  correoSchema,
+  passwordSchema,
+  rolesSchema,
+} from './fields.js'
 
 // ─── Campos compartidos ─────────────────────────────────────────────
 
@@ -47,9 +52,7 @@ const adminCreateBase = z.object({
   ...coreFields,
   password: tempPasswordSchema,
   correo: correoSchema,
-  rol: z.enum(['pasante', 'coordinador'], {
-    error: 'El rol debe ser pasante o coordinador',
-  }),
+  rol: rolesSchema,
 })
 
 export const internCreateSchema = adminCreateBase.extend(internFields)
@@ -67,7 +70,7 @@ const userUpdateSchema = z
     ...internFields,
     ...cedulaField,
     correo: correoSchema,
-    rol: z.enum(['pasante', 'coordinador']),
+    rol: rolesSchema,
   })
   .partial()
 
