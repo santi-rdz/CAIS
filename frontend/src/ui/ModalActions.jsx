@@ -54,7 +54,15 @@ export default function ModalActions({
           </Button>
         )}
         {primaryAction && (
-          <Button variant="primary" {...primaryAction}>
+          <Button
+            variant="primary"
+            isLoading={primaryAction.isLoading}
+            icon={primaryAction.icon}
+            iconPos={primaryAction.iconPos}
+            onClick={primaryAction.onClick}
+            disabled={primaryAction.disabled}
+            type={primaryAction.type}
+          >
             {primaryAction.label || 'Primary Action'}
           </Button>
         )}

@@ -1,10 +1,8 @@
-import z from 'zod'
+import { z } from 'zod'
 
-const evolutionNoteSchema = z.object({
+export const evolutionNoteSchema = z.object({
   paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
-  historia_medica_id: z
-    .uuid('El ID de la nota de evolución debe ser un UUID válido')
-    .optional(),
+  historia_medica_id: z.uuid().optional(),
   motivo_consulta: z.string().optional(),
   ant_gine_andro: z.string().optional(),
   aparatos_sistemas_id: z.number().int().positive().optional(),

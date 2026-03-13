@@ -25,7 +25,8 @@ const reporteSchema = z.object({
 })
 
 export const validateReporte = (input) => reporteSchema.safeParse(input)
-export const validatePartialReporte = (input) => reporteSchema.partial().safeParse(input)
+export const validatePartialReporte = (input) =>
+  reporteSchema.partial().safeParse(input)
 ```
 
 Ver `docs/zod.md` para la referencia completa de validaciones.
@@ -54,7 +55,9 @@ export class ReporteModel {
 
   static async update(id, data, tx = prisma) {
     try {
-      return format(await tx.reportes.update({ where: { id: uuidToBuffer(id) }, data }))
+      return format(
+        await tx.reportes.update({ where: { id: uuidToBuffer(id) }, data })
+      )
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err
@@ -102,12 +105,16 @@ export class ReporteController {
   static async create(req, res) {
     const result = validateReporte(req.body)
     if (!result.success)
-      return res.status(422).json({ error: 'ValidationError', fields: formatZodErrors(result.error) })
+      return res.status(422).json({
+        error: 'ValidationError',
+        fields: formatZodErrors(result.error),
+      })
 
     try {
       res.status(201).json(await ReporteModel.create(result.data))
     } catch (err) {
-      if (err.code === 'P2002') return res.status(409).json({ error: 'Conflict' })
+      if (err.code === 'P2002')
+        return res.status(409).json({ error: 'Conflict' })
       res.status(500).json({ error: 'InternalError' })
     }
   }
@@ -115,7 +122,10 @@ export class ReporteController {
   static async update(req, res) {
     const result = validatePartialReporte(req.body)
     if (!result.success)
-      return res.status(422).json({ error: 'ValidationError', fields: formatZodErrors(result.error) })
+      return res.status(422).json({
+        error: 'ValidationError',
+        fields: formatZodErrors(result.error),
+      })
 
     const r = await ReporteModel.update(req.params.id, result.data)
     if (!r) return res.status(404).json({ message: 'No encontrado' })
@@ -144,11 +154,11 @@ const privileged = requireRole('COORDINADOR', 'ADMIN')
 
 export const reporteRouter = new Router()
 
-reporteRouter.use(requireAuth)                              // aplica a todo lo que sigue
+reporteRouter.use(requireAuth) // aplica a todo lo que sigue
 
-reporteRouter.get('/',     ReporteController.getAll)
-reporteRouter.get('/:id',  ReporteController.getById)
-reporteRouter.post('/',    privileged, ReporteController.create)
+reporteRouter.get('/', ReporteController.getAll)
+reporteRouter.get('/:id', ReporteController.getById)
+reporteRouter.post('/', privileged, ReporteController.create)
 reporteRouter.patch('/:id', privileged, ReporteController.update)
 reporteRouter.delete('/:id', privileged, ReporteController.delete)
 ```
@@ -184,6 +194,7 @@ npm run file reportes   # correr solo este archivo
 ---
 
 **Checklist:**
+
 - [ ] `src/schemas/` — schema Zod con `validate` y `validatePartial`
 - [ ] `src/models/` — modelo con función `format()` que convierte UUIDs
 - [ ] `src/controllers/` — valida antes de llamar al modelo

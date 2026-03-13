@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { UserController } from '../controllers/users.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { UserController } from '#controllers/users.js'
+import { requireAuth, requireRole } from '#middleware/auth.js'
 
 const privileged = requireRole('COORDINADOR', 'ADMIN')
 

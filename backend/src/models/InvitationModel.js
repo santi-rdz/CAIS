@@ -1,5 +1,5 @@
-import { prisma } from '../config/prisma.js'
-import { uuidToBuffer } from '../lib/uuid.js'
+import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
 
 export class InvitationModel {
   static async insertMany(invitations, tx = prisma) {

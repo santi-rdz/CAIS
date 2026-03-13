@@ -37,10 +37,10 @@ export default function InterAcademicInfoForm({
         Información Académica
       </Heading>
       {disabledEmail ? (
-        <FormRow htmlFor="username" label="Correo electrónico">
+        <FormRow htmlFor="correo" label="Correo electrónico">
           <Input
-            {...register('username')}
-            id="username"
+            {...register('correo')}
+            id="correo"
             type="email"
             disabled
             variant="outline"
@@ -48,18 +48,18 @@ export default function InterAcademicInfoForm({
         </FormRow>
       ) : (
         <DomainEmailInput
-          id="username"
+          id="correo"
           isDomain={isUabcDomain}
           setIsDomain={setIsUabcDomain}
-          fieldName="username"
+          fieldName="correo"
           register={register}
-          error={errors?.username?.message}
+          error={errors?.correo?.message}
         />
       )}
 
       <FormRow htmlFor="matricula" label="Matricula">
         <Input
-          {...register('matricula', { required: 'Ingresa la matrícula' })}
+          {...register('matricula')}
           id="matricula"
           type="text"
           placeholder="e.g 1299332"
@@ -79,7 +79,6 @@ export default function InterAcademicInfoForm({
             <Controller
               name="servicioInicioAnio"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
@@ -103,7 +102,6 @@ export default function InterAcademicInfoForm({
             <Controller
               name="servicioInicioPeriodo"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
@@ -139,7 +137,6 @@ export default function InterAcademicInfoForm({
             <Controller
               name="servicioFinAnio"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
@@ -163,7 +160,6 @@ export default function InterAcademicInfoForm({
             <Controller
               name="servicioFinPeriodo"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}

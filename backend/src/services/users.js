@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
-import { InvitationModel } from '../models/InvitationModel.js'
-import { prisma } from '../config/prisma.js'
-import { sendEmail } from '../lib/sendEmail.js'
-import { registerEmail } from '../lib/registerEmail.js'
+import { InvitationModel } from '#models/InvitationModel.js'
+import { prisma } from '#config/prisma.js'
+import { sendEmail } from '#lib/sendEmail.js'
+import { registerEmail } from '#lib/registerEmail.js'
 
 export class UserService {
   static async preRegister(usersData, creadoPor) {

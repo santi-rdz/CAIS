@@ -6,9 +6,9 @@
  */
 
 import request from 'supertest'
-import app from '../app.js'
-import { prisma } from '../config/prisma.js'
-import { uuidToBuffer } from '../lib/uuid.js'
+import app from '#app'
+import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
 import { randomUUID } from 'node:crypto'
 import assert from 'assert'
 

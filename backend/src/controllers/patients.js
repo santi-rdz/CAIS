@@ -1,6 +1,9 @@
-import { PatientModel } from '../models/PatientModel.js'
-import { validatePatient, validatePartialPatient } from '../schemas/patient.js'
-import { formatZodErrors } from '../lib/formatErrors.js'
+import { PatientModel } from '#models/PatientModel.js'
+import {
+  validatePatient,
+  validatePartialPatient,
+} from '@cais/shared/schemas/medicina/patient'
+import { formatZodErrors } from '#lib/formatErrors.js'
 
 export class PatientController {
   /**

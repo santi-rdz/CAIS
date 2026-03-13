@@ -21,6 +21,7 @@ export default defineConfig({
       '@lib': path.resolve(__dirname, './src/lib'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@services': path.resolve(__dirname, './src/services'),
+      '@cais/shared': path.resolve(__dirname, '../shared'),
     },
   },
   server: {

@@ -5,7 +5,7 @@
  */
 
 import request from 'supertest'
-import app from '../app.js'
+import app from '#app'
 import assert from 'assert'
 
 // ─── Setup ──────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ describe('POST /usuarios — creación directa por admin', () => {
     fechaNacimiento: '2000-01-01',
     telefono: '6861111111',
     rol: 'pasante',
-    password: 'abc123',
+    password: 'Abc12345!',
     matricula: 'TMAT01',
     servicioInicioAnio: '2026',
     servicioInicioPeriodo: '1',
@@ -163,7 +163,7 @@ describe('POST /usuarios — creación directa por admin', () => {
     fechaNacimiento: '1990-01-01',
     telefono: '6862222222',
     rol: 'coordinador',
-    password: 'abc123',
+    password: 'Abc12345!',
     cedula: 'TCED01',
   }
 
@@ -212,11 +212,25 @@ describe('POST /usuarios — creación directa por admin', () => {
   /**
    * @test Password menor a 6 caracteres devuelve 422.
    */
-  test('422 — rechaza password corta', async () => {
+  test('422 — rechaza password menor a 6 caracteres', async () => {
     const res = await agent
       .post('/usuarios')
-      .send({ ...pasanteValido, password: '12' })
+      .send({ ...pasanteValido, password: '12345' })
     assert.equal(res.status, 422)
+  })
+
+  /**
+   * @test Password simple de 6+ caracteres es aceptada (admin no requiere complejidad).
+   */
+  test('201 — acepta password simple de 6+ caracteres', async () => {
+    const res = await agent.post('/usuarios').send({
+      ...pasanteValido,
+      password: '123456',
+      correo: `simple.pass.${Date.now()}@uabc.edu.mx`,
+    })
+    assert.equal(res.status, 201)
+
+    await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
   /**
@@ -255,7 +269,7 @@ describe('PATCH /usuarios/:id', () => {
       fechaNacimiento: '2000-01-01',
       telefono: '6863333333',
       rol: 'pasante',
-      password: 'abc123',
+      password: 'Abc12345!',
       matricula: 'PMAT01',
       servicioInicioAnio: '2026',
       servicioInicioPeriodo: '1',
@@ -319,7 +333,7 @@ describe('DELETE /usuarios/:id', () => {
       fechaNacimiento: '2000-01-01',
       telefono: '6864444444',
       rol: 'pasante',
-      password: 'abc123',
+      password: 'Abc12345!',
       matricula: 'DMAT01',
       servicioInicioAnio: '2026',
       servicioInicioPeriodo: '1',
@@ -327,6 +341,10 @@ describe('DELETE /usuarios/:id', () => {
       servicioFinPeriodo: '2',
     })
     userId = res.body.usuario?.id
+  })
+
+  afterAll(async () => {
+    if (userId) await agent.delete(`/usuarios/${userId}`)
   })
 
   /**

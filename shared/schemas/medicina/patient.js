@@ -1,14 +1,12 @@
-import z from 'zod'
+import { z } from 'zod'
+import { telefonoSchema, correoSchema } from '../fields.js'
 
-const patientSchema = z.object({
+export const patientSchema = z.object({
   nombre: z.string().optional(),
   fecha_nacimiento: z.string(),
   es_externo: z.boolean().optional(),
-  correo: z.email().optional(),
-  telefono: z
-    .string()
-    .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
-    .optional(),
+  correo: correoSchema.optional(),
+  telefono: telefonoSchema.optional(),
   genero: z.string().optional(),
   domicilio: z.string().optional(),
   ocupacion: z.string().optional(),
@@ -17,10 +15,7 @@ const patientSchema = z.object({
   religion: z.string().optional(),
   nss: z.string().optional(),
   contacto_emergencia: z.string().optional(),
-  telefono_emergencia: z
-    .string()
-    .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
-    .optional(),
+  telefono_emergencia: telefonoSchema.optional(),
   parentesco_emergencia: z.string().optional(),
 })
 

@@ -5,10 +5,16 @@ import { useForm } from 'react-hook-form'
  * Maneja la lógica de navegación de un formulario multi-paso.
  * @param {string[]} steps - etiquetas de cada paso
  * @param {string[][]} stepsFields - campos a validar por paso
+ * @param {object} defaultValues - valores iniciales del formulario
+ * @param {Function} [resolver] - resolver de validación (p.ej. zodResolver)
  */
-export function useStepForm(steps, stepsFields, defaultValues = {}) {
+export function useStepForm(steps, stepsFields, defaultValues = {}, resolver) {
   const [currStep, setCurrStep] = useState(0)
-  const methods = useForm({ mode: 'onChange', defaultValues })
+  const methods = useForm({
+    mode: 'onChange',
+    defaultValues,
+    ...(resolver ? { resolver } : {}),
+  })
   const { trigger, handleSubmit } = methods
   const isLast = currStep === steps.length - 1
 
@@ -29,6 +35,16 @@ export function useStepForm(steps, stepsFields, defaultValues = {}) {
     setCurrStep(i)
   }
 
+  function getFormKeyDown(submitFn) {
+    return (e) => {
+      if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+        e.preventDefault()
+        if (isLast) handleSubmit(submitFn)()
+        else handleNext()
+      }
+    }
+  }
+
   return {
     currStep,
     setCurrStep,
@@ -37,5 +53,6 @@ export function useStepForm(steps, stepsFields, defaultValues = {}) {
     isLast,
     methods,
     handleSubmit,
+    getFormKeyDown,
   }
 }

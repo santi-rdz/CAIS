@@ -20,27 +20,23 @@ export default function CoordPersonalInfoForm({
         Información Personal
       </Heading>
       <Row className="gap-4">
-        <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
+        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full">
           <Input
-            {...register('firstName', {
-              required: 'Ingresa el nombre del coordinador',
-            })}
-            id="firstName"
+            {...register('nombre')}
+            id="nombre"
             type="text"
             placeholder="Ej. Juan Carlos"
-            hasError={errors?.firstName?.message}
+            hasError={errors?.nombre?.message}
             variant="outline"
           />
         </FormRow>
-        <FormRow htmlFor="lastName" label="Apellidos" className="w-full">
+        <FormRow htmlFor="apellido" label="Apellidos" className="w-full">
           <Input
-            {...register('lastName', {
-              required: 'Ingresa apellidos del coordinador',
-            })}
-            id="lastName"
+            {...register('apellido')}
+            id="apellido"
             type="text"
             placeholder="Ej. Perez Lopez"
-            hasError={errors?.lastName?.message}
+            hasError={errors?.apellido?.message}
             variant="outline"
           />
         </FormRow>
@@ -49,13 +45,13 @@ export default function CoordPersonalInfoForm({
       <Row className="gap-4">
         {disabledEmail ? (
           <FormRow
-            htmlFor="email"
+            htmlFor="correo"
             label="Correo electrónico"
             className="w-full"
           >
             <Input
-              {...register('email')}
-              id="email"
+              {...register('correo')}
+              id="correo"
               type="email"
               disabled
               variant="outline"
@@ -63,12 +59,12 @@ export default function CoordPersonalInfoForm({
           </FormRow>
         ) : (
           <DomainEmailInput
-            id="email"
+            id="correo"
             isDomain={isUabcDomain}
             setIsDomain={setIsUabcDomain}
-            fieldName="email"
+            fieldName="correo"
             register={register}
-            error={errors?.email?.message}
+            error={errors?.correo?.message}
             className="w-full"
           />
         )}
@@ -76,19 +72,17 @@ export default function CoordPersonalInfoForm({
 
       <Row className="gap-4">
         <BirthdayField control={control} errors={errors} />
-        <FormRow htmlFor="phone" label="Número telefónico" className="w-full">
+        <FormRow
+          htmlFor="telefono"
+          label="Número telefónico"
+          className="w-full"
+        >
           <Input
-            {...register('phone', {
-              required: 'Ingresa el número telefónico',
-              pattern: {
-                value: /^[0-9]{10}$/,
-                message: 'Ingresa un número de 10 dígitos',
-              },
-            })}
-            id="phone"
+            {...register('telefono')}
+            id="telefono"
             type="tel"
             placeholder="Ej. 6641234567"
-            hasError={errors?.phone?.message}
+            hasError={errors?.telefono?.message}
             variant="outline"
           />
         </FormRow>
@@ -97,9 +91,7 @@ export default function CoordPersonalInfoForm({
       <Row className="gap-4">
         <FormRow htmlFor="cedula" label="Cédula Profesional" className="w-full">
           <Input
-            {...register('cedula', {
-              required: 'Ingresa la cédula profesional',
-            })}
+            {...register('cedula')}
             id="cedula"
             type="text"
             placeholder="Ej. 1234567"

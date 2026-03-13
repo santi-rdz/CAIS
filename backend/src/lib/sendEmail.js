@@ -1,4 +1,4 @@
-import { transporter } from '../config/mailer.js'
+import { transporter } from '#config/mailer.js'
 
 export async function sendEmail({ to, subject, html }) {
   return transporter.sendMail({

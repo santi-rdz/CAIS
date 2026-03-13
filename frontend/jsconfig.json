@@ -8,7 +8,8 @@
       "@assets/*": ["src/assets/*"],
       "@hooks/*": ["src/hooks/*"],
       "@contexts/*": ["src/contexts/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@cais/shared/*": ["../shared/*"]
     }
   },
   "include": ["src"]

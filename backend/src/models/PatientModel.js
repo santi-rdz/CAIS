@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
-import { prisma } from '../config/prisma.js'
-import { uuidToBuffer, bufferToUUID } from '../lib/uuid.js'
+import { prisma } from '#config/prisma.js'
+import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 
 const includeRelations = {
   usuarios: true,
