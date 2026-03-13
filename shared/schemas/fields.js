@@ -19,3 +19,7 @@ export const passwordSchema = z
   .regex(/[a-z]/, 'Debe contener al menos una letra minúscula')
   .regex(/[0-9]/, 'Debe contener al menos un número')
   .regex(/[!@#$%^&*]/, 'Debe contener al menos un carácter especial (!@#$%^&*)')
+
+export const rolesSchema = z.enum(['pasante', 'coordinador'], {
+  error: 'El rol debe ser pasante o coordinador',
+})
