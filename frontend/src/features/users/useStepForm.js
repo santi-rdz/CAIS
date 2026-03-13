@@ -35,10 +35,11 @@ export function useStepForm(steps, stepsFields, defaultValues = {}, resolver) {
     setCurrStep(i)
   }
 
-  function getFormKeyDown(submitFn) {
+  function getFormKeyDown(submitFn, busy = false) {
     return (e) => {
       if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
         e.preventDefault()
+        if (busy) return
         if (isLast) handleSubmit(submitFn)()
         else handleNext()
       }

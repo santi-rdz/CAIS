@@ -48,7 +48,7 @@ const adminCreateBase = z.object({
   password: tempPasswordSchema,
   correo: correoSchema,
   rol: z.enum(['pasante', 'coordinador'], {
-    errorMap: () => ({ message: 'El rol debe ser pasante o coordinador' }),
+    error: 'El rol debe ser pasante o coordinador',
   }),
 })
 
@@ -61,8 +61,18 @@ export function validateAdminCreate(input) {
   return internCreateSchema.safeParse(input)
 }
 
+const userUpdateSchema = z
+  .object({
+    ...coreFields,
+    ...internFields,
+    ...cedulaField,
+    correo: correoSchema,
+    rol: z.enum(['pasante', 'coordinador']),
+  })
+  .partial()
+
 export function validateUserUpdate(input) {
-  return adminCreateBase.partial().safeParse(input)
+  return userUpdateSchema.safeParse(input)
 }
 
 // ─── BE: Auto-registro con token ────────────────────────────────────

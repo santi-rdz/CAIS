@@ -3,12 +3,9 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    "./schemas/fields": "./schemas/fields.js",
-    "./schemas/users": "./schemas/users.js",
-    "./schemas/invitations": "./schemas/invitations.js",
-    "./schemas/medicina/emergency": "./schemas/medicina/emergency.js",
-    "./schemas/medicina/evolutionNote": "./schemas/medicina/evolutionNote.js",
-    "./schemas/medicina/patient": "./schemas/medicina/patient.js"
+    "./*": "./*.js",
+    "./schemas/*": "./schemas/*.js",
+    "./schemas/medicina/*": "./schemas/medicina/*.js"
   },
   "peerDependencies": {
     "zod": ">=4.0.0"

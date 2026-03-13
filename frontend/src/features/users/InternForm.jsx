@@ -169,7 +169,7 @@ export default function InternForm({
           current={currStep}
           setCurrStep={handleStepClick}
         />
-        <form className={'mt-16'} onKeyDown={getFormKeyDown(onSubmit)}>
+        <form className={'mt-16'} onKeyDown={getFormKeyDown(onSubmit, busy)}>
           {currStep === 0 && <InterPersonalInfoForm />}
           {currStep === 1 && (
             <InterAcademicInfoForm

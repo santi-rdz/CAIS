@@ -154,7 +154,7 @@ export default function CoordForm({
         />
         <form
           className={registration ? 'mt-20 space-y-6' : 'mt-20'}
-          onKeyDown={getFormKeyDown(onSubmit)}
+          onKeyDown={getFormKeyDown(onSubmit, busy)}
         >
           {currStep === 0 && (
             <CoordPersonalInfoForm
