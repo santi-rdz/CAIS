@@ -1,9 +1,9 @@
-import { formatZodErrors } from '../../lib/formatErrors.js'
-import { EmergencyModel } from '../../models/medicina/EmergencyModel.js'
+import { formatZodErrors } from '#lib/formatErrors.js'
+import { EmergencyModel } from '#models/medicina/EmergencyModel.js'
 import {
   validateEmergency,
   validatePartialEmergency,
-} from '../../schemas/medicina/emergency.js'
+} from '@cais/shared/schemas/medicina/emergency'
 
 export class EmergencyController {
   /**

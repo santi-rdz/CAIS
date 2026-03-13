@@ -1,8 +1,13 @@
 import Button from '@ui/Button'
 import ModalActions from '@ui/ModalActions'
 import Stepper from '@ui/Stepper'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
+import {
+  coordCreateFormSchema,
+  coordSignupFormSchema,
+} from '@cais/shared/schemas/users'
 import useCreateUser from './useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from './useStepForm'
@@ -23,7 +28,7 @@ export default function CoordForm({
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
 
   const stepsFields = [
-    ['firstName', 'lastName', 'email', 'birthday', 'phone', 'cedula'],
+    ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],
     registration ? ['password', 'confirmPassword'] : ['password'],
   ]
 
@@ -35,17 +40,23 @@ export default function CoordForm({
     isLast,
     methods,
     handleSubmit,
-  } = useStepForm(steps, stepsFields, registration ? { email } : {})
+    getFormKeyDown,
+  } = useStepForm(
+    steps,
+    stepsFields,
+    registration ? { correo: email } : {},
+    zodResolver(registration ? coordSignupFormSchema : coordCreateFormSchema)
+  )
 
   const busy = registration ? isPending : isCreating
 
   function onSubmit(data) {
     if (registration) {
       externalOnSubmit({
-        nombre: data.firstName,
-        apellido: data.lastName,
-        fechaNacimiento: data.birthday,
-        telefono: data.phone,
+        nombre: data.nombre,
+        apellido: data.apellido,
+        fechaNacimiento: data.fechaNacimiento,
+        telefono: data.telefono,
         cedula: data.cedula,
         password: data.password,
         confirmPassword: data.confirmPassword,
@@ -53,11 +64,11 @@ export default function CoordForm({
     } else {
       createUser(
         {
-          nombre: data.firstName,
-          apellido: data.lastName,
-          correo: resolveEmail(data.email),
-          fechaNacimiento: data.birthday,
-          telefono: data.phone,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          correo: resolveEmail(data.correo),
+          fechaNacimiento: data.fechaNacimiento,
+          telefono: data.telefono,
           rol: 'coordinador',
           cedula: data.cedula,
           password: data.password,
@@ -143,13 +154,7 @@ export default function CoordForm({
         />
         <form
           className={registration ? 'mt-20 space-y-6' : 'mt-20'}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-              e.preventDefault()
-              if (isLast) handleSubmit(onSubmit)()
-              else handleNext()
-            }
-          }}
+          onKeyDown={getFormKeyDown(onSubmit, busy)}
         >
           {currStep === 0 && (
             <CoordPersonalInfoForm

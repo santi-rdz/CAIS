@@ -33,7 +33,7 @@ function RequirementItem({ met, label }) {
 }
 
 export default function RegistrationPasswordForm() {
-  const { register, formState, getValues, watch } = useFormContext()
+  const { register, formState, watch } = useFormContext()
   const { errors } = formState
   const password = watch('password') ?? ''
 
@@ -44,18 +44,7 @@ export default function RegistrationPasswordForm() {
         label="Contraseña"
         placeholder="Contraseña"
         error={errors?.password?.message}
-        registration={register('password', {
-          required: 'Ingresa una contraseña',
-          validate: (v) => {
-            if (v.length < 8) return 'Mínimo 8 caracteres'
-            if (!/[A-Z]/.test(v)) return 'Debe contener una letra mayúscula'
-            if (!/[a-z]/.test(v)) return 'Debe contener una letra minúscula'
-            if (!/[0-9]/.test(v)) return 'Debe contener un número'
-            if (!/[!@#$%^&*]/.test(v))
-              return 'Debe contener un carácter especial'
-            return true
-          },
-        })}
+        registration={register('password')}
         variant="outline"
       />
 
@@ -64,11 +53,7 @@ export default function RegistrationPasswordForm() {
         label="Confirmar contraseña"
         placeholder="Confirma tu contraseña"
         error={errors?.confirmPassword?.message}
-        registration={register('confirmPassword', {
-          required: 'Confirma la contraseña',
-          validate: (value) =>
-            value === getValues('password') || 'Las contraseñas no coinciden',
-        })}
+        registration={register('confirmPassword')}
         variant="outline"
       />
 

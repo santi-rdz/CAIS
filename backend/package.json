@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles",
-    "file": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles --testPathPatterns",
+    "test": "node --experimental-vm-modules ../node_modules/.bin/jest --forceExit --detectOpenHandles",
+    "file": "node --experimental-vm-modules ../node_modules/.bin/jest --forceExit --detectOpenHandles --testPathPatterns",
     "start": "node --watch src/app.js",
     "prisma:pull": "prisma db pull",
     "prisma:generate": "prisma generate",
@@ -33,5 +33,15 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "type": "module"
+  "type": "module",
+  "imports": {
+    "#app": "./src/app.js",
+    "#config/*": "./src/config/*",
+    "#lib/*": "./src/lib/*",
+    "#models/*": "./src/models/*",
+    "#controllers/*": "./src/controllers/*",
+    "#middleware/*": "./src/middleware/*",
+    "#routes/*": "./src/routes/*",
+    "#services/*": "./src/services/*"
+  }
 }

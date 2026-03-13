@@ -1,0 +1,13 @@
+{
+  "name": "@cais/shared",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./*": "./*.js",
+    "./schemas/*": "./schemas/*.js",
+    "./schemas/medicina/*": "./schemas/medicina/*.js"
+  },
+  "peerDependencies": {
+    "zod": ">=4.0.0"
+  }
+}

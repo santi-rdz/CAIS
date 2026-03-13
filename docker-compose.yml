@@ -6,22 +6,26 @@ services:
     depends_on:
       - backend
     restart: always
+    working_dir: /app
     volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
-    command: sh -c "npm install && npm run dev -- --host"
+      - .:/app
+      - root_node_modules:/app/node_modules
+      - frontend_node_modules:/app/frontend/node_modules
+    command: sh -c "npm install && npm run dev -w frontend"
 
   backend:
     build: ./backend
     ports:
       - '8000:8000'
     restart: always
+    working_dir: /app
     environment:
       DATABASE_URL: 'mysql://user:user@db:3306/cais'
     volumes:
-      - ./backend:/app
-      - backend_node_modules:/app/node_modules
-    command: sh -c "npm install && npx prisma generate && npm run start"
+      - .:/app
+      - root_node_modules_backend:/app/node_modules
+      - backend_node_modules:/app/backend/node_modules
+    command: sh -c "npm install && npm run prisma:generate -w backend && npm run start -w backend"
     depends_on:
       - db
 
@@ -42,5 +46,7 @@ services:
 
 volumes:
   db_data:
+  root_node_modules:
   frontend_node_modules:
+  root_node_modules_backend:
   backend_node_modules:

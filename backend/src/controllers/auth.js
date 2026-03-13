@@ -1,5 +1,5 @@
-import { prisma } from '../config/prisma.js'
-import { bufferToUUID, uuidToBuffer } from '../lib/uuid.js'
+import { prisma } from '#config/prisma.js'
+import { bufferToUUID, uuidToBuffer } from '#lib/uuid.js'
 import bcrypt from 'bcryptjs'
 
 function formatUser(user) {

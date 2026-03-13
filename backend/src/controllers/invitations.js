@@ -1,7 +1,7 @@
-import { InvitationModel } from '../models/InvitationModel.js'
-import { UserService } from '../services/users.js'
-import { validateInvitedUser } from '../schemas/invitedUser.js'
-import { formatZodErrors } from '../lib/formatErrors.js'
+import { InvitationModel } from '#models/InvitationModel.js'
+import { UserService } from '#services/users.js'
+import { validateInvitedUser } from '@cais/shared/schemas/invitations'
+import { formatZodErrors } from '#lib/formatErrors.js'
 
 export class InvitationController {
   static async create(req, res) {

@@ -5,7 +5,8 @@
   "homepage": "https://github.com/santi-rdz/CAIS#readme",
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "shared"
   ],
   "bugs": {
     "url": "https://github.com/santi-rdz/CAIS/issues"

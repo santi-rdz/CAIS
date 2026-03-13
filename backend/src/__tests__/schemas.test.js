@@ -1,22 +1,25 @@
 /**
  * @file Tests unitarios para los schemas de validación Zod.
  * @description Verifica que los schemas acepten datos válidos y rechacen datos inválidos
- * sin realizar llamadas HTTP. Cubre validateUser, validatePartialUser,
- * validateRegistration y validateInvitedUser.
+ * sin realizar llamadas HTTP. Cubre validateAdminCreate, validateUserUpdate,
+ * validateSelfRegister y validateInvitedUser.
  */
 
-import { validateUser, validatePartialUser } from '../schemas/user.js'
-import { validateRegistration } from '../schemas/register.js'
-import { validateInvitedUser } from '../schemas/invitedUser.js'
+import {
+  validateAdminCreate,
+  validateUserUpdate,
+  validateSelfRegister,
+} from '@cais/shared/schemas/users'
+import { validateInvitedUser } from '@cais/shared/schemas/invitations'
 import assert from 'assert'
 
 // ─── usuario.js (admin creation) ────────────────────────────────────
 
 /**
- * @description Suite para validateUser (creación directa por admin).
+ * @description Suite para validateAdminCreate (creación directa por admin).
  * Verifica validaciones de rol, password, correo, teléfono y campos específicos por rol.
  */
-describe('validateUser — creación directa por admin', () => {
+describe('validateAdminCreate — creación directa por admin', () => {
   const basePasante = {
     nombre: 'Juan',
     apellido: 'Pérez',
@@ -24,7 +27,7 @@ describe('validateUser — creación directa por admin', () => {
     fechaNacimiento: '2000-01-15',
     telefono: '6861234567',
     rol: 'pasante',
-    password: 'abc123',
+    password: 'Abc12345!',
     matricula: 'MAT001',
     servicioInicioAnio: '2026',
     servicioInicioPeriodo: '1',
@@ -39,7 +42,7 @@ describe('validateUser — creación directa por admin', () => {
     fechaNacimiento: '1990-05-20',
     telefono: '6869876543',
     rol: 'coordinador',
-    password: 'abc123',
+    password: 'Abc12345!',
     cedula: 'CED001',
   }
 
@@ -47,7 +50,7 @@ describe('validateUser — creación directa por admin', () => {
    * @test Pasante con todos los campos requeridos es aceptado.
    */
   test('acepta pasante válido', () => {
-    const result = validateUser(basePasante)
+    const result = validateAdminCreate(basePasante)
     assert.equal(result.success, true)
   })
 
@@ -55,7 +58,7 @@ describe('validateUser — creación directa por admin', () => {
    * @test Coordinador con todos los campos requeridos es aceptado.
    */
   test('acepta coordinador válido', () => {
-    const result = validateUser(baseCoord)
+    const result = validateAdminCreate(baseCoord)
     assert.equal(result.success, true)
   })
 
@@ -63,15 +66,15 @@ describe('validateUser — creación directa por admin', () => {
    * @test Password de 5 caracteres (menor al mínimo de 6) es rechazada.
    */
   test('rechaza password menor a 6 caracteres', () => {
-    const result = validateUser({ ...basePasante, password: '12345' })
+    const result = validateAdminCreate({ ...basePasante, password: '12345' })
     assert.equal(result.success, false)
   })
 
   /**
-   * @test Password sin mayúsculas ni caracteres especiales es aceptada (reglas relajadas para admin).
+   * @test Password de 6 caracteres es aceptada (admin no requiere complejidad).
    */
-  test('acepta password simple (sin mayúsculas/especiales)', () => {
-    const result = validateUser({ ...basePasante, password: 'simple' })
+  test('acepta password simple de 6+ caracteres (admin)', () => {
+    const result = validateAdminCreate({ ...basePasante, password: '123456' })
     assert.equal(result.success, true)
   })
 
@@ -79,7 +82,10 @@ describe('validateUser — creación directa por admin', () => {
    * @test Correo sin formato válido es rechazado.
    */
   test('rechaza correo inválido', () => {
-    const result = validateUser({ ...basePasante, correo: 'no-es-email' })
+    const result = validateAdminCreate({
+      ...basePasante,
+      correo: 'no-es-email',
+    })
     assert.equal(result.success, false)
   })
 
@@ -87,7 +93,7 @@ describe('validateUser — creación directa por admin', () => {
    * @test Teléfono con menos de 10 dígitos es rechazado.
    */
   test('rechaza teléfono con menos de 10 dígitos', () => {
-    const result = validateUser({ ...basePasante, telefono: '12345' })
+    const result = validateAdminCreate({ ...basePasante, telefono: '12345' })
     assert.equal(result.success, false)
   })
 
@@ -95,7 +101,7 @@ describe('validateUser — creación directa por admin', () => {
    * @test Rol no permitido (admin) es rechazado.
    */
   test('rechaza rol inválido', () => {
-    const result = validateUser({ ...basePasante, rol: 'admin' })
+    const result = validateAdminCreate({ ...basePasante, rol: 'admin' })
     assert.equal(result.success, false)
   })
 
@@ -104,7 +110,7 @@ describe('validateUser — creación directa por admin', () => {
    */
   test('rechaza pasante sin matrícula', () => {
     const { matricula, ...sinMatricula } = basePasante
-    const result = validateUser(sinMatricula)
+    const result = validateAdminCreate(sinMatricula)
     assert.equal(result.success, false)
   })
 
@@ -113,21 +119,21 @@ describe('validateUser — creación directa por admin', () => {
    */
   test('rechaza coordinador sin cédula', () => {
     const { cedula, ...sinCedula } = baseCoord
-    const result = validateUser(sinCedula)
+    const result = validateAdminCreate(sinCedula)
     assert.equal(result.success, false)
   })
 })
 
 /**
- * @description Suite para validatePartialUser (actualización parcial).
+ * @description Suite para validateUserUpdate (actualización parcial).
  * Todos los campos son opcionales pero deben ser válidos si se proveen.
  */
-describe('validatePartialUser — actualización parcial', () => {
+describe('validateUserUpdate — actualización parcial', () => {
   /**
    * @test Solo nombre es suficiente y aceptado.
    */
   test('acepta solo nombre', () => {
-    const result = validatePartialUser({ nombre: 'Carlos' })
+    const result = validateUserUpdate({ nombre: 'Carlos' })
     assert.equal(result.success, true)
   })
 
@@ -135,7 +141,7 @@ describe('validatePartialUser — actualización parcial', () => {
    * @test Objeto vacío es aceptado (todos los campos son opcionales).
    */
   test('acepta objeto vacío', () => {
-    const result = validatePartialUser({})
+    const result = validateUserUpdate({})
     assert.equal(result.success, true)
   })
 
@@ -143,7 +149,7 @@ describe('validatePartialUser — actualización parcial', () => {
    * @test Correo con formato inválido en actualización parcial es rechazado.
    */
   test('rechaza correo inválido en parcial', () => {
-    const result = validatePartialUser({ correo: 'bad' })
+    const result = validateUserUpdate({ correo: 'bad' })
     assert.equal(result.success, false)
   })
 })
@@ -151,10 +157,10 @@ describe('validatePartialUser — actualización parcial', () => {
 // ─── registro.js (auto-registro con token) ──────────────────────────
 
 /**
- * @description Suite para validateRegistration (auto-registro con token).
+ * @description Suite para validateSelfRegister (auto-registro con token).
  * Verifica reglas estrictas de password y coincidencia de confirmación.
  */
-describe('validateRegistration — auto-registro', () => {
+describe('validateSelfRegister — auto-registro', () => {
   const validToken = '550e8400-e29b-41d4-a716-446655440000'
 
   const basePasante = {
@@ -187,7 +193,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Datos completos de pasante con password fuerte son aceptados.
    */
   test('acepta registro pasante válido', () => {
-    const result = validateRegistration(basePasante, 'PASANTE')
+    const result = validateSelfRegister(basePasante, 'PASANTE')
     assert.equal(result.success, true)
   })
 
@@ -195,7 +201,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Datos completos de coordinador con password fuerte son aceptados.
    */
   test('acepta registro coordinador válido', () => {
-    const result = validateRegistration(baseCoord, 'COORDINADOR')
+    const result = validateSelfRegister(baseCoord, 'COORDINADOR')
     assert.equal(result.success, true)
   })
 
@@ -203,7 +209,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Password sin mayúscula no cumple los requisitos de auto-registro.
    */
   test('rechaza password sin mayúscula', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, password: 'abc12345!', confirmPassword: 'abc12345!' },
       'PASANTE'
     )
@@ -214,7 +220,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Password sin número no cumple los requisitos de auto-registro.
    */
   test('rechaza password sin número', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, password: 'Abcdefgh!', confirmPassword: 'Abcdefgh!' },
       'PASANTE'
     )
@@ -225,7 +231,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Password sin carácter especial no cumple los requisitos de auto-registro.
    */
   test('rechaza password sin carácter especial', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, password: 'Abc12345x', confirmPassword: 'Abc12345x' },
       'PASANTE'
     )
@@ -236,7 +242,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Password de 4 caracteres (menor al mínimo de 8) es rechazada.
    */
   test('rechaza password menor a 8 caracteres', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, password: 'Ab1!', confirmPassword: 'Ab1!' },
       'PASANTE'
     )
@@ -247,7 +253,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test confirmPassword diferente a password es rechazada.
    */
   test('rechaza confirmPassword que no coincide', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, confirmPassword: 'Diferente1!' },
       'PASANTE'
     )
@@ -258,7 +264,7 @@ describe('validateRegistration — auto-registro', () => {
    * @test Token con formato distinto a UUID es rechazado.
    */
   test('rechaza token no UUID', () => {
-    const result = validateRegistration(
+    const result = validateSelfRegister(
       { ...basePasante, token: 'no-es-uuid' },
       'PASANTE'
     )

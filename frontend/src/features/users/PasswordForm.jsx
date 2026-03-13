@@ -28,13 +28,7 @@ export default function PasswordForm() {
         label="Contraseña temporal"
         placeholder="Mínimo 6 caracteres"
         error={errors?.password?.message}
-        registration={register('password', {
-          required: 'Ingresa una contraseña',
-          minLength: {
-            value: 6,
-            message: 'La contraseña debe tener al menos 6 caracteres',
-          },
-        })}
+        registration={register('password')}
         variant="outline"
       />
     </div>

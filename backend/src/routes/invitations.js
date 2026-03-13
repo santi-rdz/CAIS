@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { InvitationController } from '../controllers/invitations.js'
-import { requireAuth, requireRole } from '../middleware/auth.js'
+import { InvitationController } from '#controllers/invitations.js'
+import { requireAuth, requireRole } from '#middleware/auth.js'
 
 const privileged = requireRole('COORDINADOR', 'ADMIN')
 

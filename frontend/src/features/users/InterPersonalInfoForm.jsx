@@ -15,46 +15,40 @@ export default function InterPersonalInfoForm() {
         Información Personal
       </Heading>
       <Row className="gap-4">
-        <FormRow htmlFor="firstName" label="Nombre(s)" className="w-full">
+        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full">
           <Input
-            {...register('firstName', {
-              required: 'Ingresa el nombre del pasante',
-            })}
-            id="firstName"
+            {...register('nombre')}
+            id="nombre"
             type="text"
             placeholder="Ej. Juan Carlos"
-            hasError={errors?.firstName?.message}
+            hasError={errors?.nombre?.message}
             variant="outline"
           />
         </FormRow>
-        <FormRow htmlFor="lastName" label="Apellidos" className="w-full">
+        <FormRow htmlFor="apellido" label="Apellidos" className="w-full">
           <Input
-            {...register('lastName', {
-              required: 'Ingresa apellidos del pasante',
-            })}
-            id="lastName"
+            {...register('apellido')}
+            id="apellido"
             type="text"
             placeholder="Ej. Perez Lopez"
-            hasError={errors?.lastName?.message}
+            hasError={errors?.apellido?.message}
             variant="outline"
           />
         </FormRow>
       </Row>
       <Row className="gap-4">
         <BirthdayField control={control} errors={errors} />
-        <FormRow htmlFor="phone" label="Número telefónico" className="w-full">
+        <FormRow
+          htmlFor="telefono"
+          label="Número telefónico"
+          className="w-full"
+        >
           <Input
-            {...register('phone', {
-              required: 'Ingresa el número telefónico',
-              pattern: {
-                value: /^[0-9]{10}$/,
-                message: 'Ingresa un número de 10 dígitos',
-              },
-            })}
-            id="phone"
+            {...register('telefono')}
+            id="telefono"
             type="tel"
             placeholder="Ej. 6641234567"
-            hasError={errors?.phone?.message}
+            hasError={errors?.telefono?.message}
             variant="outline"
           />
         </FormRow>

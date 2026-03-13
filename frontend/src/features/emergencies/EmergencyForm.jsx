@@ -8,9 +8,11 @@ import PhoneField from '@ui/PhoneField'
 import Row from '@ui/Row'
 import TimeField from '@ui/TimeField'
 import { mergeFechaHora } from '@lib/dateHelpers'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { useCreateEmergency } from './useCreateEmergency'
 import { useUpdateEmergency } from './useUpdateEmergency'
+import { emergencyFormSchema } from '@cais/shared/schemas/medicina/emergency'
 import dayjs from 'dayjs'
 import Modal from '@ui/Modal'
 
@@ -23,17 +25,18 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
     handleSubmit,
     formState: { errors },
   } = useForm({
+    resolver: zodResolver(emergencyFormSchema),
     defaultValues: isEditing
       ? {
-          birthday: dayjs(emergency.fecha_hora),
+          fecha: dayjs(emergency.fecha_hora),
           hora: dayjs(emergency.fecha_hora),
           ubicacion: emergency.ubicacion ?? '',
-          name: emergency.nombre ?? '',
+          nombre: emergency.nombre ?? '',
           matricula: emergency.matricula ?? '',
-          phone: emergency.telefono ?? '',
+          telefono: emergency.telefono ?? '',
           recurrente: emergency.recurrente ?? false,
           diagnostico: emergency.diagnostico ?? '',
-          accion: emergency.accion_realizada ?? '',
+          accion_realizada: emergency.accion_realizada ?? '',
         }
       : undefined,
   })
@@ -43,14 +46,14 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
 
   function onSubmit(data) {
     const payload = {
-      fecha_hora: mergeFechaHora(data.birthday, data.hora),
+      fecha_hora: mergeFechaHora(data.fecha, data.hora),
       ubicacion: data.ubicacion,
       recurrente: data.recurrente ?? false,
-      nombre: data.name || undefined,
+      nombre: data.nombre || undefined,
       matricula: data.matricula || undefined,
-      telefono: data.phone || undefined,
+      telefono: data.telefono || undefined,
       diagnostico: data.diagnostico || undefined,
-      accion_realizada: data.accion || undefined,
+      accion_realizada: data.accion_realizada || undefined,
     }
 
     if (isEditing) {
@@ -91,9 +94,8 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
           onClose={onCloseModal}
           primaryAction={{
             label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
-            isCreating: isEditing ? isUpdating : isCreating,
-            disabled: isEditing ? isUpdating : isCreating,
             isLoading: isEditing ? isUpdating : isCreating,
+            disabled: isEditing ? isUpdating : isCreating,
             type: 'submit',
           }}
         />
@@ -109,14 +111,17 @@ function RequiredSection({ register, control, errors }) {
         Información requerida
       </Heading>
       <Row className="gap-4">
-        <BirthdayField birthdate={false} control={control} errors={errors} />
+        <BirthdayField
+          birthdate={false}
+          name="fecha"
+          control={control}
+          errors={errors}
+        />
         <TimeField control={control} errors={errors} />
       </Row>
       <FormRow htmlFor="ubicacion" label="Ubicación de la emergencia">
         <Input
-          {...register('ubicacion', {
-            required: 'Ingresa la ubicación de la emergencia',
-          })}
+          {...register('ubicacion')}
           id="ubicacion"
           type="text"
           placeholder="Ej. Laboratorio de Química"
@@ -135,13 +140,13 @@ function PatientSection({ register, control, errors }) {
         Información del paciente (opcional)
       </Heading>
       <Row className="gap-4">
-        <FormRow htmlFor="name" label="Nombre" className="w-full">
+        <FormRow htmlFor="nombre" label="Nombre" className="w-full">
           <Input
-            {...register('name')}
-            id="name"
+            {...register('nombre')}
+            id="nombre"
             type="text"
             placeholder="Ej. Juan Perez"
-            hasError={errors?.name?.message}
+            hasError={errors?.nombre?.message}
             variant="outline"
           />
         </FormRow>
@@ -190,12 +195,12 @@ function MedicalSection({ register, errors }) {
           textarea
         />
       </FormRow>
-      <FormRow htmlFor="accion" label="Acción realizada">
+      <FormRow htmlFor="accion_realizada" label="Acción realizada">
         <Input
-          {...register('accion')}
-          id="accion"
+          {...register('accion_realizada')}
+          id="accion_realizada"
           placeholder="Ej. Se trasladó al hospital"
-          hasError={errors?.accion?.message}
+          hasError={errors?.accion_realizada?.message}
           variant="outline"
           textarea
         />

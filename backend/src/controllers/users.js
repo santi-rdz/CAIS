@@ -1,12 +1,15 @@
-import { validatePartialUser, validateUser } from '../schemas/user.js'
-import { validateRegistration } from '../schemas/register.js'
+import {
+  validateUserUpdate,
+  validateAdminCreate,
+  validateSelfRegister,
+} from '@cais/shared/schemas/users'
 import { randomUUID } from 'node:crypto'
-import { UserModel } from '../models/UserModel.js'
-import { InvitationModel } from '../models/InvitationModel.js'
-import { prisma } from '../config/prisma.js'
-import { uuidToBuffer } from '../lib/uuid.js'
+import { UserModel } from '#models/UserModel.js'
+import { InvitationModel } from '#models/InvitationModel.js'
+import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
 import bcrypt from 'bcryptjs'
-import { formatZodErrors } from '../lib/formatErrors.js'
+import { formatZodErrors } from '#lib/formatErrors.js'
 
 async function getAreaIdFromCreator(creatorId) {
   if (!creatorId) return null
@@ -54,7 +57,7 @@ export class UserController {
   }
 
   static async update(req, res) {
-    const result = validatePartialUser(req.body)
+    const result = validateUserUpdate(req.body)
     if (result.error) {
       return res.status(422).json({
         error: 'ValidationError',
@@ -78,7 +81,7 @@ export class UserController {
   }
 
   static async create(req, res) {
-    const result = validateUser(req.body)
+    const result = validateAdminCreate(req.body)
     if (result.error) {
       return res.status(422).json({
         error: 'ValidationError',
@@ -155,7 +158,7 @@ export class UserController {
         })
       }
 
-      const result = validateRegistration(req.body, invitacion.rol)
+      const result = validateSelfRegister(req.body, invitacion.rol)
       if (result.error) {
         return res.status(422).json({
           error: 'ValidationError',

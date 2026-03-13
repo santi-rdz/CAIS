@@ -1,7 +1,8 @@
-import z from 'zod'
+import { z } from 'zod'
+import { correoSchema } from './fields.js'
 
-const invitedUser = z.object({
-  email: z.string().email('Correo electrónico inválido'),
+const invitationSchema = z.object({
+  email: correoSchema,
   role: z.enum(['pasante', 'coordinador'], {
     errorMap: () => ({ message: 'El rol debe ser pasante o coordinador' }),
   }),
@@ -9,7 +10,7 @@ const invitedUser = z.object({
 
 export function validateInvitedUser(input) {
   return z
-    .array(invitedUser)
+    .array(invitationSchema)
     .min(1, 'Debe incluir al menos un correo')
     .safeParse(input)
 }

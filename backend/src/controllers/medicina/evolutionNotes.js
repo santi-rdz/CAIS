@@ -1,9 +1,9 @@
-import { EvolutionNoteModel } from '../../models/medicina/EvolutionNote.js'
+import { EvolutionNoteModel } from '#models/medicina/EvolutionNote.js'
 import {
   validateEvolutionNote,
   validatePartialEvolutionNote,
-} from '../../schemas/medicina/evolutionNote.js'
-import { formatZodErrors } from '../../lib/formatErrors.js'
+} from '@cais/shared/schemas/medicina/evolutionNote'
+import { formatZodErrors } from '#lib/formatErrors.js'
 
 export class EvolutionNoteController {
   /**

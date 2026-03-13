@@ -1,12 +1,12 @@
-import { userRouter } from './routes/users.js'
-import { authRouter } from './routes/auth.js'
-import { invitationRouter } from './routes/invitations.js'
+import { userRouter } from '#routes/users.js'
+import { authRouter } from '#routes/auth.js'
+import { invitationRouter } from '#routes/invitations.js'
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
-import { PrismaSessionStore } from './config/sessionStore.js'
-import { patientRouter } from './routes/patient.js'
-import { medicineRouter } from './routes/medicine.js'
+import { PrismaSessionStore } from '#config/sessionStore.js'
+import { patientRouter } from '#routes/patient.js'
+import { medicineRouter } from '#routes/medicine.js'
 
 const app = express()
 app.use(express.json())

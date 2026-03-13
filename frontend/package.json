@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@hookform/resolvers": "^5.2.2",
     "@mui/x-date-pickers": "8.27.2",
     "@tailwindcss/vite": "4.1.16",
     "@tanstack/react-query": "5.90.5",
@@ -25,7 +26,7 @@
     "lucide-react": "^0.575.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
-    "react-dom": "19.2.3",
+    "react-dom": "19.2.4",
     "react-hook-form": "7.66.0",
     "react-hot-toast": "2.6.0",
     "react-icons": "5.5.0",

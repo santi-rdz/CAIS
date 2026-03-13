@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { PatientController } from '../controllers/patients.js'
-import { requireAuth } from '../middleware/auth.js'
+import { PatientController } from '#controllers/patients.js'
+import { requireAuth } from '#middleware/auth.js'
 
 export const patientRouter = Router()
 
