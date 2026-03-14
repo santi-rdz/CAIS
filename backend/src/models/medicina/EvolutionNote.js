@@ -12,20 +12,14 @@ const includeRelations = {
 
 function formatEvolutionNote(n) {
   if (!n) return null
+  const { pacientes, historias_medicas, ...rest } = n
   return {
+    ...rest,
     id: bufferToUUID(n.id),
     paciente_id: n.paciente_id ? bufferToUUID(n.paciente_id) : null,
     historia_medica_id: n.historia_medica_id
       ? bufferToUUID(n.historia_medica_id)
       : null,
-    motivo_consulta: n.motivo_consulta,
-    ant_gine_andro: n.ant_gine_andro,
-    aparatos_sistemas_id: n.aparatos_sistemas_id,
-    aparatos_sistemas: n.aparatos_sistemas ?? null,
-    informacion_fisica_id: n.informacion_fisica_id,
-    informacion_fisica: n.informacion_fisica ?? null,
-    plan_estudio_id: n.plan_estudio_id,
-    planes_estudio: n.planes_estudio ?? null,
   }
 }
 

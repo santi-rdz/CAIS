@@ -14,21 +14,13 @@ const includeRelations = {
 
 function formatUser(u) {
   if (!u) return null
+  const { estados, roles, areas, ...rest } = u
   return {
+    ...rest,
     id: bufferToUUID(u.id),
-    estado: u.estados?.codigo ?? null,
-    rol: u.roles?.codigo ?? null,
-    area: u.areas?.nombre ?? null,
-    creado_at: u.creado_at,
-    ultimo_acceso: u.ultimo_acceso,
-    foto: u.foto,
-    nombre: u.nombre,
-    correo: u.correo,
-    telefono: u.telefono,
-    fecha_nacimiento: u.fecha_nacimiento,
-    matricula: u.matricula,
-    inicio_servicio: u.inicio_servicio,
-    fin_servicio: u.fin_servicio,
+    estado: estados?.codigo ?? null,
+    rol: roles?.codigo ?? null,
+    area: areas?.nombre ?? null,
   }
 }
 
