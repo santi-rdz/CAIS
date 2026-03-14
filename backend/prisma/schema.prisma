@@ -610,6 +610,7 @@ model pacientes {
   telefono_emergencia           String?                         @db.VarChar(30)
   parentesco_emergencia         String?                         @db.VarChar(100)
   creado_at                     DateTime?                       @default(now()) @db.DateTime(0)
+  actualizado_at                DateTime?                       @db.DateTime(0)
   cal_get_nutr                  cal_get_nutr[]
   eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
   eval_bioq_nutricion           eval_bioq_nutricion[]
@@ -621,7 +622,6 @@ model pacientes {
   usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
   patron_alimentacion_nutricion patron_alimentacion_nutricion[]
   rec_24h_nutricion             rec_24h_nutricion[]
-  registro_auditoria            registro_auditoria[]
   reporte_een_adulto_nutricion  reporte_een_adulto_nutricion[]
   reporte_een_kids_nutricion    reporte_een_kids_nutricion[]
   tpan_nutricion                tpan_nutricion[]
@@ -760,20 +760,19 @@ model rec_24h_nutricion {
 }
 
 model registro_auditoria {
-  id          Bytes      @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  usuario_id  Bytes      @db.Binary(16)
+  id          Bytes     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  usuario_id  Bytes     @db.Binary(16)
   accion_id   Int
   entidad_id  Int
-  objetivo_id Bytes?     @db.Binary(16)
-  fecha_hora  DateTime?  @default(now()) @db.DateTime(0)
-  acciones    acciones   @relation(fields: [accion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_accion")
-  entidades   entidades  @relation(fields: [entidad_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_entidad")
-  pacientes   pacientes? @relation(fields: [objetivo_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_objetivo")
-  usuarios    usuarios   @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_usuario")
+  objetivo_id Bytes?    @db.Binary(16)
+  fecha_hora  DateTime? @default(now()) @db.DateTime(0)
+  acciones    acciones  @relation(fields: [accion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_accion")
+  entidades   entidades @relation(fields: [entidad_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_entidad")
+  usuarios    usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_usuario")
 
   @@index([accion_id], map: "fk_audit_accion")
   @@index([entidad_id], map: "fk_audit_entidad")
-  @@index([objetivo_id], map: "fk_audit_objetivo")
+  @@index([objetivo_id], map: "idx_audit_objetivo")
   @@index([usuario_id], map: "fk_audit_usuario")
 }
 

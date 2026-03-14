@@ -5,7 +5,8 @@
   "exports": {
     "./*": "./*.js",
     "./schemas/*": "./schemas/*.js",
-    "./schemas/medicina/*": "./schemas/medicina/*.js"
+    "./schemas/medicina/*": "./schemas/medicina/*.js",
+    "./constants/*": "./constants/*.js"
   },
   "peerDependencies": {
     "zod": ">=4.0.0"

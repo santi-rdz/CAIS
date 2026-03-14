@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
+import { formatDefs } from '#lib/formatDef.js'
+import { PATIENT_SORT_DEFS } from '@cais/shared/constants/patients'
 
 const includeRelations = {
   usuarios: true,
 }
+
+const SORT_OPTIONS = formatDefs(PATIENT_SORT_DEFS)
 
 function formatPatient(u) {
   if (!u) return null
@@ -13,6 +17,7 @@ function formatPatient(u) {
     doctor_id: bufferToUUID(u?.doctor_id),
     nombre: u?.nombre,
     fecha_nacimiento: u?.fecha_nacimiento,
+    actualizado_at: u?.actualizado_at,
     es_externo: u?.es_externo,
     correo: u?.correo,
     telefono: u?.telefono,
@@ -31,35 +36,22 @@ function formatPatient(u) {
 }
 
 export class PatientModel {
-  static async getAll({ sortBy, search, page, limit }) {
+  static async getAll({ sortBy, search, page, limit, genre }) {
     const where = {}
 
     if (search) {
       where.OR = [{ nombre: { contains: search } }]
     }
 
-    const sortOptions = {
-      'nombre-asc': { nombre: 'asc' },
-      'nombre-desc': { nombre: 'desc' },
-      'date-asc': { creado_at: 'asc' },
-      'date-desc': { creado_at: 'desc' },
-    }
-
     const orderBy =
-      sortBy && sortOptions[sortBy]
-        ? sortOptions[sortBy]
+      sortBy && SORT_OPTIONS[sortBy]
+        ? SORT_OPTIONS[sortBy]
         : { creado_at: 'desc' }
 
-    const MAX_PAGE_SIZE = 100
-    const parsedPage = Number(page)
-    const parsedLimit = Number(limit)
-    const safePage =
-      Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
-    const safeLimit =
-      Number.isFinite(parsedLimit) && parsedLimit > 0
-        ? Math.min(parsedLimit, MAX_PAGE_SIZE)
-        : 10
-    const offset = (safePage - 1) * safeLimit
+    if (genre) {
+      where.genero = genre
+    }
+    const offset = (page - 1) * limit
 
     const [patients, total] = await prisma.$transaction([
       prisma.pacientes.findMany({
@@ -67,7 +59,7 @@ export class PatientModel {
         include: includeRelations,
         orderBy,
         skip: offset,
-        take: safeLimit,
+        take: limit,
       }),
       prisma.pacientes.count({ where }),
     ])
@@ -95,35 +87,10 @@ export class PatientModel {
   }
 
   static async update(id, data) {
-    const fieldMap = {
-      doctor_id: 'doctor_id',
-      nombre: 'nombre',
-      fecha_nacimiento: 'fecha_nacimiento',
-      es_externo: 'es_externo',
-      correo: 'correo',
-      telefono: 'telefono',
-      genero: 'genero',
-      domicilio: 'domicilio',
-      ocupacion: 'ocupacion',
-      estado_civil: 'estado_civil',
-      nivel_educativo: 'nivel_educativo',
-      religion: 'religion',
-      nss: 'nss',
-      contacto_emergencia: 'contacto_emergencia',
-      telefono_emergencia: 'telefono_emergencia',
-      parentesco_emergencia: 'parentesco_emergencia',
-    }
-
-    const prismaData = Object.fromEntries(
-      Object.entries(data)
-        .filter(([k]) => fieldMap[k])
-        .map(([k, v]) => [fieldMap[k], v])
-    )
-
     try {
       await prisma.pacientes.update({
         where: { id: uuidToBuffer(id) },
-        data: prismaData,
+        data,
       })
       return await this.getById(id)
     } catch (err) {

@@ -12,20 +12,37 @@ import {
 } from 'react-icons/hi2'
 import EmergencyForm from './EmergencyForm'
 import Modal from '@ui/Modal'
+import { EMERGENCY_SORT_KEYS } from '@cais/shared/constants/emergencies'
 
 const SORT_BY_OPTIONS = [
   {
     label: 'Por Fecha',
     options: [
-      { label: 'Más reciente', value: 'fecha-desc', icon: HiArrowDown },
-      { label: 'Más antiguo', value: 'fecha-asc', icon: HiArrowUp },
+      {
+        label: 'Más reciente',
+        value: EMERGENCY_SORT_KEYS.FECHA_DESC,
+        icon: HiArrowDown,
+      },
+      {
+        label: 'Más antiguo',
+        value: EMERGENCY_SORT_KEYS.FECHA_ASC,
+        icon: HiArrowUp,
+      },
     ],
   },
   {
     label: 'Por Nombre Paciente',
     options: [
-      { label: 'A → Z', value: 'nombre-asc', icon: HiArrowUp },
-      { label: 'Z → A', value: 'nombre-desc', icon: HiArrowDown },
+      {
+        label: 'A → Z',
+        value: EMERGENCY_SORT_KEYS.NOMBRE_ASC,
+        icon: HiArrowUp,
+      },
+      {
+        label: 'Z → A',
+        value: EMERGENCY_SORT_KEYS.NOMBRE_DESC,
+        icon: HiArrowDown,
+      },
     ],
   },
 ]

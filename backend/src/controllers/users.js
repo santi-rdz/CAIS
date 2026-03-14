@@ -8,8 +8,11 @@ import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
+import { parsePagination } from '#lib/paginate.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '#lib/formatErrors.js'
+
+const BCRYPT_ROUNDS = 12
 
 async function getAreaIdFromCreator(creatorId) {
   if (!creatorId) return null
@@ -24,12 +27,30 @@ async function getAreaIdFromCreator(creatorId) {
   }
 }
 
+function buildServicio(anio, periodo) {
+  return anio && periodo ? `${anio}-${periodo}` : null
+}
+
+async function buildUserPayload(data) {
+  return {
+    nombre: `${data.nombre} ${data.apellido}`,
+    foto: `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`,
+    passwordHash: await bcrypt.hash(data.password, BCRYPT_ROUNDS),
+    matricula: data.matricula || null,
+    cedula: data.cedula || null,
+    inicioServicio: buildServicio(
+      data.servicioInicioAnio,
+      data.servicioInicioPeriodo
+    ),
+    finServicio: buildServicio(data.servicioFinAnio, data.servicioFinPeriodo),
+  }
+}
+
 export class UserController {
   static async getAll(req, res) {
     const { status, rol, sortBy, search } = req.query
+    const { page, limit } = parsePagination(req.query)
 
-    const page = +req.query.page || 1
-    const limit = +req.query.limit || 10
     const users = await UserModel.getAll({
       status,
       rol,
@@ -90,54 +111,32 @@ export class UserController {
       })
     }
 
-    const data = result.data
-
     try {
-      const passwordHash = await bcrypt.hash(data.password, 12)
-      const fullName = `${data.nombre} ${data.apellido}`
-      const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
-
-      const inicioServicio =
-        data.servicioInicioAnio && data.servicioInicioPeriodo
-          ? `${data.servicioInicioAnio}-${data.servicioInicioPeriodo}`
-          : null
-      const finServicio =
-        data.servicioFinAnio && data.servicioFinPeriodo
-          ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
-          : null
-
+      const payload = await buildUserPayload(result.data)
       const areaId = await getAreaIdFromCreator(req.session.userId)
 
-      const createdUser = await prisma.$transaction(async (tx) => {
-        return await UserModel.create(
+      const createdUser = await prisma.$transaction((tx) =>
+        UserModel.create(
           {
-            nombre: fullName,
-            correo: data.correo,
-            fechaNacimiento: data.fechaNacimiento,
-            telefono: data.telefono,
-            passwordHash,
-            rol: data.rol,
+            ...payload,
+            correo: result.data.correo,
+            fechaNacimiento: result.data.fechaNacimiento,
+            telefono: result.data.telefono,
+            rol: result.data.rol,
             areaId,
-            foto,
-            matricula: data.matricula || null,
-            cedula: data.cedula || null,
-            inicioServicio,
-            finServicio,
           },
           tx
         )
-      })
+      )
 
-      res.status(201).json({
-        message: 'Usuario creado exitosamente',
-        usuario: createdUser,
-      })
+      res
+        .status(201)
+        .json({ message: 'Usuario creado exitosamente', usuario: createdUser })
     } catch (err) {
       if (err.code === 'P2002') {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: 'El correo ya está registrado',
-        })
+        return res
+          .status(409)
+          .json({ error: 'Conflict', message: 'El correo ya está registrado' })
       }
       console.error('Error al crear usuario:', err)
       res
@@ -168,21 +167,7 @@ export class UserController {
       }
 
       const data = result.data
-      const passwordHash = await bcrypt.hash(data.password, 12)
-
-      const fullName = `${data.nombre} ${data.apellido}`
-      const foto = `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`
-      const matricula = data.matricula || null
-      const cedula = data.cedula || null
-      const inicioServicio =
-        data.servicioInicioAnio && data.servicioInicioPeriodo
-          ? `${data.servicioInicioAnio}-${data.servicioInicioPeriodo}`
-          : null
-      const finServicio =
-        data.servicioFinAnio && data.servicioFinPeriodo
-          ? `${data.servicioFinAnio}-${data.servicioFinPeriodo}`
-          : null
-
+      const payload = await buildUserPayload(data)
       const userId = randomUUID()
 
       const createdUser = await prisma.$transaction(async (tx) => {
@@ -198,24 +183,23 @@ export class UserController {
         await tx.usuarios.create({
           data: {
             id: uuidToBuffer(userId),
-            nombre: fullName,
+            nombre: payload.nombre,
             correo: invitacion.correo,
             fecha_nacimiento: new Date(data.fechaNacimiento),
             telefono: data.telefono,
-            password_hash: passwordHash,
+            password_hash: payload.passwordHash,
             estado_id: activeStatus.id,
             rol_id: roleRow.id,
             area_id: invitacion.area_id ?? null,
-            foto,
-            matricula,
-            cedula,
-            inicio_servicio: inicioServicio,
-            fin_servicio: finServicio,
+            foto: payload.foto,
+            matricula: payload.matricula,
+            cedula: payload.cedula,
+            inicio_servicio: payload.inicioServicio,
+            fin_servicio: payload.finServicio,
           },
         })
 
         await InvitationModel.markAsUsed(token, tx)
-
         return await UserModel.getById(userId, tx)
       })
 
@@ -225,10 +209,9 @@ export class UserController {
       })
     } catch (err) {
       if (err.code === 'P2002') {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: 'El correo ya está registrado',
-        })
+        return res
+          .status(409)
+          .json({ error: 'Conflict', message: 'El correo ya está registrado' })
       }
       console.error('Error en registro:', err)
       res.status(500).json({

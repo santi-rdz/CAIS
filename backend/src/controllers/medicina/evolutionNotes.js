@@ -4,24 +4,21 @@ import {
   validatePartialEvolutionNote,
 } from '@cais/shared/schemas/medicina/evolutionNote'
 import { formatZodErrors } from '#lib/formatErrors.js'
+import { parsePagination } from '#lib/paginate.js'
 
 export class EvolutionNoteController {
-  /**
-   * POST /notas-evolucion
-   * Registrar una nota de evolución.
-   */
   static async create(req, res) {
-    const validation = validateEvolutionNote(req.body)
-    if (!validation.success) {
+    const result = validateEvolutionNote(req.body)
+    if (result.error) {
       return res.status(422).json({
         error: 'ValidationError',
-        fields: formatZodErrors(validation.error),
         message: 'Datos de nota de evolución inválidos',
+        fields: formatZodErrors(result.error),
       })
     }
 
     try {
-      const note = await EvolutionNoteModel.create(validation.data)
+      const note = await EvolutionNoteModel.create(result.data)
       return res
         .status(201)
         .json({ message: 'Nota de evolución registrada', note })
@@ -33,23 +30,14 @@ export class EvolutionNoteController {
     }
   }
 
-  /**
-   * GET /notas-evolucion
-   * Listar notas de evolución con paginación opcional y filtro por paciente.
-   */
   static async getAll(req, res) {
     const { paciente_id } = req.query
-    const page = +req.query.page || 1
-    const limit = +req.query.limit || 10
+    const { page, limit } = parsePagination(req.query)
 
     const result = await EvolutionNoteModel.getAll({ paciente_id, page, limit })
     res.json(result)
   }
 
-  /**
-   * GET /notas-evolucion/:id
-   * Obtiene los detalles de una nota de evolución por ID.
-   */
   static async getById(req, res) {
     const { id } = req.params
     const note = await EvolutionNoteModel.getById(id)
@@ -60,10 +48,6 @@ export class EvolutionNoteController {
     res.json(note)
   }
 
-  /**
-   * DELETE /notas-evolucion/:id
-   * Eliminar una nota de evolución.
-   */
   static async delete(req, res) {
     const { id } = req.params
     try {
@@ -82,10 +66,6 @@ export class EvolutionNoteController {
     }
   }
 
-  /**
-   * PATCH /notas-evolucion/:id
-   * Actualizar parcialmente una nota de evolución.
-   */
   static async update(req, res) {
     const result = validatePartialEvolutionNote(req.body)
     if (result.error) {

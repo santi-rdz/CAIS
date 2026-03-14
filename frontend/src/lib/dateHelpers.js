@@ -23,3 +23,8 @@ export function formatHora(fechaHora) {
 export function mergeFechaHora(date, time) {
   return dayjs(date).hour(time.hour()).minute(time.minute()).second(0).format()
 }
+
+export function formatFechaHora(fechaHora) {
+  if (!fechaHora) return '---'
+  return dayjs(fechaHora).locale(es).format('DD MMM YYYY, HH:mm')
+}

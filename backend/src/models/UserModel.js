@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
+import { USER_SORT_DEFS } from '@cais/shared/constants/users'
+import { formatDefs } from '#lib/formatDef.js'
+
+const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
 
 const includeRelations = {
   estados: true,
@@ -49,16 +53,9 @@ export class UserModel {
       ]
     }
 
-    const sortOptions = {
-      'nombre-asc': { nombre: 'asc' },
-      'nombre-desc': { nombre: 'desc' },
-      'login-asc': { ultimo_acceso: 'asc' },
-      'login-desc': { ultimo_acceso: 'desc' },
-    }
-
     const orderBy =
-      sortBy && sortOptions[sortBy]
-        ? sortOptions[sortBy]
+      sortBy && SORT_OPTIONS[sortBy]
+        ? SORT_OPTIONS[sortBy]
         : { creado_at: 'desc' }
 
     const offset = (page - 1) * limit

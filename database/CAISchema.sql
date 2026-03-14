@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS pacientes (
     telefono_emergencia VARCHAR(30),
     parentesco_emergencia VARCHAR(100),
     creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    actualizado_at DATETIME DEFAULT NULL,
     CONSTRAINT fk_pacientes_usuario FOREIGN KEY (doctor_id) REFERENCES usuarios(id)
 );
 
@@ -753,7 +754,7 @@ CREATE TABLE IF NOT EXISTS registro_auditoria (
     CONSTRAINT fk_audit_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
     CONSTRAINT fk_audit_accion FOREIGN KEY (accion_id) REFERENCES acciones(id),
     CONSTRAINT fk_audit_entidad FOREIGN KEY (entidad_id) REFERENCES entidades(id),
-    CONSTRAINT fk_audit_objetivo FOREIGN KEY (objetivo_id) REFERENCES pacientes(id)
+    INDEX idx_audit_objetivo (objetivo_id)
 );
 
 CREATE TABLE IF NOT EXISTS bitacora_emergencias (
@@ -851,7 +852,8 @@ INSERT INTO
         foto,
         matricula,
         inicio_servicio,
-        fin_servicio
+        fin_servicio,
+        ultimo_acceso
     )
 VALUES
     (
@@ -867,7 +869,8 @@ VALUES
         'https://randomuser.me/api/portraits/men/45.jpg',
         'MED001',
         '08:00',
-        '16:00'
+        '16:00',
+        '2026-03-09 14:00:00'
     ),
     (
         UUID_TO_BIN(UUID()),
@@ -882,7 +885,8 @@ VALUES
         'https://randomuser.me/api/portraits/women/44.jpg',
         'MED002',
         '09:00',
-        '15:00'
+        '15:00',
+        '2026-03-09 13:30:00'
     ),
     (
         UUID_TO_BIN(UUID()),
@@ -897,7 +901,8 @@ VALUES
         'https://randomuser.me/api/portraits/men/32.jpg',
         'NUT001',
         '10:00',
-        '14:00'
+        '14:00',
+        '2026-03-10 11:15:00'
     ),
     (
         UUID_TO_BIN(UUID()),
@@ -912,12 +917,20 @@ VALUES
         'https://randomuser.me/api/portraits/women/65.jpg',
         'NUT002',
         '07:00',
-        '13:00'
+        '13:00',
+        '2026-03-11 08:45:00'
     );
 
 -- INVITACIONES DE PRUEBA
 INSERT INTO
-    invitaciones_registro (correo, rol_id, token, usado, expira_at, creado_por)
+    invitaciones_registro (
+        correo,
+        rol_id,
+        token,
+        usado,
+        expira_at,
+        creado_por
+    )
 VALUES
     (
         'pasante.prueba@uabc.edu.mx',
@@ -925,222 +938,415 @@ VALUES
         UUID_TO_BIN(UUID()),
         FALSE,
         DATE_ADD(NOW(), INTERVAL 7 DAY),
-        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
-    ),
-    (
-        'coord.prueba@uabc.edu.mx',
-        2,
-        UUID_TO_BIN(UUID()),
-        FALSE,
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        )
+    ), (
+        'coord.prueba@uabc.edu.mx', 2, UUID_TO_BIN(UUID()), FALSE, DATE_ADD(NOW(), INTERVAL 7 DAY),
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        )
+    ), (
+        'pasante.expirado@uabc.edu.mx', 1, UUID_TO_BIN(UUID()), FALSE, DATE_SUB(NOW(), INTERVAL 1 DAY),
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        )
+    ), (
+        'pasante.usado@uabc.edu.mx', 1, UUID_TO_BIN(UUID()), TRUE,
         DATE_ADD(NOW(), INTERVAL 7 DAY),
-        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
-    ),
-    (
-        'pasante.expirado@uabc.edu.mx',
-        1,
-        UUID_TO_BIN(UUID()),
-        FALSE,
-        DATE_SUB(NOW(), INTERVAL 1 DAY),
-        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
-    ),
-    (
-        'pasante.usado@uabc.edu.mx',
-        1,
-        UUID_TO_BIN(UUID()),
-        TRUE,
-        DATE_ADD(NOW(), INTERVAL 7 DAY),
-        (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1)
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        )
     );
 
 -- ===============================
 -- TEST DATA: bitacora_emergencias
 -- ===============================
-INSERT INTO bitacora_emergencias (id, usuario_id, fecha_hora, ubicacion, nombre, matricula, telefono, diagnostico, accion_realizada, tratamiento_admin, recurrente) VALUES
-(
-    UUID_TO_BIN(UUID()),
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    '2026-03-09 10:30:00',
-    'Sala de Emergencias',
-    'Juan Pérez',
-    'MAT123456',
-    '6641234567',
-    'Lipotimia',
-    'Evaluación inmediata',
-    'Hidratación IV',
-    FALSE
-),
-(
-    UUID_TO_BIN(UUID()),
-    (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1),
-    '2026-03-09 14:15:00',
-    'Área de Triage',
-    'María López',
-    'MAT654321',
-    '6645551234',
-    'Dolor torácico',
-    'Monitoreo cardíaco',
-    'EKG + Aspirina',
-    FALSE
-),
-(
-    UUID_TO_BIN(UUID()),
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    '2026-03-08 22:45:00',
-    'Pasillo de Urgencias',
-    'Carlos Rodríguez',
-    'MAT789012',
-    '6649876543',
-    'Crisis asmática',
-    'Aplicación de salbutamol',
-    'Nebulización + Corticoides',
-    TRUE
-),
-(
-    UUID_TO_BIN(UUID()),
-    (SELECT id FROM usuarios WHERE correo = 'luis.mendoza@uabc.edu.mx' LIMIT 1),
-    '2026-03-07 16:20:00',
-    'Cuarto de Observación',
-    'Ana García',
-    'MAT345678',
-    '6642223333',
-    'Hipoglucemia',
-    'Medición de glucosa',
-    'Glucosa IV',
-    TRUE
-);
+INSERT INTO
+    bitacora_emergencias (
+        id,
+        usuario_id,
+        fecha_hora,
+        ubicacion,
+        nombre,
+        matricula,
+        telefono,
+        diagnostico,
+        accion_realizada,
+        tratamiento_admin,
+        recurrente
+    )
+VALUES
+    (
+        UUID_TO_BIN(UUID()),
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), '2026-03-09 10:30:00', 'Sala de Emergencias', 'Juan Pérez', 'MAT123456', '6641234567', 'Lipotimia', 'Evaluación inmediata', 'Hidratación IV', FALSE
+    ), (
+        UUID_TO_BIN(UUID()), (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        ), '2026-03-09 14:15:00', 'Área de Triage', 'María López', 'MAT654321', '6645551234', 'Dolor torácico', 'Monitoreo cardíaco', 'EKG + Aspirina', FALSE
+    ), (
+        UUID_TO_BIN(UUID()), (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), '2026-03-08 22:45:00', 'Pasillo de Urgencias', 'Carlos Rodríguez', 'MAT789012', '6649876543', 'Crisis asmática', 'Aplicación de salbutamol', 'Nebulización + Corticoides', TRUE
+    ),
+    (
+        UUID_TO_BIN(UUID()),
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'luis.mendoza@uabc.edu.mx'
+            LIMIT
+                1
+        ), '2026-03-07 16:20:00', 'Cuarto de Observación', 'Ana García', 'MAT345678', '6642223333', 'Hipoglucemia', 'Medición de glucosa', 'Glucosa IV', TRUE
+    );
 
-INSERT INTO pacientes (
-    doctor_id, nombre, fecha_nacimiento, es_externo, correo, telefono,
-    genero, domicilio, ocupacion, estado_civil, nivel_educativo,
-    religion, nss, contacto_emergencia, telefono_emergencia, parentesco_emergencia
-) VALUES
-(
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    'Carlos Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com',
-    '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC',
-    'Contador', 'Casado', 'Licenciatura', 'Católica',
-    '45678912301', 'Laura Ruiz Pérez', '6641112233', 'Esposa'
-),
-(
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    'Ana Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com',
-    '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC',
-    'Maestra', 'Soltera', 'Maestría', 'Cristiana',
-    '78912345602', 'Pedro Fernández López', '6642223344', 'Padre'
-),
-(
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    'Jorge Reyes Castillo', '1978-11-05 00:00:00', TRUE, 'jorge.reyes@yahoo.com',
-    '6644567890', 'Masculino', 'Blvd. Agua Caliente 321, Tijuana, BC',
-    'Médico', 'Divorciado', 'Doctorado', 'Ninguna',
-    '32165498703', 'María Castillo Vega', '6643334455', 'Madre'
-),
-(
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    'Lucía Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com',
-    '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC',
-    'Estudiante', 'Soltera', 'Bachillerato', 'Católica',
-    '96385274104', 'Rosa Soto Díaz', '6644445566', 'Madre'
-);
+INSERT INTO
+    pacientes (
+        doctor_id,
+        nombre,
+        fecha_nacimiento,
+        es_externo,
+        correo,
+        telefono,
+        genero,
+        domicilio,
+        ocupacion,
+        estado_civil,
+        nivel_educativo,
+        religion,
+        nss,
+        contacto_emergencia,
+        telefono_emergencia,
+        parentesco_emergencia,
+        actualizado_at
+    )
+VALUES
+    (
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Carlos Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com', '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC', 'Contador', 'Casado', 'Licenciatura', 'Católica', '45678912301', 'Laura Ruiz Pérez', '6641112233', 'Esposa', '2026-03-12 10:30:00'
+    ), (
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Ana Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com', '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC', 'Maestra', 'Soltera', 'Maestría', 'Cristiana', '78912345602', 'Pedro Fernández López', '6642223344', 'Padre', '2026-03-10 09:15:00'
+    ), (
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Jorge Reyes Castillo', '1978-11-05 00:00:00', TRUE,
+        'jorge.reyes@yahoo.com',
+        '6644567890',
+        'Masculino',
+        'Blvd. Agua Caliente 321, Tijuana, BC',
+        'Médico',
+        'Divorciado',
+        'Doctorado',
+        'Ninguna',
+        '32165498703',
+        'María Castillo Vega',
+        '6643334455',
+        'Madre',
+        '2026-02-28 16:00:00'
+    ),
+    (
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Lucía Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com', '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC', 'Estudiante', 'Soltera', 'Bachillerato', 'Católica', '96385274104', 'Rosa Soto Díaz', '6644445566', 'Madre', '2026-03-05 14:20:00'
+    );
 
 -- ===============================
 -- TEST DATA: notas_evolucion
 -- ===============================
+INSERT INTO
+    aparatos_sistemas (
+        neurologico,
+        cardiovascular,
+        respiratorio,
+        hematologico,
+        digestivo,
+        musculoesqueletico,
+        genitourinario,
+        endocrinologico,
+        metabolico,
+        nutricional
+    )
+VALUES
+    (
+        'Sin alteraciones',
+        'Ritmo cardíaco regular',
+        'Respiración normal',
+        'Sin anemia',
+        'Sin molestias digestivas',
+        'Sin dolor articular',
+        'Sin alteraciones urinarias',
+        'Sin alteraciones tiroideas',
+        'Metabolismo normal',
+        'Nutrición adecuada'
+    ),
+    (
+        'Cefalea ocasional',
+        'Palpitaciones leves',
+        'Tos crónica leve',
+        'Sin alteraciones',
+        'Gastritis referida',
+        'Lumbalgia crónica',
+        'Sin alteraciones',
+        'Hipotiroidismo controlado',
+        'Dislipidemia',
+        'Déficit proteico'
+    );
 
-INSERT INTO aparatos_sistemas (
-    neurologico, cardiovascular, respiratorio, hematologico,
-    digestivo, musculoesqueletico, genitourinario, endocrinologico,
-    metabolico, nutricional
-) VALUES
-(
-    'Sin alteraciones', 'Ritmo cardíaco regular', 'Respiración normal', 'Sin anemia',
-    'Sin molestias digestivas', 'Sin dolor articular', 'Sin alteraciones urinarias',
-    'Sin alteraciones tiroideas', 'Metabolismo normal', 'Nutrición adecuada'
-),
-(
-    'Cefalea ocasional', 'Palpitaciones leves', 'Tos crónica leve', 'Sin alteraciones',
-    'Gastritis referida', 'Lumbalgia crónica', 'Sin alteraciones',
-    'Hipotiroidismo controlado', 'Dislipidemia', 'Déficit proteico'
-);
+INSERT INTO
+    informacion_fisica (
+        peso,
+        altura,
+        pa_sistolica,
+        pa_diastolica,
+        fc,
+        fr,
+        circ_cintura,
+        circ_cadera,
+        sp_o2,
+        glucosa_capilar,
+        temperatura,
+        exploracion_fisica,
+        habito_exterior
+    )
+VALUES
+    (
+        72.5,
+        1.75,
+        120,
+        80,
+        72,
+        16,
+        88.0,
+        95.0,
+        98.0,
+        95.0,
+        36.5,
+        'Exploración física sin hallazgos relevantes',
+        'Paciente en buen estado general'
+    ),
+    (
+        85.0,
+        1.68,
+        135,
+        88,
+        80,
+        18,
+        102.0,
+        108.0,
+        96.5,
+        110.0,
+        37.1,
+        'Obesidad grado I, abdomen globoso',
+        'Paciente con sobrepeso, consciente y orientado'
+    );
 
-INSERT INTO informacion_fisica (
-    peso, altura, pa_sistolica, pa_diastolica, fc, fr,
-    circ_cintura, circ_cadera, sp_o2, glucosa_capilar, temperatura,
-    exploracion_fisica, habito_exterior
-) VALUES
-(
-    72.5, 1.75, 120, 80, 72, 16,
-    88.0, 95.0, 98.0, 95.0, 36.5,
-    'Exploración física sin hallazgos relevantes', 'Paciente en buen estado general'
-),
-(
-    85.0, 1.68, 135, 88, 80, 18,
-    102.0, 108.0, 96.5, 110.0, 37.1,
-    'Obesidad grado I, abdomen globoso', 'Paciente con sobrepeso, consciente y orientado'
-);
+INSERT INTO
+    planes_estudio (
+        codigo_cie10,
+        plan_tratamiento,
+        usuario_id,
+        tratamiento
+    )
+VALUES
+    (
+        'Z00.0',
+        'Examen médico general de rutina. BH, QS, EGO.',
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Observación y seguimiento en 3 meses'
+    ), (
+        'E11.9', 'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        ), 'Metformina 850mg c/12h + dieta hipocalórica'
+    );
 
-INSERT INTO planes_estudio (
-    codigo_cie10, plan_tratamiento, usuario_id, tratamiento
-) VALUES
-(
-    'Z00.0',
-    'Examen médico general de rutina. BH, QS, EGO.',
-    (SELECT id FROM usuarios WHERE correo = 'sofia.navarro@uabc.edu.mx' LIMIT 1),
-    'Observación y seguimiento en 3 meses'
-),
-(
-    'E11.9',
-    'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
-    (SELECT id FROM usuarios WHERE correo = 'carlos.herrera@cais.com' LIMIT 1),
-    'Metformina 850mg c/12h + dieta hipocalórica'
-);
+INSERT INTO
+    historias_medicas (
+        id,
+        paciente_id,
+        informacion_fisica_id,
+        aparatos_sistemas_id,
+        plan_estudio_id,
+        tipo_sangre,
+        vacunas_infancia_completas,
+        motivo_consulta,
+        historia_enfermedad_actual
+    )
+VALUES
+    (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'carlos.mendoza@gmail.com'
+            LIMIT
+                1
+        ), 1, 1, 1, 'O+', TRUE,
+        'Revisión anual',
+        'Paciente acude a revisión de rutina sin síntomas agudos'
+    ),
+    (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'ana.fernandez@hotmail.com'
+            LIMIT
+                1
+        ), 2, 2, 2, 'A-', TRUE,
+        'Control de diabetes',
+        'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
+    );
 
-INSERT INTO historias_medicas (
-    id, paciente_id, informacion_fisica_id, aparatos_sistemas_id, plan_estudio_id,
-    tipo_sangre, vacunas_infancia_completas, motivo_consulta, historia_enfermedad_actual
-) VALUES
-(
-    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
-    1, 1, 1,
-    'O+', TRUE,
-    'Revisión anual',
-    'Paciente acude a revisión de rutina sin síntomas agudos'
-),
-(
-    UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-    (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
-    2, 2, 2,
-    'A-', TRUE,
-    'Control de diabetes',
-    'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
-);
-
-INSERT INTO notas_evolucion (
-    id, paciente_id, historia_medica_id, motivo_consulta, ant_gine_andro,
-    aparatos_sistemas_id, informacion_fisica_id, plan_estudio_id
-) VALUES
-(
-    UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
-    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
-    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-    'Revisión anual. Paciente sin quejas.',
-    'Sin antecedentes gineco-andros relevantes',
-    1, 1, 1
-),
-(
-    UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
-    (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
-    UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-    'Control de diabetes. Refiere mejora parcial con medicamento.',
-    'G2 P2 A0, ciclos regulares',
-    2, 2, 2
-),
-(
-    UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'),
-    (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
-    UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-    'Seguimiento post-revisión. Resultados de laboratorio normales.',
-    'Sin cambios',
-    1, 1, 1
-);
+INSERT INTO
+    notas_evolucion (
+        id,
+        paciente_id,
+        historia_medica_id,
+        motivo_consulta,
+        ant_gine_andro,
+        aparatos_sistemas_id,
+        informacion_fisica_id,
+        plan_estudio_id
+    )
+VALUES
+    (
+        UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
+        (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'carlos.mendoza@gmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 1, 1, 1
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'ana.fernandez@hotmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 2, 2, 2
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'carlos.mendoza@gmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 1, 1, 1
+    );

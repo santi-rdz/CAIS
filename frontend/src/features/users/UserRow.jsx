@@ -4,11 +4,10 @@ import RowActionsMenu from '@ui/RowActionsMenu'
 import Modal from '@ui/Modal'
 import DangerConfirm from '@ui/DangerConfirm'
 import Button from '@ui/Button'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { HiLockClosed, HiOutlineLockClosed } from 'react-icons/hi2'
 import useDeleteUser from './useDeleteUser'
 import useUser from './useUser'
+import DateTime from '@ui/DateTime'
 
 export default function UserRow({ user, openMenu, setOpenMenu }) {
   const {
@@ -40,25 +39,23 @@ export default function UserRow({ user, openMenu, setOpenMenu }) {
 
   return (
     <Table.Row isCurrentUser={isCurrentUser}>
-      <UserPicture>
-        {hasPicture ? (
-          <img src={picture} className="size-full" />
-        ) : (
-          <div className="flex size-full items-center justify-center text-base uppercase">
-            {email?.at(0)}
-          </div>
-        )}
-      </UserPicture>
-      <div>
+      <div className="flex items-center gap-4">
+        <UserPicture>
+          {hasPicture ? (
+            <img src={picture} className="size-full" />
+          ) : (
+            <div className="flex size-full items-center justify-center text-base uppercase">
+              {email?.at(0)}
+            </div>
+          )}
+        </UserPicture>
         <Stacked>
           <span>{showedName ?? '---'}</span>
           <span className="font-normal text-neutral-500">{email}</span>
         </Stacked>
       </div>
       <div className="capitalize">{role}</div>
-      <div>
-        {lastLogin ? format(lastLogin, 'dd MMM yyyy', { locale: es }) : '---'}
-      </div>
+      <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>
       </div>
