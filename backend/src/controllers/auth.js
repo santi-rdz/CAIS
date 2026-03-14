@@ -50,6 +50,12 @@ export class AuthController {
         if (err) return res.status(500).json({ error: 'Server error' })
         req.session.userId = bufferToUUID(user.id)
         req.session.role = user.roles?.codigo
+        prisma.usuarios
+          .update({
+            where: { id: user.id },
+            data: { ultimo_acceso: new Date() },
+          })
+          .catch((e) => console.error('Error actualizando ultimo_acceso:', e))
         return res.json({ ok: true })
       })
     } catch (err) {

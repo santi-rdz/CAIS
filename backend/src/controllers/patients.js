@@ -4,26 +4,20 @@ import {
   validatePartialPatient,
 } from '@cais/shared/schemas/medicina/patient'
 import { formatZodErrors } from '#lib/formatErrors.js'
+import { parsePagination } from '#lib/paginate.js'
 
 export class PatientController {
-  /**
-   * POST /pacientes
-   * Registrar paciente.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async create(req, res) {
-    const validation = validatePatient(req.body)
-    if (!validation.success) {
-      return res.status(422).json({ error: validation.error.issues })
+    const result = validatePatient(req.body)
+    if (result.error) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        fields: formatZodErrors(result.error),
+      })
     }
 
     try {
-      const patient = await PatientModel.create(
-        validation.data,
-        req.session.userId
-      )
+      const patient = await PatientModel.create(result.data, req.session.userId)
       return res.status(201).json({ message: 'Paciente registrado', patient })
     } catch (error) {
       console.error('Error creating patient:', error)
@@ -31,48 +25,28 @@ export class PatientController {
     }
   }
 
-  /**
-   * GET /pacientes
-   * Listar pacientes.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getAll(req, res) {
-    const { sortBy, search } = req.query
-    const page = +req.query.page || 1
-    const limit = +req.query.limit || 10
+    const { sortBy, search, genre } = req.query
+    const { page, limit } = parsePagination(req.query)
+
     const patients = await PatientModel.getAll({
       sortBy,
       search,
+      genre,
       page,
       limit,
     })
     res.json(patients)
   }
 
-  /**
-   * GET /pacientes/:id
-   * Obtiene los detalles de un paciente específico mediante su ID.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getById(req, res) {
     const { id } = req.params
     const patient = await PatientModel.getById(id)
     if (!patient)
-      return res.status(404).json({ message: 'Paciente no encontrada' })
+      return res.status(404).json({ message: 'Paciente no encontrado' })
     res.json(patient)
   }
 
-  /**
-   * DELETE /pacientes/:id
-   * Borra a un paciente.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async delete(req, res) {
     const { id } = req.params
     const success = await PatientModel.delete(id)
@@ -81,13 +55,6 @@ export class PatientController {
     res.json({ message: 'Paciente borrado exitosamente' })
   }
 
-  /**
-   * PATCH /pacientes/:id
-   * Actualiza los datos de un paciente.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async update(req, res) {
     const result = validatePartialPatient(req.body)
     if (result.error) {

@@ -4,6 +4,7 @@ import {
   HiMagnifyingGlass,
   HiOutlinePlus,
 } from 'react-icons/hi2'
+import { USER_SORT_KEYS } from '@cais/shared/constants/users'
 import Button from '@ui/Button'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
@@ -18,15 +19,23 @@ const SORT_BY_OPTIONS = [
   {
     label: 'Por Nombre',
     options: [
-      { label: 'A → Z', value: 'nombre-asc', icon: HiArrowUp },
-      { label: 'Z → A', value: 'nombre-desc', icon: HiArrowDown },
+      { label: 'A → Z', value: USER_SORT_KEYS.NOMBRE_ASC, icon: HiArrowUp },
+      { label: 'Z → A', value: USER_SORT_KEYS.NOMBRE_DESC, icon: HiArrowDown },
     ],
   },
   {
     label: 'Por Último Login',
     options: [
-      { label: 'Más reciente', value: 'login-desc', icon: HiArrowDown },
-      { label: 'Más antiguo', value: 'login-asc', icon: HiArrowUp },
+      {
+        label: 'Más reciente',
+        value: USER_SORT_KEYS.LOGIN_DESC,
+        icon: HiArrowDown,
+      },
+      {
+        label: 'Más antiguo',
+        value: USER_SORT_KEYS.LOGIN_ASC,
+        icon: HiArrowUp,
+      },
     ],
   },
 ]

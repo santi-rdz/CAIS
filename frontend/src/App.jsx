@@ -8,6 +8,7 @@ import Users from './pages/Users'
 import ProtectedRoute from '@ui/ProtectedRoute'
 import Emergencies from './pages/Emergencies'
 import EmergencyDetail from './pages/EmergencyDetail'
+import Patients from './pages/Patients'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="pacientes" element={<Patients />} />
           <Route path="usuarios" element={<Users />} />
           <Route path="emergencias" element={<Emergencies />} />
           <Route path="emergencias/:id" element={<EmergencyDetail />} />

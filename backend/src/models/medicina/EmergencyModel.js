@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
+import { formatDefs } from '#lib/formatDef.js'
+import { EMERGENCY_SORT_DEFS } from '@cais/shared/constants/emergencies'
 
 const includeRelations = {
   usuarios: true,
 }
+
+const SORT_OPTIONS = formatDefs(EMERGENCY_SORT_DEFS)
 
 function formatEmergency(u) {
   if (!u) return null
@@ -51,25 +55,12 @@ export class EmergencyModel {
       where.recurrente = recurrent
     }
 
-    const sortOptions = {
-      'nombre-asc': { nombre: 'asc' },
-      'nombre-desc': { nombre: 'desc' },
-      'fecha-asc': { fecha_hora: 'asc' },
-      'fecha-desc': { fecha_hora: 'desc' },
-    }
-
     const orderBy =
-      sortBy && sortOptions[sortBy]
-        ? sortOptions[sortBy]
+      sortBy && SORT_OPTIONS[sortBy]
+        ? SORT_OPTIONS[sortBy]
         : { fecha_hora: 'desc' }
 
-    const parsedPage = Number(page)
-    const parsedLimit = Number(limit)
-    const safePage =
-      Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
-    const safeLimit =
-      Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10
-    const offset = (safePage - 1) * safeLimit
+    const offset = (page - 1) * limit
 
     const [emergencies, total] = await prisma.$transaction([
       prisma.bitacora_emergencias.findMany({
@@ -77,7 +68,7 @@ export class EmergencyModel {
         include: includeRelations,
         orderBy,
         skip: offset,
-        take: safeLimit,
+        take: limit,
       }),
       prisma.bitacora_emergencias.count({ where }),
     ])
@@ -130,33 +121,14 @@ export class EmergencyModel {
   }
 
   static async update(id, data) {
-    const fieldMap = {
-      fecha_hora: 'fecha_hora',
-      ubicacion: 'ubicacion',
-      nombre: 'nombre',
-      matricula: 'matricula',
-      telefono: 'telefono',
-      diagnostico: 'diagnostico',
-      accion_realizada: 'accion_realizada',
-      tratamiento_admin: 'tratamiento_admin',
-      recurrente: 'recurrente',
-    }
-
-    const prismaData = Object.fromEntries(
-      Object.entries(data)
-        .filter(([k]) => fieldMap[k])
-        .map(([k, v]) => [fieldMap[k], v])
-    )
-
     try {
       await prisma.bitacora_emergencias.update({
         where: { id: uuidToBuffer(id) },
-        data: prismaData,
+        data,
       })
       return await this.getById(id)
     } catch (err) {
       if (err.code === 'P2025') return null
-      console.error('Error en EmergencyModel.update:', err)
       throw err
     }
   }

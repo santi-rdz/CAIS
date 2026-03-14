@@ -4,7 +4,7 @@ import Pagination from '@ui/Pagination'
 import { useEmergencies } from './useEmergencies'
 import EmergencyRow from './EmergencyRow'
 
-const COLUMNS = '1.2fr 0.8fr 1.5fr 2fr 3fr 0.2fr'
+const COLUMNS = '8fr 5fr 10fr 10fr 10fr 2fr'
 
 export default function EmergenciesTable() {
   const { emergencies, count, isPending } = useEmergencies()

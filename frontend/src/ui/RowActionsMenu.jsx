@@ -1,7 +1,6 @@
 import { HiEllipsisVertical } from 'react-icons/hi2'
 import useClickOutside from '@hooks/useClickOutside'
 import DropdownPanel from './DropdownPanel'
-import Button from './Button'
 import { useRef, useEffect, useState } from 'react'
 
 export default function RowActionsMenu({
@@ -22,15 +21,14 @@ export default function RowActionsMenu({
 
   return (
     <div>
-      <Button
+      <button
         ref={triggerRef}
         onClick={onToggle}
-        variant="ghost"
         size="sm"
-        className="p-1"
+        className="cursor-pointer rounded-sm p-1 text-gray-700 duration-200 hover:bg-gray-100"
       >
         <HiEllipsisVertical size={24} />
-      </Button>
+      </button>
       {isOpen && (
         <DropdownPanel
           ref={ref}

@@ -37,20 +37,14 @@ export class EvolutionNoteModel {
       where.paciente_id = uuidToBuffer(paciente_id)
     }
 
-    const parsedPage = Number(page)
-    const parsedLimit = Number(limit)
-    const safePage =
-      Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
-    const safeLimit =
-      Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 10
-    const offset = (safePage - 1) * safeLimit
+    const offset = (page - 1) * limit
 
     const [notes, total] = await prisma.$transaction([
       prisma.notas_evolucion.findMany({
         where,
         include: includeRelations,
         skip: offset,
-        take: safeLimit,
+        take: limit,
       }),
       prisma.notas_evolucion.count({ where }),
     ])
@@ -59,11 +53,11 @@ export class EvolutionNoteModel {
   }
 
   static async getById(id, tx = prisma) {
-    const evolutionNote = await tx.notas_evolucion.findUnique({
+    const note = await tx.notas_evolucion.findUnique({
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
-    return formatEvolutionNote(evolutionNote)
+    return formatEvolutionNote(note)
   }
 
   static async create(data, tx = prisma) {
@@ -102,30 +96,15 @@ export class EvolutionNoteModel {
   }
 
   static async update(id, data) {
-    const fieldMap = {
-      motivo_consulta: 'motivo_consulta',
-      ant_gine_andro: 'ant_gine_andro',
-      aparatos_sistemas_id: 'aparatos_sistemas_id',
-      informacion_fisica_id: 'informacion_fisica_id',
-      plan_estudio_id: 'plan_estudio_id',
-    }
+    const { paciente_id, historia_medica_id, ...rest } = data
+    const prismaData = { ...rest }
 
-    const prismaData = Object.fromEntries(
-      Object.entries(data)
-        .filter(([k]) => fieldMap[k])
-        .map(([k, v]) => [fieldMap[k], v])
-    )
-
-    if (data.paciente_id !== undefined) {
-      prismaData.paciente_id = data.paciente_id
-        ? uuidToBuffer(data.paciente_id)
+    if (paciente_id !== undefined)
+      prismaData.paciente_id = paciente_id ? uuidToBuffer(paciente_id) : null
+    if (historia_medica_id !== undefined)
+      prismaData.historia_medica_id = historia_medica_id
+        ? uuidToBuffer(historia_medica_id)
         : null
-    }
-    if (data.historia_medica_id !== undefined) {
-      prismaData.historia_medica_id = data.historia_medica_id
-        ? uuidToBuffer(data.historia_medica_id)
-        : null
-    }
 
     try {
       await prisma.notas_evolucion.update({
@@ -135,7 +114,6 @@ export class EvolutionNoteModel {
       return await this.getById(id)
     } catch (err) {
       if (err.code === 'P2025') return null
-      console.error('Error en EvolutionNoteModel.update:', err)
       throw err
     }
   }

@@ -10,11 +10,12 @@ export default function Heading({
   as = 'h1',
   showBar = false,
   required = null,
+  className = '',
 }) {
   const Tag = as
 
   return (
-    <Tag className={`flex items-center gap-2 ${headingStyle[as]}`}>
+    <Tag className={`flex items-center gap-2 ${headingStyle[as]} ${className}`}>
       {showBar && (
         <div
           className={`h-4 w-1 rounded-full ${required ? 'bg-green-800' : 'bg-gray-400'}`}

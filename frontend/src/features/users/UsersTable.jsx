@@ -11,13 +11,13 @@ export default function UsersTable() {
   if (isPending) return <UsersTableSkeleton />
 
   return (
-    <Table columns="0.3fr 3.4fr 1.2fr 1.6fr 1.6fr 0.2fr">
+    <Table columns="27fr 10fr 15fr 15fr 2fr">
       <Table.Header>
-        <div></div>
         <div>Nombre</div>
         <div>Rol</div>
         <div>Ultimo login</div>
         <div>Estado</div>
+        <div></div>
       </Table.Header>
       <Table.Body
         data={users}

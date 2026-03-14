@@ -2,6 +2,7 @@ import { formatFecha } from '@lib/dateHelpers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { deleteEmergency as apiDeleteEmergency } from '@services/ApiEmergencies'
+import { toastApiError } from '@lib/ApiError'
 
 export function useDeleteEmergency() {
   const queryClient = useQueryClient()
@@ -18,7 +19,7 @@ export function useDeleteEmergency() {
       loading: 'Eliminando emergencia...',
       success: (data) =>
         `Emergencia del ${formatFecha(data.fecha_hora)} eliminada`,
-      error: 'No se pudo eliminar la emergencia',
+      error: toastApiError,
     })
     return promise
   }

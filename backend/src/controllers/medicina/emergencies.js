@@ -1,4 +1,5 @@
 import { formatZodErrors } from '#lib/formatErrors.js'
+import { parsePagination } from '#lib/paginate.js'
 import { EmergencyModel } from '#models/medicina/EmergencyModel.js'
 import {
   validateEmergency,
@@ -6,26 +7,19 @@ import {
 } from '@cais/shared/schemas/medicina/emergency'
 
 export class EmergencyController {
-  /**
-   * POST /emergencias
-   * Registrar emergencia.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async create(req, res) {
-    const validation = validateEmergency(req.body)
-    if (!validation.success) {
+    const result = validateEmergency(req.body)
+    if (result.error) {
       return res.status(422).json({
         error: 'ValidationError',
         message: 'Datos de emergencia inválidos',
-        fields: formatZodErrors(validation.error),
+        fields: formatZodErrors(result.error),
       })
     }
 
     try {
       const emergency = await EmergencyModel.create(
-        validation.data,
+        result.data,
         req.session.userId
       )
       return res
@@ -37,17 +31,9 @@ export class EmergencyController {
     }
   }
 
-  /**
-   * GET /emergencias
-   * Listar bitácora de emergencias.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getAll(req, res) {
     const { sortBy, search, recurrente } = req.query
-    const page = +req.query.page || 1
-    const limit = +req.query.limit || 10
+    const { page, limit } = parsePagination(req.query)
     const recurrentBoolean =
       recurrente === 'true' ? true : recurrente === 'false' ? false : null
 
@@ -61,13 +47,6 @@ export class EmergencyController {
     res.json(emergencies)
   }
 
-  /**
-   * GET /emergencias/:id
-   * Obtiene los detalles de una emergencia específico mediante su ID.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async getById(req, res) {
     const { id } = req.params
     const emergency = await EmergencyModel.getById(id)
@@ -76,13 +55,6 @@ export class EmergencyController {
     res.json(emergency)
   }
 
-  /**
-   * PATCH /emergencias/:id
-   * Editar una emergencia específica mediante su ID.
-   *
-   * @param {Object} req - Objeto de petición de Express.
-   * @param {Object} res - Objeto de respuesta de Express.
-   */
   static async delete(req, res) {
     const { id } = req.params
     try {
