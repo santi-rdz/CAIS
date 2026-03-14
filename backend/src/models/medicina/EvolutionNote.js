@@ -17,7 +17,9 @@ function formatEvolutionNote(n) {
     ...rest,
     id: bufferToUUID(n.id),
     paciente_id: n.paciente_id ? bufferToUUID(n.paciente_id) : null,
-    historia_medica_id: n.historia_medica_id ? bufferToUUID(n.historia_medica_id) : null,
+    historia_medica_id: n.historia_medica_id
+      ? bufferToUUID(n.historia_medica_id)
+      : null,
   }
 }
 
