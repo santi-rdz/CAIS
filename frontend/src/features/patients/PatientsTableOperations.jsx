@@ -24,12 +24,12 @@ const SORT_BY_OPTIONS = [
     label: 'Por Edad',
     options: [
       {
-        label: 'Menor a mayor',
+        label: 'Mayor a menor',
         value: PATIENT_SORT_KEYS.NACIMIENTO_ASC,
         icon: HiArrowUp,
       },
       {
-        label: 'Mayor a menor',
+        label: 'Menor a mayor',
         value: PATIENT_SORT_KEYS.NACIMIENTO_DESC,
         icon: HiArrowDown,
       },
