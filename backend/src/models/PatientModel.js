@@ -88,9 +88,14 @@ export class PatientModel {
 
   static async update(id, data) {
     try {
+      const updateData = {
+        ...data,
+        actualizado_at: new Date(),
+      }
+
       await prisma.pacientes.update({
         where: { id: uuidToBuffer(id) },
-        data,
+        data: updateData,
       })
       return await this.getById(id)
     } catch (err) {
