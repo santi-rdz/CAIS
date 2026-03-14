@@ -12,20 +12,13 @@ const SORT_OPTIONS = formatDefs(EMERGENCY_SORT_DEFS)
 
 function formatEmergency(u) {
   if (!u) return null
+  const { usuarios, ...rest } = u
   return {
+    ...rest,
     id: bufferToUUID(u.id),
-    usuario_id: bufferToUUID(u?.usuario_id),
-    fecha_hora: u?.fecha_hora,
-    ubicacion: u?.ubicacion,
-    nombre: u?.nombre,
-    matricula: u?.matricula,
-    telefono: u?.telefono,
-    diagnostico: u?.diagnostico,
-    accion_realizada: u?.accion_realizada,
-    tratamiento_admin: u?.tratamiento_admin,
-    recurrente: u?.recurrente,
-    registrado_por: u.usuarios
-      ? { nombre: u.usuarios.nombre, correo: u.usuarios.correo }
+    usuario_id: bufferToUUID(u.usuario_id),
+    registrado_por: usuarios
+      ? { nombre: usuarios.nombre, correo: usuarios.correo }
       : null,
   }
 }

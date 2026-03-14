@@ -12,26 +12,11 @@ const SORT_OPTIONS = formatDefs(PATIENT_SORT_DEFS)
 
 function formatPatient(u) {
   if (!u) return null
+  const { usuarios, ...rest } = u
   return {
+    ...rest,
     id: bufferToUUID(u.id),
-    doctor_id: bufferToUUID(u?.doctor_id),
-    nombre: u?.nombre,
-    fecha_nacimiento: u?.fecha_nacimiento,
-    actualizado_at: u?.actualizado_at,
-    es_externo: u?.es_externo,
-    correo: u?.correo,
-    telefono: u?.telefono,
-    genero: u?.genero,
-    domicilio: u?.domicilio,
-    ocupacion: u?.ocupacion,
-    estado_civil: u?.estado_civil,
-    nivel_educativo: u?.nivel_educativo,
-    religion: u?.religion,
-    nss: u?.nss,
-    contacto_emergencia: u?.contacto_emergencia,
-    telefono_emergencia: u?.telefono_emergencia,
-    parentesco_emergencia: u?.parentesco_emergencia,
-    creado_at: u?.creado_at,
+    doctor_id: bufferToUUID(u.doctor_id),
   }
 }
 
