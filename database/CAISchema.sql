@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 -- ===============================
 -- TABLAS BASE (SIN DEPENDENCIAS)
 -- ===============================
