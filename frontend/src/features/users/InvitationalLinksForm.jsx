@@ -102,6 +102,7 @@ export default function InvitationalLinksForm({ onClose }) {
             extraSuffix={<RoleSelect role={role} setRole={setRole} />}
           />
           <Button
+            type="submit"
             size="md"
             variant="outline"
             className="w-full border border-gray-300"
