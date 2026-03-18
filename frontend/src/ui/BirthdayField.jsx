@@ -1,4 +1,4 @@
-import FormRow from './FormRow'
+import FormRow from '@components/FormRow'
 import DatePickerComponent from './DatePickerComponent'
 
 export default function BirthdayField({

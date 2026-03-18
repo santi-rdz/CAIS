@@ -1,5 +1,5 @@
 import { HiBars3, HiOutlineSquares2X2 } from 'react-icons/hi2'
-import Button from './Button'
+import Button from '@components/Button'
 
 export default function TabLayout({ layout, setLayout }) {
   return (

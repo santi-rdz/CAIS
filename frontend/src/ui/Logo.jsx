@@ -1,5 +1,5 @@
 import caisLogo from '@assets/images/logo-cais.png'
-import useUser from '@features/users/useUser'
+import useUser from '@features/users/hooks/useUser'
 
 export default function Logo({ children, isExpanded = true }) {
   return (

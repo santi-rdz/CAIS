@@ -1,12 +1,10 @@
-import Table from '@ui/Table'
+import Table from '@components/Table'
 import UserRow from './UserRow'
-import { useUsers } from './useUsers'
-import { useState } from 'react'
-import Pagination from '@ui/Pagination'
+import { useUsers } from './hooks/useUsers'
+import Pagination from '@components/Pagination'
 
 export default function UsersTable() {
   const { users, count, isPending } = useUsers()
-  const [openMenu, setOpenMenu] = useState(null)
 
   if (isPending) return <UsersTableSkeleton />
 
@@ -21,14 +19,7 @@ export default function UsersTable() {
       </Table.Header>
       <Table.Body
         data={users}
-        render={(user) => (
-          <UserRow
-            user={user}
-            key={user.id}
-            openMenu={openMenu}
-            setOpenMenu={setOpenMenu}
-          />
-        )}
+        render={(user) => <UserRow user={user} key={user.id} />}
       />
       <Table.Footer>
         <Pagination count={count} />

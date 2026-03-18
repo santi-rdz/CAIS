@@ -1,12 +1,11 @@
 import { useDebouncedSearch } from '@hooks/useDebouncedSearch'
-import Button from '@ui/Button'
+import Button from '@components/Button'
 import Filter from '@ui/Filter'
-import Input from '@ui/Input'
+import Input from '@components/Input'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
-import { PlusIcon } from 'lucide-react'
 import { PATIENT_SORT_KEYS } from '@cais/shared/constants/patients'
-import { HiArrowDown, HiArrowUp } from 'react-icons/hi2'
+import { HiArrowDown, HiArrowUp, HiOutlinePlus } from 'react-icons/hi2'
 
 const SORT_BY_OPTIONS = [
   {
@@ -78,8 +77,8 @@ export default function PatientsTableOperations() {
       />
       <Filter groups={FILTER_GROUPS} />
       <SortBy options={SORT_BY_OPTIONS} />
-      <Button size="md">
-        <PlusIcon size={16} /> Agregar usuario
+      <Button size="md" variant="secondary">
+        <HiOutlinePlus size={16} /> Agregar paciente
       </Button>
     </TableOperations>
   )

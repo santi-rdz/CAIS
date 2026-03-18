@@ -1,4 +1,4 @@
-import Tab from '@ui/Tab'
+import Tab from '@components/Tab'
 import InternForm from './InternForm'
 import CoordForm from './CoordForm'
 

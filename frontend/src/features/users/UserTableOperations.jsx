@@ -5,15 +5,15 @@ import {
   HiOutlinePlus,
 } from 'react-icons/hi2'
 import { USER_SORT_KEYS } from '@cais/shared/constants/users'
-import Button from '@ui/Button'
+import Button from '@components/Button'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
 import UserRegisterForms from './UserRegisterForms'
 import Filter from '@ui/Filter'
-import Input from '@ui/Input'
+import Input from '@components/Input'
 
 import { useDebouncedSearch } from '@hooks/useDebouncedSearch'
-import Modal from '@ui/Modal'
+import Modal from '@components/Modal'
 
 const SORT_BY_OPTIONS = [
   {

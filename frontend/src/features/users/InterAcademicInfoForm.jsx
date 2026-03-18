@@ -1,15 +1,15 @@
 import DomainEmailInput from '@ui/DomainEmailInput'
-import FormRow from '@ui/FormRow'
-import Heading from '@ui/Heading'
-import Input from '@ui/Input'
-import Row from '@ui/Row'
+import FormRow from '@components/FormRow'
+import Heading from '@components/Heading'
+import Input from '@components/Input'
+import Row from '@components/Row'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@ui/Select'
+} from '@components/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 

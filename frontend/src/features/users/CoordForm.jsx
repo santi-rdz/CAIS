@@ -1,6 +1,6 @@
-import Button from '@ui/Button'
-import ModalActions from '@ui/ModalActions'
-import Stepper from '@ui/Stepper'
+import Button from '@components/Button'
+import ModalActions from '@components/ModalActions'
+import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
@@ -8,9 +8,9 @@ import {
   coordCreateFormSchema,
   coordSignupFormSchema,
 } from '@cais/shared/schemas/users'
-import useCreateUser from './useCreateUser'
+import useCreateUser from './hooks/useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
-import { useStepForm } from './useStepForm'
+import { useStepForm } from '../../hooks/useStepForm'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'

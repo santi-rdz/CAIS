@@ -1,6 +1,6 @@
 import { HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
-import Button from './Button'
-import Input from './Input'
+import Button from '@components/Button'
+import Input from '@components/Input'
 
 export function Header() {
   return (

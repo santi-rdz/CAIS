@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
-import useUser from '@features/users/useUser'
+import useUser from '@features/users/hooks/useUser'
 import useClickOutside from '@hooks/useClickOutside'
 import useHoverOpen from '@hooks/useHoverOpen'
 import { HiOutlineChevronUpDown } from 'react-icons/hi2'
-import Spinner from './Spinner'
+
+import Spinner from './components/Spinner'
 import ProfileDropdown from './ProfileDropdown'
 
 export default function ProfileCard({ isExpanded }) {

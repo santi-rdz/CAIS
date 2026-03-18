@@ -10,7 +10,7 @@ import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
 import DropdownPanel from './DropdownPanel'
 import Checkbox from './Checkbox'
-import { cn } from './lib/utils'
+import { cn } from '@lib/utils'
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 

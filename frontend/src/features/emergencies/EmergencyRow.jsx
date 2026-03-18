@@ -1,15 +1,15 @@
-import Table from '@ui/Table'
-import Tag from '@ui/Tag'
-import RowActionsMenu from '@ui/RowActionsMenu'
-import Button from '@ui/Button'
-import Modal from '@ui/Modal'
-import DangerConfirm from '@ui/DangerConfirm'
+import Table from '@components/Table'
+import Tag from '@components/Tag'
+import RowActionsMenu from '@components/RowActionsMenu'
+import Button from '@components/Button'
+import Modal from '@components/Modal'
+import DangerConfirm from '@components/DangerConfirm'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
 import { HiOutlineEye, HiOutlineTrash } from 'react-icons/hi2'
 import { useNavigate } from 'react-router'
-import { useDeleteEmergency } from './useDeleteEmergency'
+import { useDeleteEmergency } from './hooks/useDeleteEmergency'
 
-export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
+export default function EmergencyRow({ emergency }) {
   const {
     id,
     ubicacion,
@@ -21,18 +21,12 @@ export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
   } = emergency
 
   const navigate = useNavigate()
-  const isMenuOpen = openMenu === id
   const { deleteEmergency, isDeleting } = useDeleteEmergency()
 
   const fecha = formatFecha(fecha_hora)
   const hora = formatHora(fecha_hora)
 
-  function handleClick() {
-    setOpenMenu(isMenuOpen ? null : id)
-  }
-
   function handleVerDetalles() {
-    setOpenMenu(null)
     navigate(`/emergencias/${id}`)
   }
 
@@ -59,11 +53,7 @@ export default function EmergencyRow({ emergency, openMenu, setOpenMenu }) {
       <div className="truncate pr-4">{diagnostico ?? '---'}</div>
 
       <Modal variant="alert" icon={<HiOutlineTrash size={26} />}>
-        <RowActionsMenu
-          isOpen={isMenuOpen}
-          onToggle={handleClick}
-          onClose={() => setOpenMenu(null)}
-        >
+        <RowActionsMenu>
           <Button
             icon={<HiOutlineEye size={16} />}
             onClick={handleVerDetalles}
