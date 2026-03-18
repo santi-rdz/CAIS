@@ -3,7 +3,7 @@ import DangerConfirm from '@components/DangerConfirm'
 import Modal from '@components/Modal'
 import RowActionsMenu from '@components/RowActionsMenu'
 import Table from '@components/Table'
-import { HiOutlineTrash } from 'react-icons/hi2'
+import { HiOutlineTrash, HiArrowRight } from 'react-icons/hi2'
 import { useDeletePatient } from './hooks/useDeletePatient'
 import { useNavigate } from 'react-router'
 import DateTime from '@components/DateTime'
@@ -17,9 +17,10 @@ export default function PatientRow({ patient }) {
 
   return (
     <Table.Row onClick={() => navigate(`/pacientes/${id}`)}>
-      <span className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-        <span className="text-6 flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-0.5 text-zinc-400 shadow-xs ring-1 ring-zinc-200/60">
-          Ver detalles →
+      <span className="pointer-events-none absolute inset-y-0 right-7 flex translate-x-1.5 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+        <span className="text-6 flex items-center gap-1.5 rounded-full bg-green-800 px-3 py-1.5 font-medium text-white shadow-sm">
+          Ver detalles
+          <HiArrowRight size={11} />
         </span>
       </span>
       <PersonCell
