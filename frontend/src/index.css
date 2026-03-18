@@ -24,6 +24,16 @@
       transform: rotate(1turn);
     }
   }
+  --animate-nudge-x: nudge-x 0.9s ease-in-out infinite;
+  @keyframes nudge-x {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(3px);
+    }
+  }
 }
 
 @utility text-1 {

@@ -90,10 +90,9 @@ export default function CoordForm({
           variant="outline"
           onClick={() => setCurrStep((p) => p - 1)}
           className="flex-[30%]"
-          icon={<HiChevronLeft strokeWidth={1} />}
-          iconPos="left"
           disabled={busy}
         >
+          <HiChevronLeft strokeWidth={1} />
           Anterior
         </Button>
       )}
@@ -102,18 +101,12 @@ export default function CoordForm({
         variant="primary"
         onClick={isLast ? handleSubmit(onSubmit) : handleNext}
         className={currStep === 0 ? 'w-full' : 'flex-[70%]'}
-        icon={
-          isLast ? (
-            <HiCheck strokeWidth={1} />
-          ) : (
-            <HiChevronRight strokeWidth={1} />
-          )
-        }
-        iconPos={isLast ? 'left' : 'right'}
         isLoading={busy}
         disabled={busy}
       >
+        {isLast && <HiCheck strokeWidth={1} />}
         {isLast ? 'Registrarme' : 'Siguiente'}
+        {!isLast && <HiChevronRight strokeWidth={1} />}
       </Button>
     </div>
   ) : (

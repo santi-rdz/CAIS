@@ -40,6 +40,7 @@ export default function Button({
   className,
   isLoading = false,
   disabled,
+  type = 'button',
   ...props
 }) {
   const isButtonDisabled = disabled || isLoading
@@ -49,7 +50,12 @@ export default function Button({
   )
 
   return (
-    <button className={baseStyle} disabled={isButtonDisabled} {...props}>
+    <button
+      type={type}
+      className={baseStyle}
+      disabled={isButtonDisabled}
+      {...props}
+    >
       {isLoading ? (
         <>
           <SpinnerMini />

@@ -21,13 +21,13 @@ export default function ModalActions({
           <Button
             variant="primary"
             isLoading={primaryAction?.isLoading}
-            icon={primaryAction?.icon}
-            iconPos={primaryAction?.iconPos}
             onClick={primaryAction?.onClick}
             disabled={primaryAction?.disabled}
             type={primaryAction?.type}
           >
+            {primaryAction?.iconPos !== 'right' && primaryAction?.icon}
             {primaryAction?.label || 'Primary Action'}
+            {primaryAction?.iconPos === 'right' && primaryAction?.icon}
           </Button>
         </Row>
       </div>
@@ -46,24 +46,24 @@ export default function ModalActions({
             isLoading={secondaryAction.isLoading}
             onClick={secondaryAction.onClick}
             disabled={secondaryAction.disabled}
-            icon={secondaryAction?.icon}
-            iconPos={secondaryAction?.iconPos}
             className={secondaryAction?.className}
           >
+            {secondaryAction?.iconPos !== 'right' && secondaryAction?.icon}
             {secondaryAction.label || 'Secondary Action'}
+            {secondaryAction?.iconPos === 'right' && secondaryAction?.icon}
           </Button>
         )}
         {primaryAction && (
           <Button
             variant="primary"
             isLoading={primaryAction.isLoading}
-            icon={primaryAction.icon}
-            iconPos={primaryAction.iconPos}
             onClick={primaryAction.onClick}
             disabled={primaryAction.disabled}
             type={primaryAction.type}
           >
+            {primaryAction.iconPos !== 'right' && primaryAction.icon}
             {primaryAction.label || 'Primary Action'}
+            {primaryAction.iconPos === 'right' && primaryAction.icon}
           </Button>
         )}
       </Row>

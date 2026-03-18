@@ -25,10 +25,13 @@ export default function PatientRow({ patient }) {
 
   return (
     <Table.Row onClick={() => navigate(`/pacientes/${id}`)}>
-      <span className="pointer-events-none absolute inset-y-0 right-7 flex translate-x-1.5 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+      <span className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-green-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <span className="pointer-events-none absolute inset-y-0 right-16 flex translate-x-2 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
         <span className="text-6 flex items-center gap-1.5 rounded-full bg-green-800 px-3 py-1.5 font-medium text-white shadow-sm">
           Ver detalles
-          <HiArrowRight size={11} />
+          <span className="animate-nudge-x">
+            <HiArrowRight size={11} />
+          </span>
         </span>
       </span>
       <PersonCell

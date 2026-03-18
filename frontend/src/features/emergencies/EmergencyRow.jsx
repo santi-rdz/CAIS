@@ -55,21 +55,17 @@ export default function EmergencyRow({ emergency }) {
       <Modal variant="alert" icon={<HiOutlineTrash size={26} />}>
         <RowActionsMenu>
           <Button
-            icon={<HiOutlineEye size={16} />}
             onClick={handleVerDetalles}
             variant="ghost"
             size="md"
             className="w-full justify-start"
           >
+            <HiOutlineEye size={16} />
             Ver detalles
           </Button>
           <Modal.Open opens="delete-emergency">
-            <Button
-              icon={<HiOutlineTrash size={16} />}
-              variant="ghost"
-              size="md"
-              className=""
-            >
+            <Button variant="ghost" size="md" className="">
+              <HiOutlineTrash size={16} />
               Eliminar emergencia
             </Button>
           </Modal.Open>
