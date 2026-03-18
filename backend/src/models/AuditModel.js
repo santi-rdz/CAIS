@@ -22,7 +22,13 @@ function formatAudit(u) {
 }
 
 export class AuditModel {
-  static async getAll({ usuario_id, accion, entidad, page = 1, limit = 20 } = {}) {
+  static async getAll({
+    usuario_id,
+    accion,
+    entidad,
+    page = 1,
+    limit = 20,
+  } = {}) {
     const where = {}
 
     if (usuario_id) {
@@ -61,7 +67,10 @@ export class AuditModel {
     return formatAudit(record)
   }
 
-  static async create({ usuario_id, accion, entidad, objetivo_id = null }, tx = prisma) {
+  static async create(
+    { usuario_id, accion, entidad, objetivo_id = null },
+    tx = prisma
+  ) {
     const accionRow = await tx.acciones.findFirst({
       where: { codigo: accion.toUpperCase() },
     })
