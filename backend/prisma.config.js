@@ -3,7 +3,7 @@ import { defineConfig, env } from 'prisma/config'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 function makeAdapter() {
-  const url = new URL(process.env.DATABASE_URL)
+  const url = new URL(env('DATABASE_URL'))
   return new PrismaMariaDb({
     host: url.hostname,
     port: parseInt(url.port) || 3306,
