@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@ui/Select'
+} from '@components/Select'
 
 function ClearButton({ onClear }) {
   const { close } = useContext(SelectContext)

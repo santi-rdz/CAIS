@@ -1,5 +1,5 @@
+import { cn } from '@lib/utils'
 import { HiCheck } from 'react-icons/hi2'
-import { cn } from './lib/utils'
 
 export default function Checkbox({ checked, onChange, id, label, className }) {
   return (

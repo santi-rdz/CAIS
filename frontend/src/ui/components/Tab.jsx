@@ -65,9 +65,19 @@ Tab.Description = function TabDescription() {
 /**
  * Contenedor de los botones de tab.
  * Sin márgenes horizontales por defecto — pásalos via className si no va dentro de Tab.Header.
+ * variant='underline' renderiza un nav scrollable con indicador de borde inferior.
  */
 Tab.List = function TabList({ children, className = '' }) {
   const { variant } = useContext(TabContext)
+
+  if (variant === 'underline') {
+    return (
+      <div className={`overflow-x-auto border-b border-gray-100 ${className}`}>
+        <nav className="flex min-w-max px-5">{children}</nav>
+      </div>
+    )
+  }
+
   const style =
     variant === 'primary' ? 'mt-4 rounded-lg' : 'mt-3 w-54 rounded-md'
   return (
@@ -77,6 +87,24 @@ Tab.List = function TabList({ children, className = '' }) {
       {children}
     </nav>
   )
+}
+
+const TRIGGER_STYLES = {
+  primary: {
+    base: 'flex-1 py-1.5 rounded-md duration-300',
+    active: 'bg-green-800 text-white shadow-sm',
+    inactive: 'text-gray-500 hover:bg-gray-200',
+  },
+  secondary: {
+    base: 'flex-1 py-1.5 rounded-sm duration-300',
+    active: 'bg-white text-green-800 shadow-sm',
+    inactive: 'text-gray-500 hover:bg-gray-200',
+  },
+  underline: {
+    base: 'whitespace-nowrap border-b-2 px-4 py-3 font-medium transition-colors duration-150',
+    active: 'border-green-700 text-green-800',
+    inactive: 'border-transparent text-zinc-400 hover:text-zinc-600',
+  },
 }
 
 /**
@@ -96,17 +124,13 @@ Tab.Trigger = function TabTrigger({ value, title, desc, children }) {
   }, [value, title, desc, registerTrigger])
 
   const isActive = activeTab === value
-  const buttonStyle =
-    variant === 'primary'
-      ? isActive
-        ? 'bg-green-800 text-white shadow-sm'
-        : 'text-gray-500 hover:bg-gray-200'
-      : `text-gray-500 ${isActive ? 'bg-white text-green-800 shadow-sm' : 'hover:bg-gray-200'}`
+  const styles = TRIGGER_STYLES[variant] ?? TRIGGER_STYLES.primary
+  const stateClass = isActive ? styles.active : styles.inactive
 
   return (
     <button
       onClick={() => setActiveTab(value)}
-      className={`text-5 flex-1 cursor-pointer py-1.5 duration-300 ${buttonStyle} ${variant === 'primary' ? 'rounded-md' : 'rounded-sm'} `}
+      className={`text-5 cursor-pointer ${styles.base} ${stateClass}`}
     >
       {children}
     </button>

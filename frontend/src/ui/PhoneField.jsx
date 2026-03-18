@@ -1,5 +1,5 @@
-import FormRow from './FormRow'
-import Input from './Input'
+import FormRow from '@components/FormRow'
+import Input from '@components/Input'
 
 export default function PhoneField({ register, errors, required = true }) {
   return (

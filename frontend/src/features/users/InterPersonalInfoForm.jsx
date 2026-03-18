@@ -1,8 +1,8 @@
 import BirthdayField from '@ui/BirthdayField'
-import FormRow from '@ui/FormRow'
-import Heading from '@ui/Heading'
-import Input from '@ui/Input'
-import Row from '@ui/Row'
+import FormRow from '@components/FormRow'
+import Heading from '@components/Heading'
+import Input from '@components/Input'
+import Row from '@components/Row'
 import { useFormContext } from 'react-hook-form'
 
 export default function InterPersonalInfoForm() {

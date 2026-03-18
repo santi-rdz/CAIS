@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@ui/Select'
+} from '@components/Select'
 
 // Botón "Limpiar" que cierra el dropdown automáticamente
 function ClearButton({ onClear }) {

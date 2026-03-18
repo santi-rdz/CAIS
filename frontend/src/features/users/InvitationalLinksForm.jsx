@@ -1,6 +1,6 @@
-import Button from '@ui/Button'
+import Button from '@components/Button'
 import RoleSelect from '@ui/RoleSelect'
-import ModalActions from '@ui/ModalActions'
+import ModalActions from '@components/ModalActions'
 import TabLayout from '@ui/TabLayout'
 
 import { createContext, useContext, useState } from 'react'
@@ -13,7 +13,7 @@ import {
   HiOutlineTrash,
   HiOutlinePencil,
 } from 'react-icons/hi2'
-import useCreateInvitations from './useCreateInvitations'
+import useCreateInvitations from './hooks/useCreateInvitations'
 import DomainEmailInput from '@ui/DomainEmailInput'
 
 const EmailsContext = createContext()

@@ -43,13 +43,14 @@ Table.Body = function TableBody({ data, render }) {
   )
 }
 
-Table.Row = function TableRow({ children, isCurrentUser }) {
+Table.Row = function TableRow({ children, isCurrentUser, onClick }) {
   const { columns } = useContext(TableContext)
 
   return (
     <CommonRow
       columns={columns}
-      className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 hover:border-l-green-800 hover:bg-green-50/40 ${isCurrentUser ? 'bg-green-50/40' : ''}`}
+      className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 odd:bg-white even:bg-zinc-50/60 hover:border-l-green-800 hover:bg-green-50/50 ${isCurrentUser ? 'bg-green-50/40' : ''} ${onClick ? 'group relative cursor-pointer' : ''}`}
+      onClick={onClick}
     >
       <>{children}</>
     </CommonRow>
@@ -64,11 +65,12 @@ Table.Footer = function TableFooter({ children }) {
   )
 }
 
-function CommonRow({ columns, children, className }) {
+function CommonRow({ columns, children, className, onClick }) {
   return (
     <div
       className={`grid items-center gap-6 px-7 ${className}`}
       style={{ gridTemplateColumns: columns }}
+      onClick={onClick}
     >
       {children}
     </div>
