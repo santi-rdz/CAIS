@@ -1,9 +1,17 @@
-import { HiOutlineBeaker, HiOutlineCheckCircle, HiOutlineXCircle } from 'react-icons/hi2'
+import {
+  HiOutlineBeaker,
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+} from 'react-icons/hi2'
 import DataField from '../../components/DataField'
 
 export default function ConsultaSection({ historia }) {
-  const { tipo_sangre, vacunas_infancia_completas, motivo_consulta, historia_enfermedad_actual } =
-    historia
+  const {
+    tipo_sangre,
+    vacunas_infancia_completas,
+    motivo_consulta,
+    historia_enfermedad_actual,
+  } = historia
 
   return (
     <div className="space-y-5">

@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import Heading from '@components/Heading'
 import Tab from '@components/Tab'
-import { PERIODOS, buildAntPatFields, buildAntFamFields, buildAparSistFields } from './historia/constants'
+import {
+  PERIODOS,
+  buildAntPatFields,
+  buildAntFamFields,
+  buildAparSistFields,
+} from './historia/constants'
 import { HISTORIAS } from './historia/mockData'
 import HistoriaPeriodSelect from './historia/components/HistoriaPeriodSelect'
 import ConsultaSection from './historia/sections/ConsultaSection'
@@ -19,7 +24,11 @@ export default function PatientHistoria() {
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
         <Heading as="h3">Historia médica</Heading>
-        <HistoriaPeriodSelect value={periodo} onChange={setPeriodo} periodos={PERIODOS} />
+        <HistoriaPeriodSelect
+          value={periodo}
+          onChange={setPeriodo}
+          periodos={PERIODOS}
+        />
       </div>
 
       <Tab variant="underline" defaultTab="consulta">
@@ -48,13 +57,19 @@ export default function PatientHistoria() {
                 <SignosVitalesSection info={historia.informacion_fisica} />
               </Tab.Panel>
               <Tab.Panel value="ant-patologicos" scrollable={false}>
-                <FieldsSection fields={buildAntPatFields(historia.antecedentes_patologicos)} />
+                <FieldsSection
+                  fields={buildAntPatFields(historia.antecedentes_patologicos)}
+                />
               </Tab.Panel>
               <Tab.Panel value="ant-familiares" scrollable={false}>
-                <FieldsSection fields={buildAntFamFields(historia.antecedentes_familiares)} />
+                <FieldsSection
+                  fields={buildAntFamFields(historia.antecedentes_familiares)}
+                />
               </Tab.Panel>
               <Tab.Panel value="aparatos" scrollable={false}>
-                <FieldsSection fields={buildAparSistFields(historia.aparatos_sistemas)} />
+                <FieldsSection
+                  fields={buildAparSistFields(historia.aparatos_sistemas)}
+                />
               </Tab.Panel>
               <Tab.Panel value="inmunizaciones" scrollable={false}>
                 <InmunizacionesSection inm={historia.inmunizaciones} />

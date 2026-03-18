@@ -11,7 +11,15 @@ import BirthDate from '@components/BirthDate'
 import PersonCell from '@components/PersonCell'
 
 export default function PatientRow({ patient }) {
-  const { id, nombre, actualizado_at, fecha_nacimiento, genero, telefono, correo } = patient
+  const {
+    id,
+    nombre,
+    actualizado_at,
+    fecha_nacimiento,
+    genero,
+    telefono,
+    correo,
+  } = patient
   const { deletePatient, isDeleting } = useDeletePatient()
   const navigate = useNavigate()
 

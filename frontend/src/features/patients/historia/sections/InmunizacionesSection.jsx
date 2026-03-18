@@ -26,8 +26,13 @@ export default function InmunizacionesSection({ inm }) {
               <p className="text-6 font-medium text-zinc-400">{label}</p>
               {date ? (
                 <>
-                  <HiOutlineCheckCircle size={14} className="mt-1 text-green-600" />
-                  <p className="text-6 mt-0.5 text-zinc-600">{formatFechaLong(date)}</p>
+                  <HiOutlineCheckCircle
+                    size={14}
+                    className="mt-1 text-green-600"
+                  />
+                  <p className="text-6 mt-0.5 text-zinc-600">
+                    {formatFechaLong(date)}
+                  </p>
                 </>
               ) : (
                 <p className="text-6 mt-1 text-zinc-300">No registrada</p>

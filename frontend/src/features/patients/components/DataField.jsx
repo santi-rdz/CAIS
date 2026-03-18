@@ -9,7 +9,9 @@ export default function DataField({ icon, label, value, multiline = false }) {
       ) : (
         <p className="text-6 font-medium text-zinc-400">{label}</p>
       )}
-      <p className={`text-5 text-zinc-800 ${multiline ? 'whitespace-pre-wrap' : ''}`}>
+      <p
+        className={`text-5 text-zinc-800 ${multiline ? 'whitespace-pre-wrap' : ''}`}
+      >
         {value ?? <span className="text-zinc-300">—</span>}
       </p>
     </div>

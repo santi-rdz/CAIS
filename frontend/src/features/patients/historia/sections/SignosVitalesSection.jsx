@@ -4,7 +4,7 @@ import Empty from '../components/Empty'
 function VitalGroup({ label, children }) {
   return (
     <div>
-      <p className="text-6 mb-2 font-medium uppercase tracking-widest text-zinc-300">
+      <p className="text-6 mb-2 font-medium tracking-widest text-zinc-300 uppercase">
         {label}
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{children}</div>
@@ -15,12 +15,18 @@ function VitalGroup({ label, children }) {
 function VitalStat({ label, value, unit }) {
   return (
     <div className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-      <p className="text-6 font-medium uppercase tracking-wide text-zinc-400">{label}</p>
-      <p className="text-3 mt-1 font-lato font-semibold text-zinc-800">
+      <p className="text-6 font-medium tracking-wide text-zinc-400 uppercase">
+        {label}
+      </p>
+      <p className="text-3 font-lato mt-1 font-semibold text-zinc-800">
         {value != null ? (
           <>
             {value}
-            {unit && <span className="text-6 ml-1 font-normal text-zinc-400">{unit}</span>}
+            {unit && (
+              <span className="text-6 ml-1 font-normal text-zinc-400">
+                {unit}
+              </span>
+            )}
           </>
         ) : (
           <span className="text-5 font-normal text-zinc-300">—</span>
@@ -56,7 +62,11 @@ export default function SignosVitalesSection({ info }) {
       </VitalGroup>
       <VitalGroup label="Antropométrica">
         <VitalStat label="Peso" value={info.peso} unit="kg" />
-        <VitalStat label="Altura" value={info.altura ? `${info.altura} m` : null} unit="" />
+        <VitalStat
+          label="Altura"
+          value={info.altura ? `${info.altura} m` : null}
+          unit=""
+        />
         <VitalStat label="IMC" value={imc} unit="kg/m²" />
         <VitalStat label="Glucosa" value={info.glucosa_capilar} unit="mg/dL" />
         <VitalStat label="Circ. cintura" value={info.circ_cintura} unit="cm" />
@@ -64,8 +74,16 @@ export default function SignosVitalesSection({ info }) {
       </VitalGroup>
       {(info.exploracion_fisica || info.habito_exterior) && (
         <div className="space-y-4 border-t border-gray-100 pt-4">
-          <DataField label="Exploración física" value={info.exploracion_fisica} multiline />
-          <DataField label="Hábito exterior" value={info.habito_exterior} multiline />
+          <DataField
+            label="Exploración física"
+            value={info.exploracion_fisica}
+            multiline
+          />
+          <DataField
+            label="Hábito exterior"
+            value={info.habito_exterior}
+            multiline
+          />
         </div>
       )}
     </div>

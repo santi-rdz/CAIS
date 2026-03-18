@@ -49,7 +49,7 @@ Table.Row = function TableRow({ children, isCurrentUser, onClick }) {
   return (
     <CommonRow
       columns={columns}
-      className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 hover:border-l-green-800 hover:bg-green-50/40 ${isCurrentUser ? 'bg-green-50/40' : ''} ${onClick ? 'relative group cursor-pointer' : ''}`}
+      className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 hover:border-l-green-800 hover:bg-green-50/40 ${isCurrentUser ? 'bg-green-50/40' : ''} ${onClick ? 'group relative cursor-pointer' : ''}`}
       onClick={onClick}
     >
       <>{children}</>

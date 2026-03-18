@@ -14,8 +14,15 @@ import { formatFechaLong } from '@lib/dateHelpers'
 import MetaChip from './MetaChip'
 
 export default function PatientHeader({ patient }) {
-  const { nombre, fecha_nacimiento, genero, es_externo, correo, telefono, nss } =
-    patient
+  const {
+    nombre,
+    fecha_nacimiento,
+    genero,
+    es_externo,
+    correo,
+    telefono,
+    nss,
+  } = patient
 
   const age = fecha_nacimiento
     ? dayjs().diff(dayjs(fecha_nacimiento), 'year')
@@ -57,10 +64,16 @@ export default function PatientHeader({ patient }) {
           {(correo || telefono || nss) && (
             <div className="mt-3 flex flex-wrap gap-2">
               {correo && (
-                <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />
+                <MetaChip
+                  icon={<HiOutlineEnvelope size={12} />}
+                  value={correo}
+                />
               )}
               {telefono && (
-                <MetaChip icon={<HiOutlinePhone size={12} />} value={telefono} />
+                <MetaChip
+                  icon={<HiOutlinePhone size={12} />}
+                  value={telefono}
+                />
               )}
               {nss && (
                 <MetaChip

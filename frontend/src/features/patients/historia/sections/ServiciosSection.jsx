@@ -26,7 +26,11 @@ export default function ServiciosSection({ servicios }) {
                 : 'border-zinc-200 bg-zinc-100 text-zinc-400'
             }`}
           >
-            {active ? <HiOutlineCheckCircle size={14} /> : <HiOutlineXCircle size={14} />}
+            {active ? (
+              <HiOutlineCheckCircle size={14} />
+            ) : (
+              <HiOutlineXCircle size={14} />
+            )}
             {label}
           </span>
         )

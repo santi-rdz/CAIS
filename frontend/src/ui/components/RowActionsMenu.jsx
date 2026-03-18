@@ -19,7 +19,10 @@ export default function RowActionsMenu({ children }) {
     <div>
       <button
         ref={triggerRef}
-        onClick={(e) => { e.stopPropagation(); setIsOpen((v) => !v) }}
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen((v) => !v)
+        }}
         className="cursor-pointer rounded-sm p-1 text-gray-700 duration-200 hover:bg-gray-100"
       >
         <HiEllipsisVertical size={24} />
@@ -28,7 +31,10 @@ export default function RowActionsMenu({ children }) {
         <DropdownPanel
           ref={ref}
           style={style}
-          onClick={(e) => { e.stopPropagation(); setIsOpen(false) }}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsOpen(false)
+          }}
           className="fixed z-50 p-1"
         >
           {children}

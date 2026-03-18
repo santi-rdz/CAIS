@@ -11,7 +11,11 @@ export default function PlanEstudioSection({ plan }) {
           CIE-10: {plan.codigo_cie10}
         </span>
       </div>
-      <DataField label="Plan de tratamiento" value={plan.plan_tratamiento} multiline />
+      <DataField
+        label="Plan de tratamiento"
+        value={plan.plan_tratamiento}
+        multiline
+      />
       <DataField label="Tratamiento" value={plan.tratamiento} multiline />
     </div>
   )

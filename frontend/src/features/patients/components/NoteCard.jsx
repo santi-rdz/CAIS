@@ -15,7 +15,11 @@ export default function NoteCard({ note }) {
       </div>
       <div className="mt-4 space-y-4">
         {motivo_consulta && (
-          <DataField label="Motivo de consulta" value={motivo_consulta} multiline />
+          <DataField
+            label="Motivo de consulta"
+            value={motivo_consulta}
+            multiline
+          />
         )}
         {ant_gine_andro && (
           <DataField

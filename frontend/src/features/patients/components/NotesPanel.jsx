@@ -22,7 +22,10 @@ export default function NotesPanel({ pacienteId }) {
       {isPending ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }, (_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl bg-zinc-100" />
+            <div
+              key={i}
+              className="h-28 animate-pulse rounded-xl bg-zinc-100"
+            />
           ))}
         </div>
       ) : notes.length === 0 ? (
