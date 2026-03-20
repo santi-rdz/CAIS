@@ -63,6 +63,7 @@ function SidebarHeading({ isExpanded, handleToggle, onClose }) {
 
       {/* Desktop: collapse toggle */}
       <button
+        type="button"
         onClick={handleToggle}
         className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white text-green-800 shadow-xs ring ring-gray-100 duration-200 hover:scale-105 hover:shadow-lg max-lg:hidden"
       >
@@ -74,9 +75,10 @@ function SidebarHeading({ isExpanded, handleToggle, onClose }) {
 
       {/* Mobile: close button */}
       <button
+        type="button"
         onClick={onClose}
         aria-label="Cerrar menú"
-        className="flex hidden h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 max-lg:flex"
+        className="hidden h-8 w-8 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700 max-lg:flex max-sm:flex"
       >
         <HiOutlineXMark size={20} />
       </button>
