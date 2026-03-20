@@ -83,8 +83,12 @@ Tab.List = function TabList({ children, className = '' }) {
   const outerStyle = variant === 'primary' ? 'mt-4' : 'mt-3 w-54'
   const navStyle = variant === 'primary' ? 'rounded-lg' : 'rounded-md'
   return (
-    <div className={`scrollbar-hide overflow-x-auto ${outerStyle} ${className}`}>
-      <nav className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}>
+    <div
+      className={`scrollbar-hide overflow-x-auto ${outerStyle} ${className}`}
+    >
+      <nav
+        className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}
+      >
         {children}
       </nav>
     </div>

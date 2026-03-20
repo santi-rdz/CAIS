@@ -5,7 +5,9 @@ import NewPatientButton from '@features/patients/components/NewPatientButton'
 export default function MainNav({ isExpanded }) {
   return (
     <nav className="flex flex-col gap-4">
-      <ul className={`flex flex-col gap-1 ${isExpanded ? '' : 'lg:items-center'}`}>
+      <ul
+        className={`flex flex-col gap-1 ${isExpanded ? '' : 'lg:items-center'}`}
+      >
         {navRoutes.map((r) => (
           <NavLi route={r} key={r.path} isExpanded={isExpanded} />
         ))}

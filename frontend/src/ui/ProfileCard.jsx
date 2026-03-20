@@ -76,7 +76,7 @@ export default function ProfileCard({ isExpanded }) {
         {!isExpanded && (
           <HiOutlineChevronUpDown
             size={18}
-            className={`hidden max-lg:block shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            className={`hidden shrink-0 transition-transform duration-200 max-lg:block ${isOpen ? 'rotate-180' : ''}`}
           />
         )}
       </button>
