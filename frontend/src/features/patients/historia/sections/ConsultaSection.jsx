@@ -22,20 +22,23 @@ export default function ConsultaSection({ historia }) {
             Tipo de sangre: {tipo_sangre}
           </span>
         )}
-        <span
-          className={`text-6 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-medium ${
-            vacunas_infancia_completas
-              ? 'border-green-100 bg-green-50 text-green-700'
-              : 'border-zinc-200 bg-zinc-100 text-zinc-500'
-          }`}
-        >
-          {vacunas_infancia_completas ? (
-            <HiOutlineCheckCircle size={12} />
-          ) : (
-            <HiOutlineXCircle size={12} />
+        {vacunas_infancia_completas !== null &&
+          vacunas_infancia_completas !== undefined && (
+            <span
+              className={`text-6 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-medium ${
+                vacunas_infancia_completas
+                  ? 'border-green-100 bg-green-50 text-green-700'
+                  : 'border-zinc-200 bg-zinc-100 text-zinc-500'
+              }`}
+            >
+              {vacunas_infancia_completas ? (
+                <HiOutlineCheckCircle size={12} />
+              ) : (
+                <HiOutlineXCircle size={12} />
+              )}
+              Vacunas {vacunas_infancia_completas ? 'completas' : 'incompletas'}
+            </span>
           )}
-          Vacunas {vacunas_infancia_completas ? 'completas' : 'incompletas'}
-        </span>
       </div>
       <DataField label="Motivo de consulta" value={motivo_consulta} multiline />
       <DataField

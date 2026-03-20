@@ -39,12 +39,13 @@ export function Select({
   values = [],
   onValuesChange,
   dropdownHeight = 300,
-  align = 'right',
+  align = 'auto',
+  fullWidth = false,
   className = '',
   hasError,
 }) {
   const { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle } =
-    useDropdownPosition(dropdownHeight, { align })
+    useDropdownPosition(dropdownHeight, { align, fullWidth })
 
   const labelsRef = useRef({})
   const [, forceUpdate] = useState(0)
@@ -95,8 +96,6 @@ export function Select({
         getLabelForValue,
         toggle,
         close,
-        onEnter,
-        onLeave,
       }}
     >
       <div
@@ -110,7 +109,6 @@ export function Select({
         onMouseLeave={onLeave}
       >
         {children}
-        {/* Invisible bridge covering the 4px gap to the portal dropdown */}
         {isOpen && (
           <div
             className={cn(
@@ -126,10 +124,16 @@ export function Select({
 
 // ─── Trigger ──────────────────────────────────────────────────────────────────
 
+const triggerSizes = {
+  md: 'px-4 py-2.5 rounded-lg',
+  lg: 'px-4 py-3.5 rounded-xl shadow-xs',
+}
+
 export function SelectTrigger({
   children,
   className = '',
   icon: Icon,
+  size = 'md',
   ...props
 }) {
   const { toggle, isOpen, hasError } = useSelect()
@@ -139,7 +143,8 @@ export function SelectTrigger({
       onClick={toggle}
       className={cn(
         hasError && 'error',
-        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto rounded-lg bg-white px-4 py-2.5 font-medium ring ring-gray-300 transition-colors duration-100 hover:border-green-800',
+        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800',
+        triggerSizes[size],
         className
       )}
       {...props}
@@ -175,7 +180,6 @@ export function SelectContent({ children }) {
 
   return (
     <DropdownPanel
-      data-select-menu
       style={positionStyle}
       className={cn(
         'fixed z-9999 w-fit min-w-40 p-1.5 transition-all duration-200',

@@ -72,7 +72,9 @@ Tab.List = function TabList({ children, className = '' }) {
 
   if (variant === 'underline') {
     return (
-      <div className={`overflow-x-auto border-b border-gray-100 ${className}`}>
+      <div
+        className={`scrollbar-hide overflow-x-auto border-b border-gray-100 ${className}`}
+      >
         <nav className="flex min-w-max px-5">{children}</nav>
       </div>
     )
@@ -81,17 +83,17 @@ Tab.List = function TabList({ children, className = '' }) {
   const style =
     variant === 'primary' ? 'mt-4 rounded-lg' : 'mt-3 w-54 rounded-md'
   return (
-    <nav
-      className={`flex shrink-0 gap-0.5 bg-gray-100 p-1 ${style} ${className}`}
-    >
-      {children}
-    </nav>
+    <div className={`scrollbar-hide overflow-x-auto ${style} ${className}`}>
+      <nav className="flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1">
+        {children}
+      </nav>
+    </div>
   )
 }
 
 const TRIGGER_STYLES = {
   primary: {
-    base: 'flex-1 py-1.5 rounded-md duration-300',
+    base: 'flex-1 whitespace-nowrap px-3 py-1.5 rounded-md duration-300',
     active: 'bg-green-800 text-white shadow-sm',
     inactive: 'text-gray-500 hover:bg-gray-200',
   },

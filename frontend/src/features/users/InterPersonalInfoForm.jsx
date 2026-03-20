@@ -1,4 +1,5 @@
 import BirthdayField from '@ui/BirthdayField'
+import PhoneField from '@ui/PhoneField'
 import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
 import Input from '@components/Input'
@@ -38,20 +39,7 @@ export default function InterPersonalInfoForm() {
       </Row>
       <Row className="gap-4">
         <BirthdayField control={control} errors={errors} />
-        <FormRow
-          htmlFor="telefono"
-          label="Número telefónico"
-          className="w-full"
-        >
-          <Input
-            {...register('telefono')}
-            id="telefono"
-            type="tel"
-            placeholder="Ej. 6641234567"
-            hasError={errors?.telefono?.message}
-            variant="outline"
-          />
-        </FormRow>
+        <PhoneField />
       </Row>
     </div>
   )

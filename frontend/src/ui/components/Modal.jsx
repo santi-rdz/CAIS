@@ -71,7 +71,7 @@ Modal.Content = function Content({
   const ref = useClickOutside(
     close,
     true,
-    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock], [data-select-menu]'
+    '[class*="MuiPickers"], [class*="MuiDateCalendar"], [data-datepicker-calendar], [data-timepicker-clock], [data-dropdown-panel]'
   )
 
   if (openName !== name) return null

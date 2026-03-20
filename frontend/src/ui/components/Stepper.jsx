@@ -1,8 +1,14 @@
 import { HiCheck } from 'react-icons/hi2'
 
-export default function Stepper({ steps, current, setCurrStep, gap = '' }) {
+export default function Stepper({
+  steps,
+  current,
+  setCurrStep,
+  gap = '',
+  className = '',
+}) {
   return (
-    <div className="mx-4 flex" style={{ gap }}>
+    <div className={`mx-4 flex ${className}`} style={{ gap }}>
       {steps.map((step, i) => {
         const isLast = i === steps.length - 1
         const isCompleted = current > i

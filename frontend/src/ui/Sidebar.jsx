@@ -9,7 +9,7 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`flex flex-col gap-8 border-r border-zinc-200/60 bg-white px-4 py-6 transition-all duration-300 ease-in-out [grid-area:sidebar] ${isExpanded ? 'w-[260px]' : 'w-20'}`}
+      className={`flex flex-col gap-8 border-r border-zinc-200/60 bg-white px-4 py-6 transition-all duration-300 ease-in-out [grid-area:sidebar] max-lg:hidden ${isExpanded ? 'w-[260px]' : 'w-20'}`}
     >
       <SidebarHeading
         isExpanded={isExpanded}

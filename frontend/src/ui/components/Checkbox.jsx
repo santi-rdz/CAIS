@@ -25,7 +25,7 @@ export default function Checkbox({ checked, onChange, id, label, className }) {
       >
         {checked && <HiCheck size={9} className="text-white" />}
       </span>
-      {label && <span>{label}</span>}
+      {label && <span className="">{label}</span>}
     </label>
   )
 }
