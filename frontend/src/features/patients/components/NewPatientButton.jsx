@@ -11,7 +11,11 @@ const AREA_FORMS = {
   },
 }
 
-export default function NewPatientButton({ size = 'md', variant = 'primary' }) {
+export default function NewPatientButton({
+  size = 'md',
+  variant = 'primary',
+  className,
+}) {
   const { user } = useUser()
   const area = user?.area?.toLowerCase()
   const config = AREA_FORMS[area]
@@ -21,7 +25,7 @@ export default function NewPatientButton({ size = 'md', variant = 'primary' }) {
   return (
     <Modal>
       <Modal.Open opens="new-patient">
-        <Button size={size} variant={variant}>
+        <Button size={size} variant={variant} className={className}>
           <HiOutlinePlus size={16} strokeWidth={2.5} />
           Nuevo paciente
         </Button>

@@ -1,48 +1,18 @@
 import { NavLink } from 'react-router'
-import {
-  HiOutlineSquares2X2,
-  HiOutlineUserGroup,
-  HiOutlineIdentification,
-  HiOutlineChartBar,
-  HiOutlineBookOpen,
-} from 'react-icons/hi2'
-
-const routes = [
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    icon: HiOutlineSquares2X2,
-  },
-  {
-    path: '/pacientes',
-    name: 'Pacientes',
-    icon: HiOutlineUserGroup,
-  },
-  {
-    path: '/emergencias',
-    name: 'Bitacora de emergencias',
-    icon: HiOutlineBookOpen,
-  },
-  {
-    path: 'estadisticas',
-    name: 'Estadísticas',
-    icon: HiOutlineChartBar,
-  },
-  {
-    path: 'usuarios',
-    name: 'Usuarios',
-    icon: HiOutlineIdentification,
-  },
-]
+import navRoutes from './navRoutes'
+import NewPatientButton from '@features/patients/components/NewPatientButton'
 
 export default function MainNav({ isExpanded }) {
   return (
-    <nav>
+    <nav className="flex flex-col gap-4">
       <ul className={`flex flex-col gap-1 ${isExpanded ? '' : 'items-center'}`}>
-        {routes.map((r) => (
+        {navRoutes.map((r) => (
           <NavLi route={r} key={r.path} isExpanded={isExpanded} />
         ))}
       </ul>
+      <div className="hidden max-lg:block">
+        <NewPatientButton size="lg" className="w-full" />
+      </div>
     </nav>
   )
 }

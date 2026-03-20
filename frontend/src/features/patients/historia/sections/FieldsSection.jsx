@@ -2,11 +2,11 @@ import Grid from '@components/Grid'
 import DataField from '../../components/DataField'
 import Empty from '../components/Empty'
 
-export default function FieldsSection({ fields, cols = 2, smCols }) {
+export default function FieldsSection({ fields, cols = 2, mobileCols }) {
   if (!fields) return <Empty />
 
   return (
-    <Grid cols={cols}>
+    <Grid cols={cols} mobileCols={mobileCols}>
       {fields.map((f) => (
         <DataField
           key={f.label}

@@ -148,21 +148,23 @@
   @apply outline-[1.5px] outline-offset-2 outline-red-400;
 }
 
-/* Scrollbar personalizado — delgado y discreto */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
+/* Scrollbar personalizado — solo en dispositivos con puntero fino (no touch) */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 999px;
-}
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
 }
