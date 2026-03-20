@@ -2,6 +2,8 @@ import { useFormContext } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
+import Grid from '@components/Grid'
+import Divider from '@components/Divider'
 import DatePickerComponent from '@ui/DatePickerComponent'
 import CIE10Field from '../CIE10Field'
 
@@ -25,10 +27,10 @@ export default function MotivoConsultaPlanStep() {
       </FormRow>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* Motivo + Historia */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <Grid cols={2} gap={4} mobileCols={1}>
         <FormRow htmlFor="motivoConsulta" label="Motivo de Consulta">
           <Input
             {...register('motivoConsulta')}
@@ -54,13 +56,13 @@ export default function MotivoConsultaPlanStep() {
             size="md"
           />
         </FormRow>
-      </div>
+      </Grid>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* Plan + Tratamiento */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <Grid cols={2} gap={4} mobileCols={1}>
         <FormRow htmlFor="planTratamiento" label="Plan de Tratamiento">
           <Input
             {...register('planTratamiento')}
@@ -83,10 +85,10 @@ export default function MotivoConsultaPlanStep() {
             size="md"
           />
         </FormRow>
-      </div>
+      </Grid>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* ── Diagnóstico CIE-10 ── */}
       <div className="space-y-2">

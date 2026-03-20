@@ -3,6 +3,8 @@ import { HiOutlineEnvelope, HiOutlineMapPin } from 'react-icons/hi2'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
+import Grid from '@components/Grid'
+import Divider from '@components/Divider'
 import {
   Select,
   SelectContent,
@@ -26,7 +28,7 @@ export default function DatosPersonalesStep() {
         </Heading>
 
         {/* Nombre(s) + Apellidos */}
-        <div className="grid grid-cols-2 gap-4">
+        <Grid cols={2} gap={4} mobileCols={2}>
           <FormRow htmlFor="nombre" label="Nombre(s)" required>
             <Input
               {...register('nombre')}
@@ -49,10 +51,10 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-        </div>
+        </Grid>
 
         {/* Fecha Nacimiento + Teléfono + Género */}
-        <div className="grid grid-cols-3 gap-4">
+        <Grid cols={3} gap={4} mobileCols={2}>
           <BirthdayField control={control} errors={errors} />
           <PhoneField />
           <FormRow label="Género" required>
@@ -77,11 +79,11 @@ export default function DatosPersonalesStep() {
               )}
             />
           </FormRow>
-        </div>
+        </Grid>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* ══ 2 · Información Adicional ══ */}
       <div className="space-y-4">
@@ -90,7 +92,7 @@ export default function DatosPersonalesStep() {
         </Heading>
 
         {/* Fuente de Información + NSS + CURP */}
-        <div className="grid grid-cols-3 gap-4">
+        <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow label="Fuente de Información">
             <Controller
               name="fuenteInformacion"
@@ -134,10 +136,10 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-        </div>
+        </Grid>
 
         {/* Estado Civil + Correo + Ocupación */}
-        <div className="grid grid-cols-3 gap-4">
+        <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow label="Estado Civil">
             <Controller
               name="estadoCivil"
@@ -183,10 +185,10 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-        </div>
+        </Grid>
 
         {/* Religión + Lugar de Nacimiento + Domicilio */}
-        <div className="grid grid-cols-3 gap-4">
+        <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow htmlFor="religion" label="Religión">
             <Input
               {...register('religion')}
@@ -218,14 +220,16 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-        </div>
+        </Grid>
+
+        <Divider />
 
         {/* ─ Contacto de Emergencia ─ */}
         <div className="space-y-3">
           <Heading as="h3" showBar>
             Contacto de Emergencia
           </Heading>
-          <div className="grid grid-cols-3 gap-4">
+          <Grid cols={3} gap={4} mobileCols={2}>
             <FormRow htmlFor="contactoEmergencia" label="Nombre">
               <Input
                 {...register('contactoEmergencia')}
@@ -256,7 +260,7 @@ export default function DatosPersonalesStep() {
                 size="lg"
               />
             </FormRow>
-          </div>
+          </Grid>
         </div>
       </div>
     </div>

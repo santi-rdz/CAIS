@@ -85,12 +85,7 @@ export default function UserTableOperations() {
             Agregar usuario
           </Button>
         </Modal.Open>
-        <Modal.Content
-          name="user-modal"
-          noPadding
-          size="md"
-          // className="flex max-h-[95vh] flex-col gap-0 overflow-hidden p-0"
-        >
+        <Modal.Content name="user-modal" noPadding size="md">
           <UserRegisterForms />
         </Modal.Content>
       </Modal>

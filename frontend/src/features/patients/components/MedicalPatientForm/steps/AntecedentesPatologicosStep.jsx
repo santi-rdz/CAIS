@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
+import Grid from '@components/Grid'
 
 const CAMPOS = [
   { name: 'ap_cronicoDegenerativos', label: 'Crónico-Degenerativos' },
@@ -29,7 +30,7 @@ export default function AntecedentesPatologicosStep() {
         Antecedentes Patológicos
       </Heading>
 
-      <div className="grid grid-cols-3 gap-4">
+      <Grid cols={3} gap={4} mobileCols={2}>
         {CAMPOS.map(({ name, label }) => (
           <FormRow key={name} htmlFor={name} label={label}>
             <Input
@@ -43,7 +44,7 @@ export default function AntecedentesPatologicosStep() {
             />
           </FormRow>
         ))}
-      </div>
+      </Grid>
     </div>
   )
 }

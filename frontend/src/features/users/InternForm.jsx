@@ -1,4 +1,5 @@
 import Button from '@components/Button'
+import ModalBody from '@components/ModalBody'
 import ModalActions from '@components/ModalActions'
 import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,7 +17,7 @@ import RegistrationPasswordForm from './RegistrationPasswordForm'
 import InterPersonalInfoForm from './InterPersonalInfoForm'
 import InterAcademicInfoForm from './InterAcademicInfoForm'
 
-const steps = ['Información Personal', 'Información Académica', 'Contraseña']
+const steps = ['Inf. Personal', 'Inf. Académica', 'Contraseña']
 
 export default function InternForm({
   onClose,
@@ -150,30 +151,30 @@ export default function InternForm({
     />
   )
 
+  const content = (
+    <>
+      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      <form className="mt-6" onKeyDown={getFormKeyDown(onSubmit, busy)}>
+        {currStep === 0 && <InterPersonalInfoForm />}
+        {currStep === 1 && (
+          <InterAcademicInfoForm
+            disabledEmail={registration ? email : undefined}
+            isUabcDomain={isUabcDomain}
+            setIsUabcDomain={setIsUabcDomain}
+          />
+        )}
+        {currStep === 2 && <PasswordComponent />}
+      </form>
+    </>
+  )
+
   return (
     <FormProvider {...methods}>
-      <div
-        className={
-          registration ? undefined : 'min-h-0 flex-1 overflow-y-auto px-8 py-10'
-        }
-      >
-        <Stepper
-          steps={steps}
-          current={currStep}
-          setCurrStep={handleStepClick}
-        />
-        <form className={'mt-16'} onKeyDown={getFormKeyDown(onSubmit, busy)}>
-          {currStep === 0 && <InterPersonalInfoForm />}
-          {currStep === 1 && (
-            <InterAcademicInfoForm
-              disabledEmail={registration ? email : undefined}
-              isUabcDomain={isUabcDomain}
-              setIsUabcDomain={setIsUabcDomain}
-            />
-          )}
-          {currStep === 2 && <PasswordComponent />}
-        </form>
-      </div>
+      {registration ? (
+        <div>{content}</div>
+      ) : (
+        <ModalBody py={6}>{content}</ModalBody>
+      )}
       {nav}
     </FormProvider>
   )

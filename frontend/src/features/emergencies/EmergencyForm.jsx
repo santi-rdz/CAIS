@@ -1,4 +1,6 @@
 import BirthdayField from '@ui/BirthdayField'
+import ModalBody from '@components/ModalBody'
+import Divider from '@components/Divider'
 import Checkbox from '@components/Checkbox'
 import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
@@ -66,7 +68,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
   }
 
   return (
-    <section>
+    <FormProvider {...methods}>
       <Modal.Heading>
         <Modal.Title>
           {isEditing ? 'Editar Emergencia' : 'Registrar Emergencia'}
@@ -78,33 +80,34 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
         </Modal.Description>
       </Modal.Heading>
 
-      <FormProvider {...methods}>
+      <ModalBody>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="h-[500px] space-y-8 overflow-y-auto px-8 py-4">
-            <RequiredSection
-              register={register}
-              control={control}
-              errors={errors}
-            />
-            <PatientSection
-              register={register}
-              control={control}
-              errors={errors}
-            />
-            <MedicalSection register={register} errors={errors} />
-          </div>
-          <ModalActions
-            onClose={onCloseModal}
-            primaryAction={{
-              label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
-              isLoading: isEditing ? isUpdating : isCreating,
-              disabled: isEditing ? isUpdating : isCreating,
-              type: 'submit',
-            }}
+          <RequiredSection
+            register={register}
+            control={control}
+            errors={errors}
           />
+          <Divider className="my-6" />
+          <PatientSection
+            register={register}
+            control={control}
+            errors={errors}
+          />
+          <Divider className="my-6" />
+          <MedicalSection register={register} errors={errors} />
         </form>
-      </FormProvider>
-    </section>
+      </ModalBody>
+
+      <ModalActions
+        onClose={onCloseModal}
+        primaryAction={{
+          label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
+          isLoading: isEditing ? isUpdating : isCreating,
+          disabled: isEditing ? isUpdating : isCreating,
+          type: 'submit',
+        }}
+      />
+    </FormProvider>
   )
 }
 

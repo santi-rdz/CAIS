@@ -2,6 +2,8 @@ import { Controller, useFormContext } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
+import Grid from '@components/Grid'
+import Divider from '@components/Divider'
 import Checkbox from '@components/Checkbox'
 import {
   Select,
@@ -33,7 +35,7 @@ export default function AntecedentesNoPatStep() {
         <Heading as="h3" showBar required>
           Servicios del Hogar
         </Heading>
-        <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+        <Grid cols={3} gap={4} mobileCols={2}>
           {SERVICIOS.map(({ name, label }) => (
             <Controller
               key={name}
@@ -49,11 +51,11 @@ export default function AntecedentesNoPatStep() {
               )}
             />
           ))}
-        </div>
+        </Grid>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* ── Inmunizaciones ── */}
       <div className="space-y-4">
@@ -61,7 +63,7 @@ export default function AntecedentesNoPatStep() {
           Inmunizaciones
         </Heading>
 
-        <div className="grid grid-cols-4 gap-4">
+        <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow label="Influenza">
             <DatePickerComponent
               name="inm_influenza"
@@ -94,7 +96,7 @@ export default function AntecedentesNoPatStep() {
               label="DD/MM/AAAA"
             />
           </FormRow>
-        </div>
+        </Grid>
 
         <FormRow htmlFor="inm_otros" label="Otras vacunas">
           <Input
@@ -109,7 +111,7 @@ export default function AntecedentesNoPatStep() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
       {/* ── Información Adicional ── */}
       <div className="space-y-4">
@@ -117,7 +119,7 @@ export default function AntecedentesNoPatStep() {
           Información Adicional
         </Heading>
 
-        <div className="grid grid-cols-2 items-end gap-4">
+        <Grid cols={2} gap={4} mobileCols={2} className="items-end">
           <FormRow label="Tipo de Sangre y RH">
             <Controller
               name="tipoSangre"
@@ -167,7 +169,7 @@ export default function AntecedentesNoPatStep() {
               )}
             />
           </div>
-        </div>
+        </Grid>
       </div>
     </div>
   )

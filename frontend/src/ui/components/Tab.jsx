@@ -42,7 +42,7 @@ export default function Tab({
 /** Wrapper del encabezado del modal. Padding inferior reducido para que Tab.List quede ajustado. */
 Tab.Header = function TabHeader({ children }) {
   return (
-    <header className="shrink-0 space-y-1 border-b border-b-neutral-200 px-8 pt-8 pb-5">
+    <header className="shrink-0 space-y-1 border-b border-b-neutral-200 px-(--mpx) py-(--mpy)">
       {children}
     </header>
   )
@@ -75,7 +75,7 @@ Tab.List = function TabList({ children, className = '' }) {
       <div
         className={`scrollbar-hide overflow-x-auto border-b border-gray-100 ${className}`}
       >
-        <nav className="flex min-w-max px-5">{children}</nav>
+        <nav className="flex min-w-max px-(--mpx)">{children}</nav>
       </div>
     )
   }

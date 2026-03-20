@@ -1,6 +1,7 @@
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import Modal from '@components/Modal'
+import ModalBody from '@components/ModalBody'
 import ModalActions from '@components/ModalActions'
 import Stepper from '@components/Stepper'
 import { useStepForm } from '@hooks/useStepForm'
@@ -162,16 +163,16 @@ export default function MedicalPatientForm({ onCloseModal }) {
             steps={STEPS}
             current={currStep}
             setCurrStep={handleStepClick}
-            className="mt-4 mb-6"
+            className="mt-4"
           />
         </Modal.Heading>
 
         {/* ── Contenido scrollable ── */}
-        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-6">
+        <ModalBody>
           <form onKeyDown={getFormKeyDown(onSubmit)}>
             <StepComponent />
           </form>
-        </div>
+        </ModalBody>
 
         {/* ── Footer fijo: navegación ── */}
         <ModalActions

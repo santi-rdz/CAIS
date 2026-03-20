@@ -28,12 +28,12 @@ const navRoutes = [
     icon: HiOutlineBookOpen,
   },
   {
-    path: 'estadisticas',
+    path: '/estadisticas',
     name: 'Estadísticas',
     icon: HiOutlineChartBar,
   },
   {
-    path: 'usuarios',
+    path: '/usuarios',
     name: 'Usuarios',
     icon: HiOutlineIdentification,
   },

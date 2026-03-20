@@ -2,6 +2,8 @@ import { useFormContext } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
+import Grid from '@components/Grid'
+import Divider from '@components/Divider'
 
 export default function ExploracionFisicaStep() {
   const { register } = useFormContext()
@@ -16,7 +18,7 @@ export default function ExploracionFisicaStep() {
       <div className="space-y-4">
         <p className="text-5 font-medium text-zinc-700">Somatometría</p>
 
-        <div className="grid grid-cols-4 gap-4">
+        <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow htmlFor="if_peso" label="Peso / kg">
             <Input
               {...register('if_peso')}
@@ -59,9 +61,9 @@ export default function ExploracionFisicaStep() {
               size="md"
             />
           </FormRow>
-        </div>
+        </Grid>
 
-        <div className="grid grid-cols-4 gap-4">
+        <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow htmlFor="if_fc" label="FC (lpm)">
             <Input
               {...register('if_fc')}
@@ -104,9 +106,9 @@ export default function ExploracionFisicaStep() {
               size="md"
             />
           </FormRow>
-        </div>
+        </Grid>
 
-        <div className="grid grid-cols-4 gap-4">
+        <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow htmlFor="if_spO2" label="SpO₂ (%)">
             <Input
               {...register('if_spO2')}
@@ -140,13 +142,13 @@ export default function ExploracionFisicaStep() {
               size="md"
             />
           </FormRow>
-        </div>
+        </Grid>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-zinc-100" />
+      <Divider />
 
-      <div className="grid grid-cols-2 gap-4">
+      <Grid cols={2} gap={4} mobileCols={1}>
         <FormRow htmlFor="if_habitoExterior" label="Hábito Exterior">
           <Input
             {...register('if_habitoExterior')}
@@ -169,7 +171,7 @@ export default function ExploracionFisicaStep() {
             size="md"
           />
         </FormRow>
-      </div>
+      </Grid>
     </div>
   )
 }

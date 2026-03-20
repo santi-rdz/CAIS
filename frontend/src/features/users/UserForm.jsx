@@ -5,7 +5,7 @@ import CoordForm from './CoordForm'
 export default function UserForm({ onClose }) {
   return (
     <Tab defaultTab="pasante" variant="secondary">
-      <Tab.List className="mx-8">
+      <Tab.List className="mx-(--mpx)">
         <Tab.Trigger value="pasante">Pasante</Tab.Trigger>
         <Tab.Trigger value="coordinador">Coordinador</Tab.Trigger>
       </Tab.List>
