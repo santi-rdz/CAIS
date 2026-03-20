@@ -12,6 +12,7 @@ import TimeField from '@ui/TimeField'
 import { mergeFechaHora } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { useFormKeyDown } from '@hooks/useFormKeyDown'
 import { useCreateEmergency } from './hooks/useCreateEmergency'
 import { useUpdateEmergency } from './hooks/useUpdateEmergency'
 import { emergencyFormSchema } from '@cais/shared/schemas/medicina/emergency'
@@ -48,6 +49,8 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
     formState: { errors },
   } = methods
 
+  const getFormKeyDown = useFormKeyDown(handleSubmit)
+
   function onSubmit(data) {
     const payload = {
       fecha_hora: mergeFechaHora(data.fecha, data.hora),
@@ -81,7 +84,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
       </Modal.Heading>
 
       <ModalBody>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}>
           <RequiredSection
             register={register}
             control={control}
@@ -104,7 +107,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
           label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
           isLoading: isEditing ? isUpdating : isCreating,
           disabled: isEditing ? isUpdating : isCreating,
-          type: 'submit',
+          onClick: handleSubmit(onSubmit),
         }}
       />
     </FormProvider>

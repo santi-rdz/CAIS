@@ -145,9 +145,8 @@ export default function MedicalPatientForm({ onCloseModal }) {
     getFormKeyDown,
   } = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES)
 
-  function onSubmit(data) {
+  function onSubmit(_data) {
     // TODO: wire up API — createPatient + createHistoriaMedica
-    console.log('Nuevo paciente:', data)
     onCloseModal?.()
   }
 

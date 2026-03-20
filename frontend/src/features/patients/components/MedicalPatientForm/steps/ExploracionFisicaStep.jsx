@@ -10,7 +10,7 @@ export default function ExploracionFisicaStep() {
 
   return (
     <div className="space-y-5">
-      <Heading as="h3" showBar required>
+      <Heading as="h3" showBar>
         Exploración Física y Somatometría
       </Heading>
 

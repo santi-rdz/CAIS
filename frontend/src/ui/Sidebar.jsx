@@ -23,9 +23,7 @@ export function Sidebar({ isOpen, onClose }) {
       />
 
       <aside
-        aria-hidden={!isOpen || undefined}
-        inert={!isOpen ? '' : undefined}
-        className={`flex flex-col gap-8 border-r border-zinc-200/60 bg-white px-4 py-6 transition-all duration-300 ease-in-out [grid-area:sidebar] max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:z-50 max-lg:h-full max-lg:shadow-2xl lg:translate-x-0 ${isExpanded ? 'w-[260px]' : 'lg:w-20'} ${isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'} `}
+        className={`flex flex-col gap-8 border-r border-zinc-200/60 bg-white px-4 py-6 transition-all duration-300 ease-in-out [grid-area:sidebar] max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:z-50 max-lg:h-full max-lg:w-[260px] max-lg:shadow-2xl lg:translate-x-0 ${isExpanded ? 'lg:w-[260px]' : 'lg:w-20'} ${isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full'} `}
       >
         <SidebarHeading
           isExpanded={isExpanded}
@@ -54,7 +52,7 @@ export function Sidebar({ isOpen, onClose }) {
 function SidebarHeading({ isExpanded, handleToggle, onClose }) {
   return (
     <header
-      className={`flex transition-all duration-300 ${isExpanded ? 'items-center justify-between' : 'flex-col items-center gap-3'}`}
+      className={`flex transition-all duration-300 ${isExpanded ? 'items-center justify-between' : 'flex-col items-center gap-3 max-lg:flex-row max-lg:justify-between'}`}
     >
       <Logo isExpanded={isExpanded}>
         <Logo.Heading />
