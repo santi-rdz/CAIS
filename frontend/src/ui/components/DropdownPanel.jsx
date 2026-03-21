@@ -13,6 +13,7 @@ export default function DropdownPanel({
     <div
       ref={ref}
       style={style}
+      data-dropdown-panel
       className={cn(
         'rounded-xl border border-gray-200 bg-white shadow-xl',
         className

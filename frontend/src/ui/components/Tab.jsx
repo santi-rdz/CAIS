@@ -42,7 +42,7 @@ export default function Tab({
 /** Wrapper del encabezado del modal. Padding inferior reducido para que Tab.List quede ajustado. */
 Tab.Header = function TabHeader({ children }) {
   return (
-    <header className="shrink-0 space-y-1 border-b border-b-neutral-200 px-8 pt-8 pb-5">
+    <header className="shrink-0 space-y-1 border-b border-b-neutral-200 px-(--mpx) py-(--mpy)">
       {children}
     </header>
   )
@@ -72,26 +72,32 @@ Tab.List = function TabList({ children, className = '' }) {
 
   if (variant === 'underline') {
     return (
-      <div className={`overflow-x-auto border-b border-gray-100 ${className}`}>
-        <nav className="flex min-w-max px-5">{children}</nav>
+      <div
+        className={`scrollbar-hide overflow-x-auto border-b border-gray-100 ${className}`}
+      >
+        <nav className="flex min-w-max px-(--mpx)">{children}</nav>
       </div>
     )
   }
 
-  const style =
-    variant === 'primary' ? 'mt-4 rounded-lg' : 'mt-3 w-54 rounded-md'
+  const outerStyle = variant === 'primary' ? 'mt-4' : 'mt-3 w-54'
+  const navStyle = variant === 'primary' ? 'rounded-lg' : 'rounded-md'
   return (
-    <nav
-      className={`flex shrink-0 gap-0.5 bg-gray-100 p-1 ${style} ${className}`}
+    <div
+      className={`scrollbar-hide overflow-x-auto ${outerStyle} ${className}`}
     >
-      {children}
-    </nav>
+      <nav
+        className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}
+      >
+        {children}
+      </nav>
+    </div>
   )
 }
 
 const TRIGGER_STYLES = {
   primary: {
-    base: 'flex-1 py-1.5 rounded-md duration-300',
+    base: 'flex-1 whitespace-nowrap px-3 py-1.5 rounded-md duration-300',
     active: 'bg-green-800 text-white shadow-sm',
     inactive: 'text-gray-500 hover:bg-gray-200',
   },

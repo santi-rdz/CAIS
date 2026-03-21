@@ -9,12 +9,10 @@ import {
 } from './historia/constants'
 import { HISTORIAS } from './historia/mockData'
 import HistoriaPeriodSelect from './historia/components/HistoriaPeriodSelect'
-import ConsultaSection from './historia/sections/ConsultaSection'
-import SignosVitalesSection from './historia/sections/SignosVitalesSection'
 import FieldsSection from './historia/sections/FieldsSection'
-import InmunizacionesSection from './historia/sections/InmunizacionesSection'
-import PlanEstudioSection from './historia/sections/PlanEstudioSection'
-import ServiciosSection from './historia/sections/ServiciosSection'
+import SignosVitalesSection from './historia/sections/SignosVitalesSection'
+import NoPatologicosSection from './historia/sections/NoPatologicosSection'
+import ConsultaYPlanSection from './historia/sections/ConsultaYPlanSection'
 
 export default function PatientHistoria() {
   const [periodo, setPeriodo] = useState('2026-2031')
@@ -31,16 +29,14 @@ export default function PatientHistoria() {
         />
       </div>
 
-      <Tab variant="underline" defaultTab="consulta">
+      <Tab variant="underline" defaultTab="heredofamiliares">
         <Tab.List>
-          <Tab.Trigger value="consulta">Consulta</Tab.Trigger>
-          <Tab.Trigger value="signos">Signos vitales</Tab.Trigger>
-          <Tab.Trigger value="ant-patologicos">Ant. patológicos</Tab.Trigger>
-          <Tab.Trigger value="ant-familiares">Ant. familiares</Tab.Trigger>
+          <Tab.Trigger value="heredofamiliares">Heredofamiliares</Tab.Trigger>
+          <Tab.Trigger value="no-patologicos">No Patológicos</Tab.Trigger>
+          <Tab.Trigger value="patologicos">Patológicos</Tab.Trigger>
           <Tab.Trigger value="aparatos">Aparatos y sistemas</Tab.Trigger>
-          <Tab.Trigger value="inmunizaciones">Inmunizaciones</Tab.Trigger>
-          <Tab.Trigger value="plan">Plan de estudio</Tab.Trigger>
-          <Tab.Trigger value="servicios">Servicios</Tab.Trigger>
+          <Tab.Trigger value="exploracion">Exploración física</Tab.Trigger>
+          <Tab.Trigger value="consulta-plan">Consulta y Plan</Tab.Trigger>
         </Tab.List>
 
         <div className="p-5">
@@ -50,35 +46,31 @@ export default function PatientHistoria() {
             </p>
           ) : (
             <>
-              <Tab.Panel value="consulta" scrollable={false}>
-                <ConsultaSection historia={historia} />
-              </Tab.Panel>
-              <Tab.Panel value="signos" scrollable={false}>
-                <SignosVitalesSection info={historia.informacion_fisica} />
-              </Tab.Panel>
-              <Tab.Panel value="ant-patologicos" scrollable={false}>
-                <FieldsSection
-                  fields={buildAntPatFields(historia.antecedentes_patologicos)}
-                />
-              </Tab.Panel>
-              <Tab.Panel value="ant-familiares" scrollable={false}>
+              <Tab.Panel value="heredofamiliares" scrollable={false}>
                 <FieldsSection
                   fields={buildAntFamFields(historia.antecedentes_familiares)}
+                />
+              </Tab.Panel>
+              <Tab.Panel value="no-patologicos" scrollable={false}>
+                <NoPatologicosSection historia={historia} />
+              </Tab.Panel>
+              <Tab.Panel value="patologicos" scrollable={false}>
+                <FieldsSection
+                  fields={buildAntPatFields(historia.antecedentes_patologicos)}
+                  cols={3}
                 />
               </Tab.Panel>
               <Tab.Panel value="aparatos" scrollable={false}>
                 <FieldsSection
                   fields={buildAparSistFields(historia.aparatos_sistemas)}
+                  cols={3}
                 />
               </Tab.Panel>
-              <Tab.Panel value="inmunizaciones" scrollable={false}>
-                <InmunizacionesSection inm={historia.inmunizaciones} />
+              <Tab.Panel value="exploracion" scrollable={false}>
+                <SignosVitalesSection info={historia.informacion_fisica} />
               </Tab.Panel>
-              <Tab.Panel value="plan" scrollable={false}>
-                <PlanEstudioSection plan={historia.planes_estudio} />
-              </Tab.Panel>
-              <Tab.Panel value="servicios" scrollable={false}>
-                <ServiciosSection servicios={historia.servicios} />
+              <Tab.Panel value="consulta-plan" scrollable={false}>
+                <ConsultaYPlanSection historia={historia} />
               </Tab.Panel>
             </>
           )}

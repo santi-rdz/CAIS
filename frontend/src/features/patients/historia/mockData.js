@@ -69,7 +69,14 @@ export const HISTORIAS = {
       otros: null,
     },
     planes_estudio: {
-      codigo_cie10: 'G44.2',
+      fecha_generacion: '2026-01-15',
+      cie10_codes: [
+        { code: 'G44.2', description: 'Cefalea tensional' },
+        {
+          code: 'K21.0',
+          description: 'Enfermedad por reflujo gastroesofágico con esofagitis',
+        },
+      ],
       plan_tratamiento:
         'Paracetamol 500 mg c/8h por 5 días. Control en 2 semanas si persiste.',
       tratamiento:
@@ -149,7 +156,12 @@ export const HISTORIAS = {
       covid_19: null,
       otros: null,
     },
-    planes_estudio: null,
+    planes_estudio: {
+      fecha_generacion: '2022-03-10',
+      cie10_codes: [{ code: 'Z00.0', description: 'Examen médico general' }],
+      plan_tratamiento: 'Sin indicaciones especiales.',
+      tratamiento: null,
+    },
     servicios: {
       gas: true,
       luz: true,

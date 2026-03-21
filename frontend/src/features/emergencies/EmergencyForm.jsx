@@ -1,4 +1,6 @@
 import BirthdayField from '@ui/BirthdayField'
+import ModalBody from '@components/ModalBody'
+import Divider from '@components/Divider'
 import Checkbox from '@components/Checkbox'
 import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
@@ -9,7 +11,8 @@ import Row from '@components/Row'
 import TimeField from '@ui/TimeField'
 import { mergeFechaHora } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { useFormKeyDown } from '@hooks/useFormKeyDown'
 import { useCreateEmergency } from './hooks/useCreateEmergency'
 import { useUpdateEmergency } from './hooks/useUpdateEmergency'
 import { emergencyFormSchema } from '@cais/shared/schemas/medicina/emergency'
@@ -19,12 +22,7 @@ import Modal from '@components/Modal'
 export default function EmergencyForm({ onCloseModal, emergency }) {
   const isEditing = Boolean(emergency)
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const methods = useForm({
     resolver: zodResolver(emergencyFormSchema),
     defaultValues: isEditing
       ? {
@@ -43,6 +41,15 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
 
   const { createEmergency, isCreating } = useCreateEmergency()
   const { updateEmergency, isUpdating } = useUpdateEmergency()
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = methods
+
+  const getFormKeyDown = useFormKeyDown(handleSubmit)
 
   function onSubmit(data) {
     const payload = {
@@ -64,7 +71,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
   }
 
   return (
-    <section>
+    <FormProvider {...methods}>
       <Modal.Heading>
         <Modal.Title>
           {isEditing ? 'Editar Emergencia' : 'Registrar Emergencia'}
@@ -76,31 +83,34 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
         </Modal.Description>
       </Modal.Heading>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="h-[500px] space-y-8 overflow-y-auto px-8 py-4">
+      <ModalBody>
+        <form onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}>
           <RequiredSection
             register={register}
             control={control}
             errors={errors}
           />
+          <Divider className="my-6" />
           <PatientSection
             register={register}
             control={control}
             errors={errors}
           />
+          <Divider className="my-6" />
           <MedicalSection register={register} errors={errors} />
-        </div>
-        <ModalActions
-          onClose={onCloseModal}
-          primaryAction={{
-            label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
-            isLoading: isEditing ? isUpdating : isCreating,
-            disabled: isEditing ? isUpdating : isCreating,
-            type: 'submit',
-          }}
-        />
-      </form>
-    </section>
+        </form>
+      </ModalBody>
+
+      <ModalActions
+        onClose={onCloseModal}
+        primaryAction={{
+          label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
+          isLoading: isEditing ? isUpdating : isCreating,
+          disabled: isEditing ? isUpdating : isCreating,
+          onClick: handleSubmit(onSubmit),
+        }}
+      />
+    </FormProvider>
   )
 }
 
@@ -161,7 +171,7 @@ function PatientSection({ register, control, errors }) {
           />
         </FormRow>
       </Row>
-      <PhoneField required={false} register={register} errors={errors} />
+      <PhoneField required={false} />
       <Controller
         name="recurrente"
         control={control}

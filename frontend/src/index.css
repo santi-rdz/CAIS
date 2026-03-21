@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 @custom-variant active-route (&:where(.active));
 
 @font-face {
@@ -77,6 +84,16 @@
     'sidebar main';
 }
 
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'header'
+      'main';
+  }
+}
+
 .login {
   @apply absolute inset-0 -z-10 bg-cover bg-center;
   background-image: url('./assets/images/uabc-bg.png');
@@ -129,4 +146,25 @@
 
 .error {
   @apply outline-[1.5px] outline-offset-2 outline-red-400;
+}
+
+/* Scrollbar personalizado — solo en dispositivos con puntero fino (no touch) */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
 }

@@ -18,3 +18,4 @@
   • Use clear naming
   • Avoid deeply nested logic
   • Keep functions short and readable
+- When implementing responsive design use the desktop first approach, NOT MOBILE FIRST

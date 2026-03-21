@@ -17,6 +17,8 @@ const inputVariants = cva(
         fill: 'bg-black-50 ',
         'outline-b':
           'border-b border-b-gray-200  outline-none focus:border-b-green-800 pb-4',
+        muted:
+          'border border-gray-200 bg-gray-100 text-gray-400 cursor-default select-none',
       },
     },
   }

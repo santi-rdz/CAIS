@@ -1,14 +1,21 @@
+import Grid from '@components/Grid'
 import DataField from '../../components/DataField'
 import Empty from '../components/Empty'
 
-export default function FieldsSection({ fields }) {
+export default function FieldsSection({ fields, cols = 2, mobileCols }) {
   if (!fields) return <Empty />
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <Grid cols={cols} mobileCols={mobileCols}>
       {fields.map((f) => (
-        <DataField key={f.label} label={f.label} value={f.value} multiline />
+        <DataField
+          key={f.label}
+          label={f.label}
+          value={f.value}
+          multiline
+          block
+        />
       ))}
-    </div>
+    </Grid>
   )
 }

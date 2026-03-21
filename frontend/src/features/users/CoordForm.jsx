@@ -1,4 +1,5 @@
 import Button from '@components/Button'
+import ModalBody from '@components/ModalBody'
 import ModalActions from '@components/ModalActions'
 import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -15,7 +16,7 @@ import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
 
-const steps = ['Información Personal', 'Contraseña']
+const steps = ['Inf. Personal', 'Contraseña']
 
 export default function CoordForm({
   onClose,
@@ -133,32 +134,28 @@ export default function CoordForm({
     />
   )
 
+  const content = (
+    <>
+      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      <form
+        className={registration ? 'mt-6 space-y-6' : 'mt-6'}
+        onKeyDown={getFormKeyDown(onSubmit, busy)}
+      >
+        {currStep === 0 && (
+          <CoordPersonalInfoForm
+            disabledEmail={registration ? email : undefined}
+            isUabcDomain={isUabcDomain}
+            setIsUabcDomain={setIsUabcDomain}
+          />
+        )}
+        {currStep === 1 && <PasswordComponent />}
+      </form>
+    </>
+  )
+
   return (
     <FormProvider {...methods}>
-      <div
-        className={
-          registration ? undefined : 'min-h-0 flex-1 overflow-y-auto px-8 py-10'
-        }
-      >
-        <Stepper
-          steps={steps}
-          current={currStep}
-          setCurrStep={handleStepClick}
-        />
-        <form
-          className={registration ? 'mt-20 space-y-6' : 'mt-20'}
-          onKeyDown={getFormKeyDown(onSubmit, busy)}
-        >
-          {currStep === 0 && (
-            <CoordPersonalInfoForm
-              disabledEmail={registration ? email : undefined}
-              isUabcDomain={isUabcDomain}
-              setIsUabcDomain={setIsUabcDomain}
-            />
-          )}
-          {currStep === 1 && <PasswordComponent />}
-        </form>
-      </div>
+      {registration ? <div>{content}</div> : <ModalBody>{content}</ModalBody>}
       {nav}
     </FormProvider>
   )
