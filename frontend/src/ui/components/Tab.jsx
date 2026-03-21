@@ -73,7 +73,7 @@ Tab.List = function TabList({ children, className = '' }) {
   if (variant === 'underline') {
     return (
       <div
-        className={`scrollbar-hide overflow-x-auto border-b border-gray-100 ${className}`}
+        className={`overflow-x-auto border-b border-gray-100 ${className}`}
       >
         <nav className="flex min-w-max px-(--mpx)">{children}</nav>
       </div>
@@ -84,7 +84,7 @@ Tab.List = function TabList({ children, className = '' }) {
   const navStyle = variant === 'primary' ? 'rounded-lg' : 'rounded-md'
   return (
     <div
-      className={`scrollbar-hide overflow-x-auto ${outerStyle} ${className}`}
+      className={`overflow-x-auto ${outerStyle} ${className}`}
     >
       <nav
         className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}

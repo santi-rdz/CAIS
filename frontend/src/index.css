@@ -1,12 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@utility scrollbar-hide {
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
 @custom-variant active-route (&:where(.active));
 
 @font-face {
@@ -150,21 +144,21 @@
 
 /* Scrollbar personalizado — solo en dispositivos con puntero fino (no touch) */
 @media (pointer: fine) {
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-dark-gray) transparent;
   }
-
-  ::-webkit-scrollbar-track {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
-
-  ::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 999px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-dark-gray);
+    border-radius: 3px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 }

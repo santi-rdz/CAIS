@@ -9,7 +9,7 @@ export default function Stepper({
 }) {
   return (
     <div
-      className={`scrollbar-hide overflow-x-auto px-10 py-2 pb-6 max-sm:px-4 ${className}`}
+      className={`overflow-x-auto px-10 py-2 pb-6 max-sm:px-4 ${className}`}
     >
       <div className="mx-4 flex min-w-max" style={{ gap }}>
         {steps.map((step, i) => {
