@@ -134,17 +134,90 @@ export class MedicalHistoryModel {
   }
 
   static async update(id, data) {
-    const { paciente_id, ...rest } = data
-    const prismaData = { ...rest }
-
-    if (paciente_id !== undefined)
-      prismaData.paciente_id = paciente_id ? uuidToBuffer(paciente_id) : null
-
     try {
       await prisma.historias_medicas.update({
         where: { id: uuidToBuffer(id) },
-        data: prismaData,
+        data: {
+          tipo_sangre: data.tipo_sangre,
+          vacunas_infancia_completas: data.vacunas_infancia_completas,
+          motivo_consulta: data.motivo_consulta,
+          historia_enfermedad_actual: data.historia_enfermedad_actual,
+
+          ...(data.antecedentes_familiares && {
+            antecedentes_familiares: {
+              upsert: {
+                create: { ...data.antecedentes_familiares },
+                update: { ...data.antecedentes_familiares },
+              },
+            },
+          }),
+
+          ...(data.antecedentes_patologicos && {
+            antecedentes_patologicos: {
+              upsert: {
+                create: { ...data.antecedentes_patologicos },
+                update: { ...data.antecedentes_patologicos },
+              },
+            },
+          }),
+
+          ...(data.aparatos_sistemas && {
+            aparatos_sistemas: {
+              upsert: {
+                create: { ...data.aparatos_sistemas },
+                update: { ...data.aparatos_sistemas },
+              },
+            },
+          }),
+
+          ...(data.informacion_fisica && {
+            informacion_fisica: {
+              upsert: {
+                create: { ...data.informacion_fisica },
+                update: { ...data.informacion_fisica },
+              },
+            },
+          }),
+
+          ...(data.inmunizaciones && {
+            inmunizaciones: {
+              upsert: {
+                create: { ...data.inmunizaciones },
+                update: { ...data.inmunizaciones },
+              },
+            },
+          }),
+
+          ...(data.planes_estudio && {
+            planes_estudio: {
+              upsert: {
+                create: {
+                  usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
+                  plan_tratamiento:
+                    data.planes_estudio.plan_tratamiento ?? null,
+                  tratamiento: data.planes_estudio.tratamiento ?? null,
+                  generado_en: data.planes_estudio.generado_en ?? null,
+                },
+                update: {
+                  plan_tratamiento: data.planes_estudio.plan_tratamiento,
+                  tratamiento: data.planes_estudio.tratamiento,
+                  generado_en: data.planes_estudio.generado_en,
+                },
+              },
+            },
+          }),
+
+          ...(data.servicios && {
+            servicios: {
+              upsert: {
+                create: { ...data.servicios },
+                update: { ...data.servicios },
+              },
+            },
+          }),
+        },
       })
+
       return await this.getById(id)
     } catch (err) {
       if (err.code === 'P2025') return null
