@@ -6,7 +6,7 @@ const auditCreateSchema = z.object({
   usuario_id: uuidSchema,
   accion: z.string().min(1, 'La acción es requerida'),
   entidad: z.string().min(1, 'La entidad es requerida'),
-  objetivo_id: z.string().optional().nullable(),
+  objetivo_id: uuidSchema.nullable().optional(),
 })
 
 export function validateAuditCreate(input) {
