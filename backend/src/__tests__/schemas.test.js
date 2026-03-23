@@ -349,7 +349,7 @@ describe('validateAuditCreate — creación de auditoría', () => {
    * @test Ausencia de usuario_id es rechazada.
    */
   test('rechaza input sin usuario_id', () => {
-    const { usuario_id, ...sinUsuario } = base
+    const { usuario_id: _usuario_id, ...sinUsuario } = base
     const result = validateAuditCreate(sinUsuario)
     assert.equal(result.success, false)
   })
