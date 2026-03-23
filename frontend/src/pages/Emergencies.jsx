@@ -1,6 +1,6 @@
 import EmergenciesTable from '@features/emergencies/EmergenciesTable'
 import EmergenciesTableOperations from '@features/emergencies/EmergenciesTableOperations'
-import Heading from '@ui/Heading'
+import Heading from '@components/Heading'
 
 export default function Emergencies() {
   return (

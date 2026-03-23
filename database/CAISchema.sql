@@ -1,4 +1,5 @@
-SET NAMES utf8mb4;
+SET
+    NAMES utf8mb4;
 
 -- ===============================
 -- TABLAS BASE (SIN DEPENDENCIAS)
@@ -163,12 +164,18 @@ CREATE TABLE IF NOT EXISTS informacion_fisica (
 
 CREATE TABLE IF NOT EXISTS planes_estudio (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    codigo_cie10 VARCHAR(50) NOT NULL,
     plan_tratamiento TEXT,
     usuario_id BINARY(16) NOT NULL,
     generado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
     tratamiento TEXT,
     CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plan_estudio_id INT NOT NULL,
+    codigo VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
 );
 
 -- ===============================
@@ -1229,14 +1236,12 @@ VALUES
 
 INSERT INTO
     planes_estudio (
-        codigo_cie10,
         plan_tratamiento,
         usuario_id,
         tratamiento
     )
 VALUES
     (
-        'Z00.0',
         'Examen médico general de rutina. BH, QS, EGO.',
         (
             SELECT
@@ -1249,7 +1254,7 @@ VALUES
                 1
         ), 'Observación y seguimiento en 3 meses'
     ), (
-        'E11.9', 'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
+        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
             SELECT
                 id
             FROM
@@ -1260,6 +1265,13 @@ VALUES
                 1
         ), 'Metformina 850mg c/12h + dieta hipocalórica'
     );
+
+INSERT INTO
+    planes_estudio_cie10 (plan_estudio_id, codigo)
+VALUES
+    (1, 'Z00.0'),
+    (2, 'E11.9'),
+    (2, 'E78.5');
 
 INSERT INTO
     historias_medicas (

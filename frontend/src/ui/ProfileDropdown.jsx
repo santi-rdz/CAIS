@@ -5,8 +5,8 @@ import {
   HiBuildingLibrary,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import Tag from './Tag'
-import DropdownPanel from './DropdownPanel'
+import Tag from '@components/Tag'
+import DropdownPanel from '@components/DropdownPanel'
 
 export default function ProfileDropdown({ user, onClose, logout }) {
   const navigate = useNavigate()

@@ -16,9 +16,16 @@ export default function useClickOutside(
     }
 
     document.addEventListener('mousedown', handleClickOutside, propagation)
+    document.addEventListener('touchstart', handleClickOutside, propagation)
 
-    return () =>
+    return () => {
       document.removeEventListener('mousedown', handleClickOutside, propagation)
+      document.removeEventListener(
+        'touchstart',
+        handleClickOutside,
+        propagation
+      )
+    }
   }, [ref, handleClick, propagation, ignoreSelector])
 
   return ref

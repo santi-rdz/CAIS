@@ -4,7 +4,7 @@ WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "npm install && node --watch src/app.js"]
+CMD ["sh", "-c", "npm install && npx prisma generate && node --watch src/app.js"]
 
 
 #? prod

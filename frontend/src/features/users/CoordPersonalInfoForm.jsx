@@ -1,9 +1,10 @@
 import BirthdayField from '@ui/BirthdayField'
 import DomainEmailInput from '@ui/DomainEmailInput'
-import FormRow from '@ui/FormRow'
-import Heading from '@ui/Heading'
-import Input from '@ui/Input'
-import Row from '@ui/Row'
+import PhoneField from '@ui/PhoneField'
+import FormRow from '@components/FormRow'
+import Heading from '@components/Heading'
+import Input from '@components/Input'
+import Row from '@components/Row'
 import { useFormContext } from 'react-hook-form'
 
 export default function CoordPersonalInfoForm({
@@ -72,20 +73,7 @@ export default function CoordPersonalInfoForm({
 
       <Row className="gap-4">
         <BirthdayField control={control} errors={errors} />
-        <FormRow
-          htmlFor="telefono"
-          label="Número telefónico"
-          className="w-full"
-        >
-          <Input
-            {...register('telefono')}
-            id="telefono"
-            type="tel"
-            placeholder="Ej. 6641234567"
-            hasError={errors?.telefono?.message}
-            variant="outline"
-          />
-        </FormRow>
+        <PhoneField />
       </Row>
 
       <Row className="gap-4">

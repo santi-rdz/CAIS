@@ -1,6 +1,6 @@
-import Spinner from './Spinner'
+import Spinner from '@components/Spinner'
 import { Navigate } from 'react-router-dom'
-import useUser from '@features/users/useUser'
+import useUser from '@features/users/hooks/useUser'
 
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, isPending } = useUser()

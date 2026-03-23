@@ -1,4 +1,4 @@
-import FormRow from './FormRow'
+import FormRow from '@components/FormRow'
 import TimePickerComponent from './TimePickerComponent'
 
 export default function TimeField({

@@ -1,5 +1,5 @@
 import { HiOutlineXMark, HiOutlinePlus } from 'react-icons/hi2'
-import Button from './Button'
+import Button from '@components/Button'
 
 export default function DomainToggle({
   isDomain,

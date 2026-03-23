@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useForm } from 'react-hook-form'
 import DomainEmailInput from '@ui/DomainEmailInput'
-import PasswordInput from '@ui/PasswordInput'
+import PasswordInput from '@components/PasswordInput'
 import useLogin from './useLogin'
-import Button from '@ui/Button'
-import Checkbox from '@ui/Checkbox'
+import Button from '@components/Button'
+import Checkbox from '@components/Checkbox'
 
 export default function LoginForm() {
   const [isUabcDomain, setIsUabcDomain] = useState(true)
@@ -41,7 +41,7 @@ export default function LoginForm() {
 
       <Footer />
 
-      <Button isLoading={isPending} className="mt-10 w-full">
+      <Button isLoading={isPending} type="submit" className="mt-10 w-full">
         Iniciar Sesión
       </Button>
     </form>

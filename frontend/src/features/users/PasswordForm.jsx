@@ -1,5 +1,5 @@
-import Heading from '@ui/Heading'
-import PasswordInput from '@ui/PasswordInput'
+import Heading from '@components/Heading'
+import PasswordInput from '@components/PasswordInput'
 import { useFormContext } from 'react-hook-form'
 import { HiInformationCircle } from 'react-icons/hi2'
 

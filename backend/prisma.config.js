@@ -1,9 +1,9 @@
 import 'dotenv/config'
-import { defineConfig } from 'prisma/config'
+import { defineConfig, env } from 'prisma/config'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 function makeAdapter() {
-  const url = new URL(process.env.DATABASE_URL)
+  const url = new URL(env('DATABASE_URL'))
   return new PrismaMariaDb({
     host: url.hostname,
     port: parseInt(url.port) || 3306,
@@ -18,7 +18,7 @@ export default defineConfig({
   earlyAccess: true,
   schema: 'prisma/schema.prisma',
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: env('DATABASE_URL'),
   },
   migrate: {
     adapter: makeAdapter,

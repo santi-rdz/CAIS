@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function useDropdownPosition(
   dropdownHeight,
-  { ignoreSelector = null, dropdownWidth = null, align = 'left' } = {}
+  {
+    ignoreSelector = null,
+    dropdownWidth = null,
+    align = 'auto',
+    fullWidth = false,
+  } = {}
 ) {
   const triggerRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -19,20 +24,21 @@ export default function useDropdownPosition(
       ? { bottom: window.innerHeight - rect.top + 4 }
       : { top: rect.bottom + 4 }
 
+    const spaceRight = window.innerWidth - rect.left
+    const spaceLeft = rect.right
+    const autoAlignRight = spaceLeft > spaceRight
+
     let horizontal
-    if (
-      align === 'right' ||
-      (dropdownWidth && rect.left + dropdownWidth > window.innerWidth - 8)
-    ) {
-      // Alinear por la derecha del trigger
+    if (align === 'right' || (align === 'auto' && autoAlignRight)) {
       horizontal = { right: window.innerWidth - rect.right }
     } else {
-      // Alinear por la izquierda del trigger
       horizontal = { left: Math.max(8, rect.left) }
     }
 
+    const width = fullWidth ? { width: rect.width } : {}
+
     setOpenAbove(above)
-    setPositionStyle({ ...vertical, ...horizontal })
+    setPositionStyle({ ...vertical, ...horizontal, ...width })
     setIsOpen(true)
   }
 
@@ -50,11 +56,15 @@ export default function useDropdownPosition(
     function handleClickOutside(e) {
       if (ignoreSelector && e.target.closest(ignoreSelector)) return
       const isClickedInside = triggerRef.current?.contains(e.target)
-      const isClickedInMenu = e.target.closest?.('[data-select-menu]')
+      const isClickedInMenu = e.target.closest?.('[data-dropdown-panel]')
       if (!isClickedInside && !isClickedInMenu) close()
     }
     document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
   }, [isOpen, ignoreSelector])
 
   return { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle }

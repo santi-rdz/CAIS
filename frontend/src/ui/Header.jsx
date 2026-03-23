@@ -1,23 +1,62 @@
-import { HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
-import Button from './Button'
-import Input from './Input'
+import { HiMagnifyingGlass, HiOutlineBars3 } from 'react-icons/hi2'
+import Input from '@components/Input'
+import NewPatientButton from '@features/patients/components/NewPatientButton'
+import Logo from './Logo'
 
-export function Header() {
+export function Header({ onMenuOpen, menuOpen }) {
+  const hamburger = (
+    <button
+      onClick={onMenuOpen}
+      aria-label="Abrir menú"
+      aria-expanded={menuOpen}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+    >
+      <HiOutlineBars3 size={22} />
+    </button>
+  )
+
   return (
-    <header className="flex gap-0 border-b border-zinc-200/60 p-3 [grid-area:header]">
-      <div className="grow">
+    <header className="flex items-center gap-3 border-b border-zinc-200/60 p-3 [grid-area:header]">
+      {/* Mobile (< sm): logo | hamburger */}
+      <div className="hidden w-full items-center justify-between max-sm:flex">
+        <Logo>
+          <Logo.Heading />
+          <Logo.Area />
+        </Logo>
+        {hamburger}
+      </div>
+
+      {/* Tablet (sm–lg): logo | search | hamburger */}
+      <div className="hidden w-full items-center gap-3 max-lg:flex max-sm:hidden">
+        <Logo>
+          <Logo.Heading />
+          <Logo.Area />
+        </Logo>
+        <div className="grow">
+          <Input
+            className="w-full"
+            type="text"
+            size="md"
+            placeholder="Buscar paciente..."
+            suffix={<HiMagnifyingGlass />}
+          />
+        </div>
+        {hamburger}
+      </div>
+
+      {/* Desktop (lg+): search | new patient */}
+      <div className="flex grow max-lg:hidden">
         <Input
-          className="w-[600px] justify-self-center"
+          className="w-[600px]"
           type="text"
           size="md"
           placeholder="Buscar paciente..."
           suffix={<HiMagnifyingGlass />}
         />
       </div>
-      <Button className="col-start-3 ml-auto h-full place-self-end" size="md">
-        <HiOutlinePlus size="16" strokeWidth="2.5" />
-        Nuevo paciente
-      </Button>
+      <div className="block max-lg:hidden">
+        <NewPatientButton />
+      </div>
     </header>
   )
 }
