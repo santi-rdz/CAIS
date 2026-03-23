@@ -72,9 +72,7 @@ Tab.List = function TabList({ children, className = '' }) {
 
   if (variant === 'underline') {
     return (
-      <div
-        className={`overflow-x-auto border-b border-gray-100 ${className}`}
-      >
+      <div className={`overflow-x-auto border-b border-gray-100 ${className}`}>
         <nav className="flex min-w-max px-(--mpx)">{children}</nav>
       </div>
     )
@@ -83,9 +81,7 @@ Tab.List = function TabList({ children, className = '' }) {
   const outerStyle = variant === 'primary' ? 'mt-4' : 'mt-3 w-54'
   const navStyle = variant === 'primary' ? 'rounded-lg' : 'rounded-md'
   return (
-    <div
-      className={`overflow-x-auto ${outerStyle} ${className}`}
-    >
+    <div className={`overflow-x-auto ${outerStyle} ${className}`}>
       <nav
         className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}
       >
