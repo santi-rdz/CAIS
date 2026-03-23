@@ -25,7 +25,10 @@ export class PatientModel {
     const where = {}
 
     if (search) {
-      where.OR = [{ nombre: { contains: search } }]
+      where.OR = [
+        { nombre: { contains: search } },
+        { telefono: { contains: search } },
+      ]
     }
 
     const orderBy =

@@ -9,7 +9,8 @@
       "@hooks/*": ["src/hooks/*"],
       "@contexts/*": ["src/contexts/*"],
       "@lib/*": ["src/lib/*"],
-      "@cais/shared/*": ["../shared/*"]
+      "@cais/shared/*": ["../shared/*"],
+      "@components/*": ["src/ui/components/*"]
     }
   },
   "include": ["src"]

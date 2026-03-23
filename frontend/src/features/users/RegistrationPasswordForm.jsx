@@ -1,4 +1,4 @@
-import PasswordInput from '@ui/PasswordInput'
+import PasswordInput from '@components/PasswordInput'
 import { useFormContext } from 'react-hook-form'
 import { HiCheck, HiXMark } from 'react-icons/hi2'
 

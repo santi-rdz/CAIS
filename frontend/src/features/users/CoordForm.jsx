@@ -1,6 +1,7 @@
-import Button from '@ui/Button'
-import ModalActions from '@ui/ModalActions'
-import Stepper from '@ui/Stepper'
+import Button from '@components/Button'
+import ModalBody from '@components/ModalBody'
+import ModalActions from '@components/ModalActions'
+import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
@@ -8,14 +9,14 @@ import {
   coordCreateFormSchema,
   coordSignupFormSchema,
 } from '@cais/shared/schemas/users'
-import useCreateUser from './useCreateUser'
+import useCreateUser from './hooks/useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
-import { useStepForm } from './useStepForm'
+import { useStepForm } from '../../hooks/useStepForm'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
 
-const steps = ['Información Personal', 'Contraseña']
+const steps = ['Inf. Personal', 'Contraseña']
 
 export default function CoordForm({
   onClose,
@@ -90,10 +91,9 @@ export default function CoordForm({
           variant="outline"
           onClick={() => setCurrStep((p) => p - 1)}
           className="flex-[30%]"
-          icon={<HiChevronLeft strokeWidth={1} />}
-          iconPos="left"
           disabled={busy}
         >
+          <HiChevronLeft strokeWidth={1} />
           Anterior
         </Button>
       )}
@@ -102,18 +102,12 @@ export default function CoordForm({
         variant="primary"
         onClick={isLast ? handleSubmit(onSubmit) : handleNext}
         className={currStep === 0 ? 'w-full' : 'flex-[70%]'}
-        icon={
-          isLast ? (
-            <HiCheck strokeWidth={1} />
-          ) : (
-            <HiChevronRight strokeWidth={1} />
-          )
-        }
-        iconPos={isLast ? 'left' : 'right'}
         isLoading={busy}
         disabled={busy}
       >
+        {isLast && <HiCheck strokeWidth={1} />}
         {isLast ? 'Registrarme' : 'Siguiente'}
+        {!isLast && <HiChevronRight strokeWidth={1} />}
       </Button>
     </div>
   ) : (
@@ -140,32 +134,28 @@ export default function CoordForm({
     />
   )
 
+  const content = (
+    <>
+      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      <form
+        className={registration ? 'mt-6 space-y-6' : 'mt-6'}
+        onKeyDown={getFormKeyDown(onSubmit, busy)}
+      >
+        {currStep === 0 && (
+          <CoordPersonalInfoForm
+            disabledEmail={registration ? email : undefined}
+            isUabcDomain={isUabcDomain}
+            setIsUabcDomain={setIsUabcDomain}
+          />
+        )}
+        {currStep === 1 && <PasswordComponent />}
+      </form>
+    </>
+  )
+
   return (
     <FormProvider {...methods}>
-      <div
-        className={
-          registration ? undefined : 'min-h-0 flex-1 overflow-y-auto px-8 py-10'
-        }
-      >
-        <Stepper
-          steps={steps}
-          current={currStep}
-          setCurrStep={handleStepClick}
-        />
-        <form
-          className={registration ? 'mt-20 space-y-6' : 'mt-20'}
-          onKeyDown={getFormKeyDown(onSubmit, busy)}
-        >
-          {currStep === 0 && (
-            <CoordPersonalInfoForm
-              disabledEmail={registration ? email : undefined}
-              isUabcDomain={isUabcDomain}
-              setIsUabcDomain={setIsUabcDomain}
-            />
-          )}
-          {currStep === 1 && <PasswordComponent />}
-        </form>
-      </div>
+      {registration ? <div>{content}</div> : <ModalBody>{content}</ModalBody>}
       {nav}
     </FormProvider>
   )

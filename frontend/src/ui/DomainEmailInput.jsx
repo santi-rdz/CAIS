@@ -1,7 +1,7 @@
 import { isValidEmail } from '@lib/utils'
 import DomainToggle from './DomainToggle'
-import FormRow from './FormRow'
-import Input from './Input'
+import FormRow from '@components/FormRow'
+import Input from '@components/Input'
 
 export default function DomainEmailInput({
   id,

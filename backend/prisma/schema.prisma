@@ -12,23 +12,6 @@ model acciones {
   registro_auditoria registro_auditoria[]
 }
 
-model adicciones {
-  id                            Int                             @id @default(autoincrement())
-  adicto_tabaco                 String?                         @db.VarChar(10)
-  tabaco_frecuencia             String?                         @db.VarChar(20)
-  num_cigarros_d                Int?                            @db.TinyInt
-  adicto_alcohol                String?                         @db.VarChar(10)
-  alcohol_frecuencia            String?                         @db.VarChar(20)
-  ml_ocasion                    Int?                            @db.SmallInt
-  adicto_droga                  String?                         @db.VarChar(10)
-  drogas_frecuencia             String?                         @db.VarChar(20)
-  cual_droga                    String?                         @db.Text
-  adicto_med_contr              String?                         @db.VarChar(10)
-  med_contr_frecuencia          String?                         @db.VarChar(20)
-  cual_med_contr                String?                         @db.Text
-  historias_pacientes_nutricion historias_pacientes_nutricion[]
-}
-
 model antecedentes_familiares {
   id                Int                 @id @default(autoincrement())
   padre             String?             @db.VarChar(255)
@@ -80,6 +63,174 @@ model areas {
   id       Int        @id @default(autoincrement())
   nombre   String     @unique(map: "nombre") @db.VarChar(100)
   usuarios usuarios[]
+}
+
+model entidades {
+  id                 Int                  @id @default(autoincrement())
+  nombre             String               @unique(map: "nombre") @db.VarChar(50)
+  registro_auditoria registro_auditoria[]
+}
+
+model estados {
+  id       Int        @id @default(autoincrement())
+  codigo   String     @unique(map: "codigo") @db.VarChar(50)
+  usuarios usuarios[]
+}
+
+model informacion_fisica {
+  id                 Int                 @id @default(autoincrement())
+  peso               Float               @db.Float
+  altura             Float               @db.Float
+  pa_sistolica       Int
+  pa_diastolica      Int
+  fc                 Int
+  fr                 Int
+  circ_cintura       Float               @db.Float
+  circ_cadera        Float               @db.Float
+  sp_o2              Float               @db.Float
+  glucosa_capilar    Float               @db.Float
+  temperatura        Float               @db.Float
+  exploracion_fisica String?             @db.Text
+  habito_exterior    String?             @db.Text
+  historias_medicas  historias_medicas[]
+  notas_evolucion    notas_evolucion[]
+}
+
+model inmunizaciones {
+  id                Int                 @id @default(autoincrement())
+  influenza         DateTime?           @db.Timestamp(0)
+  tetanos           DateTime?           @db.Timestamp(0)
+  hepatitis_b       DateTime?           @db.Timestamp(0)
+  covid_19          DateTime?           @db.Timestamp(0)
+  otros             String?             @db.Text
+  historias_medicas historias_medicas[]
+}
+
+model pacientes {
+  id                            Bytes                           @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  doctor_id                     Bytes                           @db.Binary(16)
+  nombre                        String?                         @db.VarChar(255)
+  fecha_nacimiento              DateTime?                       @db.Date
+  es_externo                    Boolean?                        @default(false)
+  correo                        String?                         @db.VarChar(255)
+  telefono                      String?                         @db.VarChar(30)
+  genero                        String?                         @db.VarChar(20)
+  domicilio                     String?                         @db.VarChar(255)
+  ocupacion                     String?                         @db.VarChar(100)
+  estado_civil                  String?                         @db.VarChar(50)
+  nivel_educativo               String?                         @db.VarChar(100)
+  religion                      String?                         @db.VarChar(100)
+  nss                           String?                         @db.VarChar(50)
+  contacto_emergencia           String?                         @db.VarChar(255)
+  telefono_emergencia           String?                         @db.VarChar(30)
+  parentesco_emergencia         String?                         @db.VarChar(100)
+  creado_at                     DateTime?                       @default(now()) @db.DateTime(0)
+  actualizado_at                DateTime?                       @db.DateTime(0)
+  cal_get_nutr                  cal_get_nutr[]
+  eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
+  eval_bioq_nutricion           eval_bioq_nutricion[]
+  eval_nutr_fh                  eval_nutr_fh[]
+  exam_fis_orien_nutricion      exam_fis_orien_nutricion[]
+  historias_medicas             historias_medicas[]
+  historias_pacientes_nutricion historias_pacientes_nutricion[]
+  notas_evolucion               notas_evolucion[]
+  usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
+  patron_alimentacion_nutricion patron_alimentacion_nutricion[]
+  rec_24h_nutricion             rec_24h_nutricion[]
+  reporte_een_adulto_nutricion  reporte_een_adulto_nutricion[]
+  reporte_een_kids_nutricion    reporte_een_kids_nutricion[]
+  tpan_nutricion                tpan_nutricion[]
+
+  @@index([doctor_id], map: "fk_pacientes_usuario")
+}
+
+model planes_estudio {
+  id                   Int                    @id @default(autoincrement())
+  plan_tratamiento     String?                @db.Text
+  usuario_id           Bytes                  @db.Binary(16)
+  generado_en          DateTime?              @default(now()) @db.DateTime(0)
+  tratamiento          String?                @db.Text
+  historias_medicas    historias_medicas[]
+  notas_evolucion      notas_evolucion[]
+  usuarios             usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
+  planes_estudio_cie10 planes_estudio_cie10[]
+
+  @@index([usuario_id], map: "fk_plan_usuario")
+}
+
+model roles {
+  id                    Int                     @id @default(autoincrement())
+  codigo                String                  @unique(map: "codigo") @db.VarChar(50)
+  invitaciones_registro invitaciones_registro[]
+  usuarios              usuarios[]
+}
+
+model servicios {
+  id                Int                 @id @default(autoincrement())
+  gas               Boolean?
+  luz               Boolean?
+  agua              Boolean?
+  drenaje           Boolean?
+  cable_tel         Boolean?
+  internet          Boolean?
+  historias_medicas historias_medicas[]
+}
+
+model usuarios {
+  id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  nombre                String?                 @db.VarChar(255)
+  fecha_nacimiento      DateTime?               @db.Date
+  correo                String?                 @unique(map: "correo") @db.VarChar(255)
+  telefono              String?                 @db.VarChar(30)
+  password_hash         String?                 @db.VarChar(255)
+  estado_id             Int
+  rol_id                Int
+  area_id               Int?
+  creado_at             DateTime?               @default(now()) @db.DateTime(0)
+  ultimo_acceso         DateTime?               @db.DateTime(0)
+  foto                  String?                 @db.VarChar(255)
+  matricula             String?                 @db.VarChar(20)
+  cedula                String?                 @db.VarChar(20)
+  inicio_servicio       String?                 @db.VarChar(8)
+  fin_servicio          String?                 @db.VarChar(8)
+  bitacora_emergencias  bitacora_emergencias[]
+  invitaciones_registro invitaciones_registro[]
+  pacientes             pacientes[]
+  planes_estudio        planes_estudio[]
+  registro_auditoria    registro_auditoria[]
+  areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
+  estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
+  roles                 roles                   @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
+
+  @@index([area_id], map: "fk_usuario_area")
+  @@index([estado_id], map: "fk_usuario_estado")
+  @@index([rol_id], map: "fk_usuario_rol")
+}
+
+model planes_estudio_cie10 {
+  id              Int            @id @default(autoincrement())
+  plan_estudio_id Int
+  codigo          String         @db.VarChar(10)
+  planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cie10_plan")
+
+  @@index([plan_estudio_id], map: "fk_cie10_plan")
+}
+
+model adicciones {
+  id                            Int                             @id @default(autoincrement())
+  adicto_tabaco                 String?                         @db.VarChar(10)
+  tabaco_frecuencia             String?                         @db.VarChar(20)
+  num_cigarros_d                Int?                            @db.TinyInt
+  adicto_alcohol                String?                         @db.VarChar(10)
+  alcohol_frecuencia            String?                         @db.VarChar(20)
+  ml_ocasion                    Int?                            @db.SmallInt
+  adicto_droga                  String?                         @db.VarChar(10)
+  drogas_frecuencia             String?                         @db.VarChar(20)
+  cual_droga                    String?                         @db.Text
+  adicto_med_contr              String?                         @db.VarChar(10)
+  med_contr_frecuencia          String?                         @db.VarChar(20)
+  cual_med_contr                String?                         @db.Text
+  historias_pacientes_nutricion historias_pacientes_nutricion[]
 }
 
 model balance_acido_base {
@@ -151,18 +302,6 @@ model diagnostico_nutricional_adulto {
   reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
 
   @@index([reporte_een_id], map: "fk_reporte_diagnostico")
-}
-
-model entidades {
-  id                 Int                  @id @default(autoincrement())
-  nombre             String               @unique(map: "nombre") @db.VarChar(50)
-  registro_auditoria registro_auditoria[]
-}
-
-model estados {
-  id       Int        @id @default(autoincrement())
-  codigo   String     @unique(map: "codigo") @db.VarChar(50)
-  usuarios usuarios[]
 }
 
 model eval_act_fisica_nutricion {
@@ -524,35 +663,6 @@ model horarios_comida_nutricion {
   eval_nutr_fh             eval_nutr_fh[]
 }
 
-model informacion_fisica {
-  id                 Int                 @id @default(autoincrement())
-  peso               Float               @db.Float
-  altura             Float               @db.Float
-  pa_sistolica       Int
-  pa_diastolica      Int
-  fc                 Int
-  fr                 Int
-  circ_cintura       Float               @db.Float
-  circ_cadera        Float               @db.Float
-  sp_o2              Float               @db.Float
-  glucosa_capilar    Float               @db.Float
-  temperatura        Float               @db.Float
-  exploracion_fisica String?             @db.Text
-  habito_exterior    String?             @db.Text
-  historias_medicas  historias_medicas[]
-  notas_evolucion    notas_evolucion[]
-}
-
-model inmunizaciones {
-  id                Int                 @id @default(autoincrement())
-  influenza         DateTime?           @db.Timestamp(0)
-  tetanos           DateTime?           @db.Timestamp(0)
-  hepatitis_b       DateTime?           @db.Timestamp(0)
-  covid_19          DateTime?           @db.Timestamp(0)
-  otros             String?             @db.Text
-  historias_medicas historias_medicas[]
-}
-
 model invitaciones_registro {
   id         Int       @id @default(autoincrement())
   correo     String    @unique(map: "correo") @db.VarChar(255)
@@ -589,44 +699,6 @@ model notas_evolucion {
   @@index([informacion_fisica_id], map: "fk_nota_info")
   @@index([paciente_id], map: "fk_nota_paciente")
   @@index([plan_estudio_id], map: "fk_nota_plan")
-}
-
-model pacientes {
-  id                            Bytes                           @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  doctor_id                     Bytes                           @db.Binary(16)
-  nombre                        String?                         @db.VarChar(255)
-  fecha_nacimiento              DateTime?                       @db.Date
-  es_externo                    Boolean?                        @default(false)
-  correo                        String?                         @db.VarChar(255)
-  telefono                      String?                         @db.VarChar(30)
-  genero                        String?                         @db.VarChar(20)
-  domicilio                     String?                         @db.VarChar(255)
-  ocupacion                     String?                         @db.VarChar(100)
-  estado_civil                  String?                         @db.VarChar(50)
-  nivel_educativo               String?                         @db.VarChar(100)
-  religion                      String?                         @db.VarChar(100)
-  nss                           String?                         @db.VarChar(50)
-  contacto_emergencia           String?                         @db.VarChar(255)
-  telefono_emergencia           String?                         @db.VarChar(30)
-  parentesco_emergencia         String?                         @db.VarChar(100)
-  creado_at                     DateTime?                       @default(now()) @db.DateTime(0)
-  actualizado_at                DateTime?                       @db.DateTime(0)
-  cal_get_nutr                  cal_get_nutr[]
-  eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
-  eval_bioq_nutricion           eval_bioq_nutricion[]
-  eval_nutr_fh                  eval_nutr_fh[]
-  exam_fis_orien_nutricion      exam_fis_orien_nutricion[]
-  historias_medicas             historias_medicas[]
-  historias_pacientes_nutricion historias_pacientes_nutricion[]
-  notas_evolucion               notas_evolucion[]
-  usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
-  patron_alimentacion_nutricion patron_alimentacion_nutricion[]
-  rec_24h_nutricion             rec_24h_nutricion[]
-  reporte_een_adulto_nutricion  reporte_een_adulto_nutricion[]
-  reporte_een_kids_nutricion    reporte_een_kids_nutricion[]
-  tpan_nutricion                tpan_nutricion[]
-
-  @@index([doctor_id], map: "fk_pacientes_usuario")
 }
 
 model patron_alimentacion_nutricion {
@@ -716,20 +788,6 @@ model perfil_renal_electrolitos {
   eval_bioq_nutricion eval_bioq_nutricion[]
 }
 
-model planes_estudio {
-  id                Int                 @id @default(autoincrement())
-  codigo_cie10      String              @db.VarChar(50)
-  plan_tratamiento  String?             @db.Text
-  usuario_id        Bytes               @db.Binary(16)
-  generado_en       DateTime?           @default(now()) @db.DateTime(0)
-  tratamiento       String?             @db.Text
-  historias_medicas historias_medicas[]
-  notas_evolucion   notas_evolucion[]
-  usuarios          usuarios            @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
-
-  @@index([usuario_id], map: "fk_plan_usuario")
-}
-
 model rec_24h_comidas {
   id                Int               @id @default(autoincrement())
   rec_24h_id        Int
@@ -772,8 +830,8 @@ model registro_auditoria {
 
   @@index([accion_id], map: "fk_audit_accion")
   @@index([entidad_id], map: "fk_audit_entidad")
-  @@index([objetivo_id], map: "idx_audit_objetivo")
   @@index([usuario_id], map: "fk_audit_usuario")
+  @@index([objetivo_id], map: "idx_audit_objetivo")
 }
 
 model reporte_een_adulto_nutricion {
@@ -801,22 +859,12 @@ model reporte_een_kids_nutricion {
   @@index([paciente_id], map: "fk_paciente_reporte_een_kid")
 }
 
-model roles {
-  id                    Int                     @id @default(autoincrement())
-  codigo                String                  @unique(map: "codigo") @db.VarChar(50)
-  invitaciones_registro invitaciones_registro[]
-  usuarios              usuarios[]
-}
+model sessions {
+  sid    String   @id @db.VarChar(255)
+  data   String   @db.Text
+  expire DateTime
 
-model servicios {
-  id                Int                 @id @default(autoincrement())
-  gas               Boolean?
-  luz               Boolean?
-  agua              Boolean?
-  drenaje           Boolean?
-  cable_tel         Boolean?
-  internet          Boolean?
-  historias_medicas historias_medicas[]
+  @@index([expire])
 }
 
 model signos_vitales_nutricion {
@@ -855,43 +903,4 @@ model tratamiento_alt_nutricion {
   historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
-}
-
-model usuarios {
-  id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  nombre                String?                 @db.VarChar(255)
-  fecha_nacimiento      DateTime?               @db.Date
-  correo                String?                 @unique(map: "correo") @db.VarChar(255)
-  telefono              String?                 @db.VarChar(30)
-  password_hash         String?                 @db.VarChar(255)
-  estado_id             Int
-  rol_id                Int
-  area_id               Int?
-  creado_at             DateTime?               @default(now()) @db.DateTime(0)
-  ultimo_acceso         DateTime?               @db.DateTime(0)
-  foto                  String?                 @db.VarChar(255)
-  matricula             String?                 @db.VarChar(20)
-  cedula                String?                 @db.VarChar(20)
-  inicio_servicio       String?                 @db.VarChar(8)
-  fin_servicio          String?                 @db.VarChar(8)
-  bitacora_emergencias  bitacora_emergencias[]
-  invitaciones_registro invitaciones_registro[]
-  pacientes             pacientes[]
-  planes_estudio        planes_estudio[]
-  registro_auditoria    registro_auditoria[]
-  areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
-  estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
-  roles                 roles                   @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
-
-  @@index([area_id], map: "fk_usuario_area")
-  @@index([estado_id], map: "fk_usuario_estado")
-  @@index([rol_id], map: "fk_usuario_rol")
-}
-
-model sessions {
-  sid    String   @id @db.VarChar(255)
-  data   String   @db.Text
-  expire DateTime
-
-  @@index([expire])
 }

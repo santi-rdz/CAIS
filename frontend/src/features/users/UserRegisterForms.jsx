@@ -1,4 +1,4 @@
-import Tab from '@ui/Tab'
+import Tab from '@components/Tab'
 import InvitationalLinksForm from './InvitationalLinksForm'
 import UserForm from './UserForm'
 import {

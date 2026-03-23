@@ -4,12 +4,12 @@ import 'dayjs/locale/es'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useController } from 'react-hook-form'
-import DropdownPanel from './DropdownPanel'
-import Input from './Input'
+import DropdownPanel from '@components/DropdownPanel'
+import Input from '@components/Input'
 import { HiCalendar } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 
-const CALENDAR_HEIGHT = 260
+const CALENDAR_HEIGHT = 320
 const DEFAULT_MIN = dayjs('1900-01-01')
 const DEFAULT_MAX = dayjs('2099-12-31')
 

@@ -1,14 +1,12 @@
-import { useState } from 'react'
-import Table from '@ui/Table'
-import Pagination from '@ui/Pagination'
-import { useEmergencies } from './useEmergencies'
+import Table from '@components/Table'
+import Pagination from '@components/Pagination'
+import { useEmergencies } from './hooks/useEmergencies'
 import EmergencyRow from './EmergencyRow'
 
 const COLUMNS = '8fr 5fr 10fr 10fr 10fr 2fr'
 
 export default function EmergenciesTable() {
   const { emergencies, count, isPending } = useEmergencies()
-  const [openMenu, setOpenMenu] = useState(null)
 
   if (isPending) return <EmergenciesTableSkeleton />
 
@@ -24,12 +22,7 @@ export default function EmergenciesTable() {
       <Table.Body
         data={emergencies}
         render={(emergency) => (
-          <EmergencyRow
-            key={emergency.id}
-            emergency={emergency}
-            openMenu={openMenu}
-            setOpenMenu={setOpenMenu}
-          />
+          <EmergencyRow key={emergency.id} emergency={emergency} />
         )}
       />
       <Table.Footer>

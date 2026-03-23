@@ -1,8 +1,8 @@
-import Heading from '@ui/Heading'
-import Tag from '@ui/Tag'
-import Button from '@ui/Button'
-import Modal from '@ui/Modal'
-import DangerConfirm from '@ui/DangerConfirm'
+import Heading from '@components/Heading'
+import Tag from '@components/Tag'
+import Button from '@components/Button'
+import Modal from '@components/Modal'
+import DangerConfirm from '@components/DangerConfirm'
 import { formatFechaLong, formatHora } from '@lib/dateHelpers'
 import {
   HiArrowLeft,
@@ -15,8 +15,8 @@ import {
   HiOutlineUser,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router'
-import { useEmergency } from './useEmergency'
-import { useDeleteEmergency } from './useDeleteEmergency'
+import { useEmergency } from './hooks/useEmergency'
+import { useDeleteEmergency } from './hooks/useDeleteEmergency'
 import EmergencyForm from './EmergencyForm'
 
 export default function EmergencyDetail() {

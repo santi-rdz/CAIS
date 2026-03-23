@@ -1,6 +1,7 @@
-import Button from '@ui/Button'
+import Button from '@components/Button'
+import ModalBody from '@components/ModalBody'
 import RoleSelect from '@ui/RoleSelect'
-import ModalActions from '@ui/ModalActions'
+import ModalActions from '@components/ModalActions'
 import TabLayout from '@ui/TabLayout'
 
 import { createContext, useContext, useState } from 'react'
@@ -13,7 +14,7 @@ import {
   HiOutlineTrash,
   HiOutlinePencil,
 } from 'react-icons/hi2'
-import useCreateInvitations from './useCreateInvitations'
+import useCreateInvitations from './hooks/useCreateInvitations'
 import DomainEmailInput from '@ui/DomainEmailInput'
 
 const EmailsContext = createContext()
@@ -92,7 +93,7 @@ export default function InvitationalLinksForm({ onClose }) {
         onEdit: handleEdit,
       }}
     >
-      <div className="min-h-0 flex-1 overflow-y-auto px-8 py-8">
+      <ModalBody py={8}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <DomainEmailInput
             error={errors?.email?.message}
@@ -102,6 +103,7 @@ export default function InvitationalLinksForm({ onClose }) {
             extraSuffix={<RoleSelect role={role} setRole={setRole} />}
           />
           <Button
+            type="submit"
             size="md"
             variant="outline"
             className="w-full border border-gray-300"
@@ -121,7 +123,7 @@ export default function InvitationalLinksForm({ onClose }) {
         <div className="mt-10">
           <EmailsDisplay />
         </div>
-      </div>
+      </ModalBody>
 
       <ModalActions
         variant="primary"

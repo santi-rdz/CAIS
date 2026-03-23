@@ -1,4 +1,4 @@
-import Table from '@ui/Table'
+import Table from '@components/Table'
 import { usePatients } from './hooks/usePatients'
 import PatientRow from './PatientRow'
 

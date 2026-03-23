@@ -1,10 +1,10 @@
 import CoordForm from '@features/users/CoordForm'
 import InternForm from '@features/users/InternForm'
-import { useInvitedUser } from '@features/users/useInvitedUser'
+import { useInvitedUser } from '@features/users/hooks/useInvitedUser'
 import { toastApiError } from '@lib/ApiError'
 import { registroUsuario } from '@services/ApiUsers'
 import { useMutation } from '@tanstack/react-query'
-import Spinner from '@ui/Spinner'
+import Spinner from '@components/Spinner'
 import { toast } from 'sonner'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
