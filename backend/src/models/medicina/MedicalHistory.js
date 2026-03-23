@@ -78,80 +78,27 @@ export class MedicalHistoryModel {
         historia_enfermedad_actual: data.historia_enfermedad_actual ?? null,
         antecedentes_familiares: {
           create: {
-            padre: data.antecedentes_familiares.padre ?? null,
-            madre: data.antecedentes_familiares.madre ?? null,
-            abuelo_paterno: data.antecedentes_familiares.abuelo_paterno ?? null,
-            abuelo_materno: data.antecedentes_familiares.abuelo_materno ?? null,
-            abuela_paterna: data.antecedentes_familiares.abuela_paterna ?? null,
-            abuela_materna: data.antecedentes_familiares.abuela_materna ?? null,
-            otros: data.antecedentes_familiares.otros ?? null,
+            ...data.antecedentes_familiares,
           },
         },
         antecedentes_patologicos: {
           create: {
-            cronico_degenerativos:
-              data.antecedentes_patologicos.cronico_degenerativos ?? null,
-            quirurgicos: data.antecedentes_patologicos.quirurgicos ?? null,
-            hospitalizaciones:
-              data.antecedentes_patologicos.hospitalizaciones ?? null,
-            traumaticos: data.antecedentes_patologicos.traumaticos ?? null,
-            transfusionales:
-              data.antecedentes_patologicos.transfusionales ?? null,
-            transplantes: data.antecedentes_patologicos.transplantes ?? null,
-            alergicos: data.antecedentes_patologicos.alergicos ?? null,
-            infectocontagiosos:
-              data.antecedentes_patologicos.infectocontagiosos ?? null,
-            toxicomanias: data.antecedentes_patologicos.toxicomanias ?? null,
-            covid_19: data.antecedentes_patologicos.covid_19 ?? null,
-            psicologia_psiquiatria:
-              data.antecedentes_patologicos.psicologia_psiquiatria ?? null,
-            gyo: data.antecedentes_patologicos.gyo ?? null,
-            enfermedades_congenitas:
-              data.antecedentes_patologicos.enfermedades_congenitas ?? null,
-            enfermedades_infancia:
-              data.antecedentes_patologicos.enfermedades_infancia ?? null,
+            ...data.antecedentes_patologicos,
           },
         },
         aparatos_sistemas: {
           create: {
-            neurologico: data.aparatos_sistemas.neurologico ?? null,
-            cardiovascular: data.aparatos_sistemas.cardiovascular ?? null,
-            respiratorio: data.aparatos_sistemas.respiratorio ?? null,
-            hematologico: data.aparatos_sistemas.hematologico ?? null,
-            digestivo: data.aparatos_sistemas.digestivo ?? null,
-            musculoesqueletico:
-              data.aparatos_sistemas.musculoesqueletico ?? null,
-            genitourinario: data.aparatos_sistemas.genitourinario ?? null,
-            endocrinologico: data.aparatos_sistemas.endocrinologico ?? null,
-            metabolico: data.aparatos_sistemas.metabolico ?? null,
-            nutricional: data.aparatos_sistemas.nutricional ?? null,
+            ...data.aparatos_sistemas,
           },
         },
         informacion_fisica: {
           create: {
-            peso: data.informacion_fisica.peso,
-            altura: data.informacion_fisica.altura,
-            pa_sistolica: data.informacion_fisica.pa_sistolica,
-            pa_diastolica: data.informacion_fisica.pa_diastolica,
-            fc: data.informacion_fisica.fc,
-            fr: data.informacion_fisica.fr,
-            circ_cintura: data.informacion_fisica.circ_cintura,
-            circ_cadera: data.informacion_fisica.circ_cadera,
-            sp_o2: data.informacion_fisica.sp_o2,
-            glucosa_capilar: data.informacion_fisica.glucosa_capilar,
-            temperatura: data.informacion_fisica.temperatura,
-            exploracion_fisica:
-              data.informacion_fisica.exploracion_fisica ?? null,
-            habito_exterior: data.informacion_fisica.habito_exterior ?? null,
+            ...data.informacion_fisica,
           },
         },
         inmunizaciones: {
           create: {
-            influenza: data.inmunizaciones.influenza ?? null,
-            tetanos: data.inmunizaciones.tetanos ?? null,
-            hepatitis_b: data.inmunizaciones.hepatitis_b ?? null,
-            covid_19: data.inmunizaciones.covid_19 ?? null,
-            otros: data.inmunizaciones.otros ?? null,
+            ...data.inmunizaciones,
           },
         },
         planes_estudio: {
@@ -164,12 +111,7 @@ export class MedicalHistoryModel {
         },
         servicios: {
           create: {
-            gas: data.servicios.gas ?? null,
-            luz: data.servicios.luz ?? null,
-            agua: data.servicios.agua ?? null,
-            drenaje: data.servicios.drenaje ?? null,
-            cable_tel: data.servicios.cable_tel ?? null,
-            internet: data.servicios.internet ?? null,
+            ...data.servicios,
           },
         },
       },
