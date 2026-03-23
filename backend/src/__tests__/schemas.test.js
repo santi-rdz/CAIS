@@ -11,6 +11,7 @@ import {
   validateSelfRegister,
 } from '@cais/shared/schemas/users'
 import { validateInvitedUser } from '@cais/shared/schemas/invitations'
+import { validateAuditCreate } from '@cais/shared/schemas/audit'
 import assert from 'assert'
 
 // ─── usuario.js (admin creation) ────────────────────────────────────
@@ -268,6 +269,88 @@ describe('validateSelfRegister — auto-registro', () => {
       { ...basePasante, token: 'no-es-uuid' },
       'PASANTE'
     )
+    assert.equal(result.success, false)
+  })
+})
+
+// ─── audit.js (creación de auditoría) ───────────────────────────────
+
+/**
+ * @description Suite para validateAuditCreate (creación de registro de auditoría).
+ * Verifica que el schema acepte datos válidos y rechace UUIDs, acciones y entidades inválidas.
+ */
+describe('validateAuditCreate — creación de auditoría', () => {
+  const base = {
+    usuario_id: '550e8400-e29b-41d4-a716-446655440000',
+    accion: 'CREATE',
+    entidad: 'pacientes',
+  }
+
+  /**
+   * @test Datos mínimos válidos (sin objetivo_id) son aceptados.
+   */
+  test('acepta datos válidos sin objetivo_id', () => {
+    const result = validateAuditCreate(base)
+    assert.equal(result.success, true)
+  })
+
+  /**
+   * @test Datos con objetivo_id UUID válido son aceptados.
+   */
+  test('acepta datos válidos con objetivo_id', () => {
+    const result = validateAuditCreate({
+      ...base,
+      objetivo_id: '660e8400-e29b-41d4-a716-446655440001',
+    })
+    assert.equal(result.success, true)
+  })
+
+  /**
+   * @test objetivo_id con valor null es aceptado.
+   */
+  test('acepta objetivo_id null', () => {
+    const result = validateAuditCreate({ ...base, objetivo_id: null })
+    assert.equal(result.success, true)
+  })
+
+  /**
+   * @test usuario_id con formato distinto a UUID es rechazado.
+   */
+  test('rechaza usuario_id no UUID', () => {
+    const result = validateAuditCreate({ ...base, usuario_id: 'no-es-uuid' })
+    assert.equal(result.success, false)
+  })
+
+  /**
+   * @test objetivo_id con formato distinto a UUID es rechazado.
+   */
+  test('rechaza objetivo_id no UUID', () => {
+    const result = validateAuditCreate({ ...base, objetivo_id: 'no-es-uuid' })
+    assert.equal(result.success, false)
+  })
+
+  /**
+   * @test accion vacía es rechazada.
+   */
+  test('rechaza accion vacía', () => {
+    const result = validateAuditCreate({ ...base, accion: '' })
+    assert.equal(result.success, false)
+  })
+
+  /**
+   * @test entidad vacía es rechazada.
+   */
+  test('rechaza entidad vacía', () => {
+    const result = validateAuditCreate({ ...base, entidad: '' })
+    assert.equal(result.success, false)
+  })
+
+  /**
+   * @test Ausencia de usuario_id es rechazada.
+   */
+  test('rechaza input sin usuario_id', () => {
+    const { usuario_id, ...sinUsuario } = base
+    const result = validateAuditCreate(sinUsuario)
     assert.equal(result.success, false)
   })
 })
