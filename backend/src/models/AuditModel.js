@@ -1,5 +1,6 @@
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
+import { validateAuditCreate } from '@cais/shared/schemas/audit'
 
 const includeRelations = {
   usuarios: true,
@@ -71,6 +72,9 @@ export class AuditModel {
     { usuario_id, accion, entidad, objetivo_id = null },
     tx = prisma
   ) {
+    const validation = validateAuditCreate({ usuario_id, accion, entidad, objetivo_id })
+    if (!validation.success) throw new Error(validation.error.errors[0].message)
+
     const accionRow = await tx.acciones.findFirst({
       where: { codigo: accion.toUpperCase() },
     })
