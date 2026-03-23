@@ -30,6 +30,14 @@ export class AuditModel {
     page = 1,
     limit = 20,
   } = {}) {
+    const MAX_LIMIT = 100
+    const parsedPage = Number.parseInt(page, 10)
+    const parsedLimit = Number.parseInt(limit, 10)
+    const safePage = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1
+    const safeLimit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(1, parsedLimit), MAX_LIMIT)
+      : 20
+
     const where = {}
 
     if (usuario_id) {
@@ -44,7 +52,7 @@ export class AuditModel {
       where.entidades = { nombre: { contains: entidad } }
     }
 
-    const offset = (page - 1) * limit
+    const offset = (safePage - 1) * safeLimit
 
     const [records, total] = await prisma.$transaction([
       prisma.registro_auditoria.findMany({
@@ -52,7 +60,7 @@ export class AuditModel {
         include: includeRelations,
         orderBy: { fecha_hora: 'desc' },
         skip: offset,
-        take: limit,
+        take: safeLimit,
       }),
       prisma.registro_auditoria.count({ where }),
     ])
