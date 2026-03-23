@@ -73,7 +73,7 @@ export class AuditModel {
     tx = prisma
   ) {
     const validation = validateAuditCreate({ usuario_id, accion, entidad, objetivo_id })
-    if (!validation.success) throw new Error(validation.error.errors[0].message)
+    if (!validation.success) throw new Error(validation.error.issues.map(i => i.message).join(', '))
 
     const accionRow = await tx.acciones.findFirst({
       where: { codigo: accion.toUpperCase() },
