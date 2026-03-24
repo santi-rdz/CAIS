@@ -8,9 +8,7 @@ export default function Stepper({
   className = '',
 }) {
   return (
-    <div
-      className={`overflow-x-auto px-10 py-2 pb-6 max-sm:px-4 ${className}`}
-    >
+    <div className={`overflow-x-auto px-10 py-2 pb-6 max-sm:px-4 ${className}`}>
       <div className="mx-4 flex min-w-max" style={{ gap }}>
         {steps.map((step, i) => {
           const isLast = i === steps.length - 1
