@@ -22,6 +22,10 @@ export default function useUser() {
     } catch {
       // sesión ya expirada en el servidor — limpiamos el estado local igual
     }
+    localStorage.setItem(
+      'session_event',
+      JSON.stringify({ type: 'logout', ts: Date.now() })
+    )
     queryClient.clear()
     navigate('/login', { replace: true })
   }
