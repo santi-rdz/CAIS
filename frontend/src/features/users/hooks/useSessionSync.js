@@ -8,12 +8,18 @@ export default function useSessionSync() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (e.key === 'session_event') {
-        const { type } = JSON.parse(e.newValue)
-        if (type === 'logout') {
-          queryClient.clear()
-          navigate('/login', { replace: true })
-        }
+      if (e.key !== 'session_event' || !e.newValue) return
+
+      let parsed
+      try {
+        parsed = JSON.parse(e.newValue)
+      } catch {
+        return
+      }
+
+      if (parsed?.type === 'logout') {
+        queryClient.clear()
+        navigate('/login', { replace: true })
       }
     }
     window.addEventListener('storage', handler)

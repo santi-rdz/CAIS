@@ -22,10 +22,14 @@ export default function useUser() {
     } catch {
       // sesión ya expirada en el servidor — limpiamos el estado local igual
     }
-    localStorage.setItem(
-      'session_event',
-      JSON.stringify({ type: 'logout', ts: Date.now() })
-    )
+    try {
+      localStorage.setItem(
+        'session_event',
+        JSON.stringify({ type: 'logout', ts: Date.now() })
+      )
+    } catch {
+      // localStorage deshabilitado o cuota excedida — continuamos el logout igual
+    }
     queryClient.clear()
     navigate('/login', { replace: true })
   }
