@@ -14,6 +14,19 @@ const includeRelations = {
   servicios: true,
 }
 
+const toUUID = (val) => {
+  if (!val) return null
+  if (Buffer.isBuffer(val)) return bufferToUUID(val)
+  if (
+    typeof val === 'object' &&
+    !Array.isArray(val) &&
+    !(val instanceof Date)
+  ) {
+    return bufferToUUID(Buffer.from(Object.values(val)))
+  }
+  return val
+}
+
 function formatMedicalHistory(n) {
   if (!n) return null
   const {
@@ -29,8 +42,71 @@ function formatMedicalHistory(n) {
   } = n
   return {
     ...rest,
-    id: bufferToUUID(n.id),
-    paciente_id: n.paciente_id ? bufferToUUID(n.paciente_id) : null,
+    id: toUUID(n.id),
+    paciente_id: toUUID(n.paciente_id),
+
+    antecedentes_familiares: antecedentes_familiares
+      ? {
+          ...antecedentes_familiares,
+          historia_medica_id: toUUID(
+            antecedentes_familiares.historia_medica_id
+          ),
+        }
+      : null,
+
+    antecedentes_patologicos: antecedentes_patologicos
+      ? {
+          ...antecedentes_patologicos,
+          historia_medica_id: toUUID(
+            antecedentes_patologicos.historia_medica_id
+          ),
+        }
+      : null,
+
+    aparatos_sistemas: aparatos_sistemas
+      ? {
+          ...aparatos_sistemas,
+          historia_medica_id: toUUID(aparatos_sistemas.historia_medica_id),
+        }
+      : null,
+
+    informacion_fisica: informacion_fisica
+      ? {
+          ...informacion_fisica,
+          historia_medica_id: toUUID(informacion_fisica.historia_medica_id),
+        }
+      : null,
+
+    inmunizaciones: inmunizaciones
+      ? {
+          ...inmunizaciones,
+          historia_medica_id: toUUID(inmunizaciones.historia_medica_id),
+        }
+      : null,
+
+    pacientes: pacientes
+      ? {
+          ...pacientes,
+          id: toUUID(pacientes.id),
+          doctor_id: toUUID(pacientes.doctor_id),
+        }
+      : null,
+
+    planes_estudio: planes_estudio
+      ? {
+          ...planes_estudio,
+          id: toUUID(planes_estudio.id),
+          usuario_id: toUUID(planes_estudio.usuario_id),
+          historia_medica_id: toUUID(planes_estudio.historia_medica_id),
+        }
+      : null,
+
+    servicios: servicios
+      ? {
+          ...servicios,
+          historia_medica_id: toUUID(servicios.historia_medica_id),
+        }
+      : null,
   }
 }
 

@@ -764,7 +764,7 @@ model planes_estudio_cie10 {
   id              Int            @id @default(autoincrement())
   plan_estudio_id Int
   codigo          String         @db.VarChar(10)
-  planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cie10_plan")
+  planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cie10_plan")
 
   @@index([plan_estudio_id], map: "fk_cie10_plan")
 }
@@ -849,7 +849,7 @@ model servicios {
   drenaje            Boolean?
   cable_tel          Boolean?
   internet           Boolean?
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_servicios_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_servicios_historia")
 }
 
 model sessions {
