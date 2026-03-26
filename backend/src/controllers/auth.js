@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma.js'
 import { bufferToUUID, uuidToBuffer } from '../lib/uuid.js'
 import bcrypt from 'bcryptjs'
+import { changePasswordSchema } from '../schemas/user.js'
 
 function formatUser(user) {
   return {
@@ -89,28 +90,16 @@ export class AuthController {
   }
 
   static async changePassword(req, res) {
-    const { currentPassword, newPassword, confirmPassword } = req.body
+    const validation = changePasswordSchema.safeParse(req.body)
+
+    if (!validation.success) {
+      const error = validation.error.errors[0]?.message || 'Datos inválidos'
+      return res.status(400).json({ error })
+    }
+
+    const { currentPassword, newPassword } = validation.data
 
     try {
-      if (!currentPassword) {
-        return res.status(400).json({ error: 'Contraseña actual requerida' })
-      }
-      if (!newPassword) {
-        return res.status(400).json({ error: 'Nueva contraseña requerida' })
-      }
-      if (!confirmPassword) {
-        return res.status(400).json({ error: 'Confirmación de contraseña requerida' })
-      }
-      if (newPassword !== confirmPassword) {
-        return res.status(400).json({ error: 'Las contraseñas nuevas no coinciden' })
-      }
-
-      if (newPassword.length < 6) {
-        return res
-          .status(400)
-          .json({ error: 'La contraseña debe tener al menos 6 caracteres' })
-      }
-
       const user = await prisma.usuarios.findUnique({
         where: { id: uuidToBuffer(req.session.userId) },
         select: { id: true, password_hash: true },
@@ -132,7 +121,11 @@ export class AuthController {
         data: { password_hash: newPasswordHash },
       })
 
-      return res.json({ ok: true, message: 'Contraseña actualizada' })
+      req.session.destroy((err) => {
+        if (err) return res.status(500).json({ error: 'Server error' })
+        res.clearCookie('connect.sid')
+        return res.json({ ok: true, message: 'Contraseña actualizada. Por favor inicie sesión nuevamente.' })
+      })
     } catch (err) {
       console.error(err)
       return res.status(500).json({ error: 'Server error' })

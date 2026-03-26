@@ -12,6 +12,15 @@ const baseSchema = z.object({
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 })
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'La contraseña actual es requerida'),
+  newPassword: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  confirmPassword: z.string().min(1, 'La confirmación de contraseña es requerida'),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: 'Las contraseñas nuevas no coinciden',
+  path: ['confirmPassword'],
+})
+
 const internSchema = baseSchema.extend({
   matricula: z.string().min(1, 'La matrícula es requerida'),
   servicioInicioAnio: z.string(),

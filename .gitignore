@@ -32,3 +32,7 @@ docker-compose.override.yml
 docs/plans/
 
 .agents/*
+
+# --- Bruno ---
+bruno/
+
