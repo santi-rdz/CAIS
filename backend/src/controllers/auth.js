@@ -16,6 +16,7 @@ function formatUser(user) {
 export class AuthController {
   static async login(req, res) {
     const { email, password } = req.body
+    //console.log("Received login request with body:", req.body)
 
     try {
       if (!email) {
@@ -91,5 +92,56 @@ export class AuthController {
       res.clearCookie('connect.sid')
       return res.json({ ok: true })
     })
+  }
+
+  static async changePassword(req, res) {
+    const { currentPassword, newPassword, confirmPassword } = req.body
+
+    try {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Contraseña actual requerida' })
+      }
+      if (!newPassword) {
+        return res.status(400).json({ error: 'Nueva contraseña requerida' })
+      }
+      if (!confirmPassword) {
+        return res.status(400).json({ error: 'Confirmación de contraseña requerida' })
+      }
+      if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: 'Las contraseñas nuevas no coinciden' })
+      }
+
+      if (newPassword.length < 6) {
+        return res
+          .status(400)
+          .json({ error: 'La contraseña debe tener al menos 6 caracteres' })
+      }
+
+      const user = await prisma.usuarios.findUnique({
+        where: { id: uuidToBuffer(req.session.userId) },
+        select: { id: true, password_hash: true },
+      })
+
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' })
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password_hash)
+      if (!isMatch) {
+        return res.status(401).json({ error: 'Contraseña actual incorrecta' })
+      }
+
+      const newPasswordHash = await bcrypt.hash(newPassword, 10)
+
+      await prisma.usuarios.update({
+        where: { id: user.id },
+        data: { password_hash: newPasswordHash },
+      })
+
+      return res.json({ ok: true, message: 'Contraseña actualizada' })
+    } catch (err) {
+      console.error(err)
+      return res.status(500).json({ error: 'Server error' })
+    }
   }
 }
