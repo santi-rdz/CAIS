@@ -403,9 +403,21 @@ CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
     CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
 );
 
+CREATE TABLE IF NOT EXISTS notas_evolucion (
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    historia_medica_id BINARY(16),
+    paciente_id BINARY(16),
+    motivo_consulta TEXT,
+    ant_gine_andro TEXT,
+    estudios_complementarios_efectuados TEXT,
+    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    nota_evolucion_id BINARY(16),
     neurologico TEXT,
     cardiovascular TEXT,
     respiratorio TEXT,
@@ -416,7 +428,8 @@ CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     endocrinologico TEXT,
     metabolico TEXT,
     nutricional TEXT,
-    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_as_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS servicios (
@@ -445,6 +458,7 @@ CREATE TABLE IF NOT EXISTS inmunizaciones (
 CREATE TABLE IF NOT EXISTS informacion_fisica (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    nota_evolucion_id BINARY(16),
     peso FLOAT NOT NULL,
     altura FLOAT NOT NULL,
     pa_sistolica INT NOT NULL,
@@ -458,18 +472,21 @@ CREATE TABLE IF NOT EXISTS informacion_fisica (
     temperatura FLOAT NOT NULL,
     exploracion_fisica TEXT,
     habito_exterior TEXT,
-    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_infoF_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    nota_evolucion_id BINARY(16),
     plan_tratamiento TEXT,
     usuario_id BINARY(16) NOT NULL,
     generado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
     tratamiento TEXT,
     CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_plan_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
@@ -477,22 +494,6 @@ CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
     plan_estudio_id INT NOT NULL,
     codigo VARCHAR(10) NOT NULL,
     CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
-);
-CREATE TABLE IF NOT EXISTS notas_evolucion (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    historia_medica_id BINARY(16),
-    paciente_id BINARY(16),
-    motivo_consulta TEXT,
-    ant_gine_andro TEXT,
-    estudios_complementarios_efectuados TEXT,
-    aparatos_sistemas_id INT,
-    informacion_fisica_id INT,
-    plan_estudio_id INT,
-    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
-    CONSTRAINT fk_nota_as FOREIGN KEY (aparatos_sistemas_id) REFERENCES aparatos_sistemas(id),
-    CONSTRAINT fk_nota_info FOREIGN KEY (informacion_fisica_id) REFERENCES informacion_fisica(id),
-    CONSTRAINT fk_nota_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
 );
 
 -- ===============================
