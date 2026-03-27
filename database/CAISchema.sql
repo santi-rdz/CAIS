@@ -83,100 +83,6 @@ CREATE TABLE IF NOT EXISTS pacientes (
 -- ===============================
 -- TABLAS MEDICAS SIN FK
 -- ===============================
-CREATE TABLE IF NOT EXISTS antecedentes_familiares (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    padre VARCHAR(255),
-    madre VARCHAR(255),
-    abuelo_paterno VARCHAR(255),
-    abuelo_materno VARCHAR(255),
-    abuela_paterna VARCHAR(255),
-    abuela_materna VARCHAR(255),
-    otros VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS antecedentes_patologicos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    cronico_degenerativos TEXT,
-    quirurgicos TEXT,
-    hospitalizaciones TEXT,
-    traumaticos TEXT,
-    transfusionales TEXT,
-    transplantes TEXT,
-    alergicos TEXT,
-    infectocontagiosos TEXT,
-    toxicomanias TEXT,
-    covid_19 TEXT,
-    psicologia_psiquiatria TEXT,
-    gyo TEXT,
-    enfermedades_congenitas TEXT,
-    enfermedades_infancia TEXT
-);
-
-CREATE TABLE IF NOT EXISTS aparatos_sistemas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    neurologico TEXT,
-    cardiovascular TEXT,
-    respiratorio TEXT,
-    hematologico TEXT,
-    digestivo TEXT,
-    musculoesqueletico TEXT,
-    genitourinario TEXT,
-    endocrinologico TEXT,
-    metabolico TEXT,
-    nutricional TEXT
-);
-
-CREATE TABLE IF NOT EXISTS servicios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    gas BOOLEAN,
-    luz BOOLEAN,
-    agua BOOLEAN,
-    drenaje BOOLEAN,
-    cable_tel BOOLEAN,
-    internet BOOLEAN
-);
-
-CREATE TABLE IF NOT EXISTS inmunizaciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    influenza TIMESTAMP NULL,
-    tetanos TIMESTAMP NULL,
-    hepatitis_b TIMESTAMP NULL,
-    covid_19 TIMESTAMP NULL,
-    otros TEXT
-);
-
-CREATE TABLE IF NOT EXISTS informacion_fisica (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    peso FLOAT NOT NULL,
-    altura FLOAT NOT NULL,
-    pa_sistolica INT NOT NULL,
-    pa_diastolica INT NOT NULL,
-    fc INT NOT NULL,
-    fr INT NOT NULL,
-    circ_cintura FLOAT NOT NULL,
-    circ_cadera FLOAT NOT NULL,
-    sp_o2 FLOAT NOT NULL,
-    glucosa_capilar FLOAT NOT NULL,
-    temperatura FLOAT NOT NULL,
-    exploracion_fisica TEXT,
-    habito_exterior TEXT
-);
-
-CREATE TABLE IF NOT EXISTS planes_estudio (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    plan_tratamiento TEXT,
-    usuario_id BINARY(16) NOT NULL,
-    generado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
-    tratamiento TEXT,
-    CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
-);
-
-CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    plan_estudio_id INT NOT NULL,
-    codigo VARCHAR(10) NOT NULL,
-    CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
-);
 
 -- ===============================
 -- TABLAS NUTRICION SIN FK
@@ -444,27 +350,134 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 CREATE TABLE IF NOT EXISTS historias_medicas (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
-    antecedentes_familiares_id INT,
-    antecedentes_patologicos_id INT,
-    servicios_id INT,
-    inmunizaciones_id INT,
-    informacion_fisica_id INT,
-    aparatos_sistemas_id INT,
-    plan_estudio_id INT,
     tipo_sangre VARCHAR(5),
     vacunas_infancia_completas BOOLEAN,
     motivo_consulta TEXT,
     historia_enfermedad_actual TEXT,
-    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_historia_af FOREIGN KEY (antecedentes_familiares_id) REFERENCES antecedentes_familiares(id),
-    CONSTRAINT fk_historia_ap FOREIGN KEY (antecedentes_patologicos_id) REFERENCES antecedentes_patologicos(id),
-    CONSTRAINT fk_historia_serv FOREIGN KEY (servicios_id) REFERENCES servicios(id),
-    CONSTRAINT fk_historia_inm FOREIGN KEY (inmunizaciones_id) REFERENCES inmunizaciones(id),
-    CONSTRAINT fk_historia_info FOREIGN KEY (informacion_fisica_id) REFERENCES informacion_fisica(id),
-    CONSTRAINT fk_historia_as FOREIGN KEY (aparatos_sistemas_id) REFERENCES aparatos_sistemas(id),
-    CONSTRAINT fk_historia_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
+    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
+CREATE TABLE IF NOT EXISTS antecedentes_familiares (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    padre VARCHAR(255),
+    madre VARCHAR(255),
+    abuelo_paterno VARCHAR(255),
+    abuelo_materno VARCHAR(255),
+    abuela_paterna VARCHAR(255),
+    abuela_materna VARCHAR(255),
+    otros VARCHAR(255),
+    CONSTRAINT fk_af_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS antecedentes_patologicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    cronico_degenerativos TEXT,
+    quirurgicos TEXT,
+    hospitalizaciones TEXT,
+    traumaticos TEXT,
+    transfusionales TEXT,
+    transplantes TEXT,
+    alergicos TEXT,
+    infectocontagiosos TEXT,
+    toxicomanias TEXT,
+    covid_19 TEXT,
+    psicologia_psiquiatria TEXT,
+    gyo TEXT,
+    enfermedades_congenitas TEXT,
+    enfermedades_infancia TEXT,
+    CONSTRAINT fk_ap_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    alimentacion_adecuada BOOLEAN,
+    calidad_cantidad_alimentacion TEXT DEFAULT NULL,
+    higiene_adecuada TEXT,
+    actividad_fisica TEXT,
+    inmunizaciones_completas BOOLEAN,
+    zoonosis BOOLEAN,
+    tipo_zoonosis TEXT DEFAULT NULL,
+    CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS aparatos_sistemas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    neurologico TEXT,
+    cardiovascular TEXT,
+    respiratorio TEXT,
+    hematologico TEXT,
+    digestivo TEXT,
+    musculoesqueletico TEXT,
+    genitourinario TEXT,
+    endocrinologico TEXT,
+    metabolico TEXT,
+    nutricional TEXT,
+    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS servicios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    gas BOOLEAN,
+    luz BOOLEAN,
+    agua BOOLEAN,
+    drenaje BOOLEAN,
+    cable_tel BOOLEAN,
+    internet BOOLEAN,
+    CONSTRAINT fk_servicios_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS inmunizaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    influenza TIMESTAMP NULL,
+    tetanos TIMESTAMP NULL,
+    hepatitis_b TIMESTAMP NULL,
+    covid_19 TIMESTAMP NULL,
+    otros TEXT,
+    CONSTRAINT fk_inmu_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS informacion_fisica (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    peso FLOAT NOT NULL,
+    altura FLOAT NOT NULL,
+    pa_sistolica INT NOT NULL,
+    pa_diastolica INT NOT NULL,
+    fc INT NOT NULL,
+    fr INT NOT NULL,
+    circ_cintura FLOAT NOT NULL,
+    circ_cadera FLOAT NOT NULL,
+    sp_o2 FLOAT NOT NULL,
+    glucosa_capilar FLOAT NOT NULL,
+    temperatura FLOAT NOT NULL,
+    exploracion_fisica TEXT,
+    habito_exterior TEXT,
+    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS planes_estudio (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    plan_tratamiento TEXT,
+    usuario_id BINARY(16) NOT NULL,
+    generado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+    tratamiento TEXT,
+    CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
+CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plan_estudio_id INT NOT NULL,
+    codigo VARCHAR(10) NOT NULL,
+    CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
+);
 CREATE TABLE IF NOT EXISTS notas_evolucion (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_medica_id BINARY(16),
@@ -1148,138 +1161,9 @@ VALUES
 -- TEST DATA: notas_evolucion
 -- ===============================
 INSERT INTO
-    aparatos_sistemas (
-        neurologico,
-        cardiovascular,
-        respiratorio,
-        hematologico,
-        digestivo,
-        musculoesqueletico,
-        genitourinario,
-        endocrinologico,
-        metabolico,
-        nutricional
-    )
-VALUES
-    (
-        'Sin alteraciones',
-        'Ritmo cardíaco regular',
-        'Respiración normal',
-        'Sin anemia',
-        'Sin molestias digestivas',
-        'Sin dolor articular',
-        'Sin alteraciones urinarias',
-        'Sin alteraciones tiroideas',
-        'Metabolismo normal',
-        'Nutrición adecuada'
-    ),
-    (
-        'Cefalea ocasional',
-        'Palpitaciones leves',
-        'Tos crónica leve',
-        'Sin alteraciones',
-        'Gastritis referida',
-        'Lumbalgia crónica',
-        'Sin alteraciones',
-        'Hipotiroidismo controlado',
-        'Dislipidemia',
-        'Déficit proteico'
-    );
-
-INSERT INTO
-    informacion_fisica (
-        peso,
-        altura,
-        pa_sistolica,
-        pa_diastolica,
-        fc,
-        fr,
-        circ_cintura,
-        circ_cadera,
-        sp_o2,
-        glucosa_capilar,
-        temperatura,
-        exploracion_fisica,
-        habito_exterior
-    )
-VALUES
-    (
-        72.5,
-        1.75,
-        120,
-        80,
-        72,
-        16,
-        88.0,
-        95.0,
-        98.0,
-        95.0,
-        36.5,
-        'Exploración física sin hallazgos relevantes',
-        'Paciente en buen estado general'
-    ),
-    (
-        85.0,
-        1.68,
-        135,
-        88,
-        80,
-        18,
-        102.0,
-        108.0,
-        96.5,
-        110.0,
-        37.1,
-        'Obesidad grado I, abdomen globoso',
-        'Paciente con sobrepeso, consciente y orientado'
-    );
-
-INSERT INTO
-    planes_estudio (
-        plan_tratamiento,
-        usuario_id,
-        tratamiento
-    )
-VALUES
-    (
-        'Examen médico general de rutina. BH, QS, EGO.',
-        (
-            SELECT
-                id
-            FROM
-                usuarios
-            WHERE
-                correo = 'sofia.navarro@uabc.edu.mx'
-            LIMIT
-                1
-        ), 'Observación y seguimiento en 3 meses'
-    ), (
-        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
-            SELECT
-                id
-            FROM
-                usuarios
-            WHERE
-                correo = 'carlos.herrera@cais.com'
-            LIMIT
-                1
-        ), 'Metformina 850mg c/12h + dieta hipocalórica'
-    );
-
-INSERT INTO
-    planes_estudio_cie10 (plan_estudio_id, codigo)
-VALUES
-    (1, 'Z00.0'),
-    (2, 'E11.9'),
-    (2, 'E78.5');
-
-INSERT INTO
     historias_medicas (
         id,
         paciente_id,
-        informacion_fisica_id,
-        aparatos_sistemas_id,
-        plan_estudio_id,
         tipo_sangre,
         vacunas_infancia_completas,
         motivo_consulta,
@@ -1297,7 +1181,7 @@ VALUES
                 correo = 'carlos.mendoza@gmail.com'
             LIMIT
                 1
-        ), 1, 1, 1, 'O+', TRUE,
+        ), 'O+', TRUE,
         'Revisión anual',
         'Paciente acude a revisión de rutina sin síntomas agudos'
     ),
@@ -1312,10 +1196,148 @@ VALUES
                 correo = 'ana.fernandez@hotmail.com'
             LIMIT
                 1
-        ), 2, 2, 2, 'A-', TRUE,
+        ), 'A-', TRUE,
         'Control de diabetes',
         'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
     );
+
+INSERT INTO
+    aparatos_sistemas (
+        historia_medica_id,
+        neurologico,
+        cardiovascular,
+        respiratorio,
+        hematologico,
+        digestivo,
+        musculoesqueletico,
+        genitourinario,
+        endocrinologico,
+        metabolico,
+        nutricional
+    )
+VALUES
+    (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        'Sin alteraciones',
+        'Ritmo cardíaco regular',
+        'Respiración normal',
+        'Sin anemia',
+        'Sin molestias digestivas',
+        'Sin dolor articular',
+        'Sin alteraciones urinarias',
+        'Sin alteraciones tiroideas',
+        'Metabolismo normal',
+        'Nutrición adecuada'
+    ),
+    (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        'Cefalea ocasional',
+        'Palpitaciones leves',
+        'Tos crónica leve',
+        'Sin alteraciones',
+        'Gastritis referida',
+        'Lumbalgia crónica',
+        'Sin alteraciones',
+        'Hipotiroidismo controlado',
+        'Dislipidemia',
+        'Déficit proteico'
+    );
+
+INSERT INTO
+    informacion_fisica (
+        historia_medica_id,
+        peso,
+        altura,
+        pa_sistolica,
+        pa_diastolica,
+        fc,
+        fr,
+        circ_cintura,
+        circ_cadera,
+        sp_o2,
+        glucosa_capilar,
+        temperatura,
+        exploracion_fisica,
+        habito_exterior
+    )
+VALUES
+    (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        72.5,
+        1.75,
+        120,
+        80,
+        72,
+        16,
+        88.0,
+        95.0,
+        98.0,
+        95.0,
+        36.5,
+        'Exploración física sin hallazgos relevantes',
+        'Paciente en buen estado general'
+    ),
+    (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        85.0,
+        1.68,
+        135,
+        88,
+        80,
+        18,
+        102.0,
+        108.0,
+        96.5,
+        110.0,
+        37.1,
+        'Obesidad grado I, abdomen globoso',
+        'Paciente con sobrepeso, consciente y orientado'
+    );
+
+INSERT INTO
+    planes_estudio (
+        historia_medica_id,
+        plan_tratamiento,
+        usuario_id,
+        tratamiento
+    )
+VALUES
+    (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        'Examen médico general de rutina. BH, QS, EGO.',
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Observación y seguimiento en 3 meses'
+       
+    ), 
+    (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
+        (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        ), 'Metformina 850mg c/12h + dieta hipocalórica'
+    );
+
+INSERT INTO
+    planes_estudio_cie10 (plan_estudio_id, codigo)
+VALUES
+    (1, 'Z00.0'),
+    (2, 'E11.9'),
+    (2, 'E78.5');
 
 INSERT INTO
     notas_evolucion (
