@@ -484,6 +484,7 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
     paciente_id BINARY(16),
     motivo_consulta TEXT,
     ant_gine_andro TEXT,
+    estudios_complementarios_efectuados TEXT,
     aparatos_sistemas_id INT,
     informacion_fisica_id INT,
     plan_estudio_id INT,
