@@ -133,7 +133,7 @@ model antecedentes_familiares {
   abuela_paterna     String?           @db.VarChar(255)
   abuela_materna     String?           @db.VarChar(255)
   otros              String?           @db.VarChar(255)
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_af_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_af_historia")
 }
 
 model antecedentes_patologicos {
@@ -153,7 +153,7 @@ model antecedentes_patologicos {
   gyo                     String?           @db.Text
   enfermedades_congenitas String?           @db.Text
   enfermedades_infancia   String?           @db.Text
-  historias_medicas       historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ap_historia")
+  historias_medicas       historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_ap_historia")
 }
 
 model aparatos_sistemas {
@@ -169,7 +169,7 @@ model aparatos_sistemas {
   endocrinologico    String?           @db.Text
   metabolico         String?           @db.Text
   nutricional        String?           @db.Text
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_as_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_historia")
   notas_evolucion    notas_evolucion[]
 }
 
@@ -524,21 +524,22 @@ model frec_consumo_alimentos_nutricion {
 }
 
 model historias_medicas {
-  id                         Bytes                     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  paciente_id                Bytes                     @db.Binary(16)
-  tipo_sangre                String?                   @db.VarChar(5)
-  vacunas_infancia_completas Boolean?
-  motivo_consulta            String?                   @db.Text
-  historia_enfermedad_actual String?                   @db.Text
-  antecedentes_familiares    antecedentes_familiares?
-  antecedentes_patologicos   antecedentes_patologicos?
-  aparatos_sistemas          aparatos_sistemas?
-  pacientes                  pacientes                 @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_paciente")
-  informacion_fisica         informacion_fisica?
-  inmunizaciones             inmunizaciones?
-  notas_evolucion            notas_evolucion[]
-  planes_estudio             planes_estudio?
-  servicios                  servicios?
+  id                          Bytes                        @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  paciente_id                 Bytes                        @db.Binary(16)
+  tipo_sangre                 String?                      @db.VarChar(5)
+  vacunas_infancia_completas  Boolean?
+  motivo_consulta             String?                      @db.Text
+  historia_enfermedad_actual  String?                      @db.Text
+  antecedentes_familiares     antecedentes_familiares?
+  antecedentes_no_patologicos antecedentes_no_patologicos?
+  antecedentes_patologicos    antecedentes_patologicos?
+  aparatos_sistemas           aparatos_sistemas?
+  pacientes                   pacientes                    @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_paciente")
+  informacion_fisica          informacion_fisica?
+  inmunizaciones              inmunizaciones?
+  notas_evolucion             notas_evolucion[]
+  planes_estudio              planes_estudio?
+  servicios                   servicios?
 
   @@index([paciente_id], map: "fk_historia_paciente")
 }
@@ -605,7 +606,7 @@ model informacion_fisica {
   temperatura        Float             @db.Float
   exploracion_fisica String?           @db.Text
   habito_exterior    String?           @db.Text
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_infoF_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_historia")
   notas_evolucion    notas_evolucion[]
 }
 
@@ -617,7 +618,7 @@ model inmunizaciones {
   hepatitis_b        DateTime?         @db.Timestamp(0)
   covid_19           DateTime?         @db.Timestamp(0)
   otros              String?           @db.Text
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_inmu_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inmu_historia")
 }
 
 model invitaciones_registro {
@@ -645,11 +646,11 @@ model notas_evolucion {
   aparatos_sistemas_id  Int?
   informacion_fisica_id Int?
   plan_estudio_id       Int?
-  aparatos_sistemas     aparatos_sistemas?  @relation(fields: [aparatos_sistemas_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_nota_as")
-  historias_medicas     historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_nota_historia")
-  informacion_fisica    informacion_fisica? @relation(fields: [informacion_fisica_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_nota_info")
-  pacientes             pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_nota_paciente")
-  planes_estudio        planes_estudio?     @relation(fields: [plan_estudio_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_nota_plan")
+  aparatos_sistemas     aparatos_sistemas?  @relation(fields: [aparatos_sistemas_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_as")
+  historias_medicas     historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_historia")
+  informacion_fisica    informacion_fisica? @relation(fields: [informacion_fisica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_info")
+  pacientes             pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
+  planes_estudio        planes_estudio?     @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_plan")
 
   @@index([aparatos_sistemas_id], map: "fk_nota_as")
   @@index([historia_medica_id], map: "fk_nota_historia")
@@ -753,7 +754,7 @@ model planes_estudio {
   generado_en          DateTime?              @default(now()) @db.DateTime(0)
   tratamiento          String?                @db.Text
   notas_evolucion      notas_evolucion[]
-  historias_medicas    historias_medicas      @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_plan_historia")
+  historias_medicas    historias_medicas      @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_historia")
   usuarios             usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
   planes_estudio_cie10 planes_estudio_cie10[]
 
@@ -764,7 +765,7 @@ model planes_estudio_cie10 {
   id              Int            @id @default(autoincrement())
   plan_estudio_id Int
   codigo          String         @db.VarChar(10)
-  planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cie10_plan")
+  planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cie10_plan")
 
   @@index([plan_estudio_id], map: "fk_cie10_plan")
 }
@@ -849,7 +850,7 @@ model servicios {
   drenaje            Boolean?
   cable_tel          Boolean?
   internet           Boolean?
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_servicios_historia")
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_servicios_historia")
 }
 
 model sessions {
@@ -896,4 +897,17 @@ model tratamiento_alt_nutricion {
   historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
+}
+
+model antecedentes_no_patologicos {
+  id                            Int               @id @default(autoincrement())
+  historia_medica_id            Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
+  alimentacion_adecuada         Boolean?
+  calidad_cantidad_alimentacion String?           @db.Text
+  higiene_adecuada              String?           @db.Text
+  actividad_fisica              String?           @db.Text
+  inmunizaciones_completas      Boolean?
+  zoonosis                      Boolean?
+  tipo_zoonosis                 String?           @db.Text
+  historias_medicas             historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_antecedentes_np_historia")
 }

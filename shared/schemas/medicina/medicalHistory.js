@@ -27,6 +27,15 @@ const antecedentes_patologicosSchema = z.object({
   enfermedades_infancia: z.string().optional(),
 })
 
+const antecedentes_no_patologicosSchema = z.object({
+  alimentacion_adecuada: z.boolean(),
+  calidad_cantidad_alimentacion: z.string(),
+  higiene_adecuada: z.boolean(),
+  inmunizaciones_completas: z.boolean(),
+  zoonosis: z.boolean(),
+  tipo_zoonosis: z.string(),
+})
+
 const aparatos_sistemasSchema = z.object({
   neurologico: z.string().optional(),
   cardiovascular: z.string().optional(),
@@ -88,6 +97,7 @@ export const medicalHistorySchema = z.object({
   historia_enfermedad_actual: z.string().optional(),
   antecedentes_familiares: antecedentes_familiaresSchema,
   antecedentes_patologicos: antecedentes_patologicosSchema,
+  antecedentes_no_patologicos: antecedentes_no_patologicosSchema,
   aparatos_sistemas: aparatos_sistemasSchema,
   informacion_fisica: informacion_fisicaSchema,
   inmunizaciones: inmunizacionesSchema,

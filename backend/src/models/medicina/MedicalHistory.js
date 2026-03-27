@@ -6,6 +6,7 @@ import { create } from 'node:domain'
 const includeRelations = {
   antecedentes_familiares: true,
   antecedentes_patologicos: true,
+  antecedentes_no_patologicos: true,
   aparatos_sistemas: true,
   informacion_fisica: true,
   inmunizaciones: true,
@@ -32,6 +33,7 @@ function formatMedicalHistory(n) {
   const {
     antecedentes_familiares,
     antecedentes_patologicos,
+    antecedentes_no_patologicos,
     aparatos_sistemas,
     informacion_fisica,
     inmunizaciones,
@@ -59,6 +61,15 @@ function formatMedicalHistory(n) {
           ...antecedentes_patologicos,
           historia_medica_id: toUUID(
             antecedentes_patologicos.historia_medica_id
+          ),
+        }
+      : null,
+
+    antecedentes_no_patologicos: antecedentes_no_patologicos
+      ? {
+          ...antecedentes_no_patologicos,
+          historia_medica_id: toUUID(
+            antecedentes_no_patologicos.historia_medica_id
           ),
         }
       : null,
@@ -152,44 +163,66 @@ export class MedicalHistoryModel {
         vacunas_infancia_completas: data.vacunas_infancia_completas ?? false,
         motivo_consulta: data.motivo_consulta ?? null,
         historia_enfermedad_actual: data.historia_enfermedad_actual ?? null,
-        antecedentes_familiares: {
-          create: {
-            ...data.antecedentes_familiares,
+
+        ...(data.antecedentes_familiares && {
+          antecedentes_familiares: {
+            create: {
+              ...data.antecedentes_familiares,
+            },
           },
-        },
-        antecedentes_patologicos: {
-          create: {
-            ...data.antecedentes_patologicos,
+        }),
+        ...(data.antecedentes_patologicos && {
+          antecedentes_patologicos: {
+            create: {
+              ...data.antecedentes_patologicos,
+            },
           },
-        },
-        aparatos_sistemas: {
-          create: {
-            ...data.aparatos_sistemas,
+        }),
+        ...(data.antecedentes_no_patologicos && {
+          antecedentes_no_patologicos: {
+            create: {
+              ...data.antecedentes_no_patologicos,
+            },
           },
-        },
-        informacion_fisica: {
-          create: {
-            ...data.informacion_fisica,
+        }),
+        ...(data.aparatos_sistemas && {
+          aparatos_sistemas: {
+            create: {
+              ...data.aparatos_sistemas,
+            },
           },
-        },
-        inmunizaciones: {
-          create: {
-            ...data.inmunizaciones,
+        }),
+        ...(data.informacion_fisica && {
+          informacion_fisica: {
+            create: {
+              ...data.informacion_fisica,
+            },
           },
-        },
-        planes_estudio: {
-          create: {
-            usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
-            plan_tratamiento: data.planes_estudio.plan_tratamiento ?? null,
-            tratamiento: data.planes_estudio.tratamiento ?? null,
-            generado_en: data.planes_estudio.generado_en ?? null,
+        }),
+        ...(data.inmunizaciones && {
+          inmunizaciones: {
+            create: {
+              ...data.inmunizaciones,
+            },
           },
-        },
-        servicios: {
-          create: {
-            ...data.servicios,
+        }),
+        ...(data.planes_estudio && {
+          planes_estudio: {
+            create: {
+              usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
+              plan_tratamiento: data.planes_estudio.plan_tratamiento ?? null,
+              tratamiento: data.planes_estudio.tratamiento ?? null,
+              generado_en: data.planes_estudio.generado_en ?? null,
+            },
           },
-        },
+        }),
+        ...(data.servicios && {
+          servicios: {
+            create: {
+              ...data.servicios,
+            },
+          },
+        }),
       },
       include: includeRelations,
     })
@@ -233,6 +266,15 @@ export class MedicalHistoryModel {
               upsert: {
                 create: { ...data.antecedentes_patologicos },
                 update: { ...data.antecedentes_patologicos },
+              },
+            },
+          }),
+
+          ...(data.antecedentes_no_patologicos && {
+            antecedentes_no_patologicos: {
+              upsert: {
+                create: { ...data.antecedentes_no_patologicos },
+                update: { ...data.antecedentes_no_patologicos },
               },
             },
           }),

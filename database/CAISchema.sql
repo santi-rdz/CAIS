@@ -390,6 +390,19 @@ CREATE TABLE IF NOT EXISTS antecedentes_patologicos (
     CONSTRAINT fk_ap_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
 );
 
+CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    alimentacion_adecuada BOOLEAN,
+    calidad_cantidad_alimentacion TEXT DEFAULT NULL,
+    higiene_adecuada TEXT,
+    actividad_fisica TEXT,
+    inmunizaciones_completas BOOLEAN,
+    zoonosis BOOLEAN,
+    tipo_zoonosis TEXT DEFAULT NULL,
+    CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+);
+
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
