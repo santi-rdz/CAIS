@@ -7,6 +7,7 @@ import session from 'express-session'
 import { PrismaSessionStore } from '#config/sessionStore.js'
 import { patientRouter } from '#routes/patient.js'
 import { medicineRouter } from '#routes/medicine.js'
+import { auditRouter } from '#routes/audit.js'
 
 const app = express()
 app.use(express.json())
@@ -36,6 +37,7 @@ app.use(
 
 app.use('/usuarios', userRouter)
 app.use('/auth', authRouter)
+app.use('/audit', auditRouter)
 app.use('/invitaciones', invitationRouter)
 app.use('/pacientes', patientRouter)
 app.use('/medicina', medicineRouter)

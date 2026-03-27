@@ -1245,6 +1245,7 @@ VALUES
 
 INSERT INTO
     informacion_fisica (
+        historia_medica_id,
         peso,
         altura,
         pa_sistolica,
@@ -1261,6 +1262,7 @@ INSERT INTO
     )
 VALUES
     (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
         72.5,
         1.75,
         120,
@@ -1276,6 +1278,7 @@ VALUES
         'Paciente en buen estado general'
     ),
     (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
         85.0,
         1.68,
         135,
@@ -1293,12 +1296,14 @@ VALUES
 
 INSERT INTO
     planes_estudio (
+        historia_medica_id,
         plan_tratamiento,
         usuario_id,
         tratamiento
     )
 VALUES
     (
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
         'Examen médico general de rutina. BH, QS, EGO.',
         (
             SELECT
@@ -1310,8 +1315,12 @@ VALUES
             LIMIT
                 1
         ), 'Observación y seguimiento en 3 meses'
-    ), (
-        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
+       
+    ), 
+    (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
+        (
             SELECT
                 id
             FROM
