@@ -49,7 +49,9 @@ export const planEstudioSchema = z.object({
 
 // Schema para el form (cie10_codes como objetos {codigo, descripcion})
 export const planEstudioFormSchema = planEstudioSchema.extend({
-  cie10_codes: z.array(z.object({ codigo: z.string(), descripcion: z.string() })).optional(),
+  cie10_codes: z
+    .array(z.object({ codigo: z.string(), descripcion: z.string() }))
+    .optional(),
 })
 
 export const notaEvolucionBaseSchema = z.object({
