@@ -39,7 +39,10 @@ export default function MotivoConsultaPlanStep() {
             size="md"
           />
         </FormRow>
-        <FormRow htmlFor="historia_enfermedad_actual" label="Historia de la Enfermedad Actual">
+        <FormRow
+          htmlFor="historia_enfermedad_actual"
+          label="Historia de la Enfermedad Actual"
+        >
           <Input
             {...register('historia_enfermedad_actual')}
             id="historia_enfermedad_actual"

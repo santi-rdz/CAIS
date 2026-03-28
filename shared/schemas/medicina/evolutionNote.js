@@ -2,7 +2,12 @@ import { z } from 'zod'
 
 const emptyToUndefined = z.literal('').transform(() => undefined)
 const coerceNum = z.coerce.number().positive().optional().or(emptyToUndefined)
-const coerceInt = z.coerce.number().int().positive().optional().or(emptyToUndefined)
+const coerceInt = z.coerce
+  .number()
+  .int()
+  .positive()
+  .optional()
+  .or(emptyToUndefined)
 
 export const aparatosSistemasSchema = z.object({
   neurologico: z.string().optional(),

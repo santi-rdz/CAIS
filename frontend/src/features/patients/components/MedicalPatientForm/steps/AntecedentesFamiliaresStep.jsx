@@ -39,7 +39,11 @@ export default function AntecedentesFamiliaresStep() {
       </Row>
 
       <Row className="gap-4">
-        <FormRow htmlFor="abuelo_paterno" label="Abuelo Paterno" className="w-full">
+        <FormRow
+          htmlFor="abuelo_paterno"
+          label="Abuelo Paterno"
+          className="w-full"
+        >
           <Input
             {...register('abuelo_paterno')}
             id="abuelo_paterno"
@@ -50,7 +54,11 @@ export default function AntecedentesFamiliaresStep() {
             size="md"
           />
         </FormRow>
-        <FormRow htmlFor="abuela_paterna" label="Abuela Paterna" className="w-full">
+        <FormRow
+          htmlFor="abuela_paterna"
+          label="Abuela Paterna"
+          className="w-full"
+        >
           <Input
             {...register('abuela_paterna')}
             id="abuela_paterna"
@@ -64,7 +72,11 @@ export default function AntecedentesFamiliaresStep() {
       </Row>
 
       <Row className="gap-4">
-        <FormRow htmlFor="abuelo_materno" label="Abuelo Materno" className="w-full">
+        <FormRow
+          htmlFor="abuelo_materno"
+          label="Abuelo Materno"
+          className="w-full"
+        >
           <Input
             {...register('abuelo_materno')}
             id="abuelo_materno"
@@ -75,7 +87,11 @@ export default function AntecedentesFamiliaresStep() {
             size="md"
           />
         </FormRow>
-        <FormRow htmlFor="abuela_materna" label="Abuela Materna" className="w-full">
+        <FormRow
+          htmlFor="abuela_materna"
+          label="Abuela Materna"
+          className="w-full"
+        >
           <Input
             {...register('abuela_materna')}
             id="abuela_materna"
