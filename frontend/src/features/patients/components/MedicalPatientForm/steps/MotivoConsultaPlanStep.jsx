@@ -18,7 +18,7 @@ export default function MotivoConsultaPlanStep() {
 
       <FormRow label="Fecha de Generación" className="w-1/2">
         <DatePickerComponent
-          name="generado_en"
+          name="plan_estudio.generado_en"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
@@ -57,7 +57,10 @@ export default function MotivoConsultaPlanStep() {
 
       <Divider />
 
-      <PlanTratamientoSection />
+      <PlanTratamientoSection>
+        <PlanTratamientoSection.Tratamiento />
+        <PlanTratamientoSection.Diagnostico />
+      </PlanTratamientoSection>
     </div>
   )
 }

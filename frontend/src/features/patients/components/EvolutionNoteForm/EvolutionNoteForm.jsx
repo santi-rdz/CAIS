@@ -4,7 +4,7 @@ import {
   notaEvolucionBaseSchema,
   aparatosSistemasSchema,
   informacionFisicaSchema,
-  planEstudioSchema,
+  planEstudioFormSchema,
 } from '@cais/shared/schemas/medicina/evolutionNote'
 import { useStepForm } from '@hooks/useStepForm'
 import AparatosSistemasStep from '../MedicalPatientForm/steps/AparatosSistemasStep'
@@ -13,6 +13,7 @@ import StepFormShell from '../shared/StepFormShell'
 import {
   APARATOS_DEFAULTS,
   INFORMACION_FISICA_DEFAULTS,
+  PLAN_ESTUDIO_DEFAULTS,
 } from '../shared/formDefaults'
 import { useCreateEvolutionNote } from '../../hooks/useCreateEvolutionNote'
 import MotivoConsultaStep from './steps/MotivoConsultaStep'
@@ -20,9 +21,9 @@ import PlanDiagnosticoStep from './steps/PlanDiagnosticoStep'
 
 const evolutionNoteFormSchema = z.object({
   ...notaEvolucionBaseSchema.shape,
-  ...aparatosSistemasSchema.shape,
-  ...informacionFisicaSchema.shape,
-  ...planEstudioSchema.shape,
+  aparatos_sistemas: aparatosSistemasSchema.optional(),
+  informacion_fisica: informacionFisicaSchema.optional(),
+  plan_estudio: planEstudioFormSchema.optional(),
 })
 
 const STEPS = ['Consulta', 'Aparatos', 'Exploración', 'Plan']
@@ -40,15 +41,11 @@ const DEFAULT_VALUES = {
   motivo_consulta: '',
   ant_gine_andro: '',
   // Step 2 – aparatos_sistemas
-  ...APARATOS_DEFAULTS,
+  aparatos_sistemas: APARATOS_DEFAULTS,
   // Step 3 – informacion_fisica
-  ...INFORMACION_FISICA_DEFAULTS,
-  // Step 4 – planes_estudio
-  generado_en: null,
-  plan_tratamiento: '',
-  tratamiento: '',
-  estudios_complementarios: '',
-  cie10_codes: [],
+  informacion_fisica: INFORMACION_FISICA_DEFAULTS,
+  // Step 4 – plan_estudio
+  plan_estudio: PLAN_ESTUDIO_DEFAULTS,
 }
 
 export default function EvolutionNoteForm({
@@ -68,59 +65,30 @@ export default function EvolutionNoteForm({
   const StepComponent = STEP_COMPONENTS[currStep]
 
   async function onSubmit(data) {
-    const aparatos_sistemas = {
-      neurologico: data.neurologico ?? null,
-      cardiovascular: data.cardiovascular ?? null,
-      respiratorio: data.respiratorio ?? null,
-      hematologico: data.hematologico ?? null,
-      digestivo: data.digestivo ?? null,
-      musculoesqueletico: data.musculoesqueletico ?? null,
-      genitourinario: data.genitourinario ?? null,
-      endocrinologico: data.endocrinologico ?? null,
-      metabolico: data.metabolico ?? null,
-      nutricional: data.nutricional ?? null,
-    }
-
-    const informacion_fisica = {
-      peso: data.peso ?? null,
-      altura: data.altura ?? null,
-      pa_sistolica: data.pa_sistolica ?? null,
-      pa_diastolica: data.pa_diastolica ?? null,
-      fc: data.fc ?? null,
-      fr: data.fr ?? null,
-      circ_cintura: data.circ_cintura ?? null,
-      circ_cadera: data.circ_cadera ?? null,
-      sp_o2: data.sp_o2 ?? null,
-      glucosa_capilar: data.glucosa_capilar ?? null,
-      temperatura: data.temperatura ?? null,
-      exploracion_fisica: data.exploracion_fisica ?? null,
-      habito_exterior: data.habito_exterior ?? null,
-    }
-
-    const cie10_codes = (data.cie10_codes ?? []).map((c) => c.codigo)
+    console.log(data)
+    const cie10_codes = (data.plan_estudio?.cie10_codes ?? []).map(
+      (c) => c.codigo
+    )
     const hasPlan =
-      data.generado_en ||
-      data.plan_tratamiento ||
-      data.tratamiento ||
-      data.estudios_complementarios ||
+      data.plan_estudio?.generado_en ||
+      data.plan_estudio?.plan_tratamiento ||
+      data.plan_estudio?.tratamiento ||
+      data.plan_estudio?.estudios_complementarios ||
       cie10_codes.length
 
     await createNote({
       paciente_id: pacienteId,
-      motivo_consulta: data.motivo_consulta ?? null,
-      ant_gine_andro: data.ant_gine_andro ?? null,
-      ...(Object.values(aparatos_sistemas).some(Boolean) && {
-        aparatos_sistemas,
+      motivo_consulta: data.motivo_consulta || undefined,
+      ant_gine_andro: data.ant_gine_andro || undefined,
+      ...(Object.values(data.aparatos_sistemas ?? {}).some(Boolean) && {
+        aparatos_sistemas: data.aparatos_sistemas,
       }),
-      ...(Object.values(informacion_fisica).some(Boolean) && {
-        informacion_fisica,
+      ...(Object.values(data.informacion_fisica ?? {}).some(Boolean) && {
+        informacion_fisica: data.informacion_fisica,
       }),
       ...(hasPlan && {
         plan_estudio: {
-          generado_en: data.generado_en ?? null,
-          plan_tratamiento: data.plan_tratamiento ?? null,
-          tratamiento: data.tratamiento ?? null,
-          estudios_complementarios: data.estudios_complementarios ?? null,
+          ...data.plan_estudio,
           cie10_codes,
         },
       }),

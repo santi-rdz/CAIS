@@ -33,7 +33,7 @@ export default function AparatosSistemasStep() {
         {SISTEMAS.map(({ name, label }) => (
           <FormRow key={name} htmlFor={name} label={label}>
             <Input
-              {...register(name)}
+              {...register(`aparatos_sistemas.${name}`)}
               id={name}
               textarea
               rows={2}

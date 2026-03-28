@@ -19,7 +19,7 @@ export default function CIE10Field() {
 
   return (
     <Controller
-      name="cie10_codes"
+      name="plan_estudio.cie10_codes"
       control={control}
       render={({ field: { value: selected = [], onChange } }) => {
         const selectedCodigos = selected.map((c) => c.codigo)

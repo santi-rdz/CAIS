@@ -16,7 +16,7 @@ export default function AntecedentesFamiliaresStep() {
       <Row className="gap-4">
         <FormRow htmlFor="padre" label="Padre" className="w-full">
           <Input
-            {...register('padre')}
+            {...register('antecedentes_familiares.padre')}
             id="padre"
             textarea
             rows={3}
@@ -27,7 +27,7 @@ export default function AntecedentesFamiliaresStep() {
         </FormRow>
         <FormRow htmlFor="madre" label="Madre" className="w-full">
           <Input
-            {...register('madre')}
+            {...register('antecedentes_familiares.madre')}
             id="madre"
             textarea
             rows={3}
@@ -45,7 +45,7 @@ export default function AntecedentesFamiliaresStep() {
           className="w-full"
         >
           <Input
-            {...register('abuelo_paterno')}
+            {...register('antecedentes_familiares.abuelo_paterno')}
             id="abuelo_paterno"
             textarea
             rows={3}
@@ -60,7 +60,7 @@ export default function AntecedentesFamiliaresStep() {
           className="w-full"
         >
           <Input
-            {...register('abuela_paterna')}
+            {...register('antecedentes_familiares.abuela_paterna')}
             id="abuela_paterna"
             textarea
             rows={3}
@@ -78,7 +78,7 @@ export default function AntecedentesFamiliaresStep() {
           className="w-full"
         >
           <Input
-            {...register('abuelo_materno')}
+            {...register('antecedentes_familiares.abuelo_materno')}
             id="abuelo_materno"
             textarea
             rows={3}
@@ -93,7 +93,7 @@ export default function AntecedentesFamiliaresStep() {
           className="w-full"
         >
           <Input
-            {...register('abuela_materna')}
+            {...register('antecedentes_familiares.abuela_materna')}
             id="abuela_materna"
             textarea
             rows={3}
@@ -104,10 +104,10 @@ export default function AntecedentesFamiliaresStep() {
         </FormRow>
       </Row>
 
-      <FormRow htmlFor="otros" label="Otros familiares">
+      <FormRow htmlFor="otros_familiares" label="Otros familiares">
         <Input
-          {...register('otros')}
-          id="otros"
+          {...register('antecedentes_familiares.otros')}
+          id="otros_familiares"
           textarea
           rows={3}
           placeholder="Hermanos, tíos u otros familiares con condiciones relevantes"

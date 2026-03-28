@@ -38,12 +38,18 @@ export const informacionFisicaSchema = z.object({
   habito_exterior: z.string().optional(),
 })
 
+// Schema para validación de API (cie10_codes como strings)
 export const planEstudioSchema = z.object({
   plan_tratamiento: z.string().optional(),
   tratamiento: z.string().optional(),
   estudios_complementarios: z.string().optional(),
   cie10_codes: z.array(z.string()).optional(),
   generado_en: z.coerce.date().nullable().optional(),
+})
+
+// Schema para el form (cie10_codes como objetos {codigo, descripcion})
+export const planEstudioFormSchema = planEstudioSchema.extend({
+  cie10_codes: z.array(z.object({ codigo: z.string(), descripcion: z.string() })).optional(),
 })
 
 export const notaEvolucionBaseSchema = z.object({

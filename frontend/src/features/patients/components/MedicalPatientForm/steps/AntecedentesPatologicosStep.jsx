@@ -34,7 +34,7 @@ export default function AntecedentesPatologicosStep() {
         {CAMPOS.map(({ name, label }) => (
           <FormRow key={name} htmlFor={name} label={label}>
             <Input
-              {...register(name)}
+              {...register(`antecedentes_patologicos.${name}`)}
               id={name}
               textarea
               rows={2}

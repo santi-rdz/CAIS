@@ -39,7 +39,7 @@ export default function AntecedentesNoPatStep() {
           {SERVICIOS.map(({ name, label }) => (
             <Controller
               key={name}
-              name={name}
+              name={`servicios.${name}`}
               control={control}
               render={({ field }) => (
                 <Checkbox
@@ -65,7 +65,7 @@ export default function AntecedentesNoPatStep() {
         <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow label="Influenza">
             <DatePickerComponent
-              name="influenza"
+              name="inmunizaciones.influenza"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -73,7 +73,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="Tétanos">
             <DatePickerComponent
-              name="tetanos"
+              name="inmunizaciones.tetanos"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -81,7 +81,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="Hepatitis B">
             <DatePickerComponent
-              name="hepatitis_b"
+              name="inmunizaciones.hepatitis_b"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -89,7 +89,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="COVID-19">
             <DatePickerComponent
-              name="covid_19"
+              name="inmunizaciones.covid_19"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -97,10 +97,10 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
         </Grid>
 
-        <FormRow htmlFor="otros" label="Otras vacunas">
+        <FormRow htmlFor="otras_vacunas" label="Otras vacunas">
           <Input
-            {...register('otros')}
-            id="otros"
+            {...register('inmunizaciones.otros')}
+            id="otras_vacunas"
             type="text"
             placeholder="Especifica otras vacunas aplicadas"
             variant="outline"
