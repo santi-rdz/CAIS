@@ -66,9 +66,6 @@ export class EvolutionNoteModel {
           : null,
         motivo_consulta: data.motivo_consulta ?? null,
         ant_gine_andro: data.ant_gine_andro ?? null,
-        aparatos_sistemas_id: data.aparatos_sistemas_id ?? null,
-        informacion_fisica_id: data.informacion_fisica_id ?? null,
-        plan_estudio_id: data.plan_estudio_id ?? null,
       },
       include: includeRelations,
     })

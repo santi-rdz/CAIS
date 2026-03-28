@@ -5,9 +5,6 @@ export const evolutionNoteSchema = z.object({
   historia_medica_id: z.uuid().optional(),
   motivo_consulta: z.string().optional(),
   ant_gine_andro: z.string().optional(),
-  aparatos_sistemas_id: z.number().int().positive().optional(),
-  informacion_fisica_id: z.number().int().positive().optional(),
-  plan_estudio_id: z.number().int().positive().optional(),
 })
 
 export function validateEvolutionNote(input) {
