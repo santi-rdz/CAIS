@@ -1,10 +1,5 @@
-import { FormProvider } from 'react-hook-form'
-import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import Modal from '@components/Modal'
-import ModalBody from '@components/ModalBody'
-import ModalActions from '@components/ModalActions'
-import Stepper from '@components/Stepper'
 import { useStepForm } from '@hooks/useStepForm'
+import StepFormShell from '../shared/StepFormShell'
 import DatosPersonalesStep from './steps/DatosPersonalesStep'
 import AntecedentesFamiliaresStep from './steps/AntecedentesFamiliaresStep'
 import AntecedentesNoPatStep from './steps/AntecedentesNoPatStep'
@@ -24,6 +19,16 @@ const STEPS = [
 ]
 
 const STEPS_FIELDS = [['nombre'], [], [], [], [], [], []]
+
+const STEP_COMPONENTS = [
+  DatosPersonalesStep,
+  AntecedentesFamiliaresStep,
+  AntecedentesNoPatStep,
+  AntecedentesPatologicosStep,
+  AparatosSistemasStep,
+  ExploracionFisicaStep,
+  MotivoConsultaPlanStep,
+]
 
 const DEFAULT_VALUES = {
   // Step 1 – pacientes
@@ -123,77 +128,27 @@ const DEFAULT_VALUES = {
   cie10Codes: [],
 }
 
-const STEP_COMPONENTS = [
-  DatosPersonalesStep,
-  AntecedentesFamiliaresStep,
-  AntecedentesNoPatStep,
-  AntecedentesPatologicosStep,
-  AparatosSistemasStep,
-  ExploracionFisicaStep,
-  MotivoConsultaPlanStep,
-]
-
 export default function MedicalPatientForm({ onCloseModal }) {
-  const {
-    currStep,
-    setCurrStep,
-    handleNext,
-    handleStepClick,
-    isLast,
-    methods,
-    handleSubmit,
-    getFormKeyDown,
-  } = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES)
+  const stepForm = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES)
+  const { currStep } = stepForm
+
+  const StepComponent = STEP_COMPONENTS[currStep]
 
   function onSubmit(_data) {
     // TODO: wire up API — createPatient + createHistoriaMedica
     onCloseModal?.()
   }
 
-  const StepComponent = STEP_COMPONENTS[currStep]
-
   return (
-    <FormProvider {...methods}>
-      <div className="flex min-h-0 flex-1 flex-col">
-        {/* ── Header fijo: título + stepper ── */}
-        <Modal.Heading>
-          <Modal.Title>Registro de Nuevo Paciente</Modal.Title>
-          <Stepper
-            steps={STEPS}
-            current={currStep}
-            setCurrStep={handleStepClick}
-            className="mt-4"
-          />
-        </Modal.Heading>
-
-        {/* ── Contenido scrollable ── */}
-        <ModalBody>
-          <form onKeyDown={getFormKeyDown(onSubmit)}>
-            <StepComponent />
-          </form>
-        </ModalBody>
-
-        {/* ── Footer fijo: navegación ── */}
-        <ModalActions
-          onClose={onCloseModal}
-          primaryAction={{
-            label: isLast ? 'Guardar paciente' : 'Siguiente',
-            icon: isLast ? (
-              <HiCheck strokeWidth={1} />
-            ) : (
-              <HiChevronRight strokeWidth={1} />
-            ),
-            iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
-          }}
-          secondaryAction={{
-            label: 'Anterior',
-            icon: <HiChevronLeft strokeWidth={1} />,
-            onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0,
-          }}
-        />
-      </div>
-    </FormProvider>
+    <StepFormShell
+      title="Registro de Nuevo Paciente"
+      submitLabel="Guardar paciente"
+      steps={STEPS}
+      onSubmit={onSubmit}
+      onCloseModal={onCloseModal}
+      {...stepForm}
+    >
+      <StepComponent />
+    </StepFormShell>
   )
 }

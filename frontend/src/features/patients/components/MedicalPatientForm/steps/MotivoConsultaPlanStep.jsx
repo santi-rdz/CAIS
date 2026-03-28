@@ -5,7 +5,7 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
 import DatePickerComponent from '@ui/DatePickerComponent'
-import CIE10Field from '../CIE10Field'
+import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
 
 export default function MotivoConsultaPlanStep() {
   const { register, control } = useFormContext()
@@ -16,7 +16,6 @@ export default function MotivoConsultaPlanStep() {
         Motivo de Consulta y Plan
       </Heading>
 
-      {/* Fecha de Generación */}
       <FormRow label="Fecha de Generación" className="w-1/2">
         <DatePickerComponent
           name="fechaGeneracion"
@@ -26,10 +25,8 @@ export default function MotivoConsultaPlanStep() {
         />
       </FormRow>
 
-      {/* Divider */}
       <Divider />
 
-      {/* Motivo + Historia */}
       <Grid cols={2} gap={4} mobileCols={1}>
         <FormRow htmlFor="motivoConsulta" label="Motivo de Consulta">
           <Input
@@ -58,45 +55,9 @@ export default function MotivoConsultaPlanStep() {
         </FormRow>
       </Grid>
 
-      {/* Divider */}
       <Divider />
 
-      {/* Plan + Tratamiento */}
-      <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="planTratamiento" label="Plan de Tratamiento">
-          <Input
-            {...register('planTratamiento')}
-            id="planTratamiento"
-            textarea
-            rows={4}
-            placeholder="Especifica el plan de estudio, consideraciones terapéuticas, maniobras diagnósticas y otras indicaciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-        <FormRow htmlFor="tratamiento" label="Tratamiento">
-          <Input
-            {...register('tratamiento')}
-            id="tratamiento"
-            textarea
-            rows={4}
-            placeholder="Medicamentos, dosis y frecuencia"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-      </Grid>
-
-      {/* Divider */}
-      <Divider />
-
-      {/* ── Diagnóstico CIE-10 ── */}
-      <div className="space-y-2">
-        <Heading as="h4" showBar required>
-          Diagnóstico — Código CIE-10
-        </Heading>
-        <CIE10Field />
-      </div>
+      <PlanTratamientoSection />
     </div>
   )
 }
