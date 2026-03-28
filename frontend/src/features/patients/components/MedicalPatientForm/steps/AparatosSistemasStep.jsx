@@ -5,16 +5,16 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 
 const SISTEMAS = [
-  { name: 'as_neurologico', label: 'Neurológico' },
-  { name: 'as_cardiovascular', label: 'Cardiovascular' },
-  { name: 'as_respiratorio', label: 'Respiratorio' },
-  { name: 'as_hematologico', label: 'Hematológico' },
-  { name: 'as_digestivo', label: 'Digestivo' },
-  { name: 'as_musculoesqueletico', label: 'Musculoesquelético' },
-  { name: 'as_genitourinario', label: 'Genitourinario' },
-  { name: 'as_endocrinologico', label: 'Endocrinología' },
-  { name: 'as_nutricional', label: 'Nutricional' },
-  { name: 'as_metabolico', label: 'Metabólico' },
+  { name: 'neurologico', label: 'Neurológico' },
+  { name: 'cardiovascular', label: 'Cardiovascular' },
+  { name: 'respiratorio', label: 'Respiratorio' },
+  { name: 'hematologico', label: 'Hematológico' },
+  { name: 'digestivo', label: 'Digestivo' },
+  { name: 'musculoesqueletico', label: 'Musculoesquelético' },
+  { name: 'genitourinario', label: 'Genitourinario' },
+  { name: 'endocrinologico', label: 'Endocrinología' },
+  { name: 'nutricional', label: 'Nutricional' },
+  { name: 'metabolico', label: 'Metabólico' },
 ]
 
 export default function AparatosSistemasStep() {
@@ -33,7 +33,7 @@ export default function AparatosSistemasStep() {
         {SISTEMAS.map(({ name, label }) => (
           <FormRow key={name} htmlFor={name} label={label}>
             <Input
-              {...register(name)}
+              {...register(`aparatos_sistemas.${name}`)}
               id={name}
               textarea
               rows={2}

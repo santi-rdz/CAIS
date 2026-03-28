@@ -36,7 +36,7 @@ export default function PatientDetail() {
               <PatientHistoria />
             </Tab.Panel>
             <Tab.Panel value="notas" scrollable={false}>
-              <NotesPanel pacienteId={id} />
+              <NotesPanel pacienteId={id} patientGenero={patient.genero} />
             </Tab.Panel>
             <Tab.Panel value="datos" scrollable={false}>
               <PersonalDataPanel patient={patient} />
