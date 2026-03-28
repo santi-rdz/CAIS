@@ -31,14 +31,16 @@ export default function MotivoConsultaStep({ patientGenero }) {
       <p className="text-sm text-zinc-500">
         Documenta la consulta siguiendo el formato{' '}
         <span className="font-semibold text-zinc-700">SOAP</span>:{' '}
-        <span className="text-zinc-600">Subjetivo · Objetivo · Análisis · Plan</span>
+        <span className="text-zinc-600">
+          Subjetivo · Objetivo · Análisis · Plan
+        </span>
       </p>
 
       {/* motivo_consulta */}
-      <FormRow htmlFor="motivoConsulta" label="Motivo de Consulta">
+      <FormRow htmlFor="motivo_consulta" label="Motivo de Consulta">
         <Input
-          {...register('motivoConsulta')}
-          id="motivoConsulta"
+          {...register('motivo_consulta')}
+          id="motivo_consulta"
           textarea
           rows={6}
           placeholder="Describe el motivo de consulta del paciente"
@@ -52,12 +54,12 @@ export default function MotivoConsultaStep({ patientGenero }) {
         <>
           <Divider />
           <FormRow
-            htmlFor="antGineAndro"
+            htmlFor="ant_gine_andro"
             label={getGineAndroLabel(patientGenero)}
           >
             <Input
-              {...register('antGineAndro')}
-              id="antGineAndro"
+              {...register('ant_gine_andro')}
+              id="ant_gine_andro"
               textarea
               rows={4}
               placeholder={getGineAndroPlaceholder(patientGenero)}

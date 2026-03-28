@@ -5,20 +5,20 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 
 const CAMPOS = [
-  { name: 'ap_cronicoDegenerativos', label: 'Crónico-Degenerativos' },
-  { name: 'ap_quirurgicos', label: 'Quirúrgicos' },
-  { name: 'ap_hospitalizaciones', label: 'Hospitalizaciones' },
-  { name: 'ap_traumaticos', label: 'Traumáticos' },
-  { name: 'ap_transfusionales', label: 'Transfusionales' },
-  { name: 'ap_transplantes', label: 'Trasplantes' },
-  { name: 'ap_alergicos', label: 'Alérgicos' },
-  { name: 'ap_infectocontagiosos', label: 'Enfermedades Infecciosas' },
-  { name: 'ap_toxicomanias', label: 'Toxicomanías' },
-  { name: 'ap_covid19', label: 'COVID-19' },
-  { name: 'ap_psicologiaPsiquiatria', label: 'Psicología / Psiquiatría' },
-  { name: 'ap_gyo', label: 'Gineco-Obstétricos (GYO)' },
-  { name: 'ap_enfermedadesCongenitas', label: 'Enfermedades Congénitas' },
-  { name: 'ap_enfermedadesInfancia', label: 'Enfermedades de Infancia' },
+  { name: 'cronico_degenerativos', label: 'Crónico-Degenerativos' },
+  { name: 'quirurgicos', label: 'Quirúrgicos' },
+  { name: 'hospitalizaciones', label: 'Hospitalizaciones' },
+  { name: 'traumaticos', label: 'Traumáticos' },
+  { name: 'transfusionales', label: 'Transfusionales' },
+  { name: 'transplantes', label: 'Trasplantes' },
+  { name: 'alergicos', label: 'Alérgicos' },
+  { name: 'infectocontagiosos', label: 'Enfermedades Infecciosas' },
+  { name: 'toxicomanias', label: 'Toxicomanías' },
+  { name: 'covid_19', label: 'COVID-19' },
+  { name: 'psicologia_psiquiatria', label: 'Psicología / Psiquiatría' },
+  { name: 'gyo', label: 'Gineco-Obstétricos (GYO)' },
+  { name: 'enfermedades_congenitas', label: 'Enfermedades Congénitas' },
+  { name: 'enfermedades_infancia', label: 'Enfermedades de Infancia' },
 ]
 
 export default function AntecedentesPatologicosStep() {

@@ -18,7 +18,7 @@ export default function MotivoConsultaPlanStep() {
 
       <FormRow label="Fecha de Generación" className="w-1/2">
         <DatePickerComponent
-          name="fechaGeneracion"
+          name="generado_en"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
@@ -28,10 +28,10 @@ export default function MotivoConsultaPlanStep() {
       <Divider />
 
       <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="motivoConsulta" label="Motivo de Consulta">
+        <FormRow htmlFor="motivo_consulta" label="Motivo de Consulta">
           <Input
-            {...register('motivoConsulta')}
-            id="motivoConsulta"
+            {...register('motivo_consulta')}
+            id="motivo_consulta"
             textarea
             rows={4}
             placeholder="Describe el motivo principal por el que consulta el paciente"
@@ -39,13 +39,10 @@ export default function MotivoConsultaPlanStep() {
             size="md"
           />
         </FormRow>
-        <FormRow
-          htmlFor="historiaEnfermedadActual"
-          label="Historia de la Enfermedad Actual"
-        >
+        <FormRow htmlFor="historia_enfermedad_actual" label="Historia de la Enfermedad Actual">
           <Input
-            {...register('historiaEnfermedadActual')}
-            id="historiaEnfermedadActual"
+            {...register('historia_enfermedad_actual')}
+            id="historia_enfermedad_actual"
             textarea
             rows={4}
             placeholder="Describe detalladamente el padecimiento actual del paciente"

@@ -14,10 +14,10 @@ export default function AntecedentesFamiliaresStep() {
       </Heading>
 
       <Row className="gap-4">
-        <FormRow htmlFor="af_padre" label="Padre" className="w-full">
+        <FormRow htmlFor="padre" label="Padre" className="w-full">
           <Input
-            {...register('af_padre')}
-            id="af_padre"
+            {...register('padre')}
+            id="padre"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones del padre"
@@ -25,10 +25,10 @@ export default function AntecedentesFamiliaresStep() {
             size="md"
           />
         </FormRow>
-        <FormRow htmlFor="af_madre" label="Madre" className="w-full">
+        <FormRow htmlFor="madre" label="Madre" className="w-full">
           <Input
-            {...register('af_madre')}
-            id="af_madre"
+            {...register('madre')}
+            id="madre"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones de la madre"
@@ -39,14 +39,10 @@ export default function AntecedentesFamiliaresStep() {
       </Row>
 
       <Row className="gap-4">
-        <FormRow
-          htmlFor="af_abueloPaterno"
-          label="Abuelo Paterno"
-          className="w-full"
-        >
+        <FormRow htmlFor="abuelo_paterno" label="Abuelo Paterno" className="w-full">
           <Input
-            {...register('af_abueloPaterno')}
-            id="af_abueloPaterno"
+            {...register('abuelo_paterno')}
+            id="abuelo_paterno"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones"
@@ -54,14 +50,10 @@ export default function AntecedentesFamiliaresStep() {
             size="md"
           />
         </FormRow>
-        <FormRow
-          htmlFor="af_abuelaPaterna"
-          label="Abuela Paterna"
-          className="w-full"
-        >
+        <FormRow htmlFor="abuela_paterna" label="Abuela Paterna" className="w-full">
           <Input
-            {...register('af_abuelaPaterna')}
-            id="af_abuelaPaterna"
+            {...register('abuela_paterna')}
+            id="abuela_paterna"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones"
@@ -72,14 +64,10 @@ export default function AntecedentesFamiliaresStep() {
       </Row>
 
       <Row className="gap-4">
-        <FormRow
-          htmlFor="af_abueloMaterno"
-          label="Abuelo Materno"
-          className="w-full"
-        >
+        <FormRow htmlFor="abuelo_materno" label="Abuelo Materno" className="w-full">
           <Input
-            {...register('af_abueloMaterno')}
-            id="af_abueloMaterno"
+            {...register('abuelo_materno')}
+            id="abuelo_materno"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones"
@@ -87,14 +75,10 @@ export default function AntecedentesFamiliaresStep() {
             size="md"
           />
         </FormRow>
-        <FormRow
-          htmlFor="af_abuelaMaterna"
-          label="Abuela Materna"
-          className="w-full"
-        >
+        <FormRow htmlFor="abuela_materna" label="Abuela Materna" className="w-full">
           <Input
-            {...register('af_abuelaMaterna')}
-            id="af_abuelaMaterna"
+            {...register('abuela_materna')}
+            id="abuela_materna"
             textarea
             rows={3}
             placeholder="Enfermedades o condiciones"
@@ -104,10 +88,10 @@ export default function AntecedentesFamiliaresStep() {
         </FormRow>
       </Row>
 
-      <FormRow htmlFor="af_otros" label="Otros familiares">
+      <FormRow htmlFor="otros" label="Otros familiares">
         <Input
-          {...register('af_otros')}
-          id="af_otros"
+          {...register('otros')}
+          id="otros"
           textarea
           rows={3}
           placeholder="Hermanos, tíos u otros familiares con condiciones relevantes"

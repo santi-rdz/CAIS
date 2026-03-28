@@ -12,9 +12,7 @@ export default function NoteCard({ note, onClick, isSelected = false }) {
     <article
       onClick={onClick}
       className={`flex h-[200px] cursor-pointer flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
-        isSelected
-          ? 'border-teal-400 ring-2 ring-teal-100'
-          : 'border-gray-200'
+        isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
       }`}
     >
       {/* Identity: date + dot */}
@@ -40,7 +38,7 @@ export default function NoteCard({ note, onClick, isSelected = false }) {
             {motivo_consulta}
           </p>
         ) : (
-          <p className="text-5 italic text-zinc-300">Sin motivo de consulta</p>
+          <p className="text-5 text-zinc-300 italic">Sin motivo de consulta</p>
         )}
       </div>
 
@@ -63,7 +61,7 @@ export default function NoteCard({ note, onClick, isSelected = false }) {
             )}
           </div>
         ) : (
-          <span className="text-6 italic text-zinc-300">Sin diagnósticos</span>
+          <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
         )}
       </div>
     </article>

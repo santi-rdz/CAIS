@@ -18,7 +18,7 @@ export default function PlanDiagnosticoStep() {
 
       <FormRow label="Fecha de Generación" className="w-1/2">
         <DatePickerComponent
-          name="fechaGeneracion"
+          name="generado_en"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
@@ -28,10 +28,10 @@ export default function PlanDiagnosticoStep() {
       <Divider />
 
       <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="planTratamiento" label="Plan de Tratamiento">
+        <FormRow htmlFor="plan_tratamiento" label="Plan de Tratamiento">
           <Input
-            {...register('planTratamiento')}
-            id="planTratamiento"
+            {...register('plan_tratamiento')}
+            id="plan_tratamiento"
             textarea
             rows={4}
             placeholder="Plan de estudio, consideraciones terapéuticas y maniobras diagnósticas"
@@ -55,12 +55,12 @@ export default function PlanDiagnosticoStep() {
       <Divider />
 
       <FormRow
-        htmlFor="estudiosComplementarios"
+        htmlFor="estudios_complementarios"
         label="Estudios complementarios efectuados"
       >
         <Input
-          {...register('estudiosComplementarios')}
-          id="estudiosComplementarios"
+          {...register('estudios_complementarios')}
+          id="estudios_complementarios"
           textarea
           rows={4}
           placeholder="Laboratorios, imágenes y otros estudios realizados en esta consulta"

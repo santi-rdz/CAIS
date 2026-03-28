@@ -12,13 +12,14 @@ export function useCreateEvolutionNote(pacienteId) {
       }),
   })
 
-  function createNote(data) {
+  async function createNote(data) {
     const promise = mutateAsync(data)
-    return toast.promise(promise, {
+    toast.promise(promise, {
       loading: 'Guardando nota...',
       success: 'Nota de evolución guardada',
       error: 'No se pudo guardar la nota',
     })
+    return promise
   }
 
   return { createNote, isCreating }

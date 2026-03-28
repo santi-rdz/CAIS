@@ -15,12 +15,12 @@ import {
 import DatePickerComponent from '@ui/DatePickerComponent'
 
 const SERVICIOS = [
-  { name: 'srv_gas', label: 'Gas' },
-  { name: 'srv_drenaje', label: 'Drenaje' },
-  { name: 'srv_luz', label: 'Electricidad / Luz' },
-  { name: 'srv_cableTel', label: 'Casa / Teléfono' },
-  { name: 'srv_agua', label: 'Agua' },
-  { name: 'srv_internet', label: 'Internet' },
+  { name: 'gas', label: 'Gas' },
+  { name: 'drenaje', label: 'Drenaje' },
+  { name: 'luz', label: 'Electricidad / Luz' },
+  { name: 'cable_tel', label: 'Casa / Teléfono' },
+  { name: 'agua', label: 'Agua' },
+  { name: 'internet', label: 'Internet' },
 ]
 
 const TIPOS_SANGRE = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
@@ -54,7 +54,6 @@ export default function AntecedentesNoPatStep() {
         </Grid>
       </div>
 
-      {/* Divider */}
       <Divider />
 
       {/* ── Inmunizaciones ── */}
@@ -66,7 +65,7 @@ export default function AntecedentesNoPatStep() {
         <Grid cols={4} gap={4} mobileCols={2}>
           <FormRow label="Influenza">
             <DatePickerComponent
-              name="inm_influenza"
+              name="influenza"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -74,7 +73,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="Tétanos">
             <DatePickerComponent
-              name="inm_tetanos"
+              name="tetanos"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -82,7 +81,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="Hepatitis B">
             <DatePickerComponent
-              name="inm_hepatitisB"
+              name="hepatitis_b"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -90,7 +89,7 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
           <FormRow label="COVID-19">
             <DatePickerComponent
-              name="inm_covid19"
+              name="covid_19"
               control={control}
               birthdate={true}
               label="DD/MM/AAAA"
@@ -98,10 +97,10 @@ export default function AntecedentesNoPatStep() {
           </FormRow>
         </Grid>
 
-        <FormRow htmlFor="inm_otros" label="Otras vacunas">
+        <FormRow htmlFor="otros" label="Otras vacunas">
           <Input
-            {...register('inm_otros')}
-            id="inm_otros"
+            {...register('otros')}
+            id="otros"
             type="text"
             placeholder="Especifica otras vacunas aplicadas"
             variant="outline"
@@ -110,7 +109,6 @@ export default function AntecedentesNoPatStep() {
         </FormRow>
       </div>
 
-      {/* Divider */}
       <Divider />
 
       {/* ── Información Adicional ── */}
@@ -122,7 +120,7 @@ export default function AntecedentesNoPatStep() {
         <Grid cols={2} gap={4} mobileCols={2} className="items-end">
           <FormRow label="Tipo de Sangre y RH">
             <Controller
-              name="tipoSangre"
+              name="tipo_sangre"
               control={control}
               render={({ field }) => (
                 <Select
@@ -149,7 +147,7 @@ export default function AntecedentesNoPatStep() {
               ¿Recibió las de la Infancia Completa?
             </p>
             <Controller
-              name="vacunasInfanciaCompletas"
+              name="vacunas_infancia_completas"
               control={control}
               render={({ field }) => (
                 <div className="flex gap-4 py-2.5">

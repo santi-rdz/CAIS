@@ -18,7 +18,10 @@ export class EvolutionNoteController {
     }
 
     try {
-      const note = await EvolutionNoteModel.create(result.data, req.session.userId)
+      const note = await EvolutionNoteModel.create(
+        result.data,
+        req.session.userId
+      )
       return res
         .status(201)
         .json({ message: 'Nota de evolución registrada', note })

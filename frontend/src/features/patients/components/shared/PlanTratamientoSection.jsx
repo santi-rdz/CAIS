@@ -16,10 +16,10 @@ export default function PlanTratamientoSection() {
   return (
     <div className="space-y-5">
       <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="planTratamiento" label="Plan de Tratamiento">
+        <FormRow htmlFor="plan_tratamiento" label="Plan de Tratamiento">
           <Input
-            {...register('planTratamiento')}
-            id="planTratamiento"
+            {...register('plan_tratamiento')}
+            id="plan_tratamiento"
             textarea
             rows={4}
             placeholder="Plan de estudio, consideraciones terapéuticas y maniobras diagnósticas"
