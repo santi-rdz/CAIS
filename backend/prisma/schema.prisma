@@ -649,6 +649,7 @@ model notas_evolucion {
   paciente_id        Bytes?              @db.Binary(16)
   motivo_consulta    String?             @db.Text
   ant_gine_andro     String?             @db.Text
+  estudios_complementarios_efectuados String?             @db.Text
   aparatos_sistemas  aparatos_sistemas[]
   historias_medicas  historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_historia")
   informacion_fisica informacion_fisica[]
