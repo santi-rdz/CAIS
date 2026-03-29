@@ -251,15 +251,31 @@ export class MedicalHistoryModel {
         }
 
         // Delete all direct children (all have onDelete: NoAction)
-        await tx.antecedentes_familiares.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.antecedentes_patologicos.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.antecedentes_no_patologicos.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.aparatos_sistemas.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.informacion_fisica.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.inmunizaciones.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.planes_estudio.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.antecedentes_familiares.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.antecedentes_patologicos.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.antecedentes_no_patologicos.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.aparatos_sistemas.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.informacion_fisica.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.inmunizaciones.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
+        await tx.planes_estudio.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
         await tx.servicios.deleteMany({ where: { historia_medica_id: bufId } })
-        await tx.notas_evolucion.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.notas_evolucion.deleteMany({
+          where: { historia_medica_id: bufId },
+        })
 
         await tx.historias_medicas.delete({ where: { id: bufId } })
         return formatMedicalHistory(history)
