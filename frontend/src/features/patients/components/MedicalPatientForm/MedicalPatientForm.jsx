@@ -1,10 +1,10 @@
-import { FormProvider } from 'react-hook-form'
-import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import Modal from '@components/Modal'
-import ModalBody from '@components/ModalBody'
-import ModalActions from '@components/ModalActions'
-import Stepper from '@components/Stepper'
 import { useStepForm } from '@hooks/useStepForm'
+import StepFormShell from '../shared/StepFormShell'
+import {
+  APARATOS_DEFAULTS,
+  INFORMACION_FISICA_DEFAULTS,
+  PLAN_ESTUDIO_DEFAULTS,
+} from '../shared/formDefaults'
 import DatosPersonalesStep from './steps/DatosPersonalesStep'
 import AntecedentesFamiliaresStep from './steps/AntecedentesFamiliaresStep'
 import AntecedentesNoPatStep from './steps/AntecedentesNoPatStep'
@@ -25,104 +25,6 @@ const STEPS = [
 
 const STEPS_FIELDS = [['nombre'], [], [], [], [], [], []]
 
-const DEFAULT_VALUES = {
-  // Step 1 – pacientes
-  nombre: '',
-  apellidos: '',
-  fechaNacimiento: null,
-  genero: '',
-  correo: '',
-  telefono: '',
-  nss: '',
-  curp: '',
-  fuenteInformacion: '',
-  estadoCivil: '',
-  nivelEducativo: '',
-  ocupacion: '',
-  religion: '',
-  dir_calle: '',
-  dir_numero: '',
-  dir_colonia: '',
-  dir_ciudad: '',
-  dir_estado: '',
-  dir_cp: '',
-  lugarNacimiento: '',
-  grupoEtnico: '',
-  contactoEmergencia: '',
-  telefonoEmergencia: '',
-  parentescoEmergencia: '',
-  esExterno: false,
-  // Step 2 – antecedentes_familiares
-  af_padre: '',
-  af_madre: '',
-  af_abueloPaterno: '',
-  af_abuelaPaterna: '',
-  af_abueloMaterno: '',
-  af_abuelaMaterna: '',
-  af_otros: '',
-  // Step 3 – servicios + inmunizaciones
-  srv_gas: false,
-  srv_luz: false,
-  srv_agua: false,
-  srv_drenaje: false,
-  srv_cableTel: false,
-  srv_internet: false,
-  inm_influenza: null,
-  inm_tetanos: null,
-  inm_hepatitisB: null,
-  inm_covid19: null,
-  inm_otros: '',
-  tipoSangre: '',
-  vacunasInfanciaCompletas: null,
-  // Step 4 – antecedentes_patologicos
-  ap_cronicoDegenerativos: '',
-  ap_quirurgicos: '',
-  ap_hospitalizaciones: '',
-  ap_traumaticos: '',
-  ap_transfusionales: '',
-  ap_transplantes: '',
-  ap_alergicos: '',
-  ap_infectocontagiosos: '',
-  ap_toxicomanias: '',
-  ap_covid19: '',
-  ap_psicologiaPsiquiatria: '',
-  ap_gyo: '',
-  ap_enfermedadesCongenitas: '',
-  ap_enfermedadesInfancia: '',
-  // Step 5 – aparatos_sistemas
-  as_neurologico: '',
-  as_cardiovascular: '',
-  as_respiratorio: '',
-  as_hematologico: '',
-  as_digestivo: '',
-  as_musculoesqueletico: '',
-  as_genitourinario: '',
-  as_endocrinologico: '',
-  as_metabolico: '',
-  as_nutricional: '',
-  // Step 6 – informacion_fisica
-  if_peso: '',
-  if_altura: '',
-  if_paSistolica: '',
-  if_paDiastolica: '',
-  if_fc: '',
-  if_fr: '',
-  if_circCintura: '',
-  if_circCadera: '',
-  if_spO2: '',
-  if_glucosaCapilar: '',
-  if_temperatura: '',
-  if_exploracionFisica: '',
-  if_habitoExterior: '',
-  // Step 7 – historia + planes_estudio
-  motivoConsulta: '',
-  historiaEnfermedadActual: '',
-  planTratamiento: '',
-  tratamiento: '',
-  fechaGeneracion: null,
-  cie10Codes: [],
-}
-
 const STEP_COMPONENTS = [
   DatosPersonalesStep,
   AntecedentesFamiliaresStep,
@@ -133,67 +35,101 @@ const STEP_COMPONENTS = [
   MotivoConsultaPlanStep,
 ]
 
+const DEFAULT_VALUES = {
+  // Step 1 – pacientes
+  nombre: '',
+  apellidos: '',
+  fecha_nacimiento: null,
+  genero: '',
+  correo: '',
+  telefono: '',
+  nss: '',
+  curp: '',
+  fuente_informacion: '',
+  estado_civil: '',
+  ocupacion: '',
+  religion: '',
+  dir_calle: '',
+  lugar_nacimiento: '',
+  contacto_emergencia: '',
+  telefono_emergencia: '',
+  parentesco_emergencia: '',
+  // Step 2 – antecedentes_familiares
+  antecedentes_familiares: {
+    padre: '',
+    madre: '',
+    abuelo_paterno: '',
+    abuela_paterna: '',
+    abuelo_materno: '',
+    abuela_materna: '',
+    otros: '',
+  },
+  // Step 3 – servicios + inmunizaciones (historias_medicas directos)
+  servicios: {
+    gas: false,
+    luz: false,
+    agua: false,
+    drenaje: false,
+    cable_tel: false,
+    internet: false,
+  },
+  inmunizaciones: {
+    influenza: null,
+    tetanos: null,
+    hepatitis_b: null,
+    covid_19: null,
+    otros: '',
+  },
+  tipo_sangre: '',
+  vacunas_infancia_completas: null,
+  // Step 4 – antecedentes_patologicos
+  antecedentes_patologicos: {
+    cronico_degenerativos: '',
+    quirurgicos: '',
+    hospitalizaciones: '',
+    traumaticos: '',
+    transfusionales: '',
+    transplantes: '',
+    alergicos: '',
+    infectocontagiosos: '',
+    toxicomanias: '',
+    covid_19: '',
+    psicologia_psiquiatria: '',
+    gyo: '',
+    enfermedades_congenitas: '',
+    enfermedades_infancia: '',
+  },
+  // Step 5 – aparatos_sistemas
+  aparatos_sistemas: APARATOS_DEFAULTS,
+  // Step 6 – informacion_fisica
+  informacion_fisica: INFORMACION_FISICA_DEFAULTS,
+  // Step 7 – historias_medicas directos + plan_estudio
+  motivo_consulta: '',
+  historia_enfermedad_actual: '',
+  plan_estudio: PLAN_ESTUDIO_DEFAULTS,
+}
+
 export default function MedicalPatientForm({ onCloseModal }) {
-  const {
-    currStep,
-    setCurrStep,
-    handleNext,
-    handleStepClick,
-    isLast,
-    methods,
-    handleSubmit,
-    getFormKeyDown,
-  } = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES)
+  const stepForm = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES)
+  const { currStep } = stepForm
+
+  const StepComponent = STEP_COMPONENTS[currStep]
 
   function onSubmit(_data) {
     // TODO: wire up API — createPatient + createHistoriaMedica
     onCloseModal?.()
   }
 
-  const StepComponent = STEP_COMPONENTS[currStep]
-
   return (
-    <FormProvider {...methods}>
-      <div className="flex min-h-0 flex-1 flex-col">
-        {/* ── Header fijo: título + stepper ── */}
-        <Modal.Heading>
-          <Modal.Title>Registro de Nuevo Paciente</Modal.Title>
-          <Stepper
-            steps={STEPS}
-            current={currStep}
-            setCurrStep={handleStepClick}
-            className="mt-4"
-          />
-        </Modal.Heading>
-
-        {/* ── Contenido scrollable ── */}
-        <ModalBody>
-          <form onKeyDown={getFormKeyDown(onSubmit)}>
-            <StepComponent />
-          </form>
-        </ModalBody>
-
-        {/* ── Footer fijo: navegación ── */}
-        <ModalActions
-          onClose={onCloseModal}
-          primaryAction={{
-            label: isLast ? 'Guardar paciente' : 'Siguiente',
-            icon: isLast ? (
-              <HiCheck strokeWidth={1} />
-            ) : (
-              <HiChevronRight strokeWidth={1} />
-            ),
-            iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(onSubmit) : handleNext,
-          }}
-          secondaryAction={{
-            label: 'Anterior',
-            icon: <HiChevronLeft strokeWidth={1} />,
-            onClick: () => setCurrStep((p) => p - 1),
-            disabled: currStep === 0,
-          }}
-        />
-      </div>
-    </FormProvider>
+    <StepFormShell
+      title="Registro de Nuevo Paciente"
+      submitLabel="Guardar paciente"
+      steps={STEPS}
+      onSubmit={onSubmit}
+      onCloseModal={onCloseModal}
+      {...stepForm}
+    >
+      <StepComponent />
+    </StepFormShell>
   )
 }

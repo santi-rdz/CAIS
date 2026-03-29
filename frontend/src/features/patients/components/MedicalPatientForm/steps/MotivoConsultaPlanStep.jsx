@@ -5,7 +5,7 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
 import DatePickerComponent from '@ui/DatePickerComponent'
-import CIE10Field from '../CIE10Field'
+import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
 
 export default function MotivoConsultaPlanStep() {
   const { register, control } = useFormContext()
@@ -16,25 +16,22 @@ export default function MotivoConsultaPlanStep() {
         Motivo de Consulta y Plan
       </Heading>
 
-      {/* Fecha de Generación */}
       <FormRow label="Fecha de Generación" className="w-1/2">
         <DatePickerComponent
-          name="fechaGeneracion"
+          name="plan_estudio.generado_en"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
         />
       </FormRow>
 
-      {/* Divider */}
       <Divider />
 
-      {/* Motivo + Historia */}
       <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="motivoConsulta" label="Motivo de Consulta">
+        <FormRow htmlFor="motivo_consulta" label="Motivo de Consulta">
           <Input
-            {...register('motivoConsulta')}
-            id="motivoConsulta"
+            {...register('motivo_consulta')}
+            id="motivo_consulta"
             textarea
             rows={4}
             placeholder="Describe el motivo principal por el que consulta el paciente"
@@ -43,12 +40,12 @@ export default function MotivoConsultaPlanStep() {
           />
         </FormRow>
         <FormRow
-          htmlFor="historiaEnfermedadActual"
+          htmlFor="historia_enfermedad_actual"
           label="Historia de la Enfermedad Actual"
         >
           <Input
-            {...register('historiaEnfermedadActual')}
-            id="historiaEnfermedadActual"
+            {...register('historia_enfermedad_actual')}
+            id="historia_enfermedad_actual"
             textarea
             rows={4}
             placeholder="Describe detalladamente el padecimiento actual del paciente"
@@ -58,45 +55,12 @@ export default function MotivoConsultaPlanStep() {
         </FormRow>
       </Grid>
 
-      {/* Divider */}
       <Divider />
 
-      {/* Plan + Tratamiento */}
-      <Grid cols={2} gap={4} mobileCols={1}>
-        <FormRow htmlFor="planTratamiento" label="Plan de Tratamiento">
-          <Input
-            {...register('planTratamiento')}
-            id="planTratamiento"
-            textarea
-            rows={4}
-            placeholder="Especifica el plan de estudio, consideraciones terapéuticas, maniobras diagnósticas y otras indicaciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-        <FormRow htmlFor="tratamiento" label="Tratamiento">
-          <Input
-            {...register('tratamiento')}
-            id="tratamiento"
-            textarea
-            rows={4}
-            placeholder="Medicamentos, dosis y frecuencia"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-      </Grid>
-
-      {/* Divider */}
-      <Divider />
-
-      {/* ── Diagnóstico CIE-10 ── */}
-      <div className="space-y-2">
-        <Heading as="h4" showBar required>
-          Diagnóstico — Código CIE-10
-        </Heading>
-        <CIE10Field />
-      </div>
+      <PlanTratamientoSection>
+        <PlanTratamientoSection.Tratamiento />
+        <PlanTratamientoSection.Diagnostico />
+      </PlanTratamientoSection>
     </div>
   )
 }

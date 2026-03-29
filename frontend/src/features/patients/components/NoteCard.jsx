@@ -1,37 +1,69 @@
-import { HiOutlineClipboardDocument } from 'react-icons/hi2'
-import Heading from '@components/Heading'
-import DataField from './DataField'
+import { HiOutlineUserCircle } from 'react-icons/hi2'
+import { formatFecha } from '@lib/dateHelpers'
 
-export default function NoteCard({ note }) {
-  const { motivo_consulta, ant_gine_andro } = note
+export default function NoteCard({ note, onClick, isSelected = false }) {
+  const { motivo_consulta, planes_estudio } = note
+
+  const date = formatFecha(planes_estudio?.generado_en)
+  const doctorName = planes_estudio?.usuarios?.nombre
+  const cie10Codes = planes_estudio?.planes_estudio_cie10 ?? []
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-green-50 text-green-700">
-          <HiOutlineClipboardDocument size={14} />
-        </div>
-        <Heading as="h4">Nota de evolución</Heading>
+    <article
+      onClick={onClick}
+      className={`flex h-[200px] cursor-pointer flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+        isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
+      }`}
+    >
+      {/* Identity: date + dot */}
+      <div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-1.5">
+        <time className="text-5 font-mono font-semibold text-zinc-700">
+          {date ?? '—'}
+        </time>
+        <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
       </div>
-      <div className="mt-4 space-y-4">
-        {motivo_consulta && (
-          <DataField
-            label="Motivo de consulta"
-            value={motivo_consulta}
-            multiline
-          />
-        )}
-        {ant_gine_andro && (
-          <DataField
-            label="Antecedentes gin./androl."
-            value={ant_gine_andro}
-            multiline
-          />
-        )}
-        {!motivo_consulta && !ant_gine_andro && (
-          <p className="text-5 text-zinc-400">Sin contenido registrado.</p>
+
+      {/* Doctor */}
+      <div className="flex shrink-0 items-center gap-1.5 px-4 pb-3">
+        <HiOutlineUserCircle size={13} className="shrink-0 text-zinc-300" />
+        <span className="text-6 truncate text-zinc-400">
+          {doctorName ?? 'Dr. no registrado'}
+        </span>
+      </div>
+
+      {/* Motivo */}
+      <div className="flex-1 overflow-hidden border-t border-gray-100 px-4 py-3">
+        {motivo_consulta ? (
+          <p className="text-5 line-clamp-2 leading-relaxed text-zinc-600">
+            {motivo_consulta}
+          </p>
+        ) : (
+          <p className="text-5 text-zinc-300 italic">Sin motivo de consulta</p>
         )}
       </div>
-    </div>
+
+      {/* CIE-10 footer */}
+      <div className="shrink-0 border-t border-gray-100 px-4 py-2.5">
+        {cie10Codes.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {cie10Codes.slice(0, 4).map((d) => (
+              <span
+                key={d.id}
+                className="text-6 rounded-md bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700"
+              >
+                {d.codigo}
+              </span>
+            ))}
+            {cie10Codes.length > 4 && (
+              <span className="text-6 rounded-md bg-gray-100 px-2 py-0.5 text-zinc-400">
+                +{cie10Codes.length - 4}
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
+        )}
+      </div>
+    </article>
   )
 }
