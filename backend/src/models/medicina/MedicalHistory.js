@@ -231,11 +231,39 @@ export class MedicalHistoryModel {
 
   static async delete(id) {
     try {
-      const history = await prisma.historias_medicas.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
+      const bufId = uuidToBuffer(id)
+      return await prisma.$transaction(async (tx) => {
+        const history = await tx.historias_medicas.findUnique({
+          where: { id: bufId },
+          include: includeRelations,
+        })
+        if (!history) return null
+
+        // Delete grandchildren before children
+        const plans = await tx.planes_estudio.findMany({
+          where: { historia_medica_id: bufId },
+          select: { id: true },
+        })
+        if (plans.length) {
+          await tx.planes_estudio_cie10.deleteMany({
+            where: { plan_estudio_id: { in: plans.map((p) => p.id) } },
+          })
+        }
+
+        // Delete all direct children (all have onDelete: NoAction)
+        await tx.antecedentes_familiares.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.antecedentes_patologicos.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.antecedentes_no_patologicos.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.aparatos_sistemas.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.informacion_fisica.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.inmunizaciones.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.planes_estudio.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.servicios.deleteMany({ where: { historia_medica_id: bufId } })
+        await tx.notas_evolucion.deleteMany({ where: { historia_medica_id: bufId } })
+
+        await tx.historias_medicas.delete({ where: { id: bufId } })
+        return formatMedicalHistory(history)
       })
-      return formatMedicalHistory(history)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

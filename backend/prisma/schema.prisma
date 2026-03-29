@@ -158,7 +158,7 @@ model antecedentes_patologicos {
 
 model aparatos_sistemas {
   id                 Int               @id @default(autoincrement())
-  historia_medica_id Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
+  historia_medica_id Bytes             @db.Binary(16)
   nota_evolucion_id  Bytes?            @db.Binary(16)
   neurologico        String?           @db.Text
   cardiovascular     String?           @db.Text
@@ -173,6 +173,7 @@ model aparatos_sistemas {
   historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_historia")
   notas_evolucion    notas_evolucion?  @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_nota")
 
+  @@index([historia_medica_id], map: "idx_as_historia")
   @@index([nota_evolucion_id], map: "fk_as_nota")
 }
 
@@ -536,12 +537,12 @@ model historias_medicas {
   antecedentes_familiares     antecedentes_familiares?
   antecedentes_no_patologicos antecedentes_no_patologicos?
   antecedentes_patologicos    antecedentes_patologicos?
-  aparatos_sistemas           aparatos_sistemas?
+  aparatos_sistemas           aparatos_sistemas[]
   pacientes                   pacientes                    @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_paciente")
-  informacion_fisica          informacion_fisica?
+  informacion_fisica          informacion_fisica[]
   inmunizaciones              inmunizaciones?
   notas_evolucion             notas_evolucion[]
-  planes_estudio              planes_estudio?
+  planes_estudio              planes_estudio[]
   servicios                   servicios?
 
   @@index([paciente_id], map: "fk_historia_paciente")
@@ -595,7 +596,7 @@ model horarios_comida_nutricion {
 
 model informacion_fisica {
   id                 Int               @id @default(autoincrement())
-  historia_medica_id Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
+  historia_medica_id Bytes             @db.Binary(16)
   nota_evolucion_id  Bytes?            @db.Binary(16)
   peso               Float             @db.Float
   altura             Float             @db.Float
@@ -613,6 +614,7 @@ model informacion_fisica {
   historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_historia")
   notas_evolucion    notas_evolucion?  @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_nota")
 
+  @@index([historia_medica_id], map: "idx_infoF_historia")
   @@index([nota_evolucion_id], map: "fk_infoF_nota")
 }
 
@@ -749,7 +751,7 @@ model perfil_renal_electrolitos {
 
 model planes_estudio {
   id                   Int                    @id @default(autoincrement())
-  historia_medica_id   Bytes                  @unique(map: "historia_medica_id") @db.Binary(16)
+  historia_medica_id   Bytes                  @db.Binary(16)
   nota_evolucion_id    Bytes?                 @db.Binary(16)
   plan_tratamiento     String?                @db.Text
   usuario_id           Bytes                  @db.Binary(16)
@@ -760,6 +762,7 @@ model planes_estudio {
   usuarios             usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
   planes_estudio_cie10 planes_estudio_cie10[]
 
+  @@index([historia_medica_id], map: "idx_plan_historia")
   @@index([nota_evolucion_id], map: "fk_plan_nota")
   @@index([usuario_id], map: "fk_plan_usuario")
 }
