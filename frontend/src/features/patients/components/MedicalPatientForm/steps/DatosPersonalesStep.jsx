@@ -27,7 +27,6 @@ export default function DatosPersonalesStep() {
           Información Básica Requerida
         </Heading>
 
-        {/* Nombre(s) + Apellidos */}
         <Grid cols={2} gap={4} mobileCols={2}>
           <FormRow htmlFor="nombre" label="Nombre(s)" required>
             <Input
@@ -53,9 +52,12 @@ export default function DatosPersonalesStep() {
           </FormRow>
         </Grid>
 
-        {/* Fecha Nacimiento + Teléfono + Género */}
         <Grid cols={3} gap={4} mobileCols={2}>
-          <BirthdayField control={control} errors={errors} />
+          <BirthdayField
+            name="fecha_nacimiento"
+            control={control}
+            errors={errors}
+          />
           <PhoneField />
           <FormRow label="Género" required>
             <Controller
@@ -82,7 +84,6 @@ export default function DatosPersonalesStep() {
         </Grid>
       </div>
 
-      {/* Divider */}
       <Divider />
 
       {/* ══ 2 · Información Adicional ══ */}
@@ -91,11 +92,10 @@ export default function DatosPersonalesStep() {
           Información Adicional
         </Heading>
 
-        {/* Fuente de Información + NSS + CURP */}
         <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow label="Fuente de Información">
             <Controller
-              name="fuenteInformacion"
+              name="fuente_informacion"
               control={control}
               render={({ field }) => (
                 <Select
@@ -138,11 +138,10 @@ export default function DatosPersonalesStep() {
           </FormRow>
         </Grid>
 
-        {/* Estado Civil + Correo + Ocupación */}
         <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow label="Estado Civil">
             <Controller
-              name="estadoCivil"
+              name="estado_civil"
               control={control}
               render={({ field }) => (
                 <Select
@@ -187,7 +186,6 @@ export default function DatosPersonalesStep() {
           </FormRow>
         </Grid>
 
-        {/* Religión + Lugar de Nacimiento + Domicilio */}
         <Grid cols={3} gap={4} mobileCols={2}>
           <FormRow htmlFor="religion" label="Religión">
             <Input
@@ -199,10 +197,10 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-          <FormRow htmlFor="lugarNacimiento" label="Lugar de Nacimiento">
+          <FormRow htmlFor="lugar_nacimiento" label="Lugar de Nacimiento">
             <Input
-              {...register('lugarNacimiento')}
-              id="lugarNacimiento"
+              {...register('lugar_nacimiento')}
+              id="lugar_nacimiento"
               type="text"
               placeholder="Ciudad, Estado"
               variant="outline"
@@ -230,30 +228,30 @@ export default function DatosPersonalesStep() {
             Contacto de Emergencia
           </Heading>
           <Grid cols={3} gap={4} mobileCols={2}>
-            <FormRow htmlFor="contactoEmergencia" label="Nombre">
+            <FormRow htmlFor="contacto_emergencia" label="Nombre">
               <Input
-                {...register('contactoEmergencia')}
-                id="contactoEmergencia"
+                {...register('contacto_emergencia')}
+                id="contacto_emergencia"
                 type="text"
                 placeholder="Nombre completo"
                 variant="outline"
                 size="lg"
               />
             </FormRow>
-            <FormRow htmlFor="parentescoEmergencia" label="Relación">
+            <FormRow htmlFor="parentesco_emergencia" label="Relación">
               <Input
-                {...register('parentescoEmergencia')}
-                id="parentescoEmergencia"
+                {...register('parentesco_emergencia')}
+                id="parentesco_emergencia"
                 type="text"
                 placeholder="Ej: Esposo/a, Hijo/a"
                 variant="outline"
                 size="lg"
               />
             </FormRow>
-            <FormRow htmlFor="telefonoEmergencia" label="Teléfono">
+            <FormRow htmlFor="telefono_emergencia" label="Teléfono">
               <Input
-                {...register('telefonoEmergencia')}
-                id="telefonoEmergencia"
+                {...register('telefono_emergencia')}
+                id="telefono_emergencia"
                 type="tel"
                 placeholder="Ej. 6641234567"
                 variant="outline"
