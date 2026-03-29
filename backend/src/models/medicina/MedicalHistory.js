@@ -74,19 +74,15 @@ function formatMedicalHistory(n) {
         }
       : null,
 
-    aparatos_sistemas: aparatos_sistemas
-      ? {
-          ...aparatos_sistemas,
-          historia_medica_id: toUUID(aparatos_sistemas.historia_medica_id),
-        }
-      : null,
+    aparatos_sistemas: aparatos_sistemas?.map((item) => ({
+      ...item,
+      historia_medica_id: toUUID(item.historia_medica_id),
+    })) ?? [],
 
-    informacion_fisica: informacion_fisica
-      ? {
-          ...informacion_fisica,
-          historia_medica_id: toUUID(informacion_fisica.historia_medica_id),
-        }
-      : null,
+    informacion_fisica: informacion_fisica?.map((item) => ({
+      ...item,
+      historia_medica_id: toUUID(item.historia_medica_id),
+    })) ?? [],
 
     inmunizaciones: inmunizaciones
       ? {
@@ -103,14 +99,12 @@ function formatMedicalHistory(n) {
         }
       : null,
 
-    planes_estudio: planes_estudio
-      ? {
-          ...planes_estudio,
-          id: toUUID(planes_estudio.id),
-          usuario_id: toUUID(planes_estudio.usuario_id),
-          historia_medica_id: toUUID(planes_estudio.historia_medica_id),
-        }
-      : null,
+    planes_estudio: planes_estudio?.map((item) => ({
+      ...item,
+      id: toUUID(item.id),
+      usuario_id: toUUID(item.usuario_id),
+      historia_medica_id: toUUID(item.historia_medica_id),
+    })) ?? [],
 
     servicios: servicios
       ? {
@@ -325,19 +319,13 @@ export class MedicalHistoryModel {
 
           ...(data.aparatos_sistemas && {
             aparatos_sistemas: {
-              upsert: {
-                create: { ...data.aparatos_sistemas },
-                update: { ...data.aparatos_sistemas },
-              },
+              create: { ...data.aparatos_sistemas },
             },
           }),
 
           ...(data.informacion_fisica && {
             informacion_fisica: {
-              upsert: {
-                create: { ...data.informacion_fisica },
-                update: { ...data.informacion_fisica },
-              },
+              create: { ...data.informacion_fisica },
             },
           }),
 
@@ -352,19 +340,11 @@ export class MedicalHistoryModel {
 
           ...(data.planes_estudio && {
             planes_estudio: {
-              upsert: {
-                create: {
-                  usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
-                  plan_tratamiento:
-                    data.planes_estudio.plan_tratamiento ?? null,
-                  tratamiento: data.planes_estudio.tratamiento ?? null,
-                  generado_en: data.planes_estudio.generado_en ?? null,
-                },
-                update: {
-                  plan_tratamiento: data.planes_estudio.plan_tratamiento,
-                  tratamiento: data.planes_estudio.tratamiento,
-                  generado_en: data.planes_estudio.generado_en,
-                },
+              create: {
+                usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
+                plan_tratamiento: data.planes_estudio.plan_tratamiento ?? null,
+                tratamiento: data.planes_estudio.tratamiento ?? null,
+                generado_en: data.planes_estudio.generado_en ?? null,
               },
             },
           }),
