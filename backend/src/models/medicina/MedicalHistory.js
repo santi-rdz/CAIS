@@ -74,15 +74,17 @@ function formatMedicalHistory(n) {
         }
       : null,
 
-    aparatos_sistemas: aparatos_sistemas?.map((item) => ({
-      ...item,
-      historia_medica_id: toUUID(item.historia_medica_id),
-    })) ?? [],
+    aparatos_sistemas:
+      aparatos_sistemas?.map((item) => ({
+        ...item,
+        historia_medica_id: toUUID(item.historia_medica_id),
+      })) ?? [],
 
-    informacion_fisica: informacion_fisica?.map((item) => ({
-      ...item,
-      historia_medica_id: toUUID(item.historia_medica_id),
-    })) ?? [],
+    informacion_fisica:
+      informacion_fisica?.map((item) => ({
+        ...item,
+        historia_medica_id: toUUID(item.historia_medica_id),
+      })) ?? [],
 
     inmunizaciones: inmunizaciones
       ? {
@@ -99,12 +101,13 @@ function formatMedicalHistory(n) {
         }
       : null,
 
-    planes_estudio: planes_estudio?.map((item) => ({
-      ...item,
-      id: toUUID(item.id),
-      usuario_id: toUUID(item.usuario_id),
-      historia_medica_id: toUUID(item.historia_medica_id),
-    })) ?? [],
+    planes_estudio:
+      planes_estudio?.map((item) => ({
+        ...item,
+        id: toUUID(item.id),
+        usuario_id: toUUID(item.usuario_id),
+        historia_medica_id: toUUID(item.historia_medica_id),
+      })) ?? [],
 
     servicios: servicios
       ? {
