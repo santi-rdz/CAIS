@@ -33,7 +33,9 @@ beforeAll(async () => {
   ])
 
   const items =
-    pacientesRes.body.pacientes ?? pacientesRes.body.patients ?? pacientesRes.body
+    pacientesRes.body.pacientes ??
+    pacientesRes.body.patients ??
+    pacientesRes.body
   pacienteId = Array.isArray(items) ? items[0]?.id : undefined
   usuarioId = meRes.body?.id
 })
@@ -98,7 +100,10 @@ describe('GET /medicina/historias-medicas', () => {
   test('200 — retorna lista paginada', async () => {
     const res = await agent.get('/medicina/historias-medicas')
     assert.equal(res.status, 200)
-    assert(res.body['histories'] !== undefined, 'property histories should exist')
+    assert(
+      res.body['histories'] !== undefined,
+      'property histories should exist'
+    )
     assert(res.body['count'] !== undefined, 'property count should exist')
     assert(Array.isArray(res.body.histories), 'histories should be an array')
   })
@@ -208,8 +213,14 @@ describe('POST /medicina/historias-medicas', () => {
     const h = res.body.history
     assert(h['id'] !== undefined, 'history.id should exist')
     assert.equal(h.paciente_id, pacienteId)
-    assert(Array.isArray(h.aparatos_sistemas), 'aparatos_sistemas should be an array')
-    assert(Array.isArray(h.informacion_fisica), 'informacion_fisica should be an array')
+    assert(
+      Array.isArray(h.aparatos_sistemas),
+      'aparatos_sistemas should be an array'
+    )
+    assert(
+      Array.isArray(h.informacion_fisica),
+      'informacion_fisica should be an array'
+    )
     assert(Array.isArray(h.planes_estudio), 'planes_estudio should be an array')
 
     // cleanup
@@ -277,7 +288,10 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
       .patch(`/medicina/historias-medicas/${historyId}`)
       .send({ aparatos_sistemas: { cardiovascular: 'Normal' } })
     assert.equal(res.status, 200)
-    assert(Array.isArray(res.body.aparatos_sistemas), 'aparatos_sistemas should be an array')
+    assert(
+      Array.isArray(res.body.aparatos_sistemas),
+      'aparatos_sistemas should be an array'
+    )
     assert.equal(res.body.aparatos_sistemas.length, prevLen + 1)
   })
 
