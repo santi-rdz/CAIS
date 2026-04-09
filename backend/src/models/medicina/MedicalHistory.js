@@ -48,9 +48,8 @@ function formatMedicalHistory(n) {
     planes_estudio: planes_estudio
       ? {
           ...planes_estudio,
-          id: toUUID(planes_estudio.id),
           usuario_id: toUUID(planes_estudio.usuario_id),
-          historia_medica_id: toUUID(planes_estudio.historia_medica_id),
+          historia_medica_id: undefined,
           cie10_codes:
             planes_estudio.planes_estudio_cie10?.map(
               ({ codigo, descripcion }) => ({ codigo, descripcion })
