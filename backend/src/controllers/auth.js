@@ -166,7 +166,8 @@ export class AuthController {
         message:
           'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña',
       })
-    } catch (err) {
+    } catch (err) 
+    {
       console.error('Error solicitando reset de password:', err)
       return res.status(500).json({ error: 'Error del servidor' })
     }
@@ -248,32 +249,32 @@ export class AuthController {
    * @access Development/Staging only
    * @returns {Object} Token data including: token (UUID), usuario (email), expira_at, creado_at
    */
-  static async getDevResetToken(req, res) {
-    if (process.env.NODE_ENV === 'production') {
-      return res.status(403).json({ error: 'No disponible en producción' })
-    }
-    try {
-      const token = await prisma.password_reset_tokens.findFirst({
-        where: { usado: false },
-        orderBy: { creado_at: 'desc' },
-        select: {
-          id: true,
-          usuario_id: true,
-          token: true,
-          expira_at: true,
-          creado_at: true,
-          usuarios: { select: { correo: true } },
-        },
-      })
-      if (!token) return res.status(404).json({ error: 'No hay tokens activos' })
-      return res.json({
-        token: bufferToUUID(token.token),
-        usuario: token.usuarios?.correo,
-        expira_at: token.expira_at,
-        creado_at: token.creado_at,
-      })
-    } catch (err) {
-      return res.status(500).json({ error: 'Error del servidor' })
-    }
-  }
+  // static async getDevResetToken(req, res) {
+  //   if (process.env.NODE_ENV === 'production') {
+  //     return res.status(403).json({ error: 'No disponible en producción' })
+  //   }
+  //   try {
+  //     const token = await prisma.password_reset_tokens.findFirst({
+  //       where: { usado: false },
+  //       orderBy: { creado_at: 'desc' },
+  //       select: {
+  //         id: true,
+  //         usuario_id: true,
+  //         token: true,
+  //         expira_at: true,
+  //         creado_at: true,
+  //         usuarios: { select: { correo: true } },
+  //       },
+  //     })
+  //     if (!token) return res.status(404).json({ error: 'No hay tokens activos' })
+  //     return res.json({
+  //       token: bufferToUUID(token.token),
+  //       usuario: token.usuarios?.correo,
+  //       expira_at: token.expira_at,
+  //       creado_at: token.creado_at,
+  //     })
+  //   } catch (err) {
+  //     return res.status(500).json({ error: 'Error del servidor' })
+  //   }
+  // }
 }
