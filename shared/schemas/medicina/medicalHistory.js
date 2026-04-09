@@ -4,6 +4,7 @@ import {
   informacionFisicaSchema,
   planEstudioFormSchema,
 } from './evolutionNote.js'
+import { optionalDateSchema } from '../fields.js'
 
 export const antecedentes_familiaresSchema = z.object({
   padre: z.string().nullish(),
@@ -42,16 +43,11 @@ export const antecedentes_no_patologicosSchema = z.object({
   tipo_zoonosis: z.string().nullish(),
 })
 
-const optionalDate = z.preprocess(
-  (v) => (v === '' || v == null ? undefined : v),
-  z.coerce.date().optional()
-)
-
 export const inmunizacionesSchema = z.object({
-  influenza: optionalDate,
-  tetanos: optionalDate,
-  hepatitis_b: optionalDate,
-  covid_19: optionalDate,
+  influenza: optionalDateSchema,
+  tetanos: optionalDateSchema,
+  hepatitis_b: optionalDateSchema,
+  covid_19: optionalDateSchema,
   otros: z.string().nullish(),
 })
 
@@ -65,7 +61,7 @@ export const serviciosSchema = z.object({
 })
 
 export const medicalHistoryBaseSchema = z.object({
-  creado_at: z.coerce.date().optional(),
+  creado_at: optionalDateSchema,
   tipo_sangre: z.string().nullish(),
   vacunas_infancia_completas: z.boolean().nullish(),
   motivo_consulta: z.string().nullish(),

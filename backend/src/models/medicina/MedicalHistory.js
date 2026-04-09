@@ -139,7 +139,7 @@ export class MedicalHistoryModel {
       data: {
         id: uuidToBuffer(historyId),
         paciente_id: pacienteBuffer,
-        creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
+        creado_at: data.creado_at,
         tipo_sangre: data.tipo_sangre || null,
         vacunas_infancia_completas: data.vacunas_infancia_completas ?? null,
         motivo_consulta: data.motivo_consulta || null,
@@ -178,7 +178,7 @@ export class MedicalHistoryModel {
         where: { id: uuidToBuffer(id) },
         data: {
           ...(data.creado_at !== undefined && {
-            creado_at: new Date(data.creado_at),
+            creado_at: data.creado_at,
           }),
           tipo_sangre: data.tipo_sangre,
           vacunas_infancia_completas: data.vacunas_infancia_completas,

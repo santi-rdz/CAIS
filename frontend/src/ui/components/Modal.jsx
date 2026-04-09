@@ -66,11 +66,18 @@ Modal.Open = function Open({ children, opens: opensWindowName }) {
   return cloneElement(children, { onClick: () => open(opensWindowName) })
 }
 
+const HEIGHTS = {
+  70: 'h-[70vh] max-h-[70vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
+  80: 'h-[80vh] max-h-[80vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
+  90: 'h-[90vh] max-h-[90vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
+}
+
 Modal.Content = function Content({
   children,
   name,
   noPadding = false,
   size = 'md',
+  height = 80,
   variant = 'default',
   icon,
 }) {
@@ -111,17 +118,18 @@ Modal.Content = function Content({
 
   if (openName !== name) return null
 
-  const sizeClass =
-    variant === 'alert'
-      ? 'w-fit'
-      : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
+  const isAlert = variant === 'alert'
+  const sizeClass = isAlert
+    ? 'w-fit'
+    : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
+  const heightClass = isAlert ? 'h-fit' : (HEIGHTS[height] ?? HEIGHTS[80])
 
   return createPortal(
     <ContentContext.Provider value={{ variant, icon }}>
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0">
         <div
           ref={ref}
-          className={`relative flex max-h-[80vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:h-[95dvh] max-sm:max-h-[95dvh] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
+          className={`relative flex ${heightClass} ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
           style={{
             transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
             transition: isDragging ? 'none' : 'transform 0.3s ease',

@@ -5,6 +5,7 @@ import {
   passwordSchema,
   rolesSchema,
   dayjsDateSchema,
+  dateSchema,
 } from './fields.js'
 
 // ─── Campos compartidos ─────────────────────────────────────────────
@@ -15,7 +16,7 @@ const tempPasswordSchema = z
 
 const coreFields = {
   ...personaBaseFields,
-  fechaNacimiento: z.string(),
+  fechaNacimiento: dateSchema,
 }
 
 const internFields = {

@@ -1,5 +1,12 @@
 import { z } from 'zod'
 
+// BE: acepta "YYYY-MM-DD" o ISO, outputs Date para Prisma.
+export const dateSchema = z.coerce.date()
+export const optionalDateSchema = z.preprocess(
+  (v) => (v === '' ? undefined : v),
+  z.coerce.date().nullable().optional()
+)
+
 // Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
 export const dayjsDateSchema = z.preprocess(
   (v) => {

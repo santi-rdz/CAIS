@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { telefonoSchema, correoSchema } from '../fields.js'
+import { telefonoSchema, correoSchema, dateSchema } from '../fields.js'
 
 export const patientSchema = z.object({
   nombre: z.string().trim().min(1, 'El nombre es requerido'),
-  fecha_nacimiento: z.coerce.date(),
+  fecha_nacimiento: dateSchema,
   es_externo: z.boolean().optional(),
   correo: z.preprocess(
     (v) => (v === '' ? null : v),
