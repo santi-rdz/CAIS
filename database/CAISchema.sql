@@ -420,7 +420,7 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
-    nota_evolucion_id BINARY(16),
+    nota_evolucion_id BINARY(16) UNIQUE,
     neurologico TEXT,
     cardiovascular TEXT,
     respiratorio TEXT,
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS inmunizaciones (
 CREATE TABLE IF NOT EXISTS informacion_fisica (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NOT NULL UNIQUE,
-    nota_evolucion_id BINARY(16) NOT NULL UNIQUE,
+    nota_evolucion_id BINARY(16) UNIQUE,
     peso FLOAT,
     altura FLOAT,
     pa_sistolica INT,
@@ -1254,14 +1254,9 @@ VALUES
                 correo = 'carlos.mendoza@gmail.com'
             LIMIT
                 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        'Revisión anual. Paciente sin quejas.',
-        'Sin antecedentes gineco-andros relevantes'
-    ),
-    (
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
-        (
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes'
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
             SELECT
                 id
             FROM
@@ -1270,14 +1265,9 @@ VALUES
                 correo = 'ana.fernandez@hotmail.com'
             LIMIT
                 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-        'Control de diabetes. Refiere mejora parcial con medicamento.',
-        'G2 P2 A0, ciclos regulares'
-    ),
-    (
-        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'),
-        (
+        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares'
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
             SELECT
                 id
             FROM
@@ -1286,10 +1276,7 @@ VALUES
                 correo = 'carlos.mendoza@gmail.com'
             LIMIT
                 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        'Seguimiento post-revisión. Resultados de laboratorio normales.',
-        'Sin cambios'
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios'
     );
 
 INSERT INTO
@@ -1405,33 +1392,38 @@ VALUES
         UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
         'Examen médico general de rutina. BH, QS, EGO.',
         (
-            SELECT id
-            FROM usuarios
-            WHERE correo = 'sofia.navarro@uabc.edu.mx'
-            LIMIT 1
-        ),
-        'Observación y seguimiento en 3 meses'
-    ),
-    (
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
-        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
-        (
-            SELECT id
-            FROM usuarios
-            WHERE correo = 'carlos.herrera@cais.com'
-            LIMIT 1
-        ),
-        'Metformina 850mg c/12h + dieta hipocalórica'
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'sofia.navarro@uabc.edu.mx'
+            LIMIT
+                1
+        ), 'Observación y seguimiento en 3 meses'
+    ), (
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), 'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.', (
+            SELECT
+                id
+            FROM
+                usuarios
+            WHERE
+                correo = 'carlos.herrera@cais.com'
+            LIMIT
+                1
+        ), 'Metformina 850mg c/12h + dieta hipocalórica'
     );
 
 INSERT INTO
     planes_estudio_cie10 (plan_estudio_id, codigo, descripcion)
 VALUES
     (1, 'Z00.0', 'Examen médico general'),
-    (2, 'E11.9', 'Diabetes mellitus tipo 2 sin complicaciones'),
+    (
+        2,
+        'E11.9',
+        'Diabetes mellitus tipo 2 sin complicaciones'
+    ),
     (2, 'E78.5', 'Hiperlipidemia no especificada');
-
 
 INSERT INTO
     notas_evolucion (
@@ -1446,39 +1438,35 @@ VALUES
     (
         UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
         (
-            SELECT id
-            FROM pacientes
-            WHERE correo = 'carlos.mendoza@gmail.com'
-            LIMIT 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        'Revisión anual. Paciente sin quejas.',
-        'Sin antecedentes gineco-andros relevantes',
-        'Examen médico general de rutina'
-    ),
-    (
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
-        (
-            SELECT id
-            FROM pacientes
-            WHERE correo = 'ana.fernandez@hotmail.com'
-            LIMIT 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-        'Control de diabetes. Refiere mejora parcial con medicamento.',
-        'G2 P2 A0, ciclos regulares',
-        'Glucosa en ayuno, HbA1c'
-    ),
-    (
-        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'),
-        (
-            SELECT id
-            FROM pacientes
-            WHERE correo = 'carlos.mendoza@gmail.com'
-            LIMIT 1
-        ),
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        'Seguimiento post-revisión. Resultados de laboratorio normales.',
-        'Sin cambios',
-        'Resultados de laboratorio normales'
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'carlos.mendoza@gmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina'
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'ana.fernandez@hotmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c'
+    ), (
+        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
+            SELECT
+                id
+            FROM
+                pacientes
+            WHERE
+                correo = 'carlos.mendoza@gmail.com'
+            LIMIT
+                1
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales'
     );
