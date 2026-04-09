@@ -1240,7 +1240,8 @@ INSERT INTO
         paciente_id,
         historia_medica_id,
         motivo_consulta,
-        ant_gine_andro
+        ant_gine_andro,
+        estudios_complementarios_efectuados
     )
 VALUES
     (
@@ -1254,7 +1255,7 @@ VALUES
                 correo = 'carlos.mendoza@gmail.com'
             LIMIT
                 1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes'
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina'
     ), (
         UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
             SELECT
@@ -1265,7 +1266,7 @@ VALUES
                 correo = 'ana.fernandez@hotmail.com'
             LIMIT
                 1
-        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares'
+        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c'
     ), (
         UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
             SELECT
@@ -1276,7 +1277,7 @@ VALUES
                 correo = 'carlos.mendoza@gmail.com'
             LIMIT
                 1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios'
+        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales'
     );
 
 INSERT INTO
@@ -1424,49 +1425,3 @@ VALUES
         'Diabetes mellitus tipo 2 sin complicaciones'
     ),
     (2, 'E78.5', 'Hiperlipidemia no especificada');
-
-INSERT INTO
-    notas_evolucion (
-        id,
-        paciente_id,
-        historia_medica_id,
-        motivo_consulta,
-        ant_gine_andro,
-        estudios_complementarios_efectuados
-    )
-VALUES
-    (
-        UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina'
-    ), (
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'ana.fernandez@hotmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c'
-    ), (
-        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales'
-    );
