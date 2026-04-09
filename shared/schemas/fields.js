@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+// Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
+export const dayjsDateSchema = z.preprocess(
+  (v) => {
+    if (!v || v === 'invalid') return ''
+    if (typeof v === 'object' && typeof v.format === 'function')
+      return v.format('YYYY-MM-DD')
+    return v
+  },
+  z.string().min(1, 'La fecha es requerida')
+)
+
 export const telefonoSchema = z
   .string()
   .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')

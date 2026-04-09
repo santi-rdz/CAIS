@@ -4,6 +4,8 @@ import Input from '@components/Input'
 import { formatPhone } from '@lib/utils'
 
 export default function PhoneField({
+  name = 'telefono',
+  label = 'Número telefónico',
   control: controlProp,
   errors,
   required = true,
@@ -15,7 +17,7 @@ export default function PhoneField({
   const {
     field: { value, onChange, onBlur, ref },
   } = useController({
-    name: 'telefono',
+    name,
     control,
     defaultValue: '',
     rules: {
@@ -32,22 +34,24 @@ export default function PhoneField({
     onChange(digits)
   }
 
+  const error = name.split('.').reduce((obj, key) => obj?.[key], fieldErrors)
+
   return (
     <FormRow
-      htmlFor="telefono"
-      label="Número telefónico"
+      htmlFor={name}
+      label={label}
       className="w-full"
       required={required}
     >
       <Input
         ref={ref}
-        id="telefono"
+        id={name}
         type="tel"
         value={formatPhone(value)}
         onChange={handleChange}
         onBlur={onBlur}
         placeholder="(664) 285-1234"
-        hasError={fieldErrors?.telefono?.message}
+        hasError={error?.message}
         variant="outline"
         size="lg"
       />

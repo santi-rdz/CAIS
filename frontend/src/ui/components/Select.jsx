@@ -81,6 +81,10 @@ export function Select({
     }
   }, [])
 
+  function handleBlur(e) {
+    if (!e.currentTarget.contains(e.relatedTarget)) close()
+  }
+
   return (
     <SelectContext.Provider
       value={{
@@ -107,6 +111,7 @@ export function Select({
         )}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
+        onBlur={handleBlur}
       >
         {children}
         {isOpen && (
@@ -137,13 +142,15 @@ export function SelectTrigger({
   ...props
 }) {
   const { toggle, isOpen, hasError } = useSelect()
+
   return (
     <button
       type="button"
       onClick={toggle}
+      tabIndex={0}
       className={cn(
         hasError && 'error',
-        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800',
+        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800 focus-visible:outline-2 focus-visible:outline-green-800 focus-visible:outline-offset-2',
         triggerSizes[size],
         className
       )}
@@ -175,11 +182,12 @@ export function SelectValue({ placeholder = 'Seleccionar' }) {
 
 // ─── Dropdown ─────────────────────────────────────────────────────────────────
 
-export function SelectContent({ children }) {
+export function SelectContent({ children, portal = false }) {
   const { isOpen, openAbove, positionStyle } = useSelect()
 
   return (
     <DropdownPanel
+      portal={portal}
       style={positionStyle}
       className={cn(
         'fixed z-9999 w-fit min-w-40 p-1.5 transition-all duration-200',
@@ -238,6 +246,7 @@ export function SelectItem({ children, value, icon: Icon }) {
     value: selectedValue,
     values,
     multiple,
+    isOpen,
     registerLabel,
   } = useSelect()
 
@@ -250,6 +259,7 @@ export function SelectItem({ children, value, icon: Icon }) {
   return (
     <button
       type="button"
+      tabIndex={isOpen ? 0 : -1}
       onClick={() => handleValueChange(value)}
       className={`${ITEM_BASE} ${isActive && !multiple && ITEM_ACTIVE_SINGLE}`}
     >

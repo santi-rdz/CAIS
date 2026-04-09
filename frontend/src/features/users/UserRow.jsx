@@ -45,7 +45,7 @@ export default function UserRow({ user }) {
         <Tag type={status}>{status}</Tag>
       </div>
 
-      <Modal variant="alert" icon={<HiOutlineLockClosed size={26} />}>
+      <Modal>
         <RowActionsMenu>
           <Modal.Open opens="block-user">
             <Button
@@ -59,7 +59,7 @@ export default function UserRow({ user }) {
           </Modal.Open>
         </RowActionsMenu>
 
-        <Modal.Content name="block-user" noPadding>
+        <Modal.Content name="block-user" noPadding variant="alert" icon={<HiOutlineLockClosed size={26} />}>
           <DangerConfirm
             title="Bloquear usuario"
             description="¿Estás seguro de bloquear a este usuario?"

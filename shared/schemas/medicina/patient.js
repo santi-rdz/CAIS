@@ -2,20 +2,23 @@ import { z } from 'zod'
 import { telefonoSchema, correoSchema } from '../fields.js'
 
 export const patientSchema = z.object({
-  nombre: z.string().optional(),
-  fecha_nacimiento: z.string(),
+  nombre: z.string().min(4, 'El nombre es requerido'),
+  fecha_nacimiento: z.coerce.date(),
   es_externo: z.boolean().optional(),
-  correo: correoSchema.optional(),
-  telefono: telefonoSchema.optional(),
-  genero: z.string().optional(),
+  correo: z.preprocess((v) => (v === '' ? undefined : v), correoSchema.optional()),
+  telefono: telefonoSchema,
+  genero: z.string().min(1, 'El género es requerido'),
   domicilio: z.string().optional(),
+  fuente_informacion: z.string().optional(),
+  lugar_nacimiento: z.string().optional(),
   ocupacion: z.string().optional(),
   estado_civil: z.string().optional(),
   nivel_educativo: z.string().optional(),
   religion: z.string().optional(),
   nss: z.string().optional(),
+  curp_matricula: z.string().optional(),
   contacto_emergencia: z.string().optional(),
-  telefono_emergencia: telefonoSchema.optional(),
+  telefono_emergencia: z.preprocess((v) => (v === '' ? undefined : v), telefonoSchema.optional()),
   parentesco_emergencia: z.string().optional(),
 })
 

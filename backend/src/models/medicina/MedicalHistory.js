@@ -1,7 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
-import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
-import { create } from 'node:domain'
+import { uuidToBuffer } from '#lib/uuid.js'
+import {
+  toUUID,
+  nestedCreate,
+  nestedUpsert,
+  planesEstudioCreate,
+  planesEstudioUpsert,
+} from '#lib/prismaHelpers.js'
 
 const includeRelations = {
   antecedentes_familiares: true,
@@ -10,35 +16,47 @@ const includeRelations = {
   aparatos_sistemas: true,
   informacion_fisica: true,
   inmunizaciones: true,
-  pacientes: true,
-  planes_estudio: true,
+  planes_estudio: { include: { planes_estudio_cie10: true } },
   servicios: true,
 }
 
-const toUUID = (val) => {
-  if (!val) return null
-  if (Buffer.isBuffer(val)) return bufferToUUID(val)
-  if (
-    typeof val === 'object' &&
-    !Array.isArray(val) &&
-    !(val instanceof Date)
-  ) {
-    return bufferToUUID(Buffer.from(Object.values(val)))
+const includeRelationsBasic = {
+  pacientes: { select: { id: true, nombre: true, doctor_id: true } },
+}
+
+const NESTED_RELATIONS = [
+  'antecedentes_familiares',
+  'antecedentes_patologicos',
+  'antecedentes_no_patologicos',
+  'aparatos_sistemas',
+  'informacion_fisica',
+  'inmunizaciones',
+  'servicios',
+]
+
+function buildNestedRelations(data, nestedFn) {
+  const result = {}
+  for (const key of NESTED_RELATIONS) {
+    if (data[key]) result[key] = nestedFn(data[key])
   }
-  return val
+  return result
+}
+
+function formatNested(obj) {
+  if (!obj) return null
+  return { ...obj, historia_medica_id: toUUID(obj.historia_medica_id) }
 }
 
 function formatMedicalHistory(n) {
   if (!n) return null
   const {
+    planes_estudio,
     antecedentes_familiares,
     antecedentes_patologicos,
     antecedentes_no_patologicos,
     aparatos_sistemas,
     informacion_fisica,
     inmunizaciones,
-    pacientes,
-    planes_estudio,
     servicios,
     ...rest
   } = n
@@ -46,102 +64,62 @@ function formatMedicalHistory(n) {
     ...rest,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
-
-    antecedentes_familiares: antecedentes_familiares
-      ? {
-          ...antecedentes_familiares,
-          historia_medica_id: toUUID(
-            antecedentes_familiares.historia_medica_id
-          ),
-        }
-      : null,
-
-    antecedentes_patologicos: antecedentes_patologicos
-      ? {
-          ...antecedentes_patologicos,
-          historia_medica_id: toUUID(
-            antecedentes_patologicos.historia_medica_id
-          ),
-        }
-      : null,
-
-    antecedentes_no_patologicos: antecedentes_no_patologicos
-      ? {
-          ...antecedentes_no_patologicos,
-          historia_medica_id: toUUID(
-            antecedentes_no_patologicos.historia_medica_id
-          ),
-        }
-      : null,
-
-    aparatos_sistemas: aparatos_sistemas
-      ? {
-          ...aparatos_sistemas,
-          historia_medica_id: toUUID(aparatos_sistemas.historia_medica_id),
-        }
-      : null,
-
-    informacion_fisica: informacion_fisica
-      ? {
-          ...informacion_fisica,
-          historia_medica_id: toUUID(informacion_fisica.historia_medica_id),
-        }
-      : null,
-
-    inmunizaciones: inmunizaciones
-      ? {
-          ...inmunizaciones,
-          historia_medica_id: toUUID(inmunizaciones.historia_medica_id),
-        }
-      : null,
-
-    pacientes: pacientes
-      ? {
-          ...pacientes,
-          id: toUUID(pacientes.id),
-          doctor_id: toUUID(pacientes.doctor_id),
-        }
-      : null,
-
+    antecedentes_familiares: formatNested(antecedentes_familiares),
+    antecedentes_patologicos: formatNested(antecedentes_patologicos),
+    antecedentes_no_patologicos: formatNested(antecedentes_no_patologicos),
+    aparatos_sistemas: formatNested(aparatos_sistemas),
+    informacion_fisica: formatNested(informacion_fisica),
+    inmunizaciones: formatNested(inmunizaciones),
+    servicios: formatNested(servicios),
     planes_estudio: planes_estudio
       ? {
           ...planes_estudio,
           id: toUUID(planes_estudio.id),
           usuario_id: toUUID(planes_estudio.usuario_id),
           historia_medica_id: toUUID(planes_estudio.historia_medica_id),
-        }
-      : null,
-
-    servicios: servicios
-      ? {
-          ...servicios,
-          historia_medica_id: toUUID(servicios.historia_medica_id),
+          cie10_codes:
+            planes_estudio.planes_estudio_cie10?.map(
+              ({ codigo, descripcion }) => ({ codigo, descripcion })
+            ) ?? [],
+          planes_estudio_cie10: undefined,
         }
       : null,
   }
 }
 
-export class MedicalHistoryModel {
-  static async getAll({ paciente_id, page, limit } = {}) {
-    const where = {}
+function formatMinimal(n) {
+  return { ...n, id: toUUID(n.id) }
+}
 
-    if (paciente_id) {
-      where.paciente_id = uuidToBuffer(paciente_id)
-    }
+export class MedicalHistoryModel {
+  static async getAll({ paciente_id, page, limit, fields } = {}) {
+    const where = {}
+    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
 
     const offset = (page - 1) * limit
+
+    const queryOptions = fields
+      ? {
+          select: {
+            id: true,
+            ...Object.fromEntries(fields.map((f) => [f, true])),
+          },
+        }
+      : { include: includeRelationsBasic }
 
     const [histories, total] = await prisma.$transaction([
       prisma.historias_medicas.findMany({
         where,
-        include: includeRelations,
+        ...queryOptions,
+        orderBy: [{ creado_at: 'desc' }, { id: 'desc' }],
         skip: offset,
         take: limit,
       }),
       prisma.historias_medicas.count({ where }),
     ])
 
-    return { histories: histories.map(formatMedicalHistory), count: total }
+    const format = fields ? formatMinimal : formatMedicalHistory
+    return { histories: histories.map(format), count: total }
   }
 
   static async getById(id, tx = prisma) {
@@ -152,80 +130,32 @@ export class MedicalHistoryModel {
     return formatMedicalHistory(history)
   }
 
-  static async create(data, tx = prisma) {
+  static async create(data, userId, tx = prisma) {
     const historyId = randomUUID()
+
+    const pacienteBuffer = uuidToBuffer(data.paciente_id)
 
     await tx.historias_medicas.create({
       data: {
         id: uuidToBuffer(historyId),
-        paciente_id: uuidToBuffer(data.paciente_id),
-        tipo_sangre: data.tipo_sangre ?? null,
-        vacunas_infancia_completas: data.vacunas_infancia_completas ?? false,
-        motivo_consulta: data.motivo_consulta ?? null,
-        historia_enfermedad_actual: data.historia_enfermedad_actual ?? null,
-
-        ...(data.antecedentes_familiares && {
-          antecedentes_familiares: {
-            create: {
-              ...data.antecedentes_familiares,
-            },
-          },
-        }),
-        ...(data.antecedentes_patologicos && {
-          antecedentes_patologicos: {
-            create: {
-              ...data.antecedentes_patologicos,
-            },
-          },
-        }),
-        ...(data.antecedentes_no_patologicos && {
-          antecedentes_no_patologicos: {
-            create: {
-              ...data.antecedentes_no_patologicos,
-            },
-          },
-        }),
-        ...(data.aparatos_sistemas && {
-          aparatos_sistemas: {
-            create: {
-              ...data.aparatos_sistemas,
-            },
-          },
-        }),
-        ...(data.informacion_fisica && {
-          informacion_fisica: {
-            create: {
-              ...data.informacion_fisica,
-            },
-          },
-        }),
-        ...(data.inmunizaciones && {
-          inmunizaciones: {
-            create: {
-              ...data.inmunizaciones,
-            },
-          },
-        }),
+        paciente_id: pacienteBuffer,
+        creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
+        tipo_sangre: data.tipo_sangre || null,
+        vacunas_infancia_completas: data.vacunas_infancia_completas ?? null,
+        motivo_consulta: data.motivo_consulta || null,
+        historia_enfermedad_actual: data.historia_enfermedad_actual || null,
+        ...buildNestedRelations(data, nestedCreate),
         ...(data.planes_estudio && {
-          planes_estudio: {
-            create: {
-              usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
-              plan_tratamiento: data.planes_estudio.plan_tratamiento ?? null,
-              tratamiento: data.planes_estudio.tratamiento ?? null,
-              generado_en: data.planes_estudio.generado_en ?? null,
-            },
-          },
-        }),
-        ...(data.servicios && {
-          servicios: {
-            create: {
-              ...data.servicios,
-            },
-          },
+          planes_estudio: planesEstudioCreate(data.planes_estudio, userId),
         }),
       },
-      include: includeRelations,
     })
+
+    await tx.pacientes.update({
+      where: { id: pacienteBuffer },
+      data: { actualizado_at: new Date() },
+    })
+
     return this.getById(historyId, tx)
   }
 
@@ -242,101 +172,29 @@ export class MedicalHistoryModel {
     }
   }
 
-  static async update(id, data) {
+  static async update(id, data, userId, tx = prisma) {
     try {
-      await prisma.historias_medicas.update({
+      const { paciente_id } = await tx.historias_medicas.update({
         where: { id: uuidToBuffer(id) },
         data: {
           tipo_sangre: data.tipo_sangre,
           vacunas_infancia_completas: data.vacunas_infancia_completas,
           motivo_consulta: data.motivo_consulta,
           historia_enfermedad_actual: data.historia_enfermedad_actual,
-
-          ...(data.antecedentes_familiares && {
-            antecedentes_familiares: {
-              upsert: {
-                create: { ...data.antecedentes_familiares },
-                update: { ...data.antecedentes_familiares },
-              },
-            },
-          }),
-
-          ...(data.antecedentes_patologicos && {
-            antecedentes_patologicos: {
-              upsert: {
-                create: { ...data.antecedentes_patologicos },
-                update: { ...data.antecedentes_patologicos },
-              },
-            },
-          }),
-
-          ...(data.antecedentes_no_patologicos && {
-            antecedentes_no_patologicos: {
-              upsert: {
-                create: { ...data.antecedentes_no_patologicos },
-                update: { ...data.antecedentes_no_patologicos },
-              },
-            },
-          }),
-
-          ...(data.aparatos_sistemas && {
-            aparatos_sistemas: {
-              upsert: {
-                create: { ...data.aparatos_sistemas },
-                update: { ...data.aparatos_sistemas },
-              },
-            },
-          }),
-
-          ...(data.informacion_fisica && {
-            informacion_fisica: {
-              upsert: {
-                create: { ...data.informacion_fisica },
-                update: { ...data.informacion_fisica },
-              },
-            },
-          }),
-
-          ...(data.inmunizaciones && {
-            inmunizaciones: {
-              upsert: {
-                create: { ...data.inmunizaciones },
-                update: { ...data.inmunizaciones },
-              },
-            },
-          }),
-
+          ...buildNestedRelations(data, nestedUpsert),
           ...(data.planes_estudio && {
-            planes_estudio: {
-              upsert: {
-                create: {
-                  usuario_id: uuidToBuffer(data.planes_estudio.usuario_id),
-                  plan_tratamiento:
-                    data.planes_estudio.plan_tratamiento ?? null,
-                  tratamiento: data.planes_estudio.tratamiento ?? null,
-                  generado_en: data.planes_estudio.generado_en ?? null,
-                },
-                update: {
-                  plan_tratamiento: data.planes_estudio.plan_tratamiento,
-                  tratamiento: data.planes_estudio.tratamiento,
-                  generado_en: data.planes_estudio.generado_en,
-                },
-              },
-            },
-          }),
-
-          ...(data.servicios && {
-            servicios: {
-              upsert: {
-                create: { ...data.servicios },
-                update: { ...data.servicios },
-              },
-            },
+            planes_estudio: planesEstudioUpsert(data.planes_estudio, userId),
           }),
         },
+        select: { paciente_id: true },
       })
 
-      return await this.getById(id)
+      await tx.pacientes.update({
+        where: { id: paciente_id },
+        data: { actualizado_at: new Date() },
+      })
+
+      return this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

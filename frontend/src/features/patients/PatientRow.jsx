@@ -42,7 +42,7 @@ export default function PatientRow({ patient }) {
       <DateTime value={actualizado_at} />
       <BirthDate value={fecha_nacimiento} />
       <div>{genero}</div>
-      <Modal variant="alert" icon={<HiOutlineTrash size={24} />}>
+      <Modal>
         <RowActionsMenu>
           <Modal.Open opens="delete-patient">
             <Button
@@ -56,7 +56,7 @@ export default function PatientRow({ patient }) {
             </Button>
           </Modal.Open>
         </RowActionsMenu>
-        <Modal.Content name="delete-patient">
+        <Modal.Content name="delete-patient" variant="alert" icon={<HiOutlineTrash size={24} />}>
           <DangerConfirm
             title="Eliminar paciente"
             description="¿Estás seguro de borrar a este paciente?"

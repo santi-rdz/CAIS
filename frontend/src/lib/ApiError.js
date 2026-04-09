@@ -23,13 +23,23 @@ export async function throwApiError(res, fallback) {
 }
 
 /**
+ * Muestra un toast de error con lista de mensajes como descripción.
+ */
+export function toastErrorList(title, messages) {
+  if (!messages.length) return
+  toast.error(title, {
+    description: messages.map((m) => `• ${m}`).join('\n'),
+    style: { whiteSpace: 'pre-line' },
+  })
+}
+
+/**
  * Muestra un toast de error. Si hay campos, los lista como descripción.
  * @param {unknown} error
  */
 export function toastApiError(error) {
   if (error instanceof ApiError && error.fields.length > 0) {
-    const description = error.fields.map((f) => `• ${f.message}`).join('\n')
-    toast.error(error.message, { description })
+    toastErrorList(error.message, error.fields.map((f) => f.message))
   } else {
     toast.error(error?.message ?? 'Ocurrió un error inesperado')
   }

@@ -6,7 +6,7 @@ import DropdownPanel from '@components/DropdownPanel'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import { CIE10_DATA } from './cie10Data'
 
-export default function CIE10Field() {
+export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { control } = useFormContext()
   const [query, setQuery] = useState('')
   const { triggerRef, isOpen, positionStyle, open, close } =
@@ -19,7 +19,7 @@ export default function CIE10Field() {
 
   return (
     <Controller
-      name="plan_estudio.cie10_codes"
+      name={name}
       control={control}
       render={({ field: { value: selected = [], onChange } }) => {
         const selectedCodigos = selected.map((c) => c.codigo)

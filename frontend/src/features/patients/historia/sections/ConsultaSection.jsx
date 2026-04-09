@@ -40,11 +40,10 @@ export default function ConsultaSection({ historia }) {
             </span>
           )}
       </div>
-      <DataField label="Motivo de consulta" value={motivo_consulta} multiline />
+      <DataField label="Motivo de consulta" value={motivo_consulta} />
       <DataField
         label="Historia de enfermedad actual"
         value={historia_enfermedad_actual}
-        multiline
       />
     </div>
   )

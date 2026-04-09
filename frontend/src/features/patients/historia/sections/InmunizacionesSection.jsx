@@ -5,7 +5,6 @@ import {
 } from 'react-icons/hi2'
 import { formatFechaLong } from '@lib/dateHelpers'
 import DataField from '../../components/DataField'
-import Empty from '../components/Empty'
 
 const VACCINES = [
   { label: 'Influenza', key: 'influenza' },
@@ -15,7 +14,7 @@ const VACCINES = [
 ]
 
 export default function InmunizacionesSection({ inm }) {
-  if (!inm) return <Empty />
+  inm ??= {}
 
   return (
     <div className="space-y-5">

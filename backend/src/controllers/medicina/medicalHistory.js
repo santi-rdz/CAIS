@@ -18,7 +18,7 @@ export class MedicalHistoryController {
     }
 
     try {
-      const history = await MedicalHistoryModel.create(result.data)
+      const history = await MedicalHistoryModel.create(result.data, req.session.userId)
       return res
         .status(201)
         .json({ message: 'Historia médica registrada', history })
@@ -26,18 +26,21 @@ export class MedicalHistoryController {
       console.error('Error al crear historia médica:', error)
       return res
         .status(500)
-        .json({ error: 'Error al registrar historia médica' })
+        .json({ message: 'Error al registrar historia médica' })
     }
   }
 
   static async getAll(req, res) {
-    const { paciente_id } = req.query
+    const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
+
+    const parsedFields = fields ? fields.split(',').map((f) => f.trim()) : null
 
     const result = await MedicalHistoryModel.getAll({
       paciente_id,
       page,
       limit,
+      fields: parsedFields,
     })
     res.json(result)
   }
@@ -79,7 +82,7 @@ export class MedicalHistoryController {
 
     const { id } = req.params
     try {
-      const updatedHistory = await MedicalHistoryModel.update(id, result.data)
+      const updatedHistory = await MedicalHistoryModel.update(id, result.data, req.session.userId)
       if (!updatedHistory)
         return res
           .status(404)

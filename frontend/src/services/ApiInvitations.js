@@ -1,22 +1,9 @@
-import { BASE_URL } from '@lib/constants'
-import { throwApiError } from '@lib/ApiError'
+import { fetchApi } from '@lib/fetchApi'
 
 export async function createInvitations(invitations) {
-  const res = await fetch(`${BASE_URL}/invitaciones`, {
-    method: 'POST',
-    body: JSON.stringify(invitations),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  })
-  if (!res.ok) await throwApiError(res, 'Error al enviar invitaciones')
-  return await res.json()
+  return fetchApi('/invitaciones', { method: 'POST', body: invitations, errorMsg: 'Error al enviar invitaciones' })
 }
 
 export async function validateToken(token) {
-  const res = await fetch(
-    `${BASE_URL}/invitaciones/${encodeURIComponent(token)}`,
-    { credentials: 'include' }
-  )
-  if (!res.ok) await throwApiError(res, 'Token inválido o expirado')
-  return await res.json()
+  return fetchApi(`/invitaciones/${encodeURIComponent(token)}`, { errorMsg: 'Token inválido o expirado' })
 }

@@ -4,6 +4,7 @@ import {
   correoSchema,
   passwordSchema,
   rolesSchema,
+  dayjsDateSchema,
 } from './fields.js'
 
 // ─── Campos compartidos ─────────────────────────────────────────────
@@ -34,17 +35,6 @@ const passwordConfirmRefine = (schema) =>
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
-
-// Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
-const dayjsDateSchema = z.preprocess(
-  (v) => {
-    if (!v || v === 'invalid') return ''
-    if (typeof v === 'object' && typeof v.format === 'function')
-      return v.format('YYYY-MM-DD')
-    return v
-  },
-  z.string().min(1, 'La fecha es requerida')
-)
 
 // ─── BE: Creación directa por admin ─────────────────────────────────
 

@@ -5,7 +5,7 @@ import Modal from '@components/Modal'
 import DangerConfirm from '@components/DangerConfirm'
 import { formatFechaLong, formatHora } from '@lib/dateHelpers'
 import {
-  HiArrowLeft,
+  HiChevronRight,
   HiOutlineClock,
   HiOutlineIdentification,
   HiOutlineMapPin,
@@ -14,7 +14,7 @@ import {
   HiOutlineTrash,
   HiOutlineUser,
 } from 'react-icons/hi2'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useEmergency } from './hooks/useEmergency'
 import { useDeleteEmergency } from './hooks/useDeleteEmergency'
 import EmergencyForm from './EmergencyForm'
@@ -31,10 +31,7 @@ export default function EmergencyDetail() {
     <Modal>
       <div className="space-y-6">
         <ActionBar
-          onBack={() => navigate('/emergencias')}
-          onDelete={() => {
-            deleteEmergency(emergency.id).then(() => navigate('/emergencias'))
-          }}
+          emergencyDate={formatFechaLong(emergency.fecha_hora)}
           isDeleting={isDeleting}
         />
         <HeaderCard emergency={emergency} />
@@ -47,45 +44,48 @@ export default function EmergencyDetail() {
       <Modal.Content name="edit-emergency" noPadding>
         <EmergencyForm emergency={emergency} />
       </Modal.Content>
+
+      <Modal.Content name="delete-emergency" noPadding variant="alert" icon={<HiOutlineTrash size={26} />}>
+        <DangerConfirm
+          title="Eliminar emergencia"
+          description="¿Estás seguro? Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          onConfirm={() => deleteEmergency(emergency.id).then(() => navigate('/emergencias'))}
+          isPending={isDeleting}
+        />
+      </Modal.Content>
     </Modal>
   )
 }
 
-function ActionBar({ onBack, onDelete, isDeleting }) {
+function ActionBar({ emergencyDate, isDeleting }) {
   return (
     <div className="flex items-center justify-between">
-      <Button variant="ghost" size="sm" onClick={onBack} className="gap-1">
-        <HiArrowLeft size={14} />
-        Bitácora de emergencias
-      </Button>
+      <nav className="text-5 flex items-center gap-1.5 text-zinc-400">
+        <Link to="/emergencias" className="transition-colors hover:text-zinc-700">
+          Bitácora
+        </Link>
+        <HiChevronRight size={14} />
+        <span className="font-medium text-zinc-700">{emergencyDate}</span>
+      </nav>
       <div className="flex gap-2">
         <Modal.Open opens="edit-emergency">
-          <Button variant="outline" size="md" className="gap-1.5">
+          <Button variant="secondary" size="md" className="gap-1.5">
             <HiOutlinePencilSquare size={14} />
             Editar
           </Button>
         </Modal.Open>
-        <Modal variant="alert" icon={<HiOutlineTrash size={26} />}>
-          <Modal.Open opens="delete-emergency">
-            <Button
-              variant="outline"
-              size="md"
-              className="gap-1.5 text-red-600"
-            >
-              <HiOutlineTrash size={14} />
-              Eliminar
-            </Button>
-          </Modal.Open>
-          <Modal.Content name="delete-emergency" noPadding>
-            <DangerConfirm
-              title="Eliminar emergencia"
-              description="¿Estás seguro? Esta acción no se puede deshacer."
-              confirmLabel="Eliminar"
-              onConfirm={onDelete}
-              isPending={isDeleting}
-            />
-          </Modal.Content>
-        </Modal>
+        <Modal.Open opens="delete-emergency">
+          <Button
+            variant="danger-o"
+            size="md"
+            className="gap-1.5 text-red-600"
+            isLoading={isDeleting}
+          >
+            <HiOutlineTrash size={14} />
+            Eliminar
+          </Button>
+        </Modal.Open>
       </div>
     </div>
   )

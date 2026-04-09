@@ -21,7 +21,7 @@ export default function RoleSelect({ role, setRole, className }) {
       <SelectTrigger>
         <SelectValue placeholder="Rol" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent portal>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}

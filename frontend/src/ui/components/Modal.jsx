@@ -11,8 +11,9 @@ import useClickOutside from '@hooks/useClickOutside'
 import Heading from './Heading'
 
 const ModalContext = createContext()
+const ContentContext = createContext({ variant: 'default', icon: null })
 
-export default function Modal({ children, variant = 'default', icon }) {
+export default function Modal({ children }) {
   const [openName, setOpenName] = useState('')
   return (
     <ModalContext.Provider
@@ -20,8 +21,6 @@ export default function Modal({ children, variant = 'default', icon }) {
         openName,
         close: () => setOpenName(''),
         open: setOpenName,
-        variant,
-        icon,
       }}
     >
       {children}
@@ -30,7 +29,7 @@ export default function Modal({ children, variant = 'default', icon }) {
 }
 
 Modal.Heading = function ModalHeadingComp({ children }) {
-  const { variant, icon } = useContext(ModalContext)
+  const { variant, icon } = useContext(ContentContext)
   if (variant === 'alert') {
     return (
       <div className="flex flex-col items-center gap-1.5 p-8 text-center">
@@ -51,7 +50,7 @@ Modal.Heading = function ModalHeadingComp({ children }) {
 }
 
 Modal.Title = function ModalTitleComp({ children }) {
-  const { variant } = useContext(ModalContext)
+  const { variant } = useContext(ContentContext)
   if (variant === 'alert') {
     return <p className="text-base font-semibold text-zinc-800">{children}</p>
   }
@@ -72,8 +71,10 @@ Modal.Content = function Content({
   name,
   noPadding = false,
   size = 'md',
+  variant = 'default',
+  icon,
 }) {
-  const { openName, close, variant } = useContext(ModalContext)
+  const { openName, close } = useContext(ModalContext)
   const ref = useClickOutside(
     close,
     true,
@@ -116,37 +117,39 @@ Modal.Content = function Content({
       : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0">
-      <div
-        ref={ref}
-        className={`relative flex max-h-[80vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:h-[95dvh] max-sm:max-h-[95dvh] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
-        style={{
-          transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
-          transition: isDragging ? 'none' : 'transform 0.3s ease',
-        }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {/* Drag handle — mobile only */}
-        <div className="hidden flex-col items-center pt-3 pb-1 max-sm:flex">
-          <div className="h-1 w-10 rounded-full bg-zinc-300" />
-        </div>
-
-        <button
-          onClick={close}
-          className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:hidden"
-        >
-          <HiXMark className="size-5" />
-        </button>
+    <ContentContext.Provider value={{ variant, icon }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0">
         <div
-          ref={scrollRef}
-          className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto px-(--mpx) py-(--mpy)'}`}
+          ref={ref}
+          className={`relative flex max-h-[80vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:h-[95dvh] max-sm:max-h-[95dvh] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
+          style={{
+            transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
+            transition: isDragging ? 'none' : 'transform 0.3s ease',
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          {cloneElement(children, { onCloseModal: close })}
+          {/* Drag handle — mobile only */}
+          <div className="hidden flex-col items-center pt-3 pb-1 max-sm:flex">
+            <div className="h-1 w-10 rounded-full bg-zinc-300" />
+          </div>
+
+          <button
+            onClick={close}
+            className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:hidden"
+          >
+            <HiXMark className="size-5" />
+          </button>
+          <div
+            ref={scrollRef}
+            className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto px-(--mpx) py-(--mpy)'}`}
+          >
+            {cloneElement(children, { onCloseModal: close })}
+          </div>
         </div>
       </div>
-    </div>,
+    </ContentContext.Provider>,
     document.body
   )
 }

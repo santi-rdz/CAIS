@@ -23,7 +23,7 @@ const evolutionNoteFormSchema = z.object({
   ...notaEvolucionBaseSchema.shape,
   aparatos_sistemas: aparatosSistemasSchema.optional(),
   informacion_fisica: informacionFisicaSchema.optional(),
-  plan_estudio: planEstudioFormSchema.optional(),
+  planes_estudio: planEstudioFormSchema.optional(),
 })
 
 const STEPS = ['Consulta', 'Aparatos', 'Exploración', 'Plan']
@@ -44,8 +44,8 @@ const DEFAULT_VALUES = {
   aparatos_sistemas: APARATOS_DEFAULTS,
   // Step 3 – informacion_fisica
   informacion_fisica: INFORMACION_FISICA_DEFAULTS,
-  // Step 4 – plan_estudio
-  plan_estudio: PLAN_ESTUDIO_DEFAULTS,
+  // Step 4 – planes_estudio
+  planes_estudio: PLAN_ESTUDIO_DEFAULTS,
 }
 
 export default function EvolutionNoteForm({
@@ -65,16 +65,11 @@ export default function EvolutionNoteForm({
   const StepComponent = STEP_COMPONENTS[currStep]
 
   async function onSubmit(data) {
-    console.log(data)
-    const cie10_codes = (data.plan_estudio?.cie10_codes ?? []).map(
-      (c) => c.codigo
-    )
     const hasPlan =
-      data.plan_estudio?.generado_en ||
-      data.plan_estudio?.plan_tratamiento ||
-      data.plan_estudio?.tratamiento ||
-      data.plan_estudio?.estudios_complementarios ||
-      cie10_codes.length
+      data.planes_estudio?.plan_tratamiento ||
+      data.planes_estudio?.tratamiento ||
+      data.planes_estudio?.estudios_complementarios ||
+      data.planes_estudio?.cie10_codes?.length
 
     await createNote({
       paciente_id: pacienteId,
@@ -86,12 +81,7 @@ export default function EvolutionNoteForm({
       ...(Object.values(data.informacion_fisica ?? {}).some(Boolean) && {
         informacion_fisica: data.informacion_fisica,
       }),
-      ...(hasPlan && {
-        plan_estudio: {
-          ...data.plan_estudio,
-          cie10_codes,
-        },
-      }),
+      ...(hasPlan && { planes_estudio: data.planes_estudio }),
     })
     onCloseModal?.()
   }

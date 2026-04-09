@@ -18,9 +18,9 @@ export default function DataField({
         </p>
       )}
       <p
-        className={`text-5 text-zinc-800 ${multiline ? 'whitespace-pre-wrap' : ''} ${block ? 'rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 leading-relaxed' : ''}`}
+        className={`text-5 text-zinc-800 ${multiline && value ? 'whitespace-pre-wrap' : ''} ${block && value ? 'rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 leading-relaxed' : ''}`}
       >
-        {value ?? <span className="text-zinc-300">—</span>}
+        {value || <span className="text-zinc-300">—</span>}
       </p>
     </div>
   )

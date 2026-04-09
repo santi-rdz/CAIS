@@ -5,13 +5,13 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 import CIE10Field from '../MedicalPatientForm/CIE10Field'
 
-function Tratamiento() {
+function Tratamiento({ prefix = 'planes_estudio' }) {
   const { register } = useFormContext()
   return (
     <Grid cols={2} gap={4} mobileCols={1}>
       <FormRow htmlFor="plan_tratamiento" label="Plan de Tratamiento">
         <Input
-          {...register('plan_estudio.plan_tratamiento')}
+          {...register(`${prefix}.plan_tratamiento`)}
           id="plan_tratamiento"
           textarea
           rows={4}
@@ -22,7 +22,7 @@ function Tratamiento() {
       </FormRow>
       <FormRow htmlFor="tratamiento" label="Tratamiento">
         <Input
-          {...register('plan_estudio.tratamiento')}
+          {...register(`${prefix}.tratamiento`)}
           id="tratamiento"
           textarea
           rows={4}
@@ -35,13 +35,13 @@ function Tratamiento() {
   )
 }
 
-function Diagnostico() {
+function Diagnostico({ prefix = 'planes_estudio' }) {
   return (
     <div className="space-y-2">
       <Heading as="h4" showBar>
         Diagnóstico — Código CIE-10
       </Heading>
-      <CIE10Field />
+      <CIE10Field name={`${prefix}.cie10_codes`} />
     </div>
   )
 }

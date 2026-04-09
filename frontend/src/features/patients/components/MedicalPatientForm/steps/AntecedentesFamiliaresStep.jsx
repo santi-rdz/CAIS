@@ -2,7 +2,16 @@ import { useFormContext } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
-import Row from '@components/Row'
+import Grid from '@components/Grid'
+
+const FAMILIARES = [
+  { name: 'padre', label: 'Padre', placeholder: 'Enfermedades o condiciones del padre' },
+  { name: 'madre', label: 'Madre', placeholder: 'Enfermedades o condiciones de la madre' },
+  { name: 'abuelo_paterno', label: 'Abuelo Paterno', placeholder: 'Enfermedades o condiciones' },
+  { name: 'abuela_paterna', label: 'Abuela Paterna', placeholder: 'Enfermedades o condiciones' },
+  { name: 'abuelo_materno', label: 'Abuelo Materno', placeholder: 'Enfermedades o condiciones' },
+  { name: 'abuela_materna', label: 'Abuela Materna', placeholder: 'Enfermedades o condiciones' },
+]
 
 export default function AntecedentesFamiliaresStep() {
   const { register } = useFormContext()
@@ -13,96 +22,21 @@ export default function AntecedentesFamiliaresStep() {
         Antecedentes Heredofamiliares
       </Heading>
 
-      <Row className="gap-4">
-        <FormRow htmlFor="padre" label="Padre" className="w-full">
-          <Input
-            {...register('antecedentes_familiares.padre')}
-            id="padre"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones del padre"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-        <FormRow htmlFor="madre" label="Madre" className="w-full">
-          <Input
-            {...register('antecedentes_familiares.madre')}
-            id="madre"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones de la madre"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-      </Row>
-
-      <Row className="gap-4">
-        <FormRow
-          htmlFor="abuelo_paterno"
-          label="Abuelo Paterno"
-          className="w-full"
-        >
-          <Input
-            {...register('antecedentes_familiares.abuelo_paterno')}
-            id="abuelo_paterno"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-        <FormRow
-          htmlFor="abuela_paterna"
-          label="Abuela Paterna"
-          className="w-full"
-        >
-          <Input
-            {...register('antecedentes_familiares.abuela_paterna')}
-            id="abuela_paterna"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-      </Row>
-
-      <Row className="gap-4">
-        <FormRow
-          htmlFor="abuelo_materno"
-          label="Abuelo Materno"
-          className="w-full"
-        >
-          <Input
-            {...register('antecedentes_familiares.abuelo_materno')}
-            id="abuelo_materno"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-        <FormRow
-          htmlFor="abuela_materna"
-          label="Abuela Materna"
-          className="w-full"
-        >
-          <Input
-            {...register('antecedentes_familiares.abuela_materna')}
-            id="abuela_materna"
-            textarea
-            rows={3}
-            placeholder="Enfermedades o condiciones"
-            variant="outline"
-            size="md"
-          />
-        </FormRow>
-      </Row>
+      <Grid cols={2} gap={4} mobileCols={1}>
+        {FAMILIARES.map(({ name, label, placeholder }) => (
+          <FormRow key={name} htmlFor={name} label={label}>
+            <Input
+              {...register(`antecedentes_familiares.${name}`)}
+              id={name}
+              textarea
+              rows={3}
+              placeholder={placeholder}
+              variant="outline"
+              size="md"
+            />
+          </FormRow>
+        ))}
+      </Grid>
 
       <FormRow htmlFor="otros_familiares" label="Otros familiares">
         <Input
