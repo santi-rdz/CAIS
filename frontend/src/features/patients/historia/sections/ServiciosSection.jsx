@@ -10,7 +10,14 @@ const SERVICIOS_ITEMS = [
 ]
 
 export default function ServiciosSection({ servicios }) {
-  servicios ??= {}
+  if (!servicios) {
+    return (
+      <p className="text-5 text-zinc-400">
+        Sin servicios del hogar registrados.
+      </p>
+    )
+  }
+
   return (
     <div className="flex flex-wrap gap-2">
       {SERVICIOS_ITEMS.map(({ label, key }) => {

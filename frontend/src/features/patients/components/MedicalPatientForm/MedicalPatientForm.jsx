@@ -232,7 +232,7 @@ function splitFormData(rawData) {
     historia_enfermedad_actual,
     tipo_sangre,
     vacunas_infancia_completas,
-    apellidos,
+    apellidos: _apellidos,
     ...patientFields
   } = data
 
@@ -401,7 +401,7 @@ export default function MedicalPatientForm({
           dirtyPatient.nombre = `${data.nombre} ${data.apellidos}`.trim()
           delete dirtyPatient.apellidos
         }
-        patientData = dirtyPatient
+        patientData = nullifyEmpty(dirtyPatient)
       }
 
       if (Object.keys(dirtyHistory).length) {

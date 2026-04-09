@@ -5,7 +5,7 @@ export const dayjsDateSchema = z.preprocess(
   (v) => {
     if (!v || v === 'invalid') return ''
     if (typeof v === 'object' && typeof v.format === 'function')
-      return v.format('YYYY-MM-DD')
+      return v.isValid() ? v.format('YYYY-MM-DD') : ''
     return v
   },
   z.string().min(1, 'La fecha es requerida')

@@ -136,8 +136,10 @@ Modal.Content = function Content({
           </div>
 
           <button
+            type="button"
             onClick={close}
-            className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:hidden"
+            aria-label="Cerrar modal"
+            className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:top-3 max-sm:right-3"
           >
             <HiXMark className="size-5" />
           </button>

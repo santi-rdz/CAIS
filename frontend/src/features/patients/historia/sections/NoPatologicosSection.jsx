@@ -103,13 +103,19 @@ export default function NoPatologicosSection({ historia }) {
         <Heading as="h4" showBar>
           Servicios del Hogar
         </Heading>
-        <div className="flex flex-wrap gap-2">
-          {SERVICIOS_ITEMS.map(({ label, key }) => (
-            <StatusChip key={key} active={servicios?.[key]} size="md">
-              {label}
-            </StatusChip>
-          ))}
-        </div>
+        {servicios ? (
+          <div className="flex flex-wrap gap-2">
+            {SERVICIOS_ITEMS.map(({ label, key }) => (
+              <StatusChip key={key} active={servicios[key]} size="md">
+                {label}
+              </StatusChip>
+            ))}
+          </div>
+        ) : (
+          <p className="text-5 text-zinc-400">
+            Sin servicios del hogar registrados.
+          </p>
+        )}
       </div>
 
       {/* Antecedentes no patologicos - Campos de texto */}

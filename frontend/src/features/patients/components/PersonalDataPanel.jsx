@@ -6,6 +6,8 @@ import {
   HiOutlineHeart,
   HiOutlineAcademicCap,
   HiOutlineExclamationCircle,
+  HiOutlineIdentification,
+  HiOutlineInformationCircle,
 } from 'react-icons/hi2'
 import Heading from '@components/Heading'
 import DataField from './DataField'
@@ -18,6 +20,10 @@ export default function PersonalDataPanel({ patient }) {
     estado_civil,
     nivel_educativo,
     religion,
+    nss,
+    curp_matricula,
+    fuente_informacion,
+    lugar_nacimiento,
     contacto_emergencia,
     telefono_emergencia,
     parentesco_emergencia,
@@ -39,6 +45,11 @@ export default function PersonalDataPanel({ patient }) {
           multiline
         />
         <DataField
+          icon={<HiOutlineMapPin size={14} />}
+          label="Lugar de nacimiento"
+          value={lugar_nacimiento}
+        />
+        <DataField
           icon={<HiOutlineBriefcase size={14} />}
           label="Ocupación"
           value={ocupacion}
@@ -54,6 +65,21 @@ export default function PersonalDataPanel({ patient }) {
           value={nivel_educativo}
         />
         <DataField label="Religión" value={religion} />
+        <DataField
+          icon={<HiOutlineIdentification size={14} />}
+          label="CURP / Matrícula"
+          value={curp_matricula}
+        />
+        <DataField
+          icon={<HiOutlineIdentification size={14} />}
+          label="NSS"
+          value={nss}
+        />
+        <DataField
+          icon={<HiOutlineInformationCircle size={14} />}
+          label="Fuente de información"
+          value={fuente_informacion}
+        />
       </div>
 
       <div className="mt-6 border-t border-gray-100 pt-6">

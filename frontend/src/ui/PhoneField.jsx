@@ -22,10 +22,11 @@ export default function PhoneField({
     defaultValue: '',
     rules: {
       required: required ? 'Ingresa el número telefónico' : false,
-      validate: (v) =>
-        !required || v.replace(/\D/g, '').length === 10
-          ? true
-          : 'Ingresa un número de 10 dígitos',
+      validate: (v) => {
+        const digits = v?.replace(/\D/g, '') ?? ''
+        if (!digits) return true
+        return digits.length === 10 || 'Ingresa un número de 10 dígitos'
+      },
     },
   })
 

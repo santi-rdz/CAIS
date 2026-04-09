@@ -177,6 +177,9 @@ export class MedicalHistoryModel {
       const { paciente_id } = await tx.historias_medicas.update({
         where: { id: uuidToBuffer(id) },
         data: {
+          ...(data.creado_at !== undefined && {
+            creado_at: new Date(data.creado_at),
+          }),
           tipo_sangre: data.tipo_sangre,
           vacunas_infancia_completas: data.vacunas_infancia_completas,
           motivo_consulta: data.motivo_consulta,

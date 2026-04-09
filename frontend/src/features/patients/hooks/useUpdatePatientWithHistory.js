@@ -13,9 +13,7 @@ export function useUpdatePatientWithHistory() {
       if (patientData) calls.push(updatePatient(patientId, patientData))
       if (historyData) calls.push(updateMedicalHistory(historyId, historyData))
 
-      const results = await Promise.allSettled(calls)
-      const failed = results.filter((r) => r.status === 'rejected')
-      if (failed.length) throw failed[0].reason
+      await Promise.all(calls)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })

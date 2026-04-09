@@ -37,7 +37,12 @@ export class MedicalHistoryController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    const parsedFields = fields ? fields.split(',').map((f) => f.trim()) : null
+    const parsedFields = fields
+      ? fields
+          .split(',')
+          .map((f) => f.trim())
+          .filter(Boolean)
+      : null
 
     const result = await MedicalHistoryModel.getAll({
       paciente_id,

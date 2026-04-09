@@ -14,7 +14,15 @@ export function useCreatePatientWithHistory() {
       try {
         await createMedicalHistory({ paciente_id: patient.id, ...historyData })
       } catch (historyError) {
-        await deletePatient(patient.id)
+        try {
+          await deletePatient(patient.id)
+        } catch (rollbackError) {
+          console.error(
+            'Rollback failed, orphan patient:',
+            patient.id,
+            rollbackError
+          )
+        }
         throw historyError
       }
 

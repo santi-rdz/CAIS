@@ -6,10 +6,20 @@ import ModalBody from '@components/ModalBody'
 import ModalActions from '@components/ModalActions'
 import Stepper from '@components/Stepper'
 
+function flattenErrors(errors) {
+  const messages = []
+  for (const val of Object.values(errors)) {
+    if (val?.message) {
+      messages.push(val.message)
+    } else if (val && typeof val === 'object') {
+      messages.push(...flattenErrors(val))
+    }
+  }
+  return messages
+}
+
 function toastFormErrors(errors) {
-  const messages = Object.values(errors)
-    .map((err) => err.message)
-    .filter(Boolean)
+  const messages = flattenErrors(errors).filter(Boolean)
   toastErrorList('Revisa los campos del formulario', messages)
 }
 

@@ -82,7 +82,11 @@ export function Select({
   }, [])
 
   function handleBlur(e) {
-    if (!e.currentTarget.contains(e.relatedTarget)) close()
+    const { currentTarget, relatedTarget } = e
+    // Delay to let portal click events fire before closing
+    setTimeout(() => {
+      if (!currentTarget.contains(relatedTarget)) close()
+    }, 0)
   }
 
   return (

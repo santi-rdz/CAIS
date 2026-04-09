@@ -42,7 +42,7 @@ export const informacionFisicaSchema = z
 
 const cie10ItemSchema = z.object({
   codigo: z.string(),
-  descripcion: z.string(),
+  descripcion: z.string().nullish(),
 })
 
 export const planEstudioSchema = z.object({

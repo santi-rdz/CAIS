@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
@@ -59,11 +60,17 @@ function YesNoField({ name, control, idPrefix }) {
 }
 
 export default function AntecedentesNoPatStep() {
-  const { control, register } = useFormContext()
+  const { control, register, setValue } = useFormContext()
   const zoonosis = useWatch({
     control,
     name: 'antecedentes_no_patologicos.zoonosis',
   })
+
+  useEffect(() => {
+    if (zoonosis !== true) {
+      setValue('antecedentes_no_patologicos.tipo_zoonosis', '')
+    }
+  }, [zoonosis, setValue])
 
   return (
     <div className="space-y-6">

@@ -62,14 +62,16 @@ export default function PatientHistoria({ patient }) {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {!isLoadingList && historia && (
+          {!isLoadingList && patient && (
             <>
-              <Modal.Open opens="edit-history">
-                <Button variant="secondary" size="md" className="gap-1.5">
-                  <HiOutlinePencilSquare size={14} />
-                  Editar historia
-                </Button>
-              </Modal.Open>
+              {historia && (
+                <Modal.Open opens="edit-history">
+                  <Button variant="secondary" size="md" className="gap-1.5">
+                    <HiOutlinePencilSquare size={14} />
+                    Editar historia
+                  </Button>
+                </Modal.Open>
+              )}
               <Modal.Open opens="new-history">
                 <Button variant="primary" size="md" className="gap-1.5">
                   <HiOutlinePlus size={14} />
@@ -92,10 +94,10 @@ export default function PatientHistoria({ patient }) {
       </Modal.Content>
 
       <Modal.Content name="new-history" size="xl" noPadding>
-        {cloneBase && patient && (
+        {patient && (
           <MedicalPatientForm
             patient={patient}
-            cloneHistoria={cloneBase}
+            cloneHistoria={cloneBase ?? {}}
             onCreated={handleHistoriaCreated}
           />
         )}

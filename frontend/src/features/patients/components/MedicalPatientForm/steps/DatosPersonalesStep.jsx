@@ -142,7 +142,11 @@ export default function DatosPersonalesStep() {
           </FormRow>
           <FormRow htmlFor="curp_matricula" label="CURP / Matrícula">
             <Input
-              {...register('curp_matricula')}
+              {...register('curp_matricula', {
+                onChange: (e) => {
+                  e.target.value = e.target.value.toUpperCase()
+                },
+              })}
               id="curp_matricula"
               type="text"
               placeholder="00000000000"

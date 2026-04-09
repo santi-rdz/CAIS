@@ -52,7 +52,8 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
   const getFormKeyDown = useFormKeyDown(handleSubmit)
 
   function onSubmit(data) {
-    const toNullable = (v) => v || null
+    const toNullable = (v) =>
+      typeof v === 'string' ? v.trim() || null : (v ?? null)
 
     const payload = {
       fecha_hora: mergeFechaHora(data.fecha, data.hora),
