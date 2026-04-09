@@ -1,5 +1,4 @@
 import { HiOutlineCheckCircle, HiOutlineXCircle } from 'react-icons/hi2'
-import Empty from '../components/Empty'
 
 const SERVICIOS_ITEMS = [
   { label: 'Gas', key: 'gas' },
@@ -11,7 +10,13 @@ const SERVICIOS_ITEMS = [
 ]
 
 export default function ServiciosSection({ servicios }) {
-  if (!servicios) return <Empty />
+  if (!servicios) {
+    return (
+      <p className="text-5 text-zinc-400">
+        Sin servicios del hogar registrados.
+      </p>
+    )
+  }
 
   return (
     <div className="flex flex-wrap gap-2">

@@ -129,7 +129,7 @@ export class UserModel {
         id: uuidToBuffer(userId),
         nombre: userData.nombre,
         correo: userData.correo,
-        fecha_nacimiento: new Date(userData.fechaNacimiento),
+        fecha_nacimiento: userData.fechaNacimiento,
         telefono: userData.telefono,
         password_hash: userData.passwordHash,
         estado_id: activeStatus.id,

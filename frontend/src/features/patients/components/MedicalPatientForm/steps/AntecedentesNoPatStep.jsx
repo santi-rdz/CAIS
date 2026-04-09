@@ -1,4 +1,5 @@
-import { Controller, useFormContext } from 'react-hook-form'
+import { useEffect } from 'react'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
@@ -25,11 +26,150 @@ const SERVICIOS = [
 
 const TIPOS_SANGRE = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']
 
+const INMUNIZACIONES = [
+  { name: 'inmunizaciones.influenza', label: 'Influenza' },
+  { name: 'inmunizaciones.tetanos', label: 'Tétanos' },
+  { name: 'inmunizaciones.hepatitis_b', label: 'Hepatitis B' },
+  { name: 'inmunizaciones.covid_19', label: 'COVID-19' },
+]
+
+/** Campo booleano Sí / No con checkboxes. */
+function YesNoField({ name, control, idPrefix }) {
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <div className="flex gap-4 py-1">
+          <Checkbox
+            id={`${idPrefix}_si`}
+            checked={field.value === true}
+            onChange={() => field.onChange(true)}
+            label="Sí"
+          />
+          <Checkbox
+            id={`${idPrefix}_no`}
+            checked={field.value === false}
+            onChange={() => field.onChange(false)}
+            label="No"
+          />
+        </div>
+      )}
+    />
+  )
+}
+
 export default function AntecedentesNoPatStep() {
-  const { control, register } = useFormContext()
+  const { control, register, setValue } = useFormContext()
+  const zoonosis = useWatch({
+    control,
+    name: 'antecedentes_no_patologicos.zoonosis',
+  })
+
+  useEffect(() => {
+    if (zoonosis !== true) {
+      setValue('antecedentes_no_patologicos.tipo_zoonosis', '')
+    }
+  }, [zoonosis, setValue])
 
   return (
     <div className="space-y-6">
+      {/* ── Hábitos y Estilo de Vida ── */}
+      <div className="space-y-4">
+        <Heading as="h3" showBar>
+          Hábitos y Estilo de Vida
+        </Heading>
+
+        <Grid cols={2} gap={4} mobileCols={1}>
+          <div className="space-y-3">
+            <p className="text-5 block">¿Alimentación adecuada?</p>
+            <YesNoField
+              name="antecedentes_no_patologicos.alimentacion_adecuada"
+              control={control}
+              idPrefix="alimentacion"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-5 block">¿Inmunizaciones completas?</p>
+            <YesNoField
+              name="antecedentes_no_patologicos.inmunizaciones_completas"
+              control={control}
+              idPrefix="inmunizaciones_completas"
+            />
+          </div>
+        </Grid>
+
+        <FormRow
+          htmlFor="calidad_cantidad_alimentacion"
+          label="Calidad y cantidad de alimentación"
+        >
+          <Input
+            {...register(
+              'antecedentes_no_patologicos.calidad_cantidad_alimentacion'
+            )}
+            id="calidad_cantidad_alimentacion"
+            textarea
+            rows={2}
+            placeholder="Describe la dieta habitual del paciente"
+            variant="outline"
+            size="md"
+          />
+        </FormRow>
+
+        <Grid cols={2} gap={4} mobileCols={1}>
+          <FormRow htmlFor="higiene_adecuada" label="Higiene">
+            <Input
+              {...register('antecedentes_no_patologicos.higiene_adecuada')}
+              id="higiene_adecuada"
+              textarea
+              rows={2}
+              placeholder="Hábitos de higiene personal"
+              variant="outline"
+              size="md"
+            />
+          </FormRow>
+
+          <FormRow htmlFor="actividad_fisica" label="Actividad física">
+            <Input
+              {...register('antecedentes_no_patologicos.actividad_fisica')}
+              id="actividad_fisica"
+              textarea
+              rows={2}
+              placeholder="Tipo y frecuencia de actividad física"
+              variant="outline"
+              size="md"
+            />
+          </FormRow>
+        </Grid>
+
+        <Grid cols={2} gap={4} mobileCols={1} className="items-start">
+          <div className="space-y-3">
+            <p className="text-5 block">¿Zoonosis?</p>
+            <YesNoField
+              name="antecedentes_no_patologicos.zoonosis"
+              control={control}
+              idPrefix="zoonosis"
+            />
+          </div>
+
+          {zoonosis === true && (
+            <FormRow htmlFor="tipo_zoonosis" label="Tipo de zoonosis">
+              <Input
+                {...register('antecedentes_no_patologicos.tipo_zoonosis')}
+                id="tipo_zoonosis"
+                type="text"
+                placeholder="Especifica el tipo de zoonosis"
+                variant="outline"
+                size="md"
+              />
+            </FormRow>
+          )}
+        </Grid>
+      </div>
+
+      <Divider />
+
       {/* ── Servicios del Hogar ── */}
       <div className="space-y-3">
         <Heading as="h3" showBar required>
@@ -44,7 +184,7 @@ export default function AntecedentesNoPatStep() {
               render={({ field }) => (
                 <Checkbox
                   id={name}
-                  checked={field.value}
+                  checked={!!field.value}
                   onChange={(e) => field.onChange(e.target.checked)}
                   label={label}
                 />
@@ -63,38 +203,16 @@ export default function AntecedentesNoPatStep() {
         </Heading>
 
         <Grid cols={4} gap={4} mobileCols={2}>
-          <FormRow label="Influenza">
-            <DatePickerComponent
-              name="inmunizaciones.influenza"
-              control={control}
-              birthdate={true}
-              label="DD/MM/AAAA"
-            />
-          </FormRow>
-          <FormRow label="Tétanos">
-            <DatePickerComponent
-              name="inmunizaciones.tetanos"
-              control={control}
-              birthdate={true}
-              label="DD/MM/AAAA"
-            />
-          </FormRow>
-          <FormRow label="Hepatitis B">
-            <DatePickerComponent
-              name="inmunizaciones.hepatitis_b"
-              control={control}
-              birthdate={true}
-              label="DD/MM/AAAA"
-            />
-          </FormRow>
-          <FormRow label="COVID-19">
-            <DatePickerComponent
-              name="inmunizaciones.covid_19"
-              control={control}
-              birthdate={true}
-              label="DD/MM/AAAA"
-            />
-          </FormRow>
+          {INMUNIZACIONES.map(({ name, label }) => (
+            <FormRow key={name} label={label}>
+              <DatePickerComponent
+                name={name}
+                control={control}
+                birthdate={true}
+                label="DD/MM/AAAA"
+              />
+            </FormRow>
+          ))}
         </Grid>
 
         <FormRow htmlFor="otras_vacunas" label="Otras vacunas">
@@ -146,25 +264,10 @@ export default function AntecedentesNoPatStep() {
             <p className="text-5 mb-2 block">
               ¿Recibió las de la Infancia Completa?
             </p>
-            <Controller
+            <YesNoField
               name="vacunas_infancia_completas"
               control={control}
-              render={({ field }) => (
-                <div className="flex gap-4 py-2.5">
-                  <Checkbox
-                    id="vacunas_si"
-                    checked={field.value === true}
-                    onChange={() => field.onChange(true)}
-                    label="Sí"
-                  />
-                  <Checkbox
-                    id="vacunas_no"
-                    checked={field.value === false}
-                    onChange={() => field.onChange(false)}
-                    label="No"
-                  />
-                </div>
-              )}
+              idPrefix="vacunas"
             />
           </div>
         </Grid>

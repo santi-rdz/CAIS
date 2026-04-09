@@ -33,7 +33,6 @@ export const INFORMACION_FISICA_DEFAULTS = {
 }
 
 export const PLAN_ESTUDIO_DEFAULTS = {
-  generado_en: null,
   plan_tratamiento: '',
   tratamiento: '',
   estudios_complementarios: '',

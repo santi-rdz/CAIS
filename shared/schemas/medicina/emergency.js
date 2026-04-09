@@ -3,12 +3,12 @@ import { telefonoSchema } from '../fields.js'
 
 const emergencyBaseSchema = z.object({
   ubicacion: z.string().min(1, 'La ubicación es requerida'),
-  nombre: z.string().optional(),
-  matricula: z.string().optional(),
-  telefono: telefonoSchema.optional().or(z.literal('')),
-  diagnostico: z.string().optional(),
-  accion_realizada: z.string().optional(),
-  tratamiento_admin: z.string().optional(),
+  nombre: z.string().nullish(),
+  matricula: z.string().nullish(),
+  telefono: telefonoSchema.nullish().or(z.literal('')),
+  diagnostico: z.string().nullish(),
+  accion_realizada: z.string().nullish(),
+  tratamiento_admin: z.string().nullish(),
   recurrente: z.boolean().optional().default(false),
 })
 

@@ -1,5 +1,5 @@
 import { HiOutlineDocumentText, HiOutlineUser } from 'react-icons/hi2'
-import Empty from '../components/Empty'
+import DataField from '../../components/DataField'
 
 function VitalStat({ label, value, unit, badge }) {
   return (
@@ -71,29 +71,12 @@ function GroupLabel({ label }) {
   )
 }
 
-function TextBlock({ icon: Icon, label, value }) {
-  if (!value) return null
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
-        <Icon size={13} className="text-zinc-400" />
-        <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
-          {label}
-        </p>
-      </div>
-      <p className="text-5 rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 leading-relaxed whitespace-pre-wrap text-zinc-700">
-        {value}
-      </p>
-    </div>
-  )
-}
-
 export default function SignosVitalesSection({ info }) {
-  if (!info) return <Empty />
+  info ??= {}
 
   const imc =
     info.peso && info.altura
-      ? (info.peso / (info.altura * info.altura)).toFixed(1)
+      ? (info.peso / Math.pow(info.altura / 100, 2)).toFixed(1)
       : null
 
   const pa =
@@ -113,11 +96,7 @@ export default function SignosVitalesSection({ info }) {
 
         <GroupLabel label="Antropométrica" />
         <VitalStat label="Peso" value={info.peso} unit="kg" />
-        <VitalStat
-          label="Altura"
-          value={info.altura ? `${info.altura} m` : null}
-          unit=""
-        />
+        <VitalStat label="Altura" value={info.altura} unit="cm" />
         <VitalStat
           label="IMC"
           value={imc}
@@ -129,20 +108,22 @@ export default function SignosVitalesSection({ info }) {
         <VitalStat label="Circ. cadera" value={info.circ_cadera} unit="cm" />
       </div>
 
-      {(info.exploracion_fisica || info.habito_exterior) && (
-        <div className="space-y-3 border-t border-gray-100 pt-3">
-          <TextBlock
-            icon={HiOutlineDocumentText}
-            label="Exploración física"
-            value={info.exploracion_fisica}
-          />
-          <TextBlock
-            icon={HiOutlineUser}
-            label="Hábito exterior"
-            value={info.habito_exterior}
-          />
-        </div>
-      )}
+      <div className="space-y-3 border-t border-gray-100 pt-3">
+        <DataField
+          icon={<HiOutlineDocumentText size={13} />}
+          label="Exploración física"
+          value={info.exploracion_fisica}
+          multiline
+          block
+        />
+        <DataField
+          icon={<HiOutlineUser size={13} />}
+          label="Hábito exterior"
+          value={info.habito_exterior}
+          multiline
+          block
+        />
+      </div>
     </div>
   )
 }

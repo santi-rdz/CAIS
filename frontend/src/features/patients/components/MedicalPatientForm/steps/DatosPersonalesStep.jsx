@@ -5,6 +5,7 @@ import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
+import Checkbox from '@components/Checkbox'
 import {
   Select,
   SelectContent,
@@ -82,6 +83,19 @@ export default function DatosPersonalesStep() {
             />
           </FormRow>
         </Grid>
+
+        <Controller
+          name="es_externo"
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              id="es_externo"
+              checked={!!field.value}
+              onChange={(e) => field.onChange(e.target.checked)}
+              label="Paciente externo"
+            />
+          )}
+        />
       </div>
 
       <Divider />
@@ -126,10 +140,14 @@ export default function DatosPersonalesStep() {
               size="lg"
             />
           </FormRow>
-          <FormRow htmlFor="curp" label="CURP / Matrícula">
+          <FormRow htmlFor="curp_matricula" label="CURP / Matrícula">
             <Input
-              {...register('curp')}
-              id="curp"
+              {...register('curp_matricula', {
+                onChange: (e) => {
+                  e.target.value = e.target.value.toUpperCase()
+                },
+              })}
+              id="curp_matricula"
               type="text"
               placeholder="00000000000"
               variant="outline"
@@ -208,10 +226,10 @@ export default function DatosPersonalesStep() {
               suffix={<HiOutlineMapPin className="text-zinc-400" />}
             />
           </FormRow>
-          <FormRow htmlFor="dir_calle" label="Domicilio">
+          <FormRow htmlFor="domicilio" label="Domicilio">
             <Input
-              {...register('dir_calle')}
-              id="dir_calle"
+              {...register('domicilio')}
+              id="domicilio"
               type="text"
               placeholder="Calle, número, colonia"
               variant="outline"
@@ -248,16 +266,11 @@ export default function DatosPersonalesStep() {
                 size="lg"
               />
             </FormRow>
-            <FormRow htmlFor="telefono_emergencia" label="Teléfono">
-              <Input
-                {...register('telefono_emergencia')}
-                id="telefono_emergencia"
-                type="tel"
-                placeholder="Ej. 6641234567"
-                variant="outline"
-                size="lg"
-              />
-            </FormRow>
+            <PhoneField
+              name="telefono_emergencia"
+              label="Teléfono"
+              required={false}
+            />
           </Grid>
         </div>
       </div>

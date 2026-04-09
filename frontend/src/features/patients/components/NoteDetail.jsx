@@ -108,9 +108,10 @@ export default function NoteDetail({ note, onBack }) {
     planes_estudio,
     aparatos_sistemas,
     informacion_fisica,
+    creado_at,
   } = note
 
-  const date = formatFecha(planes_estudio?.generado_en)
+  const date = formatFecha(creado_at)
   const doctorName = planes_estudio?.usuarios?.nombre
 
   return (

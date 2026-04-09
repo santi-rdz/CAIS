@@ -8,7 +8,11 @@ import DatePickerComponent from '@ui/DatePickerComponent'
 import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
 
 export default function MotivoConsultaPlanStep() {
-  const { register, control } = useFormContext()
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-5">
@@ -16,12 +20,13 @@ export default function MotivoConsultaPlanStep() {
         Motivo de Consulta y Plan
       </Heading>
 
-      <FormRow label="Fecha de Generación" className="w-1/2">
+      <FormRow label="Fecha de la Historia" className="w-1/2">
         <DatePickerComponent
-          name="plan_estudio.generado_en"
+          name="creado_at"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
+          hasError={errors?.creado_at?.message}
         />
       </FormRow>
 
@@ -58,8 +63,8 @@ export default function MotivoConsultaPlanStep() {
       <Divider />
 
       <PlanTratamientoSection>
-        <PlanTratamientoSection.Tratamiento />
-        <PlanTratamientoSection.Diagnostico />
+        <PlanTratamientoSection.Tratamiento prefix="planes_estudio" />
+        <PlanTratamientoSection.Diagnostico prefix="planes_estudio" />
       </PlanTratamientoSection>
     </div>
   )

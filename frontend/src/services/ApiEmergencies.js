@@ -1,5 +1,5 @@
-import { throwApiError } from '@lib/ApiError'
-import { BASE_URL, PAGE_SIZE } from '@lib/constants'
+import { fetchApi } from '@lib/fetchApi'
+import { PAGE_SIZE } from '@lib/constants'
 
 export async function getEmergencies({ sortBy, search, page, recurrent }) {
   const params = new URLSearchParams()
@@ -13,48 +13,36 @@ export async function getEmergencies({ sortBy, search, page, recurrent }) {
   if (recurrent !== null) params.append('recurrente', recurrent)
   const query = params.toString() ? `?${params.toString()}` : ''
 
-  const res = await fetch(`${BASE_URL}/medicina/emergencias${query}`, {
-    credentials: 'include',
+  return fetchApi(`/medicina/emergencias${query}`, {
+    errorMsg: 'Error al obtener las emergencias',
   })
-  if (!res.ok) await throwApiError(res, 'Error al obtener las emergencias')
-  return await res.json()
 }
 
 export async function getEmergency(id) {
-  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
-    credentials: 'include',
+  return fetchApi(`/medicina/emergencias/${id}`, {
+    errorMsg: 'Error al obtener la emergencia',
   })
-  if (!res.ok) await throwApiError(res, 'Error al obtener la emergencia')
-  return await res.json()
 }
 
 export async function updateEmergency(id, data) {
-  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
+  return fetchApi(`/medicina/emergencias/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    body: data,
+    errorMsg: 'Error al actualizar la emergencia',
   })
-  if (!res.ok) await throwApiError(res, 'Error al actualizar la emergencia')
-  return await res.json()
 }
 
 export async function createEmergency(data) {
-  const res = await fetch(`${BASE_URL}/medicina/emergencias`, {
+  return fetchApi('/medicina/emergencias', {
     method: 'POST',
-    body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    body: data,
+    errorMsg: 'Error al crear la emergencia',
   })
-  if (!res.ok) await throwApiError(res, 'Error al crear la emergencia')
-  return await res.json()
 }
 
 export async function deleteEmergency(id) {
-  const res = await fetch(`${BASE_URL}/medicina/emergencias/${id}`, {
+  return fetchApi(`/medicina/emergencias/${id}`, {
     method: 'DELETE',
-    credentials: 'include',
+    errorMsg: 'Error al eliminar la emergencia',
   })
-  if (!res.ok) await throwApiError(res, 'Error al eliminar la emergencia')
-  return await res.json()
 }
