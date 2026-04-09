@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { notaEvolucionBaseSchema } from '@cais/shared/schemas/medicina/evolutionNote'
 import {
-  notaEvolucionBaseSchema,
   aparatosSistemasSchema,
   informacionFisicaSchema,
-  planEstudioFormSchema,
-} from '@cais/shared/schemas/medicina/evolutionNote'
+  planEstudioSchema,
+} from '@cais/shared/schemas/medicina/shared'
 import { useStepForm } from '@hooks/useStepForm'
 import AparatosSistemasStep from '../MedicalPatientForm/steps/AparatosSistemasStep'
 import ExploracionFisicaStep from '../MedicalPatientForm/steps/ExploracionFisicaStep'
@@ -23,7 +23,7 @@ const evolutionNoteFormSchema = z.object({
   ...notaEvolucionBaseSchema.shape,
   aparatos_sistemas: aparatosSistemasSchema.optional(),
   informacion_fisica: informacionFisicaSchema.optional(),
-  planes_estudio: planEstudioFormSchema.optional(),
+  planes_estudio: planEstudioSchema.optional(),
 })
 
 const STEPS = ['Consulta', 'Aparatos', 'Exploración', 'Plan']

@@ -7,6 +7,7 @@ import {
   nestedUpsert,
   planesEstudioCreate,
   planesEstudioUpsert,
+  buildNestedRelations,
 } from '#lib/prismaHelpers.js'
 
 const includeRelations = {
@@ -36,43 +37,14 @@ const NESTED_RELATIONS = [
   'servicios',
 ]
 
-function buildNestedRelations(data, nestedFn) {
-  const result = {}
-  for (const key of NESTED_RELATIONS) {
-    if (data[key]) result[key] = nestedFn(data[key])
-  }
-  return result
-}
-
-function formatNested(obj) {
-  if (!obj) return null
-  return { ...obj, historia_medica_id: toUUID(obj.historia_medica_id) }
-}
-
 function formatMedicalHistory(n) {
   if (!n) return null
-  const {
-    planes_estudio,
-    antecedentes_familiares,
-    antecedentes_patologicos,
-    antecedentes_no_patologicos,
-    aparatos_sistemas,
-    informacion_fisica,
-    inmunizaciones,
-    servicios,
-    ...rest
-  } = n
+  const { planes_estudio, ...rest } = n
   return {
     ...rest,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
-    antecedentes_familiares: formatNested(antecedentes_familiares),
-    antecedentes_patologicos: formatNested(antecedentes_patologicos),
-    antecedentes_no_patologicos: formatNested(antecedentes_no_patologicos),
-    aparatos_sistemas: formatNested(aparatos_sistemas),
-    informacion_fisica: formatNested(informacion_fisica),
-    inmunizaciones: formatNested(inmunizaciones),
-    servicios: formatNested(servicios),
+
     planes_estudio: planes_estudio
       ? {
           ...planes_estudio,
@@ -130,36 +102,26 @@ export class MedicalHistoryModel {
     return formatMedicalHistory(history)
   }
 
-  static async create(data, userId, tx = null) {
+  static async create(data, userId, tx = prisma) {
     const historyId = randomUUID()
-    const pacienteBuffer = uuidToBuffer(data.paciente_id)
 
-    const run = async (client) => {
-      await client.historias_medicas.create({
-        data: {
-          id: uuidToBuffer(historyId),
-          paciente_id: pacienteBuffer,
-          creado_at: data.creado_at,
-          tipo_sangre: data.tipo_sangre || null,
-          vacunas_infancia_completas: data.vacunas_infancia_completas ?? null,
-          motivo_consulta: data.motivo_consulta || null,
-          historia_enfermedad_actual: data.historia_enfermedad_actual || null,
-          ...buildNestedRelations(data, nestedCreate),
-          ...(data.planes_estudio && {
-            planes_estudio: planesEstudioCreate(data.planes_estudio, userId),
-          }),
-        },
-      })
+    await tx.historias_medicas.create({
+      data: {
+        id: uuidToBuffer(historyId),
+        paciente_id: uuidToBuffer(data.paciente_id),
+        creado_at: data.creado_at,
+        tipo_sangre: data.tipo_sangre,
+        vacunas_infancia_completas: data.vacunas_infancia_completas,
+        motivo_consulta: data.motivo_consulta,
+        historia_enfermedad_actual: data.historia_enfermedad_actual,
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
+        ...(data.planes_estudio && {
+          planes_estudio: planesEstudioCreate(data.planes_estudio, userId),
+        }),
+      },
+    })
 
-      await client.pacientes.update({
-        where: { id: pacienteBuffer },
-        data: { actualizado_at: new Date() },
-      })
-
-      return this.getById(historyId, client)
-    }
-
-    return tx ? run(tx) : prisma.$transaction(run)
+    return this.getById(historyId, tx)
   }
 
   static async delete(id) {
@@ -175,9 +137,9 @@ export class MedicalHistoryModel {
     }
   }
 
-  static async update(id, data, userId, tx = null) {
-    const run = async (client) => {
-      const { paciente_id } = await client.historias_medicas.update({
+  static async update(id, data, userId, tx = prisma) {
+    try {
+      await tx.historias_medicas.update({
         where: { id: uuidToBuffer(id) },
         data: {
           ...(data.creado_at !== undefined && {
@@ -187,24 +149,13 @@ export class MedicalHistoryModel {
           vacunas_infancia_completas: data.vacunas_infancia_completas,
           motivo_consulta: data.motivo_consulta,
           historia_enfermedad_actual: data.historia_enfermedad_actual,
-          ...buildNestedRelations(data, nestedUpsert),
+          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
           ...(data.planes_estudio && {
             planes_estudio: planesEstudioUpsert(data.planes_estudio, userId),
           }),
         },
-        select: { paciente_id: true },
       })
-
-      await client.pacientes.update({
-        where: { id: paciente_id },
-        data: { actualizado_at: new Date() },
-      })
-
-      return this.getById(id, client)
-    }
-
-    try {
-      return tx ? await run(tx) : await prisma.$transaction(run)
+      return this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

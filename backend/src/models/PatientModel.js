@@ -93,6 +93,13 @@ export class PatientModel {
     }
   }
 
+  static async touch(id, tx = prisma) {
+    await tx.pacientes.update({
+      where: { id: uuidToBuffer(id) },
+      data: { actualizado_at: new Date() },
+    })
+  }
+
   static async create(data, userId, tx = prisma) {
     const patientId = randomUUID()
 

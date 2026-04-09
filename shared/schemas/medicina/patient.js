@@ -11,21 +11,21 @@ export const patientSchema = z.object({
   ),
   telefono: telefonoSchema,
   genero: z.string().min(1, 'El género es requerido').max(20),
-  domicilio: z.string().max(255).optional(),
-  fuente_informacion: z.string().max(100).optional(),
-  lugar_nacimiento: z.string().max(255).optional(),
-  ocupacion: z.string().max(100).optional(),
-  estado_civil: z.string().max(50).optional(),
-  nivel_educativo: z.string().max(100).optional(),
-  religion: z.string().max(100).optional(),
-  nss: z.string().max(50).optional(),
-  curp_matricula: z.string().max(50).optional(),
-  contacto_emergencia: z.string().max(255).optional(),
+  domicilio: z.string().max(255).nullish(),
+  fuente_informacion: z.string().max(100).nullish(),
+  lugar_nacimiento: z.string().max(255).nullish(),
+  ocupacion: z.string().max(100).nullish(),
+  estado_civil: z.string().max(50).nullish(),
+  nivel_educativo: z.string().max(100).nullish(),
+  religion: z.string().max(100).nullish(),
+  nss: z.string().max(50).nullish(),
+  curp_matricula: z.string().max(50).nullish(),
+  contacto_emergencia: z.string().max(255).nullish(),
   telefono_emergencia: z.preprocess(
     (v) => (v === '' ? null : v),
     telefonoSchema.nullable().optional()
   ),
-  parentesco_emergencia: z.string().max(100).optional(),
+  parentesco_emergencia: z.string().max(100).nullish(),
 })
 
 export function validatePatient(input) {

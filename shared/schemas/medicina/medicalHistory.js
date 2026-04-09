@@ -2,20 +2,22 @@ import { z } from 'zod'
 import {
   aparatosSistemasSchema,
   informacionFisicaSchema,
-  planEstudioFormSchema,
-} from './evolutionNote.js'
+  planEstudioSchema,
+} from './shared.js'
 import { optionalDateSchema } from '../fields.js'
 
+// antecedentes_familiares: todos VarChar(255) en DB
 export const antecedentes_familiaresSchema = z.object({
-  padre: z.string().nullish(),
-  madre: z.string().nullish(),
-  abuelo_paterno: z.string().nullish(),
-  abuelo_materno: z.string().nullish(),
-  abuela_paterna: z.string().nullish(),
-  abuela_materna: z.string().nullish(),
-  otros: z.string().nullish(),
+  padre: z.string().max(255).nullish(),
+  madre: z.string().max(255).nullish(),
+  abuelo_paterno: z.string().max(255).nullish(),
+  abuelo_materno: z.string().max(255).nullish(),
+  abuela_paterna: z.string().max(255).nullish(),
+  abuela_materna: z.string().max(255).nullish(),
+  otros: z.string().max(255).nullish(),
 })
 
+// antecedentes_patologicos: todos Text en DB, sin límite práctico
 export const antecedentes_patologicosSchema = z.object({
   cronico_degenerativos: z.string().nullish(),
   quirurgicos: z.string().nullish(),
@@ -33,6 +35,7 @@ export const antecedentes_patologicosSchema = z.object({
   enfermedades_infancia: z.string().nullish(),
 })
 
+// antecedentes_no_patologicos: campos Text en DB, sin límite práctico
 export const antecedentes_no_patologicosSchema = z.object({
   alimentacion_adecuada: z.boolean().nullish(),
   calidad_cantidad_alimentacion: z.string().nullish(),
@@ -62,7 +65,7 @@ export const serviciosSchema = z.object({
 
 export const medicalHistoryBaseSchema = z.object({
   creado_at: optionalDateSchema,
-  tipo_sangre: z.string().nullish(),
+  tipo_sangre: z.string().max(5).nullish(), // VarChar(5) en DB
   vacunas_infancia_completas: z.boolean().nullish(),
   motivo_consulta: z.string().nullish(),
   historia_enfermedad_actual: z.string().nullish(),
@@ -77,7 +80,7 @@ export const medicalHistorySchema = z.object({
   aparatos_sistemas: aparatosSistemasSchema.optional(),
   informacion_fisica: informacionFisicaSchema.optional(),
   inmunizaciones: inmunizacionesSchema.optional(),
-  planes_estudio: planEstudioFormSchema.optional(),
+  planes_estudio: planEstudioSchema.optional(),
   servicios: serviciosSchema.optional(),
 })
 

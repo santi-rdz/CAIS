@@ -1,4 +1,6 @@
+import { prisma } from '#config/prisma.js'
 import { MedicalHistoryModel } from '#models/medicina/MedicalHistory.js'
+import { PatientModel } from '#models/PatientModel.js'
 import {
   validateMedicalHistory,
   validatePartialMedicalHistory,
@@ -18,10 +20,15 @@ export class MedicalHistoryController {
     }
 
     try {
-      const history = await MedicalHistoryModel.create(
-        result.data,
-        req.session.userId
-      )
+      const history = await prisma.$transaction(async (tx) => {
+        const h = await MedicalHistoryModel.create(
+          result.data,
+          req.session.userId,
+          tx
+        )
+        await PatientModel.touch(result.data.paciente_id, tx)
+        return h
+      })
       return res
         .status(201)
         .json({ message: 'Historia médica registrada', history })
@@ -90,11 +97,17 @@ export class MedicalHistoryController {
 
     const { id } = req.params
     try {
-      const updatedHistory = await MedicalHistoryModel.update(
-        id,
-        result.data,
-        req.session.userId
-      )
+      const updatedHistory = await prisma.$transaction(async (tx) => {
+        const h = await MedicalHistoryModel.update(
+          id,
+          result.data,
+          req.session.userId,
+          tx
+        )
+        if (!h) return null
+        await PatientModel.touch(h.paciente_id, tx)
+        return h
+      })
       if (!updatedHistory)
         return res
           .status(404)
