@@ -1,5 +1,5 @@
-import { PAGE_SIZE, BASE_URL } from '@lib/constants'
-import { throwApiError } from '@lib/ApiError'
+import { fetchApi } from '@lib/fetchApi'
+import { PAGE_SIZE } from '@lib/constants'
 
 export async function getUsers({ status, rol, sortBy, search, page }) {
   const params = new URLSearchParams()
@@ -14,48 +14,34 @@ export async function getUsers({ status, rol, sortBy, search, page }) {
   }
   const query = params.toString() ? `?${params.toString()}` : ''
 
-  const res = await fetch(`${BASE_URL}/usuarios${query}`, {
-    credentials: 'include',
+  return fetchApi(`/usuarios${query}`, {
+    errorMsg: 'Error al obtener los usuarios',
   })
-  if (!res.ok) await throwApiError(res, 'Error al obtener los usuarios')
-  return await res.json()
 }
 
 export async function getUser(id) {
-  const res = await fetch(`${BASE_URL}/usuarios/${id}`, {
-    credentials: 'include',
-  })
-  if (!res.ok) await throwApiError(res, 'Error al obtener usuario')
-  return await res.json()
+  return fetchApi(`/usuarios/${id}`, { errorMsg: 'Error al obtener usuario' })
 }
 
 export async function createUser(data) {
-  const res = await fetch(`${BASE_URL}/usuarios`, {
+  return fetchApi('/usuarios', {
     method: 'POST',
-    body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    body: data,
+    errorMsg: 'Error al crear usuario',
   })
-  if (!res.ok) await throwApiError(res, 'Error al crear usuario')
-  return await res.json()
 }
 
 export async function registroUsuario(data) {
-  const res = await fetch(`${BASE_URL}/usuarios/registro`, {
+  return fetchApi('/usuarios/registro', {
     method: 'POST',
-    body: JSON.stringify(data),
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    body: data,
+    errorMsg: 'Error al completar el registro',
   })
-  if (!res.ok) await throwApiError(res, 'Error al completar el registro')
-  return await res.json()
 }
 
 export async function deleteUser(id) {
-  const res = await fetch(`${BASE_URL}/usuarios/${id}`, {
+  return fetchApi(`/usuarios/${id}`, {
     method: 'DELETE',
-    credentials: 'include',
+    errorMsg: 'No se ha podido borrar el usuario',
   })
-  if (!res.ok) await throwApiError(res, 'No se ha podido borrar el usuario')
-  return await res.json()
 }

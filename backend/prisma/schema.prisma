@@ -40,11 +40,14 @@ model pacientes {
   telefono                      String?                         @db.VarChar(30)
   genero                        String?                         @db.VarChar(20)
   domicilio                     String?                         @db.VarChar(255)
+  fuente_informacion            String?                         @db.VarChar(100)
+  lugar_nacimiento              String?                         @db.VarChar(255)
   ocupacion                     String?                         @db.VarChar(100)
   estado_civil                  String?                         @db.VarChar(50)
   nivel_educativo               String?                         @db.VarChar(100)
   religion                      String?                         @db.VarChar(100)
   nss                           String?                         @db.VarChar(50)
+  curp_matricula                String?                         @db.VarChar(50)
   contacto_emergencia           String?                         @db.VarChar(255)
   telefono_emergencia           String?                         @db.VarChar(30)
   parentesco_emergencia         String?                         @db.VarChar(100)
@@ -530,6 +533,7 @@ model frec_consumo_alimentos_nutricion {
 model historias_medicas {
   id                          Bytes                        @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id                 Bytes                        @db.Binary(16)
+  creado_at                   DateTime?                    @default(dbgenerated("(curdate())")) @db.Date
   tipo_sangre                 String?                      @db.VarChar(5)
   vacunas_infancia_completas  Boolean?
   motivo_consulta             String?                      @db.Text
@@ -609,6 +613,18 @@ model informacion_fisica {
   sp_o2              Float             @db.Float
   glucosa_capilar    Float             @db.Float
   temperatura        Float             @db.Float
+  historia_medica_id Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
+  peso               Float?            @db.Float
+  altura             Float?            @db.Float
+  pa_sistolica       Int?
+  pa_diastolica      Int?
+  fc                 Int?
+  fr                 Int?
+  circ_cintura       Float?            @db.Float
+  circ_cadera        Float?            @db.Float
+  sp_o2              Float?            @db.Float
+  glucosa_capilar    Float?            @db.Float
+  temperatura        Float?            @db.Float
   exploracion_fisica String?           @db.Text
   habito_exterior    String?           @db.Text
   historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_historia")
@@ -658,6 +674,22 @@ model notas_evolucion {
   pacientes                           pacientes?           @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
   planes_estudio                      planes_estudio[]
 
+  id                    Bytes               @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  historia_medica_id    Bytes?              @db.Binary(16)
+  paciente_id           Bytes?              @db.Binary(16)
+  creado_at             DateTime?           @default(dbgenerated("(curdate())")) @db.Date
+  motivo_consulta       String?             @db.Text
+  ant_gine_andro        String?             @db.Text
+  aparatos_sistemas_id  Int?
+  informacion_fisica_id Int?
+  plan_estudio_id       Int?
+  aparatos_sistemas     aparatos_sistemas?  @relation(fields: [aparatos_sistemas_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_as")
+  historias_medicas     historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_historia")
+  informacion_fisica    informacion_fisica? @relation(fields: [informacion_fisica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_info")
+  pacientes             pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
+  planes_estudio        planes_estudio?     @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_plan")
+
+  @@index([aparatos_sistemas_id], map: "fk_nota_as")
   @@index([historia_medica_id], map: "fk_nota_historia")
   @@index([paciente_id], map: "fk_nota_paciente")
 }
@@ -761,6 +793,16 @@ model planes_estudio {
   notas_evolucion      notas_evolucion?       @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_nota")
   usuarios             usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
   planes_estudio_cie10 planes_estudio_cie10[]
+  id                       Int                    @id @default(autoincrement())
+  historia_medica_id       Bytes                  @unique(map: "historia_medica_id") @db.Binary(16)
+  plan_tratamiento         String?                @db.Text
+  usuario_id               Bytes                  @db.Binary(16)
+  tratamiento              String?                @db.Text
+  estudios_complementarios String?                @db.Text
+  notas_evolucion          notas_evolucion[]
+  historias_medicas        historias_medicas      @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_historia")
+  usuarios                 usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
+  planes_estudio_cie10     planes_estudio_cie10[]
 
   @@index([historia_medica_id], map: "idx_plan_historia")
   @@index([nota_evolucion_id], map: "fk_plan_nota")
@@ -771,6 +813,7 @@ model planes_estudio_cie10 {
   id              Int            @id @default(autoincrement())
   plan_estudio_id Int
   codigo          String         @db.VarChar(10)
+  descripcion     String?        @db.Text
   planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cie10_plan")
 
   @@index([plan_estudio_id], map: "fk_cie10_plan")

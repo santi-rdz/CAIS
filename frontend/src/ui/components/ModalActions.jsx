@@ -5,13 +5,14 @@ export default function ModalActions({
   onClose,
   primaryAction,
   secondaryAction = {},
+  quickSaveAction = null,
   cancelLabel = 'Cancelar',
   className = '',
 }) {
   const hasSecondary = Object.keys(secondaryAction).length > 0
-  const containerStyle = `shrink-0 border-t border-t-neutral-200 bg-white px-8 py-4 ${className} ${hasSecondary ? 'flex items-center justify-between' : ''}`
+  const containerStyle = `shrink-0 border-t border-t-neutral-200 bg-white px-8 py-4 ${className} ${hasSecondary || quickSaveAction ? 'flex items-center justify-between' : ''}`
 
-  if (!hasSecondary) {
+  if (!hasSecondary && !quickSaveAction) {
     return (
       <div className={containerStyle}>
         <Row direction="row-end">
@@ -40,7 +41,7 @@ export default function ModalActions({
         {cancelLabel}
       </Button>
       <Row direction="row-end">
-        {secondaryAction && (
+        {secondaryAction && Object.keys(secondaryAction).length > 0 && (
           <Button
             variant="outline"
             isLoading={secondaryAction.isLoading}
@@ -51,6 +52,17 @@ export default function ModalActions({
             {secondaryAction?.iconPos !== 'right' && secondaryAction?.icon}
             {secondaryAction.label || 'Secondary Action'}
             {secondaryAction?.iconPos === 'right' && secondaryAction?.icon}
+          </Button>
+        )}
+        {quickSaveAction && (
+          <Button
+            variant="outline"
+            isLoading={quickSaveAction.isLoading}
+            onClick={quickSaveAction.onClick}
+            disabled={quickSaveAction.disabled}
+          >
+            {quickSaveAction?.icon}
+            {quickSaveAction.label}
           </Button>
         )}
         {primaryAction && (

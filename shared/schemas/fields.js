@@ -1,16 +1,36 @@
 import { z } from 'zod'
 
+// BE: acepta "YYYY-MM-DD" o ISO, outputs Date para Prisma.
+export const dateSchema = z.coerce.date()
+export const optionalDateSchema = z.preprocess(
+  (v) => (v === '' ? undefined : v),
+  z.coerce.date().nullable().optional()
+)
+
+// Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
+export const dayjsDateSchema = z.preprocess(
+  (v) => {
+    if (!v || v === 'invalid') return ''
+    if (typeof v === 'object' && typeof v.format === 'function')
+      return v.isValid() ? v.format('YYYY-MM-DD') : ''
+    return v
+  },
+  z.string().min(1, 'La fecha es requerida')
+)
+
 export const telefonoSchema = z
   .string()
   .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
+// usuarios.nombre es VarChar(255) en DB
 export const personaBaseFields = {
-  nombre: z.string().min(2, 'El nombre es requerido'),
-  apellido: z.string().min(2, 'El apellido es requerido'),
+  nombre: z.string().min(2, 'El nombre es requerido').max(255),
+  apellido: z.string().min(2, 'El apellido es requerido').max(255),
   telefono: telefonoSchema,
 }
 
-export const correoSchema = z.email('Correo electrónico inválido')
+// usuarios.correo y pacientes.correo son VarChar(255) en DB
+export const correoSchema = z.email('Correo electrónico inválido').max(255)
 
 export const passwordSchema = z
   .string()

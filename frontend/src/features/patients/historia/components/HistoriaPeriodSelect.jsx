@@ -9,7 +9,7 @@ import {
 export default function HistoriaPeriodSelect({ value, onChange, periodos }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-auto px-3 py-1.5 text-xs ring-gray-200">
+      <SelectTrigger className="">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -46,21 +46,24 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = methods
 
   const getFormKeyDown = useFormKeyDown(handleSubmit)
 
   function onSubmit(data) {
+    const toNullable = (v) =>
+      typeof v === 'string' ? v.trim() || null : (v ?? null)
+
     const payload = {
       fecha_hora: mergeFechaHora(data.fecha, data.hora),
       ubicacion: data.ubicacion,
       recurrente: data.recurrente ?? false,
-      nombre: data.nombre || undefined,
-      matricula: data.matricula || undefined,
-      telefono: data.telefono || undefined,
-      diagnostico: data.diagnostico || undefined,
-      accion_realizada: data.accion_realizada || undefined,
+      nombre: toNullable(data.nombre),
+      matricula: toNullable(data.matricula),
+      telefono: toNullable(data.telefono),
+      diagnostico: toNullable(data.diagnostico),
+      accion_realizada: toNullable(data.accion_realizada),
     }
 
     if (isEditing) {
@@ -106,7 +109,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
         primaryAction={{
           label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
           isLoading: isEditing ? isUpdating : isCreating,
-          disabled: isEditing ? isUpdating : isCreating,
+          disabled: isEditing ? isUpdating || !isDirty : isCreating,
           onClick: handleSubmit(onSubmit),
         }}
       />

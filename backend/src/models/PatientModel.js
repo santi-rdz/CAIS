@@ -93,28 +93,21 @@ export class PatientModel {
     }
   }
 
+  static async touch(id, tx = prisma) {
+    await tx.pacientes.update({
+      where: { id: uuidToBuffer(id) },
+      data: { actualizado_at: new Date() },
+    })
+  }
+
   static async create(data, userId, tx = prisma) {
     const patientId = randomUUID()
 
     await tx.pacientes.create({
       data: {
+        ...data,
         id: uuidToBuffer(patientId),
         doctor_id: uuidToBuffer(userId),
-        nombre: data.nombre,
-        fecha_nacimiento: data.fecha_nacimiento,
-        es_externo: data.es_externo || false,
-        correo: data.correo || null,
-        telefono: data.telefono || null,
-        genero: data.genero || null,
-        domicilio: data.domicilio || null,
-        ocupacion: data.ocupacion || null,
-        estado_civil: data.estado_civil || null,
-        nivel_educativo: data.nivel_educativo || null,
-        religion: data.religion || null,
-        nss: data.nss || null,
-        contacto_emergencia: data.contacto_emergencia || null,
-        telefono_emergencia: data.telefono_emergencia || null,
-        parentesco_emergencia: data.parentesco_emergencia || null,
       },
       include: includeRelations,
     })

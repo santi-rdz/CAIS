@@ -16,7 +16,7 @@ export const SECCIONES = [
 ]
 
 export function buildAntPatFields(ap) {
-  if (!ap) return null
+  ap ??= {}
   return [
     { label: 'Crónico-degenerativos', value: ap.cronico_degenerativos },
     { label: 'Quirúrgicos', value: ap.quirurgicos },
@@ -36,7 +36,7 @@ export function buildAntPatFields(ap) {
 }
 
 export function buildAntFamFields(af) {
-  if (!af) return null
+  af ??= {}
   return [
     { label: 'Padre', value: af.padre },
     { label: 'Madre', value: af.madre },
@@ -49,7 +49,7 @@ export function buildAntFamFields(af) {
 }
 
 export function buildAparSistFields(as_) {
-  if (!as_) return null
+  as_ ??= {}
   return [
     { label: 'Neurológico', value: as_.neurologico },
     { label: 'Cardiovascular', value: as_.cardiovascular },

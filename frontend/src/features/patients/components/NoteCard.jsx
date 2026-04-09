@@ -2,9 +2,9 @@ import { HiOutlineUserCircle } from 'react-icons/hi2'
 import { formatFecha } from '@lib/dateHelpers'
 
 export default function NoteCard({ note, onClick, isSelected = false }) {
-  const { motivo_consulta, planes_estudio } = note
+  const { motivo_consulta, planes_estudio, creado_at } = note
 
-  const date = formatFecha(planes_estudio?.generado_en)
+  const date = formatFecha(creado_at)
   const doctorName = planes_estudio?.usuarios?.nombre
   const cie10Codes = planes_estudio?.planes_estudio_cie10 ?? []
 

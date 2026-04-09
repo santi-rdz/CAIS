@@ -4,6 +4,8 @@ import {
   correoSchema,
   passwordSchema,
   rolesSchema,
+  dayjsDateSchema,
+  dateSchema,
 } from './fields.js'
 
 // ─── Campos compartidos ─────────────────────────────────────────────
@@ -14,11 +16,12 @@ const tempPasswordSchema = z
 
 const coreFields = {
   ...personaBaseFields,
-  fechaNacimiento: z.string(),
+  fechaNacimiento: dateSchema,
 }
 
+// usuarios.matricula y cedula son VarChar(20) en DB
 const internFields = {
-  matricula: z.string().min(1, 'La matrícula es requerida'),
+  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
   servicioInicioAnio: z.string().min(1, 'Selecciona el año de inicio'),
   servicioInicioPeriodo: z.string().min(1, 'Selecciona el periodo de inicio'),
   servicioFinAnio: z.string().min(1, 'Selecciona el año de fin'),
@@ -26,7 +29,7 @@ const internFields = {
 }
 
 const cedulaField = {
-  cedula: z.string().min(1, 'La cédula es requerida'),
+  cedula: z.string().min(1, 'La cédula es requerida').max(20),
 }
 
 const passwordConfirmRefine = (schema) =>
@@ -34,17 +37,6 @@ const passwordConfirmRefine = (schema) =>
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
-
-// Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
-const dayjsDateSchema = z.preprocess(
-  (v) => {
-    if (!v || v === 'invalid') return ''
-    if (typeof v === 'object' && typeof v.format === 'function')
-      return v.format('YYYY-MM-DD')
-    return v
-  },
-  z.string().min(1, 'La fecha es requerida')
-)
 
 // ─── BE: Creación directa por admin ─────────────────────────────────
 
