@@ -14,7 +14,9 @@ export async function getUsers({ status, rol, sortBy, search, page }) {
   }
   const query = params.toString() ? `?${params.toString()}` : ''
 
-  return fetchApi(`/usuarios${query}`, { errorMsg: 'Error al obtener los usuarios' })
+  return fetchApi(`/usuarios${query}`, {
+    errorMsg: 'Error al obtener los usuarios',
+  })
 }
 
 export async function getUser(id) {
@@ -22,13 +24,24 @@ export async function getUser(id) {
 }
 
 export async function createUser(data) {
-  return fetchApi('/usuarios', { method: 'POST', body: data, errorMsg: 'Error al crear usuario' })
+  return fetchApi('/usuarios', {
+    method: 'POST',
+    body: data,
+    errorMsg: 'Error al crear usuario',
+  })
 }
 
 export async function registroUsuario(data) {
-  return fetchApi('/usuarios/registro', { method: 'POST', body: data, errorMsg: 'Error al completar el registro' })
+  return fetchApi('/usuarios/registro', {
+    method: 'POST',
+    body: data,
+    errorMsg: 'Error al completar el registro',
+  })
 }
 
 export async function deleteUser(id) {
-  return fetchApi(`/usuarios/${id}`, { method: 'DELETE', errorMsg: 'No se ha podido borrar el usuario' })
+  return fetchApi(`/usuarios/${id}`, {
+    method: 'DELETE',
+    errorMsg: 'No se ha podido borrar el usuario',
+  })
 }

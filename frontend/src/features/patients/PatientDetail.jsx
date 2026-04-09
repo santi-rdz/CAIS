@@ -51,7 +51,12 @@ export default function PatientDetail() {
         <MedicalPatientForm patient={patient} patientOnly />
       </Modal.Content>
 
-      <Modal.Content name="delete-patient" noPadding variant="alert" icon={<HiOutlineTrash size={26} />}>
+      <Modal.Content
+        name="delete-patient"
+        noPadding
+        variant="alert"
+        icon={<HiOutlineTrash size={26} />}
+      >
         <DangerConfirm
           title="Eliminar paciente"
           description="¿Estás seguro? Esta acción no se puede deshacer."

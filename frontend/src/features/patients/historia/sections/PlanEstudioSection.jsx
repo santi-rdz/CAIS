@@ -32,7 +32,12 @@ export default function PlanEstudioSection({ plan }) {
       )}
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField label="Plan de tratamiento" value={plan_tratamiento} multiline block />
+        <DataField
+          label="Plan de tratamiento"
+          value={plan_tratamiento}
+          multiline
+          block
+        />
         <DataField label="Tratamiento" value={tratamiento} multiline block />
       </div>
     </div>

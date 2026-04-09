@@ -26,10 +26,26 @@ const SOMATOMETRIA = [
 ]
 
 const IMC_LEVELS = [
-  { max: 18.5, label: 'Bajo peso',  color: 'bg-blue-50 text-blue-700 border-blue-100' },
-  { max: 24.9, label: 'Normal',     color: 'bg-green-50 text-green-700 border-green-100' },
-  { max: 29.9, label: 'Sobrepeso',  color: 'bg-yellow-50 text-yellow-700 border-yellow-100' },
-  { max: Infinity, label: 'Obesidad', color: 'bg-red-50 text-red-700 border-red-100' },
+  {
+    max: 18.5,
+    label: 'Bajo peso',
+    color: 'bg-blue-50 text-blue-700 border-blue-100',
+  },
+  {
+    max: 24.9,
+    label: 'Normal',
+    color: 'bg-green-50 text-green-700 border-green-100',
+  },
+  {
+    max: 29.9,
+    label: 'Sobrepeso',
+    color: 'bg-yellow-50 text-yellow-700 border-yellow-100',
+  },
+  {
+    max: Infinity,
+    label: 'Obesidad',
+    color: 'bg-red-50 text-red-700 border-red-100',
+  },
 ]
 
 function ImcDisplay({ peso, altura }) {
@@ -47,9 +63,13 @@ function ImcDisplay({ peso, altura }) {
           <div className="flex items-baseline gap-2">
             <span className="font-lato text-4 font-semibold text-zinc-800">
               {imc}
-              <span className="text-6 ml-1 font-normal text-zinc-400">kg/m²</span>
+              <span className="text-6 ml-1 font-normal text-zinc-400">
+                kg/m²
+              </span>
             </span>
-            <span className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}>
+            <span
+              className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}
+            >
               {level.label}
             </span>
           </div>

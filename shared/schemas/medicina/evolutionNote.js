@@ -22,23 +22,28 @@ export const aparatosSistemasSchema = z.object({
   nutricional: z.string().nullish(),
 })
 
-export const informacionFisicaSchema = z.object({
-  peso: coerceNum,
-  altura: coerceNum,
-  pa_sistolica: coerceInt,
-  pa_diastolica: coerceInt,
-  fc: coerceInt,
-  fr: coerceInt,
-  circ_cintura: coerceNum,
-  circ_cadera: coerceNum,
-  sp_o2: coerceNum,
-  glucosa_capilar: coerceNum,
-  temperatura: coerceNum,
-  exploracion_fisica: z.string().nullish(),
-  habito_exterior: z.string().nullish(),
-}).partial()
+export const informacionFisicaSchema = z
+  .object({
+    peso: coerceNum,
+    altura: coerceNum,
+    pa_sistolica: coerceInt,
+    pa_diastolica: coerceInt,
+    fc: coerceInt,
+    fr: coerceInt,
+    circ_cintura: coerceNum,
+    circ_cadera: coerceNum,
+    sp_o2: coerceNum,
+    glucosa_capilar: coerceNum,
+    temperatura: coerceNum,
+    exploracion_fisica: z.string().nullish(),
+    habito_exterior: z.string().nullish(),
+  })
+  .partial()
 
-const cie10ItemSchema = z.object({ codigo: z.string(), descripcion: z.string() })
+const cie10ItemSchema = z.object({
+  codigo: z.string(),
+  descripcion: z.string(),
+})
 
 export const planEstudioSchema = z.object({
   plan_tratamiento: z.string().nullish(),

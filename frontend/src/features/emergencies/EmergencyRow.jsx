@@ -71,7 +71,12 @@ export default function EmergencyRow({ emergency }) {
           </Modal.Open>
         </RowActionsMenu>
 
-        <Modal.Content name="delete-emergency" noPadding variant="alert" icon={<HiOutlineTrash size={26} />}>
+        <Modal.Content
+          name="delete-emergency"
+          noPadding
+          variant="alert"
+          icon={<HiOutlineTrash size={26} />}
+        >
           <DangerConfirm
             title="Eliminar emergencia"
             description="¿Estás seguro de borrar esta emergencia?"

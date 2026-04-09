@@ -8,7 +8,11 @@ import DatePickerComponent from '@ui/DatePickerComponent'
 import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
 
 export default function MotivoConsultaPlanStep() {
-  const { register, control, formState: { errors } } = useFormContext()
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-5">

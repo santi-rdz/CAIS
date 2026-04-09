@@ -39,7 +39,10 @@ export function toastErrorList(title, messages) {
  */
 export function toastApiError(error) {
   if (error instanceof ApiError && error.fields.length > 0) {
-    toastErrorList(error.message, error.fields.map((f) => f.message))
+    toastErrorList(
+      error.message,
+      error.fields.map((f) => f.message)
+    )
   } else {
     toast.error(error?.message ?? 'Ocurrió un error inesperado')
   }

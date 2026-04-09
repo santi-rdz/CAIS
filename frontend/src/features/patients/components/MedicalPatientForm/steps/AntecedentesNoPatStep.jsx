@@ -60,7 +60,10 @@ function YesNoField({ name, control, idPrefix }) {
 
 export default function AntecedentesNoPatStep() {
   const { control, register } = useFormContext()
-  const zoonosis = useWatch({ control, name: 'antecedentes_no_patologicos.zoonosis' })
+  const zoonosis = useWatch({
+    control,
+    name: 'antecedentes_no_patologicos.zoonosis',
+  })
 
   return (
     <div className="space-y-6">
@@ -90,9 +93,14 @@ export default function AntecedentesNoPatStep() {
           </div>
         </Grid>
 
-        <FormRow htmlFor="calidad_cantidad_alimentacion" label="Calidad y cantidad de alimentación">
+        <FormRow
+          htmlFor="calidad_cantidad_alimentacion"
+          label="Calidad y cantidad de alimentación"
+        >
           <Input
-            {...register('antecedentes_no_patologicos.calidad_cantidad_alimentacion')}
+            {...register(
+              'antecedentes_no_patologicos.calidad_cantidad_alimentacion'
+            )}
             id="calidad_cantidad_alimentacion"
             textarea
             rows={2}
@@ -226,7 +234,11 @@ export default function AntecedentesNoPatStep() {
               name="tipo_sangre"
               control={control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange} fullWidth>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  fullWidth
+                >
                   <SelectTrigger size="lg">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
@@ -242,7 +254,9 @@ export default function AntecedentesNoPatStep() {
             />
           </FormRow>
           <div className="flex flex-col gap-1">
-            <p className="text-5 mb-2 block">¿Recibió las de la Infancia Completa?</p>
+            <p className="text-5 mb-2 block">
+              ¿Recibió las de la Infancia Completa?
+            </p>
             <YesNoField
               name="vacunas_infancia_completas"
               control={control}

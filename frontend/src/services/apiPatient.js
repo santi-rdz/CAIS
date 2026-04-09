@@ -12,7 +12,9 @@ export async function getPatients({ page, sortBy, search, genre }) {
   if (genre) params.set('genre', genre)
 
   const query = params.toString() ? `?${params.toString()}` : ''
-  return fetchApi(`/pacientes${query}`, { errorMsg: 'Error al obtener los pacientes' })
+  return fetchApi(`/pacientes${query}`, {
+    errorMsg: 'Error al obtener los pacientes',
+  })
 }
 
 export async function getPatient(id) {
@@ -20,13 +22,24 @@ export async function getPatient(id) {
 }
 
 export async function createPatient(data) {
-  return fetchApi('/pacientes', { method: 'POST', body: data, errorMsg: 'Error al crear paciente' })
+  return fetchApi('/pacientes', {
+    method: 'POST',
+    body: data,
+    errorMsg: 'Error al crear paciente',
+  })
 }
 
 export async function deletePatient(id) {
-  return fetchApi(`/pacientes/${id}`, { method: 'DELETE', errorMsg: 'No se ha podido borrar el paciente' })
+  return fetchApi(`/pacientes/${id}`, {
+    method: 'DELETE',
+    errorMsg: 'No se ha podido borrar el paciente',
+  })
 }
 
 export async function updatePatient(id, data) {
-  return fetchApi(`/pacientes/${id}`, { method: 'PATCH', body: data, errorMsg: 'Error al actualizar paciente' })
+  return fetchApi(`/pacientes/${id}`, {
+    method: 'PATCH',
+    body: data,
+    errorMsg: 'Error al actualizar paciente',
+  })
 }

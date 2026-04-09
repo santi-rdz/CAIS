@@ -18,7 +18,10 @@ export class MedicalHistoryController {
     }
 
     try {
-      const history = await MedicalHistoryModel.create(result.data, req.session.userId)
+      const history = await MedicalHistoryModel.create(
+        result.data,
+        req.session.userId
+      )
       return res
         .status(201)
         .json({ message: 'Historia médica registrada', history })
@@ -82,7 +85,11 @@ export class MedicalHistoryController {
 
     const { id } = req.params
     try {
-      const updatedHistory = await MedicalHistoryModel.update(id, result.data, req.session.userId)
+      const updatedHistory = await MedicalHistoryModel.update(
+        id,
+        result.data,
+        req.session.userId
+      )
       if (!updatedHistory)
         return res
           .status(404)

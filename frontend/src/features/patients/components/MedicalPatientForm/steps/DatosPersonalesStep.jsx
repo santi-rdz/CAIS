@@ -262,7 +262,11 @@ export default function DatosPersonalesStep() {
                 size="lg"
               />
             </FormRow>
-            <PhoneField name="telefono_emergencia" label="Teléfono" required={false} />
+            <PhoneField
+              name="telefono_emergencia"
+              label="Teléfono"
+              required={false}
+            />
           </Grid>
         </div>
       </div>

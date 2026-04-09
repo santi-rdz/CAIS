@@ -154,9 +154,14 @@ const DEFAULT_VALUES = {
 const PATIENT_KEYS = new Set([...Object.keys(patientSchema.shape), 'apellidos'])
 
 const HISTORY_NESTED = new Set([
-  'antecedentes_familiares', 'antecedentes_patologicos',
-  'antecedentes_no_patologicos', 'servicios', 'inmunizaciones',
-  'aparatos_sistemas', 'informacion_fisica', 'planes_estudio',
+  'antecedentes_familiares',
+  'antecedentes_patologicos',
+  'antecedentes_no_patologicos',
+  'servicios',
+  'inmunizaciones',
+  'aparatos_sistemas',
+  'informacion_fisica',
+  'planes_estudio',
 ])
 
 /**
@@ -176,7 +181,13 @@ function pickDirty(data, dirtyFields) {
 function nullifyEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
-    if (typeof v === 'object' && v !== null && !Array.isArray(v) && !(v instanceof Date) && !dayjs.isDayjs(v)) {
+    if (
+      typeof v === 'object' &&
+      v !== null &&
+      !Array.isArray(v) &&
+      !(v instanceof Date) &&
+      !dayjs.isDayjs(v)
+    ) {
       result[k] = nullifyEmpty(v)
     } else {
       result[k] = v === '' ? null : v
@@ -190,7 +201,12 @@ function omitEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
     if (v === '' || v == null) continue
-    if (typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date) && !dayjs.isDayjs(v)) {
+    if (
+      typeof v === 'object' &&
+      !Array.isArray(v) &&
+      !(v instanceof Date) &&
+      !dayjs.isDayjs(v)
+    ) {
       const cleaned = omitEmpty(v)
       if (Object.keys(cleaned).length) result[k] = cleaned
     } else {
@@ -275,15 +291,25 @@ function buildEditDefaults(patient, historia) {
     ...patient,
     nombre: nameParts[0] ?? '',
     apellidos: nameParts.slice(1).join(' '),
-    fecha_nacimiento: patient.fecha_nacimiento ? dayjs(patient.fecha_nacimiento) : null,
+    fecha_nacimiento: patient.fecha_nacimiento
+      ? dayjs(patient.fecha_nacimiento)
+      : null,
     ...historia,
     creado_at: historia.creado_at ? dayjs(historia.creado_at) : dayjs(),
     inmunizaciones: {
       ...historia.inmunizaciones,
-      influenza: historia.inmunizaciones?.influenza ? dayjs(historia.inmunizaciones.influenza) : null,
-      tetanos: historia.inmunizaciones?.tetanos ? dayjs(historia.inmunizaciones.tetanos) : null,
-      hepatitis_b: historia.inmunizaciones?.hepatitis_b ? dayjs(historia.inmunizaciones.hepatitis_b) : null,
-      covid_19: historia.inmunizaciones?.covid_19 ? dayjs(historia.inmunizaciones.covid_19) : null,
+      influenza: historia.inmunizaciones?.influenza
+        ? dayjs(historia.inmunizaciones.influenza)
+        : null,
+      tetanos: historia.inmunizaciones?.tetanos
+        ? dayjs(historia.inmunizaciones.tetanos)
+        : null,
+      hepatitis_b: historia.inmunizaciones?.hepatitis_b
+        ? dayjs(historia.inmunizaciones.hepatitis_b)
+        : null,
+      covid_19: historia.inmunizaciones?.covid_19
+        ? dayjs(historia.inmunizaciones.covid_19)
+        : null,
     },
     planes_estudio: {
       ...historia.planes_estudio,
@@ -309,8 +335,7 @@ export default function MedicalPatientForm({
   const { register: registerPatient, isRegistering } =
     useCreatePatientWithHistory()
   const { createHistory, isCreating } = useCreateMedicalHistory()
-  const { update: updatePatient, isUpdating } =
-    useUpdatePatientWithHistory()
+  const { update: updatePatient, isUpdating } = useUpdatePatientWithHistory()
 
   const defaultValues = isEdit
     ? buildEditDefaults(patient, historia ?? {})
@@ -321,13 +346,19 @@ export default function MedicalPatientForm({
   const skipPatientStep = isClone || (isEdit && historiaOnly)
   const activeSteps = patientOnly
     ? [STEPS[0]]
-    : skipPatientStep ? CLONE_STEPS : STEPS
+    : skipPatientStep
+      ? CLONE_STEPS
+      : STEPS
   const activeStepsFields = patientOnly
     ? [STEPS_FIELDS[0]]
-    : skipPatientStep ? CLONE_STEPS_FIELDS : STEPS_FIELDS
+    : skipPatientStep
+      ? CLONE_STEPS_FIELDS
+      : STEPS_FIELDS
   const activeStepComponents = patientOnly
     ? [STEP_COMPONENTS[0]]
-    : skipPatientStep ? CLONE_STEP_COMPONENTS : STEP_COMPONENTS
+    : skipPatientStep
+      ? CLONE_STEP_COMPONENTS
+      : STEP_COMPONENTS
 
   const stepForm = useStepForm(
     activeSteps,
@@ -363,7 +394,10 @@ export default function MedicalPatientForm({
 
       if (Object.keys(dirtyPatient).length) {
         // Si nombre o apellidos cambió, enviar nombre completo
-        if (dirtyPatient.nombre !== undefined || dirtyPatient.apellidos !== undefined) {
+        if (
+          dirtyPatient.nombre !== undefined ||
+          dirtyPatient.apellidos !== undefined
+        ) {
           dirtyPatient.nombre = `${data.nombre} ${data.apellidos}`.trim()
           delete dirtyPatient.apellidos
         }
@@ -388,7 +422,10 @@ export default function MedicalPatientForm({
       })
     } else if (isClone) {
       const { historyData } = splitFormData(data)
-      const result = await createHistory({ pacienteId: patient.id, historyData })
+      const result = await createHistory({
+        pacienteId: patient.id,
+        historyData,
+      })
       onCreated?.(result?.history?.id)
     } else {
       const { patientData, historyData } = splitFormData(data)
@@ -400,18 +437,38 @@ export default function MedicalPatientForm({
   return (
     <StepFormShell
       title={
-        patientOnly ? 'Editar Info del Paciente'
-        : isEdit ? (historiaOnly ? 'Editar Historia Médica' : 'Editar Paciente')
-        : isClone ? 'Nueva Historia Médica'
-        : 'Registro de Nuevo Paciente'
+        patientOnly
+          ? 'Editar Info del Paciente'
+          : isEdit
+            ? historiaOnly
+              ? 'Editar Historia Médica'
+              : 'Editar Paciente'
+            : isClone
+              ? 'Nueva Historia Médica'
+              : 'Registro de Nuevo Paciente'
       }
-      subtitle={isEdit && historiaOnly ? formatFecha(historia.creado_at) : isClone ? formatFecha(cloneHistoria.creado_at) : undefined}
-      description={isClone ? 'Se tomó la historia más reciente como base. Modifica los campos necesarios antes de guardar.' : undefined}
+      subtitle={
+        isEdit && historiaOnly
+          ? formatFecha(historia.creado_at)
+          : isClone
+            ? formatFecha(cloneHistoria.creado_at)
+            : undefined
+      }
+      description={
+        isClone
+          ? 'Se tomó la historia más reciente como base. Modifica los campos necesarios antes de guardar.'
+          : undefined
+      }
       submitLabel={
-        patientOnly ? 'Actualizar paciente'
-        : isEdit ? (historiaOnly ? 'Actualizar historia' : 'Actualizar paciente')
-        : isClone ? 'Crear historia'
-        : 'Guardar paciente'
+        patientOnly
+          ? 'Actualizar paciente'
+          : isEdit
+            ? historiaOnly
+              ? 'Actualizar historia'
+              : 'Actualizar paciente'
+            : isClone
+              ? 'Crear historia'
+              : 'Guardar paciente'
       }
       steps={activeSteps}
       onSubmit={onSubmit}

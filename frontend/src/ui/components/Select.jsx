@@ -150,7 +150,7 @@ export function SelectTrigger({
       tabIndex={0}
       className={cn(
         hasError && 'error',
-        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800 focus-visible:outline-2 focus-visible:outline-green-800 focus-visible:outline-offset-2',
+        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800',
         triggerSizes[size],
         className
       )}

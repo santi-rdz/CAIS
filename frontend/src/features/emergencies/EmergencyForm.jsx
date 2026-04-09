@@ -108,7 +108,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
         primaryAction={{
           label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
           isLoading: isEditing ? isUpdating : isCreating,
-          disabled: isEditing ? (isUpdating || !isDirty) : isCreating,
+          disabled: isEditing ? isUpdating || !isDirty : isCreating,
           onClick: handleSubmit(onSubmit),
         }}
       />

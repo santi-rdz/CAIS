@@ -56,7 +56,11 @@ export default function PatientRow({ patient }) {
             </Button>
           </Modal.Open>
         </RowActionsMenu>
-        <Modal.Content name="delete-patient" variant="alert" icon={<HiOutlineTrash size={24} />}>
+        <Modal.Content
+          name="delete-patient"
+          variant="alert"
+          icon={<HiOutlineTrash size={24} />}
+        >
           <DangerConfirm
             title="Eliminar paciente"
             description="¿Estás seguro de borrar a este paciente?"

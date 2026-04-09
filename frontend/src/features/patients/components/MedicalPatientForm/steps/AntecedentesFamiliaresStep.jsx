@@ -5,12 +5,36 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 
 const FAMILIARES = [
-  { name: 'padre', label: 'Padre', placeholder: 'Enfermedades o condiciones del padre' },
-  { name: 'madre', label: 'Madre', placeholder: 'Enfermedades o condiciones de la madre' },
-  { name: 'abuelo_paterno', label: 'Abuelo Paterno', placeholder: 'Enfermedades o condiciones' },
-  { name: 'abuela_paterna', label: 'Abuela Paterna', placeholder: 'Enfermedades o condiciones' },
-  { name: 'abuelo_materno', label: 'Abuelo Materno', placeholder: 'Enfermedades o condiciones' },
-  { name: 'abuela_materna', label: 'Abuela Materna', placeholder: 'Enfermedades o condiciones' },
+  {
+    name: 'padre',
+    label: 'Padre',
+    placeholder: 'Enfermedades o condiciones del padre',
+  },
+  {
+    name: 'madre',
+    label: 'Madre',
+    placeholder: 'Enfermedades o condiciones de la madre',
+  },
+  {
+    name: 'abuelo_paterno',
+    label: 'Abuelo Paterno',
+    placeholder: 'Enfermedades o condiciones',
+  },
+  {
+    name: 'abuela_paterna',
+    label: 'Abuela Paterna',
+    placeholder: 'Enfermedades o condiciones',
+  },
+  {
+    name: 'abuelo_materno',
+    label: 'Abuelo Materno',
+    placeholder: 'Enfermedades o condiciones',
+  },
+  {
+    name: 'abuela_materna',
+    label: 'Abuela Materna',
+    placeholder: 'Enfermedades o condiciones',
+  },
 ]
 
 export default function AntecedentesFamiliaresStep() {

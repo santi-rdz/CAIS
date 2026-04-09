@@ -59,7 +59,12 @@ export default function UserRow({ user }) {
           </Modal.Open>
         </RowActionsMenu>
 
-        <Modal.Content name="block-user" noPadding variant="alert" icon={<HiOutlineLockClosed size={26} />}>
+        <Modal.Content
+          name="block-user"
+          noPadding
+          variant="alert"
+          icon={<HiOutlineLockClosed size={26} />}
+        >
           <DangerConfirm
             title="Bloquear usuario"
             description="¿Estás seguro de bloquear a este usuario?"

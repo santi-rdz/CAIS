@@ -121,22 +121,26 @@ export default function NoPatologicosSection({ historia }) {
           <DataField
             label="Calidad y cantidad de alimentación"
             value={antecedentes?.calidad_cantidad_alimentacion}
-            multiline block
+            multiline
+            block
           />
           <DataField
             label="Higiene adecuada"
             value={antecedentes?.higiene_adecuada}
-            multiline block
+            multiline
+            block
           />
           <DataField
             label="Actividad física"
             value={antecedentes?.actividad_fisica}
-            multiline block
+            multiline
+            block
           />
           <DataField
             label="Tipo de zoonosis"
             value={antecedentes?.tipo_zoonosis}
-            multiline block
+            multiline
+            block
           />
         </div>
       </div>

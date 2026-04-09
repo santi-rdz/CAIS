@@ -17,7 +17,10 @@ function buildCie10Nested(cie10_codes) {
   if (!cie10_codes?.length) return {}
   return {
     planes_estudio_cie10: {
-      create: cie10_codes.map(({ codigo, descripcion }) => ({ codigo, descripcion })),
+      create: cie10_codes.map(({ codigo, descripcion }) => ({
+        codigo,
+        descripcion,
+      })),
     },
   }
 }
@@ -36,10 +39,25 @@ export function planesEstudioCreate(planesEstudio, userId) {
 export function planesEstudioUpsert(planesEstudio, userId) {
   const { cie10_codes, ...rest } = planesEstudio
   const cie10Create = cie10_codes?.length
-    ? { planes_estudio_cie10: { create: cie10_codes.map(({ codigo, descripcion }) => ({ codigo, descripcion })) } }
+    ? {
+        planes_estudio_cie10: {
+          create: cie10_codes.map(({ codigo, descripcion }) => ({
+            codigo,
+            descripcion,
+          })),
+        },
+      }
     : {}
   const cie10Update = cie10_codes
-    ? { planes_estudio_cie10: { deleteMany: {}, create: cie10_codes.map(({ codigo, descripcion }) => ({ codigo, descripcion })) } }
+    ? {
+        planes_estudio_cie10: {
+          deleteMany: {},
+          create: cie10_codes.map(({ codigo, descripcion }) => ({
+            codigo,
+            descripcion,
+          })),
+        },
+      }
     : {}
   return {
     upsert: {

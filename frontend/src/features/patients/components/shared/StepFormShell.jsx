@@ -7,7 +7,9 @@ import ModalActions from '@components/ModalActions'
 import Stepper from '@components/Stepper'
 
 function toastFormErrors(errors) {
-  const messages = Object.values(errors).map((err) => err.message).filter(Boolean)
+  const messages = Object.values(errors)
+    .map((err) => err.message)
+    .filter(Boolean)
   toastErrorList('Revisa los campos del formulario', messages)
 }
 
@@ -80,7 +82,9 @@ export default function StepFormShell({
               <HiChevronRight strokeWidth={1} />
             ),
             iconPos: isLast ? 'left' : 'right',
-            onClick: isLast ? handleSubmit(onSubmit, toastFormErrors) : handleNext,
+            onClick: isLast
+              ? handleSubmit(onSubmit, toastFormErrors)
+              : handleNext,
             disabled: primaryDisabled,
             isLoading: isPending && isLast,
           }}

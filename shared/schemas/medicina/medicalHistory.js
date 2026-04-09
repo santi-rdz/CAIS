@@ -44,7 +44,7 @@ export const antecedentes_no_patologicosSchema = z.object({
 
 const optionalDate = z.preprocess(
   (v) => (v === '' || v == null ? undefined : v),
-  z.coerce.date().optional(),
+  z.coerce.date().optional()
 )
 
 export const inmunizacionesSchema = z.object({
@@ -63,7 +63,6 @@ export const serviciosSchema = z.object({
   cable_tel: z.boolean().optional(),
   internet: z.boolean().optional(),
 })
-
 
 export const medicalHistoryBaseSchema = z.object({
   creado_at: z.coerce.date().optional(),

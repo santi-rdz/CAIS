@@ -45,12 +45,19 @@ export default function EmergencyDetail() {
         <EmergencyForm emergency={emergency} />
       </Modal.Content>
 
-      <Modal.Content name="delete-emergency" noPadding variant="alert" icon={<HiOutlineTrash size={26} />}>
+      <Modal.Content
+        name="delete-emergency"
+        noPadding
+        variant="alert"
+        icon={<HiOutlineTrash size={26} />}
+      >
         <DangerConfirm
           title="Eliminar emergencia"
           description="¿Estás seguro? Esta acción no se puede deshacer."
           confirmLabel="Eliminar"
-          onConfirm={() => deleteEmergency(emergency.id).then(() => navigate('/emergencias'))}
+          onConfirm={() =>
+            deleteEmergency(emergency.id).then(() => navigate('/emergencias'))
+          }
           isPending={isDeleting}
         />
       </Modal.Content>
@@ -62,7 +69,10 @@ function ActionBar({ emergencyDate, isDeleting }) {
   return (
     <div className="flex items-center justify-between">
       <nav className="text-5 flex items-center gap-1.5 text-zinc-400">
-        <Link to="/emergencias" className="transition-colors hover:text-zinc-700">
+        <Link
+          to="/emergencias"
+          className="transition-colors hover:text-zinc-700"
+        >
           Bitácora
         </Link>
         <HiChevronRight size={14} />

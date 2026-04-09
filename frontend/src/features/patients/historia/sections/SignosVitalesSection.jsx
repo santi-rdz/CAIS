@@ -71,7 +71,6 @@ function GroupLabel({ label }) {
   )
 }
 
-
 export default function SignosVitalesSection({ info }) {
   info ??= {}
 
@@ -97,11 +96,7 @@ export default function SignosVitalesSection({ info }) {
 
         <GroupLabel label="Antropométrica" />
         <VitalStat label="Peso" value={info.peso} unit="kg" />
-        <VitalStat
-          label="Altura"
-          value={info.altura}
-          unit="cm"
-        />
+        <VitalStat label="Altura" value={info.altura} unit="cm" />
         <VitalStat
           label="IMC"
           value={imc}
