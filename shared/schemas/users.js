@@ -136,3 +136,25 @@ export const internSignupFormSchema = passwordConfirmRefine(
 export const coordSignupFormSchema = passwordConfirmRefine(
   signupFormBase.extend(cedulaField)
 )
+
+// ─── BE: Password Reset ─────────────────────────────────────────────
+
+export const passwordResetRequestSchema = z.object({
+  correo: correoSchema,
+})
+
+const passwordResetBase = z.object({
+  token: z.uuid('Token inválido'),
+  password: passwordSchema,
+  confirmPassword: z.string(),
+})
+
+export const passwordResetSchema = passwordConfirmRefine(passwordResetBase)
+
+export function validatePasswordResetRequest(input) {
+  return passwordResetRequestSchema.safeParse(input)
+}
+
+export function validatePasswordReset(input) {
+  return passwordResetSchema.safeParse(input)
+}

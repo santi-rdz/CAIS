@@ -810,6 +810,25 @@ CREATE TABLE IF NOT EXISTS invitaciones_registro (
     CONSTRAINT fk_invitacion_creado_por FOREIGN KEY (creado_por) REFERENCES usuarios(id)
 );
 
+-- ===============================
+-- TOKENS DE RESTABLECIMIENTO DE CONTRASEÑA
+-- ===============================
+-- Se usa para el flujo de "olvidé mi contraseña".
+-- 1. El usuario solicita reset → se genera un token UUID con expiración de 1 hora.
+-- 2. Se envía un correo con el enlace que contiene el token.
+-- 3. El usuario envía nueva contraseña + token → se valida, actualiza password y marca como usado.
+-- 4. Se borra automáticamente (CASCADE) cuando se elimina el usuario asociado.
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id BINARY(16) NOT NULL,
+    token BINARY(16) NOT NULL UNIQUE,
+    usado BOOLEAN DEFAULT FALSE,
+    expira_at DATETIME NOT NULL,
+    creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_reset_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    INDEX idx_password_reset_usuario (usuario_id)
+);
+
 CREATE TABLE IF NOT EXISTS sessions (
     sid VARCHAR(255) NOT NULL PRIMARY KEY,
     data TEXT NOT NULL,
