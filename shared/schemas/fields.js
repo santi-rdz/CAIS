@@ -22,13 +22,15 @@ export const telefonoSchema = z
   .string()
   .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
+// usuarios.nombre es VarChar(255) en DB
 export const personaBaseFields = {
-  nombre: z.string().min(2, 'El nombre es requerido'),
-  apellido: z.string().min(2, 'El apellido es requerido'),
+  nombre: z.string().min(2, 'El nombre es requerido').max(255),
+  apellido: z.string().min(2, 'El apellido es requerido').max(255),
   telefono: telefonoSchema,
 }
 
-export const correoSchema = z.email('Correo electrónico inválido')
+// usuarios.correo y pacientes.correo son VarChar(255) en DB
+export const correoSchema = z.email('Correo electrónico inválido').max(255)
 
 export const passwordSchema = z
   .string()

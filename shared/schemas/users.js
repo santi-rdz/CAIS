@@ -19,8 +19,9 @@ const coreFields = {
   fechaNacimiento: dateSchema,
 }
 
+// usuarios.matricula y cedula son VarChar(20) en DB
 const internFields = {
-  matricula: z.string().min(1, 'La matrícula es requerida'),
+  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
   servicioInicioAnio: z.string().min(1, 'Selecciona el año de inicio'),
   servicioInicioPeriodo: z.string().min(1, 'Selecciona el periodo de inicio'),
   servicioFinAnio: z.string().min(1, 'Selecciona el año de fin'),
@@ -28,7 +29,7 @@ const internFields = {
 }
 
 const cedulaField = {
-  cedula: z.string().min(1, 'La cédula es requerida'),
+  cedula: z.string().min(1, 'La cédula es requerida').max(20),
 }
 
 const passwordConfirmRefine = (schema) =>

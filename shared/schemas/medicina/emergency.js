@@ -1,14 +1,15 @@
 import { z } from 'zod'
 import { telefonoSchema } from '../fields.js'
 
+// Límites según bitacora_emergencias en DB (VarChar)
 const emergencyBaseSchema = z.object({
-  ubicacion: z.string().min(1, 'La ubicación es requerida'),
-  nombre: z.string().nullish(),
-  matricula: z.string().nullish(),
+  ubicacion: z.string().min(1, 'La ubicación es requerida').max(255),
+  nombre: z.string().max(255).nullish(),
+  matricula: z.string().max(20).nullish(),
   telefono: telefonoSchema.nullish().or(z.literal('')),
-  diagnostico: z.string().nullish(),
-  accion_realizada: z.string().nullish(),
-  tratamiento_admin: z.string().nullish(),
+  diagnostico: z.string().max(255).nullish(),
+  accion_realizada: z.string().max(255).nullish(),
+  tratamiento_admin: z.string().max(255).nullish(),
   recurrente: z.boolean().optional().default(false),
 })
 
