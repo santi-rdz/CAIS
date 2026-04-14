@@ -18,7 +18,10 @@ export class EvolutionNoteController {
     }
 
     try {
-      const note = await EvolutionNoteModel.create(result.data, req.session.userId)
+      const note = await EvolutionNoteModel.create(
+        result.data,
+        req.session.userId
+      )
       return res
         .status(201)
         .json({ message: 'Nota de evolución registrada', note })
@@ -89,7 +92,11 @@ export class EvolutionNoteController {
 
     const { id } = req.params
     try {
-      const updatedNote = await EvolutionNoteModel.update(id, result.data, req.session.userId)
+      const updatedNote = await EvolutionNoteModel.update(
+        id,
+        result.data,
+        req.session.userId
+      )
       if (!updatedNote)
         return res
           .status(404)

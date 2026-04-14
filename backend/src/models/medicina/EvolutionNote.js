@@ -81,7 +81,9 @@ async function upsertInformacionFisica(tx, notaBuffer, data) {
 
 async function replacePlanesEstudio(tx, notaBuffer, planesEstudio, userId) {
   const { cie10_codes, ...rest } = planesEstudio
-  await tx.planes_estudio.deleteMany({ where: { nota_evolucion_id: notaBuffer } })
+  await tx.planes_estudio.deleteMany({
+    where: { nota_evolucion_id: notaBuffer },
+  })
   await tx.planes_estudio.create({
     data: {
       nota_evolucion_id: notaBuffer,
@@ -108,7 +110,12 @@ export class EvolutionNoteModel {
     const offset = (page - 1) * limit
 
     const queryOptions = fields
-      ? { select: { id: true, ...Object.fromEntries(fields.map((f) => [f, true])) } }
+      ? {
+          select: {
+            id: true,
+            ...Object.fromEntries(fields.map((f) => [f, true])),
+          },
+        }
       : { include: includeRelations }
 
     const [notes, total] = await prisma.$transaction([
