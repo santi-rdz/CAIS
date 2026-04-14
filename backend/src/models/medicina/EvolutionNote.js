@@ -81,6 +81,9 @@ async function upsertInformacionFisica(tx, notaBuffer, data) {
 
 async function replacePlanesEstudio(tx, notaBuffer, planesEstudio, userId) {
   const { cie10_codes, ...rest } = planesEstudio
+  await tx.planes_estudio_cie10.deleteMany({
+    where: { planes_estudio: { nota_evolucion_id: notaBuffer } },
+  })
   await tx.planes_estudio.deleteMany({
     where: { nota_evolucion_id: notaBuffer },
   })
@@ -141,32 +144,36 @@ export class EvolutionNoteModel {
     return formatEvolutionNote(note)
   }
 
-  static async create(data, userId, tx = prisma) {
-    const noteId = randomUUID()
-    const notaBuffer = uuidToBuffer(noteId)
+  static async create(data, userId, tx = null) {
+    const run = async (tx) => {
+      const noteId = randomUUID()
+      const notaBuffer = uuidToBuffer(noteId)
 
-    await tx.notas_evolucion.create({
-      data: {
-        id: notaBuffer,
-        paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-        historia_medica_id: data.historia_medica_id
-          ? uuidToBuffer(data.historia_medica_id)
-          : null,
-        motivo_consulta: data.motivo_consulta ?? null,
-        ant_gine_andro: data.ant_gine_andro ?? null,
-        estudios_complementarios_efectuados:
-          data.estudios_complementarios_efectuados ?? null,
-      },
-    })
+      await tx.notas_evolucion.create({
+        data: {
+          id: notaBuffer,
+          paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
+          historia_medica_id: data.historia_medica_id
+            ? uuidToBuffer(data.historia_medica_id)
+            : null,
+          motivo_consulta: data.motivo_consulta ?? null,
+          ant_gine_andro: data.ant_gine_andro ?? null,
+          estudios_complementarios_efectuados:
+            data.estudios_complementarios_efectuados ?? null,
+        },
+      })
 
-    if (data.aparatos_sistemas)
-      await upsertAparatosSistemas(tx, notaBuffer, data.aparatos_sistemas)
-    if (data.informacion_fisica)
-      await upsertInformacionFisica(tx, notaBuffer, data.informacion_fisica)
-    if (data.planes_estudio)
-      await replacePlanesEstudio(tx, notaBuffer, data.planes_estudio, userId)
+      if (data.aparatos_sistemas)
+        await upsertAparatosSistemas(tx, notaBuffer, data.aparatos_sistemas)
+      if (data.informacion_fisica)
+        await upsertInformacionFisica(tx, notaBuffer, data.informacion_fisica)
+      if (data.planes_estudio)
+        await replacePlanesEstudio(tx, notaBuffer, data.planes_estudio, userId)
 
-    return this.getById(noteId, tx)
+      return this.getById(noteId, tx)
+    }
+
+    return tx ? run(tx) : prisma.$transaction(run)
   }
 
   static async delete(id) {
@@ -182,8 +189,8 @@ export class EvolutionNoteModel {
     }
   }
 
-  static async update(id, data, userId, tx = prisma) {
-    try {
+  static async update(id, data, userId, tx = null) {
+    const run = async (tx) => {
       const existing = await tx.notas_evolucion.findUnique({
         where: { id: uuidToBuffer(id) },
         select: selectBasic,
@@ -219,6 +226,10 @@ export class EvolutionNoteModel {
         await replacePlanesEstudio(tx, notaBuffer, data.planes_estudio, userId)
 
       return this.getById(id, tx)
+    }
+
+    try {
+      return tx ? run(tx) : await prisma.$transaction(run)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err
