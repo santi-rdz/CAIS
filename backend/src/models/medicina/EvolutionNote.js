@@ -29,19 +29,21 @@ function formatEvolutionNote(n) {
       ? toUUID(n.historia_medica_id)
       : null,
 
-    planes_estudio: planes_estudio
-      ? planes_estudio.map((plan) => ({
-          ...plan,
-          usuario_id: toUUID(plan.usuario_id),
-          nota_evolucion_id: undefined,
-          cie10_codes:
-            plan.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
-              codigo,
-              descripcion,
-            })) ?? [],
-          planes_estudio_cie10: undefined,
-        }))
-      : [],
+    planes_estudio: (() => {
+      const plan = planes_estudio?.[0] ?? null
+      if (!plan) return null
+      return {
+        ...plan,
+        usuario_id: toUUID(plan.usuario_id),
+        nota_evolucion_id: undefined,
+        cie10_codes:
+          plan.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
+            codigo,
+            descripcion,
+          })) ?? [],
+        planes_estudio_cie10: undefined,
+      }
+    })(),
   }
 }
 
