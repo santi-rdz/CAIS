@@ -18,7 +18,7 @@ export class EvolutionNoteController {
     }
 
     try {
-      const note = await EvolutionNoteModel.create(result.data)
+      const note = await EvolutionNoteModel.create(result.data, req.session.userId)
       return res
         .status(201)
         .json({ message: 'Nota de evolución registrada', note })
@@ -31,10 +31,22 @@ export class EvolutionNoteController {
   }
 
   static async getAll(req, res) {
-    const { paciente_id } = req.query
+    const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    const result = await EvolutionNoteModel.getAll({ paciente_id, page, limit })
+    const parsedFields = fields
+      ? fields
+          .split(',')
+          .map((f) => f.trim())
+          .filter(Boolean)
+      : null
+
+    const result = await EvolutionNoteModel.getAll({
+      paciente_id,
+      page,
+      limit,
+      fields: parsedFields,
+    })
     res.json(result)
   }
 
@@ -77,7 +89,7 @@ export class EvolutionNoteController {
 
     const { id } = req.params
     try {
-      const updatedNote = await EvolutionNoteModel.update(id, result.data)
+      const updatedNote = await EvolutionNoteModel.update(id, result.data, req.session.userId)
       if (!updatedNote)
         return res
           .status(404)

@@ -419,7 +419,7 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
 
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    historia_medica_id BINARY(16) NULL UNIQUE,
     nota_evolucion_id BINARY(16) UNIQUE,
     neurologico TEXT,
     cardiovascular TEXT,
@@ -460,7 +460,7 @@ CREATE TABLE IF NOT EXISTS inmunizaciones (
 
 CREATE TABLE IF NOT EXISTS informacion_fisica (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    historia_medica_id BINARY(16) NULL UNIQUE,
     nota_evolucion_id BINARY(16) UNIQUE,
     peso FLOAT,
     altura FLOAT,
@@ -481,7 +481,7 @@ CREATE TABLE IF NOT EXISTS informacion_fisica (
 
 CREATE TABLE IF NOT EXISTS planes_estudio (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    historia_medica_id BINARY(16) NULL UNIQUE,
     nota_evolucion_id BINARY(16),
     plan_tratamiento TEXT,
     usuario_id BINARY(16) NOT NULL,
