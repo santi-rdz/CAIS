@@ -83,22 +83,18 @@ export default function NoteDetail({ note, onBack, onEdit }) {
         <div className="p-5">
           <Tab.Panel value="consulta" scrollable={false}>
             <MotivoConsultaSection motivo_consulta={motivo_consulta}>
-              {ant_gine_andro && (
-                <DataField
-                  label="Antec. gin./androl."
-                  value={ant_gine_andro}
-                  multiline
-                  block
-                />
-              )}
-              {estudios_complementarios_efectuados && (
-                <DataField
-                  label="Estudios complementarios efectuados"
-                  value={estudios_complementarios_efectuados}
-                  multiline
-                  block
-                />
-              )}
+              <DataField
+                label="Antec. gin./androl."
+                value={ant_gine_andro}
+                multiline
+                block
+              />
+              <DataField
+                label="Estudios complementarios efectuados"
+                value={estudios_complementarios_efectuados}
+                multiline
+                block
+              />
             </MotivoConsultaSection>
           </Tab.Panel>
 
@@ -114,13 +110,7 @@ export default function NoteDetail({ note, onBack, onEdit }) {
           </Tab.Panel>
 
           <Tab.Panel value="plan" scrollable={false}>
-            {planes_estudio ? (
-              <PlanEstudioSection plan={planes_estudio} />
-            ) : (
-              <p className="text-5 py-8 text-center text-zinc-400">
-                Sin plan de estudio registrado.
-              </p>
-            )}
+            <PlanEstudioSection plan={planes_estudio} />
           </Tab.Panel>
         </div>
       </Tab>
