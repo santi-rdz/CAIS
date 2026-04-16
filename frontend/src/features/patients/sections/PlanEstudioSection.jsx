@@ -16,19 +16,17 @@ export default function PlanEstudioSection({ plan }) {
         <DataField label="Tratamiento" value={tratamiento} multiline block />
       </div>
 
-      {estudios_complementarios && (
-        <div className="space-y-3">
-          <Heading as="h4" showBar>
-            Estudios Complementarios
-          </Heading>
-          <DataField
-            label="Estudios complementarios"
-            value={estudios_complementarios}
-            multiline
-            block
-          />
-        </div>
-      )}
+      <div className="space-y-3">
+        <Heading as="h4" showBar>
+          Estudios Complementarios
+        </Heading>
+        <DataField
+          label="Estudios complementarios"
+          value={estudios_complementarios}
+          multiline
+          block
+        />
+      </div>
 
       <CIE10List codes={cie10_codes} />
     </div>
