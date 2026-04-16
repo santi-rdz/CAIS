@@ -20,66 +20,34 @@ export default function NoteCard({
     return (
       <article
         onClick={onClick}
-        className={`group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-xl border bg-white px-4 py-4 shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+        className={`group relative flex cursor-pointer flex-col gap-2 overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
           isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
         }`}
       >
-        {/* Doctor Avatar + Name */}
-        <div className="flex min-w-0 items-center gap-3 shrink-0">
-          {doctor?.foto ? (
-            <img
-              src={doctor.foto}
-              alt={doctor.nombre}
-              className="h-8 w-8 shrink-0 rounded-full object-cover"
-            />
-          ) : (
-            <HiOutlineUserCircle size={20} className="shrink-0 text-zinc-300" />
-          )}
-          <span className="text-6 truncate text-zinc-700 font-medium">
-            {doctor?.nombre ?? 'Dr. no registrado'}
-          </span>
-        </div>
-
-        {/* DateTime */}
-        <div className="flex items-center gap-2 shrink-0 text-zinc-600">
-          <time className="text-6 font-mono">
+        {/* Top row: Doctor + DateTime + Edit */}
+        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pt-3 pb-1.5">
+          <div className="flex min-w-0 items-center gap-2">
+            {doctor?.foto ? (
+              <img
+                src={doctor.foto}
+                alt={doctor.nombre}
+                className="h-6 w-6 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <HiOutlineUserCircle size={18} className="shrink-0 text-zinc-300" />
+            )}
+            <span className="text-6 truncate text-zinc-400">
+              {doctor?.nombre ?? 'Dr. no registrado'}
+            </span>
+          </div>
+          <time className="text-6 font-mono text-zinc-400 shrink-0">
             {date} {hour}h
           </time>
         </div>
 
-        {/* Motivo */}
-        <div className="flex-1 min-w-0">
-          <p className="text-5 text-zinc-600 truncate">
-            {motivo_consulta || <span className="text-zinc-300 italic">Sin motivo</span>}
-          </p>
-        </div>
-
-        {/* CIE-10 */}
-        <div className="flex shrink-0 items-center gap-1.5">
-          {cie10Codes.length > 0 ? (
-            <>
-              {cie10Codes.slice(0, 2).map((d) => (
-                <span
-                  key={d.codigo}
-                  className="text-6 rounded-md border border-blue-100 bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700 whitespace-nowrap"
-                >
-                  {d.codigo}
-                </span>
-              ))}
-              {cie10Codes.length > 2 && (
-                <span className="text-6 rounded-md bg-zinc-100 px-2 py-0.5 text-zinc-500 whitespace-nowrap">
-                  +{cie10Codes.length - 2}
-                </span>
-              )}
-            </>
-          ) : (
-            <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
-          )}
-        </div>
-
-        {/* Edit Button */}
+        {/* Edit button (top right) */}
         <div
-          className={`transition-opacity ${
+          className={`absolute top-2 right-2 z-10 transition-opacity ${
             isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
           }`}
         >
@@ -93,8 +61,41 @@ export default function NoteCard({
               onEdit?.(note)
             }}
           >
-            <HiOutlinePencilSquare size={16} />
+            <HiOutlinePencilSquare size={14} />
           </Button>
+        </div>
+
+        {/* Motivo section */}
+        <div className="px-4 py-1.5">
+          <p className="text-7 font-medium uppercase text-zinc-400 mb-1">
+            Motivo
+          </p>
+          <p className="text-5 text-zinc-600">
+            {motivo_consulta || <span className="text-zinc-300 italic">Sin motivo de consulta</span>}
+          </p>
+        </div>
+
+        {/* CIE-10 footer */}
+        <div className="shrink-0 px-4 pb-2.5 pt-1.5">
+          {cie10Codes.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {cie10Codes.slice(0, 4).map((d) => (
+                <span
+                  key={d.codigo}
+                  className="text-6 rounded-md border border-blue-100 bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700"
+                >
+                  {d.codigo}
+                </span>
+              ))}
+              {cie10Codes.length > 4 && (
+                <span className="text-6 rounded-md bg-zinc-100 px-2 py-0.5 text-zinc-500">
+                  +{cie10Codes.length - 4}
+                </span>
+              )}
+            </div>
+          ) : (
+            <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
+          )}
         </div>
       </article>
     )
