@@ -32,10 +32,8 @@ const STEP_COMPONENTS = [
   PlanDiagnosticoStep,
 ]
 
-const DEFAULT_VALUES = {
-  // Step 1 – fecha y hora
-  fecha: dayjs(),
-  hora: dayjs(),
+const DEFAULT_VALUES_TEMPLATE = {
+  // Step 1 – fecha y hora (computed dynamically)
   motivo_consulta: '',
   ant_gine_andro: '',
   // Step 2 – aparatos_sistemas
@@ -44,6 +42,14 @@ const DEFAULT_VALUES = {
   informacion_fisica: INFORMACION_FISICA_DEFAULTS,
   // Step 4 – planes_estudio
   planes_estudio: PLAN_ESTUDIO_DEFAULTS,
+}
+
+function getCreateDefaults() {
+  return {
+    ...DEFAULT_VALUES_TEMPLATE,
+    fecha: dayjs(),
+    hora: dayjs(),
+  }
 }
 
 function fillDefaults(defaults, source) {
@@ -77,7 +83,7 @@ function buildEditDefaults(note) {
     },
   }
 
-  return fillDefaults(DEFAULT_VALUES, source)
+  return fillDefaults(DEFAULT_VALUES_TEMPLATE, source)
 }
 
 export default function EvolutionNoteForm({
@@ -90,7 +96,7 @@ export default function EvolutionNoteForm({
   const { createNote, isCreating } = useCreateEvolutionNote(pacienteId)
   const { updateNote, isUpdating } = useUpdateEvolutionNote(pacienteId)
   const isEdit = !!note
-  const defaultValues = isEdit ? buildEditDefaults(note) : DEFAULT_VALUES
+  const defaultValues = isEdit ? buildEditDefaults(note) : getCreateDefaults()
   const stepForm = useStepForm(
     STEPS,
     STEPS_FIELDS,
