@@ -50,7 +50,7 @@ export function pickDirty(data, dirtyFields) {
 export function nullifyEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
-    if (typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
+    if (v !== null && typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
       result[k] = nullifyEmpty(v)
     } else {
       result[k] = v === '' ? null : v

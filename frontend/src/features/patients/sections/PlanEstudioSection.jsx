@@ -19,12 +19,6 @@ export default function PlanEstudioSection({ plan }) {
           />
           <DataField label="Tratamiento" value={tratamiento} multiline block />
         </div>
-      </div>
-
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Estudios Complementarios
-        </Heading>
         <DataField
           label="Estudios complementarios"
           value={estudios_complementarios}
