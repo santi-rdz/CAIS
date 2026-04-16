@@ -1,5 +1,5 @@
 import { HiOutlineDocumentText, HiOutlineUser } from 'react-icons/hi2'
-import DataField from '../../components/DataField'
+import DataField from '@components/DataField'
 
 function VitalStat({ label, value, unit, badge }) {
   return (

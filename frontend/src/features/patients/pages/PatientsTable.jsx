@@ -1,5 +1,5 @@
 import Table from '@components/Table'
-import { usePatients } from './hooks/usePatients'
+import { usePatients } from '../hooks/usePatients'
 import PatientRow from './PatientRow'
 
 export default function PatientsTable() {

@@ -5,7 +5,6 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { z } from 'zod'
 import {
   internCreateSchema,
   internSelfRegisterBaseSchema,

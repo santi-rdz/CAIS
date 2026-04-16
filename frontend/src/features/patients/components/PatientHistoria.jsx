@@ -4,20 +4,20 @@ import Heading from '@components/Heading'
 import Tab from '@components/Tab'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
-import { useMedicalHistories } from './hooks/useMedicalHistories'
-import { useMedicalHistory } from './hooks/useMedicalHistory'
+import { useMedicalHistories } from '../hooks/useMedicalHistories'
+import { useMedicalHistory } from '../hooks/useMedicalHistory'
 import { formatFecha } from '@lib/dateHelpers'
 import {
   buildAntPatFields,
   buildAntFamFields,
   buildAparSistFields,
-} from './historia/constants'
-import HistoriaPeriodSelect from './historia/components/HistoriaPeriodSelect'
-import FieldsSection from './historia/sections/FieldsSection'
-import SignosVitalesSection from './historia/sections/SignosVitalesSection'
-import NoPatologicosSection from './historia/sections/NoPatologicosSection'
-import ConsultaYPlanSection from './historia/sections/ConsultaYPlanSection'
-import MedicalPatientForm from './components/MedicalPatientForm/MedicalPatientForm'
+} from '../constants'
+import HistoriaPeriodSelect from './HistoriaPeriodSelect'
+import FieldsSection from '../sections/FieldsSection'
+import SignosVitalesSection from '../sections/SignosVitalesSection'
+import NoPatologicosSection from '../sections/NoPatologicosSection'
+import ConsultaYPlanSection from '../sections/ConsultaYPlanSection'
+import MedicalPatientForm from '../forms/MedicalPatientForm/MedicalPatientForm'
 
 function formatHistoriaOption(h) {
   return { value: h.id, label: formatFecha(h.creado_at) }

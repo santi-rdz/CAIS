@@ -4,7 +4,7 @@ import {
   HiOutlineCalendarDays,
 } from 'react-icons/hi2'
 import { formatFechaLong } from '@lib/dateHelpers'
-import DataField from '../../components/DataField'
+import DataField from '@components/DataField'
 
 const VACCINES = [
   { label: 'Influenza', key: 'influenza' },

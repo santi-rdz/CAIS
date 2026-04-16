@@ -6,11 +6,11 @@ import Modal from '@components/Modal'
 import { useEvolutionNotes } from '../hooks/useEvolutionNotes'
 import { useMedicalHistories } from '../hooks/useMedicalHistories'
 import { formatFecha } from '@lib/dateHelpers'
-import HistoriaPeriodSelect from '../historia/components/HistoriaPeriodSelect'
+import HistoriaPeriodSelect from './HistoriaPeriodSelect'
 import NoteCard from './NoteCard'
 import NoteDetail from './NoteDetail'
-import EmptyState from './EmptyState'
-import EvolutionNoteForm from './EvolutionNoteForm/EvolutionNoteForm'
+import EmptyState from '@components/EmptyState'
+import EvolutionNoteForm from '../forms/EvolutionNoteForm/EvolutionNoteForm'
 
 function formatHistoriaOption(h) {
   return { value: h.id, label: formatFecha(h.creado_at) }

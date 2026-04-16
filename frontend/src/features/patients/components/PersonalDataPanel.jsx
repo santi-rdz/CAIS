@@ -10,8 +10,8 @@ import {
   HiOutlineInformationCircle,
 } from 'react-icons/hi2'
 import Heading from '@components/Heading'
-import DataField from './DataField'
-import EmptyState from './EmptyState'
+import DataField from '@components/DataField'
+import EmptyState from '@components/EmptyState'
 
 export default function PersonalDataPanel({ patient }) {
   const {

@@ -6,7 +6,7 @@ import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 import { medicalHistorySchema } from '@cais/shared/schemas/medicina/medicalHistory'
 import { useStepForm } from '@hooks/useStepForm'
 import { formatFecha } from '@lib/dateHelpers'
-import { omitEmpty } from '@lib/utils'
+import { omitEmpty, pickDirty, nullifyEmpty } from '@lib/utils'
 import { useCreatePatientWithHistory } from '../../hooks/useCreatePatientWithHistory'
 import { useCreateMedicalHistory } from '../../hooks/useCreateMedicalHistory'
 import { useUpdatePatientWithHistory } from '../../hooks/useUpdatePatientWithHistory'
@@ -170,33 +170,6 @@ const HISTORY_NESTED = new Set([
  * Para objetos anidados (dirtyFields: { antecedentes_familiares: { padre: true } }),
  * incluye el objeto completo si al menos un subcampo cambió.
  */
-function pickDirty(data, dirtyFields) {
-  const result = {}
-  for (const key of Object.keys(dirtyFields)) {
-    if (key in data) result[key] = data[key]
-  }
-  return result
-}
-
-/** Convierte recursivamente strings vacíos a null (usado en edición para limpiar campos). */
-function nullifyEmpty(obj) {
-  const result = {}
-  for (const [k, v] of Object.entries(obj)) {
-    if (
-      typeof v === 'object' &&
-      v !== null &&
-      !Array.isArray(v) &&
-      !(v instanceof Date) &&
-      !dayjs.isDayjs(v)
-    ) {
-      result[k] = nullifyEmpty(v)
-    } else {
-      result[k] = v === '' ? null : v
-    }
-  }
-  return result
-}
-
 function splitFormData(rawData) {
   const data = omitEmpty(rawData)
   const {

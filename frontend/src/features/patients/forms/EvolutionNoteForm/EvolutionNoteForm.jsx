@@ -12,7 +12,7 @@ import {
 } from '../shared/formDefaults'
 import dayjs from 'dayjs'
 import { mergeFechaHora } from '@lib/dateHelpers'
-import { omitEmpty } from '@lib/utils'
+import { omitEmpty, pickDirty, nullifyEmpty } from '@lib/utils'
 import { useCreateEvolutionNote } from '../../hooks/useCreateEvolutionNote'
 import { useUpdateEvolutionNote } from '../../hooks/useUpdateEvolutionNote'
 import MotivoConsultaStep from './steps/MotivoConsultaStep'
@@ -106,28 +106,54 @@ export default function EvolutionNoteForm({
 
   const StepComponent = STEP_COMPONENTS[currStep]
 
-  async function onSubmit(data) {
-    const cleaned = omitEmpty(data)
-    const payload = {
-      paciente_id: pacienteId,
-      ...(historiaId && { historia_medica_id: historiaId }),
-      creado_at: mergeFechaHora(data.fecha, data.hora),
-      ...(cleaned.motivo_consulta && {
-        motivo_consulta: cleaned.motivo_consulta,
-      }),
-      ...(cleaned.ant_gine_andro && { ant_gine_andro: cleaned.ant_gine_andro }),
-      ...(cleaned.aparatos_sistemas && {
-        aparatos_sistemas: cleaned.aparatos_sistemas,
-      }),
-      ...(cleaned.informacion_fisica && {
-        informacion_fisica: cleaned.informacion_fisica,
-      }),
-      ...(cleaned.planes_estudio && { planes_estudio: cleaned.planes_estudio }),
-    }
+  const NESTED_KEYS = [
+    'aparatos_sistemas',
+    'informacion_fisica',
+    'planes_estudio',
+  ]
 
+  async function onSubmit(data) {
     if (isEdit) {
+      const dirtyFields = stepForm.methods.formState.dirtyFields
+      if (!Object.keys(dirtyFields).length) return onCloseModal?.()
+
+      const dirty = pickDirty(data, dirtyFields)
+
+      for (const key of NESTED_KEYS) {
+        if (key in dirty) {
+          dirty[key] = nullifyEmpty(data[key])
+        }
+      }
+
+      const payload = {
+        ...nullifyEmpty(dirty),
+        creado_at: mergeFechaHora(data.fecha, data.hora),
+      }
+
       await updateNote(note.id, payload)
     } else {
+      const cleaned = omitEmpty(data)
+      const payload = {
+        paciente_id: pacienteId,
+        ...(historiaId && { historia_medica_id: historiaId }),
+        creado_at: mergeFechaHora(data.fecha, data.hora),
+        ...(cleaned.motivo_consulta && {
+          motivo_consulta: cleaned.motivo_consulta,
+        }),
+        ...(cleaned.ant_gine_andro && {
+          ant_gine_andro: cleaned.ant_gine_andro,
+        }),
+        ...(cleaned.aparatos_sistemas && {
+          aparatos_sistemas: cleaned.aparatos_sistemas,
+        }),
+        ...(cleaned.informacion_fisica && {
+          informacion_fisica: cleaned.informacion_fisica,
+        }),
+        ...(cleaned.planes_estudio && {
+          planes_estudio: cleaned.planes_estudio,
+        }),
+      }
+
       await createNote(payload)
     }
     onCloseModal?.()

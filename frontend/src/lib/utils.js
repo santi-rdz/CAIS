@@ -35,6 +35,35 @@ export function omitEmpty(obj) {
 }
 
 /**
+ * Extrae solo los campos que el usuario modificó (dirty) del formulario.
+ */
+export function pickDirty(data, dirtyFields) {
+  const result = {}
+  for (const key of Object.keys(dirtyFields)) {
+    if (key in data) result[key] = data[key]
+  }
+  return result
+}
+
+/** Convierte recursivamente strings vacíos a null (usado en edición para limpiar campos). */
+export function nullifyEmpty(obj) {
+  const result = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (
+      typeof v === 'object' &&
+      v !== null &&
+      !Array.isArray(v) &&
+      !(v instanceof Date)
+    ) {
+      result[k] = nullifyEmpty(v)
+    } else {
+      result[k] = v === '' ? null : v
+    }
+  }
+  return result
+}
+
+/**
  * Formats a 10-digit phone string to (XXX) XXX-XXXX.
  * Strips non-digits first, so it works with raw stored values or partially typed input.
  * @param {string} value - Raw or formatted phone string

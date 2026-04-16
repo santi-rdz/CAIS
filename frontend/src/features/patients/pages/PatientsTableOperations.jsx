@@ -5,7 +5,7 @@ import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
 import { PATIENT_SORT_KEYS } from '@cais/shared/constants/patients'
 import { HiArrowDown, HiArrowUp } from 'react-icons/hi2'
-import NewPatientButton from './components/NewPatientButton'
+import NewPatientButton from '../components/NewPatientButton'
 
 const SORT_BY_OPTIONS = [
   {
