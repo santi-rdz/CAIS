@@ -19,12 +19,13 @@ export const isValidEmail = (email) =>
 /**
  * Omite recursivamente keys con valor vacío ('', null, undefined).
  * Si un objeto anidado queda sin keys, también se omite.
+ * Solo recursiona en objetos planos, preservando Dayjs, Date, y otras instancias.
  */
 export function omitEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
     if (v === '' || v == null) continue
-    if (typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date)) {
+    if (typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
       const cleaned = omitEmpty(v)
       if (Object.keys(cleaned).length) result[k] = cleaned
     } else {
@@ -49,12 +50,7 @@ export function pickDirty(data, dirtyFields) {
 export function nullifyEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
-    if (
-      typeof v === 'object' &&
-      v !== null &&
-      !Array.isArray(v) &&
-      !(v instanceof Date)
-    ) {
+    if (typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
       result[k] = nullifyEmpty(v)
     } else {
       result[k] = v === '' ? null : v
