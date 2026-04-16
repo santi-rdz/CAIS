@@ -10,12 +10,14 @@ export default function ConsultaYPlanSection({ historia }) {
   return (
     <div className="space-y-6">
       <MotivoConsultaSection motivo_consulta={motivo_consulta}>
-        <DataField
-          label="Historia de enfermedad actual"
-          value={historia_enfermedad_actual}
-          multiline
-          block
-        />
+        {historia_enfermedad_actual && (
+          <DataField
+            label="Historia de enfermedad actual"
+            value={historia_enfermedad_actual}
+            multiline
+            block
+          />
+        )}
       </MotivoConsultaSection>
 
       <div className="space-y-3">
