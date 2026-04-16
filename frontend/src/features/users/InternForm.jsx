@@ -50,7 +50,7 @@ export default function InternForm({
         fechaNacimiento: dayjsDateSchema,
         correo: z.string().min(1, 'Ingresa un usuario').max(255).superRefine((val, ctx) => {
           if (!isUabcDomainRef.current && !correoSchema.safeParse(val).success) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Correo electrónico inválido' })
+            ctx.addIssue({ code: 'custom', message: 'Correo electrónico inválido' })
           }
         }),
       })
