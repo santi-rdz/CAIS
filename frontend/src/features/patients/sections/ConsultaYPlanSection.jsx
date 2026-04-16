@@ -1,4 +1,3 @@
-import Heading from '@components/Heading'
 import DataField from '@components/DataField'
 import MotivoConsultaSection from './MotivoConsultaSection'
 import PlanEstudioSection from './PlanEstudioSection'
@@ -18,12 +17,7 @@ export default function ConsultaYPlanSection({ historia }) {
         />
       </MotivoConsultaSection>
 
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Plan y Diagnóstico
-        </Heading>
-        <PlanEstudioSection plan={planes_estudio} />
-      </div>
+      <PlanEstudioSection plan={planes_estudio} />
     </div>
   )
 }
