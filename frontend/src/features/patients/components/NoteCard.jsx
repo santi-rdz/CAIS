@@ -7,6 +7,7 @@ export default function NoteCard({
   onClick,
   onEdit,
   isSelected = false,
+  layout = 'grid',
 }) {
   const { motivo_consulta, planes_estudio, usuarios, creado_at } = note
 
@@ -15,6 +16,91 @@ export default function NoteCard({
   const doctor = usuarios
   const cie10Codes = planes_estudio?.cie10_codes ?? []
 
+  if (layout === 'list') {
+    return (
+      <article
+        onClick={onClick}
+        className={`group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-xl border bg-white px-4 py-4 shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+          isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
+        }`}
+      >
+        {/* Doctor Avatar + Name */}
+        <div className="flex min-w-0 items-center gap-3 shrink-0">
+          {doctor?.foto ? (
+            <img
+              src={doctor.foto}
+              alt={doctor.nombre}
+              className="h-8 w-8 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <HiOutlineUserCircle size={20} className="shrink-0 text-zinc-300" />
+          )}
+          <span className="text-6 truncate text-zinc-700 font-medium">
+            {doctor?.nombre ?? 'Dr. no registrado'}
+          </span>
+        </div>
+
+        {/* DateTime */}
+        <div className="flex items-center gap-2 shrink-0 text-zinc-600">
+          <time className="text-6 font-mono">
+            {date} {hour}h
+          </time>
+        </div>
+
+        {/* Motivo */}
+        <div className="flex-1 min-w-0">
+          <p className="text-5 text-zinc-600 truncate">
+            {motivo_consulta || <span className="text-zinc-300 italic">Sin motivo</span>}
+          </p>
+        </div>
+
+        {/* CIE-10 */}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {cie10Codes.length > 0 ? (
+            <>
+              {cie10Codes.slice(0, 2).map((d) => (
+                <span
+                  key={d.codigo}
+                  className="text-6 rounded-md border border-blue-100 bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700 whitespace-nowrap"
+                >
+                  {d.codigo}
+                </span>
+              ))}
+              {cie10Codes.length > 2 && (
+                <span className="text-6 rounded-md bg-zinc-100 px-2 py-0.5 text-zinc-500 whitespace-nowrap">
+                  +{cie10Codes.length - 2}
+                </span>
+              )}
+            </>
+          ) : (
+            <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
+          )}
+        </div>
+
+        {/* Edit Button */}
+        <div
+          className={`transition-opacity ${
+            isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-md bg-white/90 p-1.5 text-zinc-500 shadow-sm hover:text-zinc-800"
+            aria-label="Editar nota"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit?.(note)
+            }}
+          >
+            <HiOutlinePencilSquare size={16} />
+          </Button>
+        </div>
+      </article>
+    )
+  }
+
+  // Grid mode (original)
   return (
     <article
       onClick={onClick}

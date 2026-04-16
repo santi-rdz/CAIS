@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { HiOutlinePlus, HiOutlineClipboardDocument } from 'react-icons/hi2'
+import { HiOutlinePlus, HiOutlineClipboardDocument, HiOutlineSquares2X2, HiOutlineListBullet } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
 import { useEvolutionNotes } from '../hooks/useEvolutionNotes'
@@ -20,6 +20,7 @@ function formatHistoriaOption(h) {
 export default function NotesPanel({ pacienteId, patientGenero }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { histories } = useMedicalHistories(pacienteId)
+  const [layout, setLayout] = useState('grid')
 
   const selectedId = searchParams.get('historia')
   const editNoteId = searchParams.get('editNote')
@@ -64,7 +65,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   return (
     <div>
       <Modal>
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between gap-4">
           {periodos.length > 0 && (
             <HistoriaPeriodSelect
               value={historiaId}
@@ -72,18 +73,42 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
               periodos={periodos}
             />
           )}
-          <Modal.Open opens="create-note">
-            <Button
-              variant="primary"
-              size="md"
-              className="gap-1.5"
-              onClick={handleOpenCreate}
-              disabled={!historiaId}
-            >
-              <HiOutlinePlus size={14} />
-              Nueva nota
-            </Button>
-          </Modal.Open>
+          <div className="flex items-center gap-2">
+            {/* Layout Toggle Buttons */}
+            <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
+              <Button
+                variant={layout === 'grid' ? 'primary' : 'ghost'}
+                size="sm"
+                className="p-2"
+                aria-label="Vista en grid"
+                onClick={() => setLayout('grid')}
+              >
+                <HiOutlineSquares2X2 size={16} />
+              </Button>
+              <Button
+                variant={layout === 'list' ? 'primary' : 'ghost'}
+                size="sm"
+                className="p-2"
+                aria-label="Vista en lista"
+                onClick={() => setLayout('list')}
+              >
+                <HiOutlineListBullet size={16} />
+              </Button>
+            </div>
+
+            <Modal.Open opens="create-note">
+              <Button
+                variant="primary"
+                size="md"
+                className="gap-1.5"
+                onClick={handleOpenCreate}
+                disabled={!historiaId}
+              >
+                <HiOutlinePlus size={14} />
+                Nueva nota
+              </Button>
+            </Modal.Open>
+          </div>
           <Modal.Open opens="create-note">
             <button ref={openModalRef} className="hidden" aria-hidden="true" />
           </Modal.Open>
@@ -133,7 +158,23 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
       ) : selectedNoteId && isSelectedPending ? (
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
       ) : (
-        <div className="grid grid-cols-3 gap-3">
+        <div
+          className={
+            layout === 'grid'
+              ? 'grid gap-3 auto-fit-grid'
+              : 'flex flex-col gap-3'
+          }
+          style={
+            layout === 'grid'
+              ? {
+                  display: 'grid',
+                  gridTemplateColumns:
+                    'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '12px',
+                }
+              : undefined
+          }
+        >
           {notes.map((note) => (
             <NoteCard
               key={note.id}
@@ -141,6 +182,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
               onClick={() => setSelectedNoteId(note.id)}
               onEdit={handleOpenEdit}
               isSelected={selectedNoteId === note.id}
+              layout={layout}
             />
           ))}
         </div>
