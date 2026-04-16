@@ -1,3 +1,4 @@
+import Heading from '@components/Heading'
 import DataField from '@components/DataField'
 import CIE10List from './CIE10List'
 
