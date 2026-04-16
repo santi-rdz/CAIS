@@ -13,7 +13,6 @@ export default function NoteDetail({ note, onBack, onEdit }) {
   const {
     motivo_consulta,
     ant_gine_andro,
-    estudios_complementarios_efectuados,
     planes_estudio,
     aparatos_sistemas,
     informacion_fisica,
@@ -86,12 +85,6 @@ export default function NoteDetail({ note, onBack, onEdit }) {
               <DataField
                 label="Antec. gin./androl."
                 value={ant_gine_andro}
-                multiline
-                block
-              />
-              <DataField
-                label="Estudios complementarios efectuados"
-                value={estudios_complementarios_efectuados}
                 multiline
                 block
               />
