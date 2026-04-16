@@ -5,7 +5,7 @@ export default function DataField({
   multiline = false,
   block = false,
 }) {
-  const hasValue = value !== null && value !== undefined && value !== ''
+  const hasValue = value != null && String(value).trim() !== ''
 
   return (
     <div className="space-y-1">
