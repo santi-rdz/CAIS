@@ -6,10 +6,12 @@ export function useUpdateEvolutionNote(pacienteId) {
   const queryClient = useQueryClient()
   const { mutateAsync, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, data }) => updateEvolutionNote(id, data),
-    onSuccess: () =>
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: ['evolution-notes', pacienteId],
-      }),
+      })
+      queryClient.invalidateQueries({ queryKey: ['evolution-note', id] })
+    },
   })
 
   async function updateNote(id, data) {

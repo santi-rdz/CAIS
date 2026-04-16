@@ -36,7 +36,8 @@ export default function CoordForm({
   isPending = false,
 }) {
   const { createUser, isCreating } = useCreateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
 
   const createFormSchema = useRef(
     coordCreateSchema

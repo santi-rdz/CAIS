@@ -75,15 +75,17 @@ function buildEditDefaults(note) {
   const createdAt = note?.creado_at ? dayjs(note.creado_at) : dayjs()
   const source = {
     ...note,
-    fecha: createdAt,
-    hora: createdAt,
     planes_estudio: {
       ...note?.planes_estudio,
       cie10_codes: note?.planes_estudio?.cie10_codes ?? [],
     },
   }
 
-  return fillDefaults(DEFAULT_VALUES_TEMPLATE, source)
+  return {
+    ...fillDefaults(DEFAULT_VALUES_TEMPLATE, source),
+    fecha: createdAt,
+    hora: createdAt,
+  }
 }
 
 export default function EvolutionNoteForm({

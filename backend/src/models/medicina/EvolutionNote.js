@@ -17,6 +17,18 @@ const includeRelations = {
   planes_estudio: { include: { planes_estudio_cie10: true } },
 }
 
+const listSelect = {
+  id: true,
+  creado_at: true,
+  motivo_consulta: true,
+  usuarios: { select: { nombre: true, foto: true } },
+  planes_estudio: {
+    select: {
+      planes_estudio_cie10: { select: { codigo: true, descripcion: true } },
+    },
+  },
+}
+
 const NESTED_RELATIONS = ['aparatos_sistemas', 'informacion_fisica']
 
 function formatEvolutionNote(n) {
@@ -49,22 +61,29 @@ function formatEvolutionNote(n) {
   }
 }
 
-function formatMinimal(n) {
-  const result = { ...n, id: toUUID(n.id) }
-  if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
-  if ('historia_medica_id' in n)
-    result.historia_medica_id = toUUID(n.historia_medica_id)
-  return result
+function formatListNote(n) {
+  const plan = Array.isArray(n.planes_estudio)
+    ? (n.planes_estudio[0] ?? null)
+    : (n.planes_estudio ?? null)
+  return {
+    id: toUUID(n.id),
+    creado_at: n.creado_at,
+    motivo_consulta: n.motivo_consulta,
+    usuarios: n.usuarios,
+    planes_estudio: plan
+      ? {
+          cie10_codes:
+            plan.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
+              codigo,
+              descripcion,
+            })) ?? [],
+        }
+      : null,
+  }
 }
 
 export class EvolutionNoteModel {
-  static async getAll({
-    paciente_id,
-    historia_medica_id,
-    page,
-    limit,
-    fields,
-  } = {}) {
+  static async getAll({ paciente_id, historia_medica_id, page, limit } = {}) {
     const where = {}
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
     if (historia_medica_id)
@@ -72,19 +91,10 @@ export class EvolutionNoteModel {
 
     const offset = (page - 1) * limit
 
-    const queryOptions = fields
-      ? {
-          select: {
-            id: true,
-            ...Object.fromEntries(fields.map((f) => [f, true])),
-          },
-        }
-      : { include: includeRelations }
-
     const [notes, total] = await prisma.$transaction([
       prisma.notas_evolucion.findMany({
         where,
-        ...queryOptions,
+        select: listSelect,
         orderBy: { creado_at: 'desc' },
         skip: offset,
         take: limit,
@@ -92,8 +102,7 @@ export class EvolutionNoteModel {
       prisma.notas_evolucion.count({ where }),
     ])
 
-    const formatter = fields ? formatMinimal : formatEvolutionNote
-    return { notes: notes.map(formatter), count: total }
+    return { notes: notes.map(formatListNote), count: total }
   }
 
   static async getById(id, tx = prisma) {

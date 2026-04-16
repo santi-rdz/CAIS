@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { HiOutlinePlus, HiOutlineClipboardDocument } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
 import { useEvolutionNotes } from '../hooks/useEvolutionNotes'
+import { useEvolutionNote } from '../hooks/useEvolutionNote'
 import { useMedicalHistories } from '../hooks/useMedicalHistories'
 import { formatFecha } from '@lib/dateHelpers'
 import HistoriaPeriodSelect from './HistoriaPeriodSelect'
@@ -26,39 +27,28 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const historiaId = selectedId ?? mostRecentId
 
   const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
-  const [selectedNote, setSelectedNote] = useState(null)
-  const [noteToEdit, setNoteToEdit] = useState(null)
+  const [selectedNoteId, setSelectedNoteId] = useState(null)
   const openModalRef = useRef(null)
-  const selectedNoteFresh = selectedNote
-    ? (notes.find((note) => note.id === selectedNote.id) ?? null)
-    : null
+
+  const { note: selectedNote, isPending: isSelectedPending } =
+    useEvolutionNote(selectedNoteId)
+  const { note: noteToEdit } = useEvolutionNote(editNoteId)
 
   const periodos = histories.map(formatHistoriaOption)
 
-  useEffect(() => {
-    if (!editNoteId) {
-      setNoteToEdit(null)
-      return
-    }
-    const noteFromList = notes.find((note) => note.id === editNoteId) ?? null
-    if (noteFromList) setNoteToEdit(noteFromList)
-  }, [editNoteId, notes])
-
   function handleSelectHistory(id) {
     setSearchParams({ historia: id }, { replace: true })
-    setSelectedNote(null)
+    setSelectedNoteId(null)
   }
 
   function handleOpenCreate() {
     const next = new URLSearchParams(searchParams)
     next.delete('editNote')
-    setNoteToEdit(null)
     setSearchParams(next, { replace: true })
   }
 
   function handleOpenEdit(note, { showDetail = false } = {}) {
-    if (showDetail) setSelectedNote(note)
-    setNoteToEdit(note)
+    if (showDetail) setSelectedNoteId(note.id)
     const next = new URLSearchParams(searchParams)
     next.set('editNote', note.id)
     setSearchParams(next, { replace: true })
@@ -68,7 +58,6 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   function handleCloseNoteModal() {
     const next = new URLSearchParams(searchParams)
     next.delete('editNote')
-    setNoteToEdit(null)
     setSearchParams(next, { replace: true })
   }
 
@@ -133,21 +122,25 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
           message="Sin notas de evolución"
           hint="Registra la primera nota de esta consulta."
         />
-      ) : selectedNoteFresh ? (
+      ) : selectedNoteId && !isSelectedPending && selectedNote ? (
         <NoteDetail
-          note={selectedNoteFresh}
-          onBack={() => setSelectedNote(null)}
-          onEdit={() => handleOpenEdit(selectedNoteFresh, { showDetail: true })}
+          note={selectedNote}
+          onBack={() => setSelectedNoteId(null)}
+          onEdit={() =>
+            handleOpenEdit({ id: selectedNoteId }, { showDetail: true })
+          }
         />
+      ) : selectedNoteId && isSelectedPending ? (
+        <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div className="grid grid-cols-3 gap-3">
           {notes.map((note) => (
             <NoteCard
               key={note.id}
               note={note}
-              onClick={() => setSelectedNote(note)}
+              onClick={() => setSelectedNoteId(note.id)}
               onEdit={handleOpenEdit}
-              isSelected={selectedNote?.id === note.id}
+              isSelected={selectedNoteId === note.id}
             />
           ))}
         </div>

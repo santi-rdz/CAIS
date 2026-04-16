@@ -13,7 +13,9 @@ export default function useEmailDomain() {
   const [isUabcDomain, setIsUabcDomain] = useState(true)
 
   const isUabcDomainRef = useRef(isUabcDomain)
-  useEffect(() => { isUabcDomainRef.current = isUabcDomain }, [isUabcDomain])
+  useEffect(() => {
+    isUabcDomainRef.current = isUabcDomain
+  }, [isUabcDomain])
 
   const correoField = useRef(
     z

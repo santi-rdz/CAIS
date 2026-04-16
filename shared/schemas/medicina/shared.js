@@ -17,16 +17,16 @@ export const coerceInt = z.coerce
 // ─── Schemas compartidos entre evolutionNote y medicalHistory ────────
 
 export const aparatosSistemasSchema = z.object({
-  neurologico: z.string().nullish(),
-  cardiovascular: z.string().nullish(),
-  respiratorio: z.string().nullish(),
-  hematologico: z.string().nullish(),
-  digestivo: z.string().nullish(),
-  musculoesqueletico: z.string().nullish(),
-  genitourinario: z.string().nullish(),
-  endocrinologico: z.string().nullish(),
-  metabolico: z.string().nullish(),
-  nutricional: z.string().nullish(),
+  neurologico: z.string().trim().nullish(),
+  cardiovascular: z.string().trim().nullish(),
+  respiratorio: z.string().trim().nullish(),
+  hematologico: z.string().trim().nullish(),
+  digestivo: z.string().trim().nullish(),
+  musculoesqueletico: z.string().trim().nullish(),
+  genitourinario: z.string().trim().nullish(),
+  endocrinologico: z.string().trim().nullish(),
+  metabolico: z.string().trim().nullish(),
+  nutricional: z.string().trim().nullish(),
 })
 
 export const informacionFisicaSchema = z
@@ -42,8 +42,8 @@ export const informacionFisicaSchema = z
     sp_o2: coerceNum,
     glucosa_capilar: coerceNum,
     temperatura: coerceNum,
-    exploracion_fisica: z.string().nullish(),
-    habito_exterior: z.string().nullish(),
+    exploracion_fisica: z.string().trim().nullish(),
+    habito_exterior: z.string().trim().nullish(),
   })
   .partial()
 
@@ -54,8 +54,8 @@ const cie10ItemSchema = z.object({
 })
 
 export const planEstudioSchema = z.object({
-  plan_tratamiento: z.string().nullish(),
-  tratamiento: z.string().nullish(),
-  estudios_complementarios: z.string().nullish(),
+  plan_tratamiento: z.string().trim().nullish(),
+  tratamiento: z.string().trim().nullish(),
+  estudios_complementarios: z.string().trim().nullish(),
   cie10_codes: z.array(cie10ItemSchema).optional(),
 })

@@ -8,6 +8,12 @@ export async function getEvolutionNotes(paciente_id, historia_medica_id) {
   })
 }
 
+export async function getEvolutionNoteById(id) {
+  return fetchApi(`/medicina/notas-evolucion/${id}`, {
+    errorMsg: 'Error al obtener nota de evolución',
+  })
+}
+
 export async function createEvolutionNote(data) {
   return fetchApi('/medicina/notas-evolucion', {
     method: 'POST',

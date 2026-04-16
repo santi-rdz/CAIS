@@ -30,17 +30,35 @@ function VitalStat({ label, value, unit, badge }) {
 }
 
 const IMC_LEVELS = [
-  { max: 18.5, label: 'Bajo peso',  color: 'border-blue-100 bg-blue-50 text-blue-700' },
-  { max: 24.9, label: 'Normal',     color: 'border-green-100 bg-green-50 text-green-700' },
-  { max: 29.9, label: 'Sobrepeso',  color: 'border-yellow-100 bg-yellow-50 text-yellow-700' },
-  { max: Infinity, label: 'Obesidad', color: 'border-red-100 bg-red-50 text-red-700' },
+  {
+    max: 18.5,
+    label: 'Bajo peso',
+    color: 'border-blue-100 bg-blue-50 text-blue-700',
+  },
+  {
+    max: 24.9,
+    label: 'Normal',
+    color: 'border-green-100 bg-green-50 text-green-700',
+  },
+  {
+    max: 29.9,
+    label: 'Sobrepeso',
+    color: 'border-yellow-100 bg-yellow-50 text-yellow-700',
+  },
+  {
+    max: Infinity,
+    label: 'Obesidad',
+    color: 'border-red-100 bg-red-50 text-red-700',
+  },
 ]
 
 function ImcBadge({ imc }) {
   if (!imc) return null
   const level = IMC_LEVELS.find((l) => parseFloat(imc) <= l.max)
   return (
-    <span className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}>
+    <span
+      className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}
+    >
       {level.label}
     </span>
   )
@@ -61,10 +79,11 @@ export default function SignosVitalesSection({ info }) {
 
   return (
     <div className="space-y-6">
-
       {/* Antropométrica */}
       <div className="space-y-3">
-        <Heading as="h4" showBar>Antropométrica</Heading>
+        <Heading as="h4" showBar>
+          Antropométrica
+        </Heading>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <VitalStat label="Peso" value={info.peso} unit="kg" />
           <VitalStat label="Altura" value={info.altura} unit="cm" />
@@ -74,15 +93,25 @@ export default function SignosVitalesSection({ info }) {
             unit={imc ? 'kg/m²' : ''}
             badge={<ImcBadge imc={imc} />}
           />
-          <VitalStat label="Glucosa" value={info.glucosa_capilar} unit="mg/dL" />
-          <VitalStat label="Circ. cintura" value={info.circ_cintura} unit="cm" />
+          <VitalStat
+            label="Glucosa"
+            value={info.glucosa_capilar}
+            unit="mg/dL"
+          />
+          <VitalStat
+            label="Circ. cintura"
+            value={info.circ_cintura}
+            unit="cm"
+          />
           <VitalStat label="Circ. cadera" value={info.circ_cadera} unit="cm" />
         </div>
       </div>
 
       {/* Signos vitales */}
       <div className="space-y-3">
-        <Heading as="h4" showBar>Signos Vitales</Heading>
+        <Heading as="h4" showBar>
+          Signos Vitales
+        </Heading>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <VitalStat label="Presión arterial" value={pa} unit="mmHg" />
           <VitalStat label="Frec. cardíaca" value={info.fc} unit="lpm" />

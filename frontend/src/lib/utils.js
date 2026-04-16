@@ -24,8 +24,11 @@ export const isValidEmail = (email) =>
 export function omitEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
-    if (v === '' || v == null) continue
-    if (typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
+    if (v == null || (typeof v === 'string' && v.trim() === '')) continue
+    if (
+      typeof v === 'object' &&
+      Object.getPrototypeOf(v) === Object.prototype
+    ) {
       const cleaned = omitEmpty(v)
       if (Object.keys(cleaned).length) result[k] = cleaned
     } else {
@@ -50,10 +53,14 @@ export function pickDirty(data, dirtyFields) {
 export function nullifyEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
-    if (v !== null && typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
+    if (
+      v !== null &&
+      typeof v === 'object' &&
+      Object.getPrototypeOf(v) === Object.prototype
+    ) {
       result[k] = nullifyEmpty(v)
     } else {
-      result[k] = v === '' ? null : v
+      result[k] = typeof v === 'string' && v.trim() === '' ? null : v
     }
   }
   return result
