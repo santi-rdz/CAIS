@@ -31,13 +31,6 @@ export const personaBaseFields = {
 
 // usuarios.correo y pacientes.correo son VarChar(255) en DB
 export const correoSchema = z.email('Correo electrónico inválido').max(255)
-export const correoRefine = z
-  .string()
-  .min(1, 'Ingresa un usuario')
-  .refine(
-    (val) => !val.includes('@') || z.email().safeParse(val).success,
-    'Ingresa un correo válido'
-  )
 
 export const passwordSchema = z
   .string()

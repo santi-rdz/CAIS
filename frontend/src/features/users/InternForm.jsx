@@ -9,11 +9,11 @@ import {
   internCreateSchema,
   internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoRefine, dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
 
 const internCreateFormSchema = internCreateSchema
   .omit({ rol: true })
-  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoRefine })
+  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoSchema })
 
 const internSignupFormSchema = internSelfRegisterBaseSchema
   .omit({ token: true })

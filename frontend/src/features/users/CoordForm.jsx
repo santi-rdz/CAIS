@@ -9,11 +9,11 @@ import {
   coordCreateSchema,
   coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoRefine, dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
 
 const coordCreateFormSchema = coordCreateSchema
   .omit({ rol: true })
-  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoRefine })
+  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoSchema })
 
 const coordSignupFormSchema = coordSelfRegisterBaseSchema
   .omit({ token: true })
