@@ -7,6 +7,7 @@
 ## Overview
 
 Implement two layout modes for NoteCard component to give users flexibility in viewing evolution notes:
+
 - **Grid Mode** (default): 3-column responsive grid, compact card view
 - **List Mode**: Single-column full-width rows with expanded information
 
@@ -17,6 +18,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ### 1. Grid Mode (Compact Card)
 
 **Visual Structure:**
+
 ```
 ┌─────────────────────────────┐
 │ [Edit] Fecha ○              │  ← Header: date + selection indicator
@@ -32,6 +34,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ```
 
 **Styling Details:**
+
 - Fixed height: ~200px (current)
 - Width: Responsive via CSS Grid with `auto-fit, minmax(280px, 1fr)`
 - Rounded corners: 12px
@@ -41,6 +44,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 - Selected state: border-teal-400, ring-2 ring-teal-100
 
 **Typography Hierarchy:**
+
 - Date: text-6, font-mono, font-semibold, uppercase, zinc-600
 - Doctor name: text-6, truncate, zinc-400
 - Time: text-6, font-mono, zinc-400
@@ -49,6 +53,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 - CIE-10 codes: text-6, font-mono, font-semibold
 
 **Interactive Elements:**
+
 - Edit button: Ghost variant, appears on hover or when selected
 - Card click: Select note (emit onClick)
 - Edit click: Open edit form (emit onEdit, stopPropagation)
@@ -56,6 +61,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ### 2. List Mode (Expanded Row)
 
 **Visual Structure:**
+
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │ [Foto]│ Dr. Nombre    │ 15/04/2026 10:30h   │ [Edit] │              │
@@ -65,6 +71,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ```
 
 **Styling Details:**
+
 - Height: auto, min-height ~80px (content-driven)
 - Width: 100% (full container)
 - Rounded corners: 12px
@@ -74,6 +81,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 - Flex layout: row-based, items spaced
 
 **Structure Breakdown:**
+
 1. **Doctor Avatar + Name** (left):
    - Avatar: 32px × 32px, rounded-full
    - Name: text-6, truncate if needed, zinc-700
@@ -100,6 +108,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
    - Flex: wrap, show all with +N indicator
 
 **Interactive Elements:**
+
 - Card click: Select note
 - Edit button: Open edit form
 - Same selection states as grid mode
@@ -107,6 +116,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ### 3. NotesPanel Changes
 
 **Toggle Control:**
+
 - Location: Top-right, next to "Nueva nota" button
 - Style: Two icon buttons in a group (no text labels)
 - Icons:
@@ -116,10 +126,12 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 - Inactive state: ghost variant
 
 **Grid Container:**
+
 - Grid mode: `grid auto-fit minmax(280px, 1fr) gap-3`
 - List mode: `flex flex-col gap-3`
 
 **State Management:**
+
 - Add state: `const [layout, setLayout] = useState('grid')`
 - Pass to NoteCard: `<NoteCard layout={layout} ... />`
 - Persist to localStorage (optional, for user preference)
@@ -127,6 +139,7 @@ A toggle control with icon buttons (no text) in NotesPanel switches between mode
 ## Component Prop Changes
 
 ### NoteCard.jsx
+
 ```javascript
 export default function NoteCard({
   note,
@@ -138,25 +151,29 @@ export default function NoteCard({
 ```
 
 ### NotesPanel.jsx
+
 ```javascript
-const [layout, setLayout] = useState('grid')  // NEW state
+const [layout, setLayout] = useState('grid') // NEW state
 // Pass to NoteCard and use for container className
 ```
 
 ## Responsive Behavior
 
 **Grid Mode (auto-fit):**
+
 - Desktop (1400px+): 4 columns
 - Laptop (1024px): 3 columns
 - Tablet (768px): 2 columns
 - Mobile (< 640px): 1 column
 
 **List Mode:**
+
 - Always single-column, full-width (responsive to container)
 
 ## Visual Enhancements
 
 **Color Palette (existing, maintained):**
+
 - Borders: gray-200 → teal-400 when selected
 - Ring: teal-100 when selected
 - Hover shadow: teal-300 border + elevated shadow
@@ -164,6 +181,7 @@ const [layout, setLayout] = useState('grid')  // NEW state
 - CIE-10 badges: blue-50 background, blue-700 text, blue-100 border
 
 **Transitions:**
+
 - Border & shadow: 150ms ease
 - Opacity (edit button): 200ms ease
 - Layout switch: instant (no animation needed)

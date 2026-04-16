@@ -83,7 +83,12 @@ function formatListNote(n) {
 }
 
 export class EvolutionNoteModel {
-  static async getAll({ paciente_id, historia_medica_id, page = 1, limit = 10 } = {}) {
+  static async getAll({
+    paciente_id,
+    historia_medica_id,
+    page = 1,
+    limit = 10,
+  } = {}) {
     const where = {}
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
     if (historia_medica_id)

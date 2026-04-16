@@ -1,6 +1,11 @@
 import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { HiOutlinePlus, HiOutlineClipboardDocument, HiOutlineSquares2X2, HiOutlineListBullet } from 'react-icons/hi2'
+import {
+  HiOutlinePlus,
+  HiOutlineClipboardDocument,
+  HiOutlineSquares2X2,
+  HiOutlineListBullet,
+} from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
 import { useEvolutionNotes } from '../hooks/useEvolutionNotes'
@@ -77,7 +82,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             {/* Layout Toggle Buttons */}
             <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
               <button
-                className={`p-2 rounded text-gray-500 transition-colors ${
+                className={`rounded p-2 text-gray-500 transition-colors ${
                   layout === 'grid'
                     ? 'bg-gray-100 text-gray-700'
                     : 'hover:bg-gray-50'
@@ -88,7 +93,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 <HiOutlineSquares2X2 size={16} />
               </button>
               <button
-                className={`p-2 rounded text-gray-500 transition-colors ${
+                className={`rounded p-2 text-gray-500 transition-colors ${
                   layout === 'list'
                     ? 'bg-gray-100 text-gray-700'
                     : 'hover:bg-gray-50'
@@ -165,15 +170,14 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <div
           className={
             layout === 'grid'
-              ? 'grid gap-3 auto-fit-grid'
+              ? 'auto-fit-grid grid gap-3'
               : 'flex flex-col gap-3'
           }
           style={
             layout === 'grid'
               ? {
                   display: 'grid',
-                  gridTemplateColumns:
-                    'repeat(auto-fit, minmax(280px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                   gap: '12px',
                 }
               : undefined
