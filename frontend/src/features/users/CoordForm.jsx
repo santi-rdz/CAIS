@@ -5,37 +5,13 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
+import { useMemo } from 'react'
+import { z } from 'zod'
 import {
   coordCreateSchema,
   coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoFlexibleSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
-
-// Schema base con correo flexible (acepta username o email)
-const coordCreateFormSchemaBase = coordCreateSchema
-  .omit({ rol: true })
-  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoFlexibleSchema })
-
-// Función para crear schema con validación dinámica basada en isUabcDomain
-function getCoordCreateFormSchema(isUabcDomain) {
-  return coordCreateFormSchemaBase.refine(
-    (data) => {
-      if (isUabcDomain) {
-        // Si hay domain, correo no debe contener @
-        return !data.correo.includes('@')
-      } else {
-        // Si no hay domain, correo debe ser email válido
-        return data.correo.includes('@')
-      }
-    },
-    {
-      message: isUabcDomain
-        ? 'Ingresa solo el usuario (sin @uabc.edu.mx)'
-        : 'Ingresa un correo electrónico completo',
-      path: ['correo'],
-    }
-  )
-}
+import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
 
 const coordSignupFormSchema = coordSelfRegisterBaseSchema
   .omit({ token: true })
@@ -63,15 +39,19 @@ export default function CoordForm({
   const { createUser, isCreating } = useCreateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
 
+  const createFormSchema = useMemo(() => {
+    const correoField = isUabcDomain
+      ? z.string().min(1, 'Ingresa un usuario').max(255)
+      : correoSchema
+    return coordCreateSchema
+      .omit({ rol: true })
+      .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
+  }, [isUabcDomain])
+
   const stepsFields = [
     ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],
     registration ? ['password', 'confirmPassword'] : ['password'],
   ]
-
-  // Usa schema dinámico basado en isUabcDomain para modo no-registro
-  const formSchema = registration
-    ? coordSignupFormSchema
-    : getCoordCreateFormSchema(isUabcDomain)
 
   const {
     currStep,
@@ -86,7 +66,7 @@ export default function CoordForm({
     steps,
     stepsFields,
     registration ? { correo: email } : {},
-    zodResolver(formSchema)
+    zodResolver(registration ? coordSignupFormSchema : createFormSchema)
   )
 
   const busy = registration ? isPending : isCreating

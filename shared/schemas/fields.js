@@ -32,20 +32,6 @@ export const personaBaseFields = {
 // usuarios.correo y pacientes.correo son VarChar(255) en DB
 export const correoSchema = z.email('Correo electrónico inválido').max(255)
 
-// Para formularios con domain email opcional: acepta username O email válido
-export const correoFlexibleSchema = z
-  .string()
-  .min(1, 'Ingresa un correo o usuario')
-  .max(255)
-  .refine(
-    (val) => {
-      // Acepta username puro (sin @) O email válido (con @)
-      if (!val.includes('@')) return true
-      return z.email().safeParse(val).success
-    },
-    'Ingresa un correo válido o nombre de usuario'
-  )
-
 export const passwordSchema = z
   .string()
   .min(8, 'La contraseña debe tener al menos 8 caracteres')
