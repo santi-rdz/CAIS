@@ -9,11 +9,33 @@ import {
   internCreateSchema,
   internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { correoFlexibleSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
 
-const internCreateFormSchema = internCreateSchema
+// Schema base con correo flexible (acepta username o email)
+const internCreateFormSchemaBase = internCreateSchema
   .omit({ rol: true })
-  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoSchema })
+  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoFlexibleSchema })
+
+// Función para crear schema con validación dinámica basada en isUabcDomain
+function getInternCreateFormSchema(isUabcDomain) {
+  return internCreateFormSchemaBase.refine(
+    (data) => {
+      if (isUabcDomain) {
+        // Si hay domain, correo no debe contener @
+        return !data.correo.includes('@')
+      } else {
+        // Si no hay domain, correo debe ser email válido
+        return data.correo.includes('@')
+      }
+    },
+    {
+      message: isUabcDomain
+        ? 'Ingresa solo el usuario (sin @uabc.edu.mx)'
+        : 'Ingresa un correo electrónico completo',
+      path: ['correo'],
+    }
+  )
+}
 
 const internSignupFormSchema = internSelfRegisterBaseSchema
   .omit({ token: true })
@@ -55,6 +77,11 @@ export default function InternForm({
     registration ? ['password', 'confirmPassword'] : ['password'],
   ]
 
+  // Usa schema dinámico basado en isUabcDomain para modo no-registro
+  const formSchema = registration
+    ? internSignupFormSchema
+    : getInternCreateFormSchema(isUabcDomain)
+
   const {
     currStep,
     setCurrStep,
@@ -68,7 +95,7 @@ export default function InternForm({
     steps,
     stepsFields,
     registration ? { correo: email } : {},
-    zodResolver(registration ? internSignupFormSchema : internCreateFormSchema)
+    zodResolver(formSchema)
   )
 
   const busy = registration ? isPending : isCreating

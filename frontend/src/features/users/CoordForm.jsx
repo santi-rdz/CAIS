@@ -9,11 +9,33 @@ import {
   coordCreateSchema,
   coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { correoFlexibleSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
 
-const coordCreateFormSchema = coordCreateSchema
+// Schema base con correo flexible (acepta username o email)
+const coordCreateFormSchemaBase = coordCreateSchema
   .omit({ rol: true })
-  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoSchema })
+  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoFlexibleSchema })
+
+// Función para crear schema con validación dinámica basada en isUabcDomain
+function getCoordCreateFormSchema(isUabcDomain) {
+  return coordCreateFormSchemaBase.refine(
+    (data) => {
+      if (isUabcDomain) {
+        // Si hay domain, correo no debe contener @
+        return !data.correo.includes('@')
+      } else {
+        // Si no hay domain, correo debe ser email válido
+        return data.correo.includes('@')
+      }
+    },
+    {
+      message: isUabcDomain
+        ? 'Ingresa solo el usuario (sin @uabc.edu.mx)'
+        : 'Ingresa un correo electrónico completo',
+      path: ['correo'],
+    }
+  )
+}
 
 const coordSignupFormSchema = coordSelfRegisterBaseSchema
   .omit({ token: true })
@@ -46,6 +68,11 @@ export default function CoordForm({
     registration ? ['password', 'confirmPassword'] : ['password'],
   ]
 
+  // Usa schema dinámico basado en isUabcDomain para modo no-registro
+  const formSchema = registration
+    ? coordSignupFormSchema
+    : getCoordCreateFormSchema(isUabcDomain)
+
   const {
     currStep,
     setCurrStep,
@@ -59,7 +86,7 @@ export default function CoordForm({
     steps,
     stepsFields,
     registration ? { correo: email } : {},
-    zodResolver(registration ? coordSignupFormSchema : coordCreateFormSchema)
+    zodResolver(formSchema)
   )
 
   const busy = registration ? isPending : isCreating
