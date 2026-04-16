@@ -9,6 +9,7 @@ export default function BirthdayField({
   birthdate = true,
   name = 'fechaNacimiento',
   required,
+  disableFuture = false,
 }) {
   const label = birthdate ? 'Fecha de nacimiento' : 'Fecha'
   const requiredMessage = birthdate
@@ -21,6 +22,8 @@ export default function BirthdayField({
     birthdate && fecha && fecha !== 'invalid' && dayjs.isDayjs(fecha)
       ? dayjs().diff(fecha, 'year')
       : null
+
+  const maxDate = disableFuture ? dayjs() : undefined
 
   return (
     <FormRow
@@ -38,6 +41,7 @@ export default function BirthdayField({
         }}
         hasError={errors?.[name]?.message}
         birthdate={birthdate}
+        maxDate={maxDate}
       />
       {birthdate && edad !== null && (
         <p className="mt-1 text-xs text-zinc-500">{edad} años</p>

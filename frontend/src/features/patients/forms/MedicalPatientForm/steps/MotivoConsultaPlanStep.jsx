@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form'
+import dayjs from 'dayjs'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
@@ -20,13 +21,18 @@ export default function MotivoConsultaPlanStep() {
         Motivo de Consulta y Plan
       </Heading>
 
-      <FormRow label="Fecha de la Historia" className="w-1/2">
+      <FormRow label="Fecha de la Historia" className="w-1/2" required>
         <DatePickerComponent
           name="creado_at"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
           hasError={errors?.creado_at?.message}
+          maxDate={dayjs()}
+          rules={{
+            required: 'Ingresa la fecha de la historia',
+            validate: (val) => val !== 'invalid' || 'Ingresa una fecha válida',
+          }}
         />
       </FormRow>
 

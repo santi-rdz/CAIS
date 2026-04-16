@@ -132,6 +132,7 @@ function RequiredSection({ register, control, errors }) {
         <BirthdayField
           birthdate={false}
           required={true}
+          disableFuture={true}
           name="fecha"
           control={control}
           errors={errors}

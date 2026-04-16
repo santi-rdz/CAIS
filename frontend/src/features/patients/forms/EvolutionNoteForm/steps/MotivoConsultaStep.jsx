@@ -38,6 +38,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
         <BirthdayField
           birthdate={false}
           required={true}
+          disableFuture={true}
           name="fecha"
           control={control}
           errors={errors}

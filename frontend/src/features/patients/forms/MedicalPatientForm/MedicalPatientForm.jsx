@@ -29,7 +29,7 @@ const medicalPatientFormSchema = z.object({
   ...medicalHistorySchema.omit({ paciente_id: true }).shape,
   apellidos: z.string().min(2, 'Los apellidos son requeridos'),
   fecha_nacimiento: dayjsDateSchema,
-  creado_at: dayjsDateSchema.optional(),
+  creado_at: dayjsDateSchema,
 })
 
 const STEPS = [
