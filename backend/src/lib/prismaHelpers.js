@@ -62,12 +62,11 @@ function buildCie10Nested(cie10_codes) {
  * Construye la estructura Prisma para crear un plan_estudio anidado
  * dentro de un create de historia médica. Incluye los códigos CIE-10.
  */
-export function planesEstudioCreate(planesEstudio, userId) {
+export function planesEstudioCreate(planesEstudio) {
   const { cie10_codes, ...rest } = planesEstudio
   return {
     create: {
       ...rest,
-      usuario_id: uuidToBuffer(userId),
       ...buildCie10Nested(cie10_codes),
     },
   }
@@ -79,7 +78,7 @@ export function planesEstudioCreate(planesEstudio, userId) {
  * En el update, los CIE-10 se reemplazan completos (deleteMany + create)
  * para evitar duplicados y mantener sincronía con el frontend.
  */
-export function planesEstudioUpsert(planesEstudio, userId) {
+export function planesEstudioUpsert(planesEstudio) {
   const { cie10_codes, ...rest } = planesEstudio
   const cie10Create = cie10_codes?.length
     ? {
@@ -104,7 +103,7 @@ export function planesEstudioUpsert(planesEstudio, userId) {
     : {}
   return {
     upsert: {
-      create: { ...rest, usuario_id: uuidToBuffer(userId), ...cie10Create },
+      create: { ...rest, ...cie10Create },
       update: { ...rest, ...cie10Update },
     },
   }

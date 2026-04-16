@@ -31,6 +31,13 @@ export const personaBaseFields = {
 
 // usuarios.correo y pacientes.correo son VarChar(255) en DB
 export const correoSchema = z.email('Correo electrónico inválido').max(255)
+export const correoRefine = z
+  .string()
+  .min(1, 'Ingresa un usuario')
+  .refine(
+    (val) => !val.includes('@') || z.email().safeParse(val).success,
+    'Ingresa un correo válido'
+  )
 
 export const passwordSchema = z
   .string()
@@ -43,3 +50,19 @@ export const passwordSchema = z
 export const rolesSchema = z.enum(['pasante', 'coordinador'], {
   error: 'El rol debe ser pasante o coordinador',
 })
+
+// ISO datetime con offset para el API (ej. fecha_hora, creado_at)
+export const isoDateTimeSchema = z.iso.datetime({
+  offset: true,
+  message: 'Fecha y hora inválidas',
+})
+
+// Campos separados fecha + hora para formularios con date/time pickers
+export const fechaHoraFormFields = {
+  fecha: z
+    .any()
+    .refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
+  hora: z.any().refine((v) => v !== null && v !== undefined, {
+    message: 'Ingresa la hora',
+  }),
+}

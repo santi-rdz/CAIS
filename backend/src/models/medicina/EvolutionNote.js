@@ -1,26 +1,30 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
-import { toUUID } from '#lib/prismaHelpers.js'
+import {
+  toUUID,
+  nestedCreate,
+  nestedUpsert,
+  planesEstudioCreate,
+  planesEstudioUpsert,
+  buildNestedRelations,
+} from '#lib/prismaHelpers.js'
 
 const includeRelations = {
+  usuarios: { select: { nombre: true, foto: true } },
   aparatos_sistemas: true,
   informacion_fisica: true,
   planes_estudio: { include: { planes_estudio_cie10: true } },
 }
 
-const selectBasic = {
-  id: true,
-  paciente_id: true,
-  historia_medica_id: true,
-  motivo_consulta: true,
-  ant_gine_andro: true,
-  estudios_complementarios_efectuados: true,
-}
+const NESTED_RELATIONS = ['aparatos_sistemas', 'informacion_fisica']
 
 function formatEvolutionNote(n) {
   if (!n) return null
   const { planes_estudio, ...rest } = n
+  const plan = Array.isArray(planes_estudio)
+    ? (planes_estudio[0] ?? null)
+    : (planes_estudio ?? null)
   return {
     ...rest,
     id: toUUID(n.id),
@@ -28,22 +32,20 @@ function formatEvolutionNote(n) {
     historia_medica_id: n.historia_medica_id
       ? toUUID(n.historia_medica_id)
       : null,
+    usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
 
-    planes_estudio: (() => {
-      const plan = planes_estudio?.[0] ?? null
-      if (!plan) return null
-      return {
-        ...plan,
-        usuario_id: toUUID(plan.usuario_id),
-        nota_evolucion_id: undefined,
-        cie10_codes:
-          plan.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
-            codigo,
-            descripcion,
-          })) ?? [],
-        planes_estudio_cie10: undefined,
-      }
-    })(),
+    planes_estudio: plan
+      ? {
+          ...plan,
+          nota_evolucion_id: undefined,
+          cie10_codes:
+            plan.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
+              codigo,
+              descripcion,
+            })) ?? [],
+          planes_estudio_cie10: undefined,
+        }
+      : null,
   }
 }
 
@@ -55,60 +57,18 @@ function formatMinimal(n) {
   return result
 }
 
-async function upsertAparatosSistemas(tx, notaBuffer, data) {
-  await tx.aparatos_sistemas.upsert({
-    where: { nota_evolucion_id: notaBuffer },
-    create: {
-      nota_evolucion_id: notaBuffer,
-      historia_medica_id: null,
-      ...data,
-    },
-    update: { ...data },
-  })
-}
-
-async function upsertInformacionFisica(tx, notaBuffer, data) {
-  await tx.informacion_fisica.upsert({
-    where: { nota_evolucion_id: notaBuffer },
-    create: {
-      nota_evolucion_id: notaBuffer,
-      historia_medica_id: null,
-      ...data,
-    },
-    update: { ...data },
-  })
-}
-
-async function replacePlanesEstudio(tx, notaBuffer, planesEstudio, userId) {
-  const { cie10_codes, ...rest } = planesEstudio
-  await tx.planes_estudio_cie10.deleteMany({
-    where: { planes_estudio: { nota_evolucion_id: notaBuffer } },
-  })
-  await tx.planes_estudio.deleteMany({
-    where: { nota_evolucion_id: notaBuffer },
-  })
-  await tx.planes_estudio.create({
-    data: {
-      nota_evolucion_id: notaBuffer,
-      historia_medica_id: null,
-      usuario_id: uuidToBuffer(userId),
-      ...rest,
-      ...(cie10_codes?.length && {
-        planes_estudio_cie10: {
-          create: cie10_codes.map(({ codigo, descripcion }) => ({
-            codigo,
-            descripcion,
-          })),
-        },
-      }),
-    },
-  })
-}
-
 export class EvolutionNoteModel {
-  static async getAll({ paciente_id, page, limit, fields } = {}) {
+  static async getAll({
+    paciente_id,
+    historia_medica_id,
+    page,
+    limit,
+    fields,
+  } = {}) {
     const where = {}
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
+    if (historia_medica_id)
+      where.historia_medica_id = uuidToBuffer(historia_medica_id)
 
     const offset = (page - 1) * limit
 
@@ -125,7 +85,7 @@ export class EvolutionNoteModel {
       prisma.notas_evolucion.findMany({
         where,
         ...queryOptions,
-        orderBy: { id: 'desc' },
+        orderBy: { creado_at: 'desc' },
         skip: offset,
         take: limit,
       }),
@@ -144,36 +104,30 @@ export class EvolutionNoteModel {
     return formatEvolutionNote(note)
   }
 
-  static async create(data, userId, tx = null) {
-    const run = async (tx) => {
-      const noteId = randomUUID()
-      const notaBuffer = uuidToBuffer(noteId)
+  static async create(data, userId, tx = prisma) {
+    const noteId = randomUUID()
 
-      await tx.notas_evolucion.create({
-        data: {
-          id: notaBuffer,
-          paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-          historia_medica_id: data.historia_medica_id
-            ? uuidToBuffer(data.historia_medica_id)
-            : null,
-          motivo_consulta: data.motivo_consulta ?? null,
-          ant_gine_andro: data.ant_gine_andro ?? null,
-          estudios_complementarios_efectuados:
-            data.estudios_complementarios_efectuados ?? null,
-        },
-      })
+    await tx.notas_evolucion.create({
+      data: {
+        id: uuidToBuffer(noteId),
+        paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
+        historia_medica_id: data.historia_medica_id
+          ? uuidToBuffer(data.historia_medica_id)
+          : null,
+        usuario_id: uuidToBuffer(userId),
+        creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
+        motivo_consulta: data.motivo_consulta ?? null,
+        ant_gine_andro: data.ant_gine_andro ?? null,
+        estudios_complementarios_efectuados:
+          data.estudios_complementarios_efectuados ?? null,
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
+        ...(data.planes_estudio && {
+          planes_estudio: planesEstudioCreate(data.planes_estudio),
+        }),
+      },
+    })
 
-      if (data.aparatos_sistemas)
-        await upsertAparatosSistemas(tx, notaBuffer, data.aparatos_sistemas)
-      if (data.informacion_fisica)
-        await upsertInformacionFisica(tx, notaBuffer, data.informacion_fisica)
-      if (data.planes_estudio)
-        await replacePlanesEstudio(tx, notaBuffer, data.planes_estudio, userId)
-
-      return this.getById(noteId, tx)
-    }
-
-    return tx ? run(tx) : prisma.$transaction(run)
+    return this.getById(noteId, tx)
   }
 
   static async delete(id) {
@@ -189,14 +143,8 @@ export class EvolutionNoteModel {
     }
   }
 
-  static async update(id, data, userId, tx = null) {
-    const run = async (tx) => {
-      const existing = await tx.notas_evolucion.findUnique({
-        where: { id: uuidToBuffer(id) },
-        select: selectBasic,
-      })
-      if (!existing) return null
-
+  static async update(id, data, userId, tx = prisma) {
+    try {
       await tx.notas_evolucion.update({
         where: { id: uuidToBuffer(id) },
         data: {
@@ -214,22 +162,13 @@ export class EvolutionNoteModel {
           ant_gine_andro: data.ant_gine_andro,
           estudios_complementarios_efectuados:
             data.estudios_complementarios_efectuados,
+          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
+          ...(data.planes_estudio && {
+            planes_estudio: planesEstudioUpsert(data.planes_estudio),
+          }),
         },
       })
-
-      const notaBuffer = uuidToBuffer(id)
-      if (data.aparatos_sistemas)
-        await upsertAparatosSistemas(tx, notaBuffer, data.aparatos_sistemas)
-      if (data.informacion_fisica)
-        await upsertInformacionFisica(tx, notaBuffer, data.informacion_fisica)
-      if (data.planes_estudio)
-        await replacePlanesEstudio(tx, notaBuffer, data.planes_estudio, userId)
-
       return this.getById(id, tx)
-    }
-
-    try {
-      return tx ? run(tx) : await prisma.$transaction(run)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

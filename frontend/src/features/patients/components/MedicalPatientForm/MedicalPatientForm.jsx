@@ -6,6 +6,7 @@ import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 import { medicalHistorySchema } from '@cais/shared/schemas/medicina/medicalHistory'
 import { useStepForm } from '@hooks/useStepForm'
 import { formatFecha } from '@lib/dateHelpers'
+import { omitEmpty } from '@lib/utils'
 import { useCreatePatientWithHistory } from '../../hooks/useCreatePatientWithHistory'
 import { useCreateMedicalHistory } from '../../hooks/useCreateMedicalHistory'
 import { useUpdatePatientWithHistory } from '../../hooks/useUpdatePatientWithHistory'
@@ -191,26 +192,6 @@ function nullifyEmpty(obj) {
       result[k] = nullifyEmpty(v)
     } else {
       result[k] = v === '' ? null : v
-    }
-  }
-  return result
-}
-
-/** Omite recursivamente keys con valor vacío ('', null, undefined). */
-function omitEmpty(obj) {
-  const result = {}
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === '' || v == null) continue
-    if (
-      typeof v === 'object' &&
-      !Array.isArray(v) &&
-      !(v instanceof Date) &&
-      !dayjs.isDayjs(v)
-    ) {
-      const cleaned = omitEmpty(v)
-      if (Object.keys(cleaned).length) result[k] = cleaned
-    } else {
-      result[k] = v
     }
   }
   return result

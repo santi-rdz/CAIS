@@ -5,6 +5,16 @@ export default function PlanEstudioSection({ plan }) {
 
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <DataField
+          label="Plan de tratamiento"
+          value={plan_tratamiento}
+          multiline
+          block
+        />
+        <DataField label="Tratamiento" value={tratamiento} multiline block />
+      </div>
+
       {cie10_codes?.length > 0 && (
         <div className="space-y-2">
           <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
@@ -30,16 +40,6 @@ export default function PlanEstudioSection({ plan }) {
           </div>
         </div>
       )}
-
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField
-          label="Plan de tratamiento"
-          value={plan_tratamiento}
-          multiline
-          block
-        />
-        <DataField label="Tratamiento" value={tratamiento} multiline block />
-      </div>
     </div>
   )
 }

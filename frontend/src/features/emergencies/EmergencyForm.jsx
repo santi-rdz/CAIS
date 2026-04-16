@@ -15,9 +15,14 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useFormKeyDown } from '@hooks/useFormKeyDown'
 import { useCreateEmergency } from './hooks/useCreateEmergency'
 import { useUpdateEmergency } from './hooks/useUpdateEmergency'
-import { emergencyFormSchema } from '@cais/shared/schemas/medicina/emergency'
+import { emergencySchema } from '@cais/shared/schemas/medicina/emergency'
+import { fechaHoraFormFields } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 import Modal from '@components/Modal'
+
+const emergencyFormSchema = emergencySchema
+  .omit({ fecha_hora: true })
+  .extend(fechaHoraFormFields)
 
 export default function EmergencyForm({ onCloseModal, emergency }) {
   const isEditing = Boolean(emergency)

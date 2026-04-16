@@ -17,6 +17,24 @@ export const isValidEmail = (email) =>
   /^[\w.-]+@([\w-]+\.)+[a-zA-Z]{2,}$/.test(email)
 
 /**
+ * Omite recursivamente keys con valor vacío ('', null, undefined).
+ * Si un objeto anidado queda sin keys, también se omite.
+ */
+export function omitEmpty(obj) {
+  const result = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === '' || v == null) continue
+    if (typeof v === 'object' && !Array.isArray(v) && !(v instanceof Date)) {
+      const cleaned = omitEmpty(v)
+      if (Object.keys(cleaned).length) result[k] = cleaned
+    } else {
+      result[k] = v
+    }
+  }
+  return result
+}
+
+/**
  * Formats a 10-digit phone string to (XXX) XXX-XXXX.
  * Strips non-digits first, so it works with raw stored values or partially typed input.
  * @param {string} value - Raw or formatted phone string

@@ -1,14 +1,20 @@
-import { HiOutlineArrowLeft } from 'react-icons/hi2'
+import { HiOutlineArrowLeft, HiOutlinePencilSquare } from 'react-icons/hi2'
 import Tab from '@components/Tab'
 import Heading from '@components/Heading'
+import Button from '@components/Button'
 import DataField from './DataField'
 import SignosVitalesSection from '../historia/sections/SignosVitalesSection'
 import FieldsSection from '../historia/sections/FieldsSection'
 import { buildAparSistFields } from '../historia/constants'
-import { formatFecha } from '@lib/dateHelpers'
+import { formatFecha, formatHora } from '@lib/dateHelpers'
 
-function ConsultaTab({ motivo_consulta, ant_gine_andro }) {
-  const hasContent = motivo_consulta || ant_gine_andro
+function ConsultaTab({
+  motivo_consulta,
+  ant_gine_andro,
+  estudios_complementarios_efectuados,
+}) {
+  const hasContent =
+    motivo_consulta || ant_gine_andro || estudios_complementarios_efectuados
 
   if (!hasContent)
     return (
@@ -38,6 +44,14 @@ function ConsultaTab({ motivo_consulta, ant_gine_andro }) {
               block
             />
           )}
+          {estudios_complementarios_efectuados && (
+            <DataField
+              label="Estudios complementarios efectuados"
+              value={estudios_complementarios_efectuados}
+              multiline
+              block
+            />
+          )}
         </div>
       </div>
     </div>
@@ -53,7 +67,7 @@ function PlanTab({ planes_estudio }) {
     )
 
   const {
-    planes_estudio_cie10 = [],
+    cie10_codes = [],
     plan_tratamiento,
     tratamiento,
     estudios_complementarios,
@@ -61,37 +75,55 @@ function PlanTab({ planes_estudio }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField
-          label="Plan de tratamiento"
-          value={plan_tratamiento}
-          multiline
-          block
-        />
-        <DataField label="Tratamiento" value={tratamiento} multiline block />
+      <div className="space-y-3">
+        <Heading as="h4" showBar>
+          Plan y Diagnóstico
+        </Heading>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <DataField
+            label="Plan de tratamiento"
+            value={plan_tratamiento}
+            multiline
+            block
+          />
+          <DataField label="Tratamiento" value={tratamiento} multiline block />
+        </div>
       </div>
 
-      <DataField
-        label="Estudios complementarios efectuados"
-        value={estudios_complementarios}
-        multiline
-        block
-      />
+      {estudios_complementarios && (
+        <div className="space-y-3">
+          <Heading as="h4" showBar>
+            Estudios Complementarios
+          </Heading>
+          <DataField
+            label="Estudios complementarios"
+            value={estudios_complementarios}
+            multiline
+            block
+          />
+        </div>
+      )}
 
-      {planes_estudio_cie10.length > 0 && (
+      {cie10_codes.length > 0 && (
         <div className="space-y-2">
           <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
             Diagnóstico CIE-10
           </p>
           <div className="flex flex-wrap gap-2">
-            {planes_estudio_cie10.map((d) => (
+            {cie10_codes.map(({ codigo, descripcion }) => (
               <div
-                key={d.id}
-                className="inline-flex items-center rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5"
+                key={codigo}
+                className="inline-flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5"
               >
                 <span className="text-5 shrink-0 font-bold text-blue-700">
-                  {d.codigo}
+                  {codigo}
                 </span>
+                {descripcion && (
+                  <>
+                    <div className="h-4 w-px shrink-0 bg-blue-200" />
+                    <span className="text-5 text-blue-600">{descripcion}</span>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -101,39 +133,66 @@ function PlanTab({ planes_estudio }) {
   )
 }
 
-export default function NoteDetail({ note, onBack }) {
+export default function NoteDetail({ note, onBack, onEdit }) {
   const {
     motivo_consulta,
     ant_gine_andro,
+    estudios_complementarios_efectuados,
     planes_estudio,
     aparatos_sistemas,
     informacion_fisica,
+    usuarios,
     creado_at,
   } = note
 
   const date = formatFecha(creado_at)
-  const doctorName = planes_estudio?.usuarios?.nombre
+  const hour = formatHora(creado_at)
+  const doctorName = usuarios?.nombre
+  const doctorPhoto = usuarios?.foto
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-4 border-b border-gray-100 px-5 py-4">
-        <button
-          onClick={onBack}
-          className="flex cursor-pointer items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-700"
-        >
-          <HiOutlineArrowLeft size={14} />
-          <span className="text-5">Notas</span>
-        </button>
-        <span className="text-gray-200">/</span>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-zinc-50/60 px-5 py-4">
+        <div className="flex min-w-0 items-center gap-2 text-zinc-500">
+          <button
+            onClick={onBack}
+            className="flex shrink-0 cursor-pointer items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-700"
+          >
+            <HiOutlineArrowLeft size={14} />
+            <span className="text-5">Notas</span>
+          </button>
+          <span className="text-zinc-300">/</span>
           <span className="text-5 font-mono font-semibold text-zinc-700">
             {date ?? '—'}
           </span>
+          <span className="text-zinc-300">•</span>
+          <span className="text-5 font-mono">{hour ?? '--:--'} h</span>
           {doctorName && (
-            <span className="text-5 text-zinc-400">{doctorName}</span>
+            <>
+              <span className="text-zinc-300">•</span>
+              <span className="flex min-w-0 items-center gap-1.5">
+                {doctorPhoto ? (
+                  <img
+                    src={doctorPhoto}
+                    alt={doctorName}
+                    className="h-5 w-5 shrink-0 rounded-full object-cover"
+                  />
+                ) : null}
+                <span className="text-5 truncate">{doctorName}</span>
+              </span>
+            </>
           )}
         </div>
+        <Button
+          variant="secondary"
+          size="md"
+          className="gap-1.5"
+          onClick={onEdit}
+        >
+          <HiOutlinePencilSquare size={14} />
+          Editar nota
+        </Button>
       </div>
 
       {/* Tabs — variant underline, igual que PatientHistoria */}
@@ -150,6 +209,9 @@ export default function NoteDetail({ note, onBack }) {
             <ConsultaTab
               motivo_consulta={motivo_consulta}
               ant_gine_andro={ant_gine_andro}
+              estudios_complementarios_efectuados={
+                estudios_complementarios_efectuados
+              }
             />
           </Tab.Panel>
 

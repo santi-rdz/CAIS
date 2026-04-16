@@ -352,12 +352,14 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 CREATE TABLE IF NOT EXISTS historias_medicas (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
+    usuario_id BINARY(16) NOT NULL,
     creado_at DATE DEFAULT (CURDATE()),
     tipo_sangre VARCHAR(5),
     vacunas_infancia_completas BOOLEAN,
     motivo_consulta TEXT,
     historia_enfermedad_actual TEXT,
-    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    CONSTRAINT fk_historia_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
 CREATE TABLE IF NOT EXISTS antecedentes_familiares (
@@ -410,11 +412,14 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_medica_id BINARY(16),
     paciente_id BINARY(16),
+    usuario_id BINARY(16) NOT NULL,
     motivo_consulta TEXT,
     ant_gine_andro TEXT,
     estudios_complementarios_efectuados TEXT,
+    creado_at DATETIME DEFAULT NOW(),
     CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_nota_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
@@ -482,12 +487,10 @@ CREATE TABLE IF NOT EXISTS informacion_fisica (
 CREATE TABLE IF NOT EXISTS planes_estudio (
     id INT AUTO_INCREMENT PRIMARY KEY,
     historia_medica_id BINARY(16) NULL UNIQUE,
-    nota_evolucion_id BINARY(16),
+    nota_evolucion_id BINARY(16) NULL UNIQUE,
     plan_tratamiento TEXT,
-    usuario_id BINARY(16) NOT NULL,
     tratamiento TEXT,
     estudios_complementarios TEXT,
-    CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
     CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
     CONSTRAINT fk_plan_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
@@ -498,17 +501,6 @@ CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
     codigo VARCHAR(10) NOT NULL,
     descripcion TEXT,
     CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
-);
-
-CREATE TABLE IF NOT EXISTS notas_evolucion (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    historia_medica_id BINARY(16),
-    paciente_id BINARY(16),
-    motivo_consulta TEXT,
-    ant_gine_andro TEXT,
-    estudios_complementarios_efectuados TEXT,
-    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
 );
 
 -- ===============================
@@ -1197,6 +1189,7 @@ INSERT INTO
     historias_medicas (
         id,
         paciente_id,
+        usuario_id,
         tipo_sangre,
         vacunas_infancia_completas,
         motivo_consulta,
@@ -1205,31 +1198,17 @@ INSERT INTO
 VALUES
     (
         UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), 'O+', TRUE,
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'O+', TRUE,
         'Revisión anual',
         'Paciente acude a revisión de rutina sin síntomas agudos'
     ),
     (
         UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'ana.fernandez@hotmail.com'
-            LIMIT
-                1
-        ), 'A-', TRUE,
+        (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'A-', TRUE,
         'Control de diabetes',
         'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
     );
@@ -1239,45 +1218,31 @@ INSERT INTO
         id,
         paciente_id,
         historia_medica_id,
+        usuario_id,
         motivo_consulta,
         ant_gine_andro,
-        estudios_complementarios_efectuados
+        estudios_complementarios_efectuados,
+        creado_at
     )
 VALUES
     (
         UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina'
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina', '2026-01-10'
     ), (
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'ana.fernandez@hotmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c'
+        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'),
+        (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c', '2026-02-14'
     ), (
-        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales'
+        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'),
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales', '2026-03-22'
     );
 
 INSERT INTO

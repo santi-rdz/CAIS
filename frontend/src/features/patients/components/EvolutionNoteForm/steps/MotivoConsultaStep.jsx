@@ -3,6 +3,9 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Divider from '@components/Divider'
+import Row from '@components/Row'
+import BirthdayField from '@ui/BirthdayField'
+import TimeField from '@ui/TimeField'
 
 function getGineAndroLabel(genero) {
   if (genero === 'Femenino') return 'Antecedentes Gineco-Obstétricos'
@@ -19,13 +22,29 @@ function getGineAndroPlaceholder(genero) {
 }
 
 export default function MotivoConsultaStep({ patientGenero }) {
-  const { register } = useFormContext()
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-5">
       <Heading as="h3" showBar required>
         Motivo de Consulta
       </Heading>
+
+      <Row className="gap-4">
+        <BirthdayField
+          birthdate={false}
+          name="fecha"
+          control={control}
+          errors={errors}
+        />
+        <TimeField control={control} errors={errors} />
+      </Row>
+
+      <Divider />
 
       {/* SOAP legend */}
       <p className="text-sm text-zinc-500">

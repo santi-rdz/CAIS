@@ -76,21 +76,21 @@ model antecedentes_patologicos {
 }
 
 model aparatos_sistemas {
-  id                 Int               @id @default(autoincrement())
-  historia_medica_id Bytes?            @unique(map: "historia_medica_id") @db.Binary(16)
-  nota_evolucion_id  Bytes?            @unique(map: "nota_evolucion_id") @db.Binary(16)
-  neurologico        String?           @db.Text
-  cardiovascular     String?           @db.Text
-  respiratorio       String?           @db.Text
-  hematologico       String?           @db.Text
-  digestivo          String?           @db.Text
-  musculoesqueletico String?           @db.Text
-  genitourinario     String?           @db.Text
-  endocrinologico    String?           @db.Text
-  metabolico         String?           @db.Text
-  nutricional        String?           @db.Text
+  id                 Int                @id @default(autoincrement())
+  historia_medica_id Bytes?             @unique(map: "historia_medica_id") @db.Binary(16)
+  nota_evolucion_id  Bytes?             @unique(map: "nota_evolucion_id") @db.Binary(16)
+  neurologico        String?            @db.Text
+  cardiovascular     String?            @db.Text
+  respiratorio       String?            @db.Text
+  hematologico       String?            @db.Text
+  digestivo          String?            @db.Text
+  musculoesqueletico String?            @db.Text
+  genitourinario     String?            @db.Text
+  endocrinologico    String?            @db.Text
+  metabolico         String?            @db.Text
+  nutricional        String?            @db.Text
   historias_medicas  historias_medicas? @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_historia")
-  notas_evolucion    notas_evolucion?  @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_nota")
+  notas_evolucion    notas_evolucion?   @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_as_nota")
 }
 
 model areas {
@@ -464,6 +464,7 @@ model frec_consumo_alimentos_nutricion {
 model historias_medicas {
   id                          Bytes                        @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id                 Bytes                        @db.Binary(16)
+  usuario_id                  Bytes                        @db.Binary(16)
   creado_at                   DateTime?                    @default(dbgenerated("(curdate())")) @db.Date
   tipo_sangre                 String?                      @db.VarChar(5)
   vacunas_infancia_completas  Boolean?
@@ -474,6 +475,7 @@ model historias_medicas {
   antecedentes_patologicos    antecedentes_patologicos?
   aparatos_sistemas           aparatos_sistemas?
   pacientes                   pacientes                    @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_paciente")
+  usuarios                    usuarios                     @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_usuario")
   informacion_fisica          informacion_fisica?
   inmunizaciones              inmunizaciones?
   notas_evolucion             notas_evolucion[]
@@ -481,6 +483,7 @@ model historias_medicas {
   servicios                   servicios?
 
   @@index([paciente_id], map: "fk_historia_paciente")
+  @@index([usuario_id], map: "fk_historia_usuario")
 }
 
 model historias_medicas_nutricion {
@@ -530,24 +533,24 @@ model horarios_comida_nutricion {
 }
 
 model informacion_fisica {
-  id                 Int               @id @default(autoincrement())
-  historia_medica_id Bytes?            @unique(map: "historia_medica_id") @db.Binary(16)
-  nota_evolucion_id  Bytes?            @unique(map: "nota_evolucion_id") @db.Binary(16)
-  peso               Float?            @db.Float
-  altura             Float?            @db.Float
+  id                 Int                @id @default(autoincrement())
+  historia_medica_id Bytes?             @unique(map: "historia_medica_id") @db.Binary(16)
+  nota_evolucion_id  Bytes?             @unique(map: "nota_evolucion_id") @db.Binary(16)
+  peso               Float?             @db.Float
+  altura             Float?             @db.Float
   pa_sistolica       Int?
   pa_diastolica      Int?
   fc                 Int?
   fr                 Int?
-  circ_cintura       Float?            @db.Float
-  circ_cadera        Float?            @db.Float
-  sp_o2              Float?            @db.Float
-  glucosa_capilar    Float?            @db.Float
-  temperatura        Float?            @db.Float
-  exploracion_fisica String?           @db.Text
-  habito_exterior    String?           @db.Text
+  circ_cintura       Float?             @db.Float
+  circ_cadera        Float?             @db.Float
+  sp_o2              Float?             @db.Float
+  glucosa_capilar    Float?             @db.Float
+  temperatura        Float?             @db.Float
+  exploracion_fisica String?            @db.Text
+  habito_exterior    String?            @db.Text
   historias_medicas  historias_medicas? @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_historia")
-  notas_evolucion    notas_evolucion?  @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_nota")
+  notas_evolucion    notas_evolucion?   @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_infoF_nota")
 }
 
 model inmunizaciones {
@@ -581,17 +584,21 @@ model notas_evolucion {
   id                                  Bytes               @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_medica_id                  Bytes?              @db.Binary(16)
   paciente_id                         Bytes?              @db.Binary(16)
+  usuario_id                          Bytes               @db.Binary(16)
   motivo_consulta                     String?             @db.Text
   ant_gine_andro                      String?             @db.Text
   estudios_complementarios_efectuados String?             @db.Text
+  creado_at                           DateTime?           @default(now()) @db.DateTime(0)
   aparatos_sistemas                   aparatos_sistemas?
   informacion_fisica                  informacion_fisica?
   historias_medicas                   historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_historia")
   pacientes                           pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
-  planes_estudio                      planes_estudio[]
+  usuarios                            usuarios            @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_usuario")
+  planes_estudio                      planes_estudio?
 
   @@index([historia_medica_id], map: "fk_nota_historia")
   @@index([paciente_id], map: "fk_nota_paciente")
+  @@index([usuario_id], map: "fk_nota_usuario")
 }
 
 model pacientes {
@@ -725,18 +732,13 @@ model perfil_renal_electrolitos {
 model planes_estudio {
   id                       Int                    @id @default(autoincrement())
   historia_medica_id       Bytes?                 @unique(map: "historia_medica_id") @db.Binary(16)
-  nota_evolucion_id        Bytes?                 @db.Binary(16)
+  nota_evolucion_id        Bytes?                 @unique(map: "nota_evolucion_id") @db.Binary(16)
   plan_tratamiento         String?                @db.Text
-  usuario_id               Bytes                  @db.Binary(16)
   tratamiento              String?                @db.Text
   estudios_complementarios String?                @db.Text
   historias_medicas        historias_medicas?     @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_historia")
   notas_evolucion          notas_evolucion?       @relation(fields: [nota_evolucion_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_nota")
-  usuarios                 usuarios               @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_plan_usuario")
   planes_estudio_cie10     planes_estudio_cie10[]
-
-  @@index([usuario_id], map: "fk_plan_usuario")
-  @@index([nota_evolucion_id], map: "fk_plan_nota")
 }
 
 model planes_estudio_cie10 {
@@ -903,9 +905,10 @@ model usuarios {
   inicio_servicio       String?                 @db.VarChar(8)
   fin_servicio          String?                 @db.VarChar(8)
   bitacora_emergencias  bitacora_emergencias[]
+  historias_medicas     historias_medicas[]
   invitaciones_registro invitaciones_registro[]
+  notas_evolucion       notas_evolucion[]
   pacientes             pacientes[]
-  planes_estudio        planes_estudio[]
   registro_auditoria    registro_auditoria[]
   areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
   estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")

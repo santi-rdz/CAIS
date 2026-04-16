@@ -34,7 +34,7 @@ export class EvolutionNoteController {
   }
 
   static async getAll(req, res) {
-    const { paciente_id, fields } = req.query
+    const { paciente_id, historia_medica_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
     const parsedFields = fields
@@ -46,6 +46,7 @@ export class EvolutionNoteController {
 
     const result = await EvolutionNoteModel.getAll({
       paciente_id,
+      historia_medica_id,
       page,
       limit,
       fields: parsedFields,

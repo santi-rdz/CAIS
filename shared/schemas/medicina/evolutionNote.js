@@ -1,25 +1,19 @@
 import { z } from 'zod'
+import { isoDateTimeSchema } from '../fields.js'
 import {
   aparatosSistemasSchema,
   informacionFisicaSchema,
   planEstudioSchema,
 } from './shared.js'
 
-export const notaEvolucionBaseSchema = z.object({
-  motivo_consulta: z.string().nullish(),
-  ant_gine_andro: z.string().nullish(),
-  estudios_complementarios_efectuados: z.string().nullish(),
-})
-
+// Schema único para backend y form
 export const evolutionNoteSchema = z.object({
   paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
   historia_medica_id: z.uuid().optional(),
-  ...notaEvolucionBaseSchema.shape,
-  // IDs directos (retrocompatibilidad)
-  aparatos_sistemas_id: z.number().int().positive().optional(),
-  informacion_fisica_id: z.number().int().positive().optional(),
-  plan_estudio_id: z.number().int().positive().optional(),
-  // Creación anidada
+  creado_at: isoDateTimeSchema,
+  motivo_consulta: z.string().nullish(),
+  ant_gine_andro: z.string().nullish(),
+  estudios_complementarios_efectuados: z.string().nullish(),
   aparatos_sistemas: aparatosSistemasSchema.optional(),
   informacion_fisica: informacionFisicaSchema.optional(),
   planes_estudio: planEstudioSchema.optional(),

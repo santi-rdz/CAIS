@@ -5,10 +5,24 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
+import { z } from 'zod'
 import {
-  coordCreateFormSchema,
-  coordSignupFormSchema,
+  coordCreateSchema,
+  coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
+import { correoRefine, dayjsDateSchema } from '@cais/shared/schemas/fields'
+
+const coordCreateFormSchema = coordCreateSchema
+  .omit({ rol: true })
+  .extend({ fechaNacimiento: dayjsDateSchema, correo: correoRefine })
+
+const coordSignupFormSchema = coordSelfRegisterBaseSchema
+  .omit({ token: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
 import useCreateUser from './hooks/useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'

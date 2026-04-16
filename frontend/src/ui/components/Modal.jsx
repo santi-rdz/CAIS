@@ -63,7 +63,12 @@ Modal.Description = function ModalDescriptionComp({ children }) {
 
 Modal.Open = function Open({ children, opens: opensWindowName }) {
   const { open } = useContext(ModalContext)
-  return cloneElement(children, { onClick: () => open(opensWindowName) })
+  return cloneElement(children, {
+    onClick: (e) => {
+      children.props?.onClick?.(e)
+      if (!e.defaultPrevented) open(opensWindowName)
+    },
+  })
 }
 
 const HEIGHTS = {
@@ -155,7 +160,12 @@ Modal.Content = function Content({
             ref={scrollRef}
             className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto px-(--mpx) py-(--mpy)'}`}
           >
-            {cloneElement(children, { onCloseModal: close })}
+            {cloneElement(children, {
+              onCloseModal: (...args) => {
+                children.props?.onCloseModal?.(...args)
+                close()
+              },
+            })}
           </div>
         </div>
       </div>

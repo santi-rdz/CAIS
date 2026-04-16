@@ -1,11 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { notaEvolucionBaseSchema } from '@cais/shared/schemas/medicina/evolutionNote'
-import {
-  aparatosSistemasSchema,
-  informacionFisicaSchema,
-  planEstudioSchema,
-} from '@cais/shared/schemas/medicina/shared'
+import { evolutionNoteSchema } from '@cais/shared/schemas/medicina/evolutionNote'
+import { fechaHoraFormFields } from '@cais/shared/schemas/fields'
 import { useStepForm } from '@hooks/useStepForm'
 import AparatosSistemasStep from '../MedicalPatientForm/steps/AparatosSistemasStep'
 import ExploracionFisicaStep from '../MedicalPatientForm/steps/ExploracionFisicaStep'
@@ -15,16 +10,17 @@ import {
   INFORMACION_FISICA_DEFAULTS,
   PLAN_ESTUDIO_DEFAULTS,
 } from '../shared/formDefaults'
+import dayjs from 'dayjs'
+import { mergeFechaHora } from '@lib/dateHelpers'
+import { omitEmpty } from '@lib/utils'
 import { useCreateEvolutionNote } from '../../hooks/useCreateEvolutionNote'
+import { useUpdateEvolutionNote } from '../../hooks/useUpdateEvolutionNote'
 import MotivoConsultaStep from './steps/MotivoConsultaStep'
 import PlanDiagnosticoStep from './steps/PlanDiagnosticoStep'
 
-const evolutionNoteFormSchema = z.object({
-  ...notaEvolucionBaseSchema.shape,
-  aparatos_sistemas: aparatosSistemasSchema.optional(),
-  informacion_fisica: informacionFisicaSchema.optional(),
-  planes_estudio: planEstudioSchema.optional(),
-})
+const evolutionNoteFormSchema = evolutionNoteSchema
+  .omit({ creado_at: true, paciente_id: true, historia_medica_id: true })
+  .extend(fechaHoraFormFields)
 
 const STEPS = ['Consulta', 'Aparatos', 'Exploración', 'Plan']
 const STEPS_FIELDS = [[], [], [], []]
@@ -37,7 +33,9 @@ const STEP_COMPONENTS = [
 ]
 
 const DEFAULT_VALUES = {
-  // Step 1 – notas_evolucion
+  // Step 1 – fecha y hora
+  fecha: dayjs(),
+  hora: dayjs(),
   motivo_consulta: '',
   ant_gine_andro: '',
   // Step 2 – aparatos_sistemas
@@ -48,51 +46,102 @@ const DEFAULT_VALUES = {
   planes_estudio: PLAN_ESTUDIO_DEFAULTS,
 }
 
+function fillDefaults(defaults, source) {
+  const result = {}
+  for (const [key, defaultVal] of Object.entries(defaults)) {
+    const srcVal = source?.[key]
+    if (
+      defaultVal !== null &&
+      typeof defaultVal === 'object' &&
+      !Array.isArray(defaultVal) &&
+      !(defaultVal instanceof Date) &&
+      !dayjs.isDayjs(defaultVal)
+    ) {
+      result[key] = fillDefaults(defaultVal, srcVal)
+    } else {
+      result[key] = srcVal ?? defaultVal
+    }
+  }
+  return result
+}
+
+function buildEditDefaults(note) {
+  const createdAt = note?.creado_at ? dayjs(note.creado_at) : dayjs()
+  const source = {
+    ...note,
+    fecha: createdAt,
+    hora: createdAt,
+    planes_estudio: {
+      ...note?.planes_estudio,
+      cie10_codes: note?.planes_estudio?.cie10_codes ?? [],
+    },
+  }
+
+  return fillDefaults(DEFAULT_VALUES, source)
+}
+
 export default function EvolutionNoteForm({
   pacienteId,
   patientGenero,
+  historiaId,
+  note,
   onCloseModal,
 }) {
   const { createNote, isCreating } = useCreateEvolutionNote(pacienteId)
+  const { updateNote, isUpdating } = useUpdateEvolutionNote(pacienteId)
+  const isEdit = !!note
+  const defaultValues = isEdit ? buildEditDefaults(note) : DEFAULT_VALUES
   const stepForm = useStepForm(
     STEPS,
     STEPS_FIELDS,
-    DEFAULT_VALUES,
+    defaultValues,
     zodResolver(evolutionNoteFormSchema)
   )
-  const { currStep } = stepForm
+  const {
+    currStep,
+    methods: {
+      formState: { isDirty },
+    },
+  } = stepForm
 
   const StepComponent = STEP_COMPONENTS[currStep]
 
   async function onSubmit(data) {
-    const hasPlan =
-      data.planes_estudio?.plan_tratamiento ||
-      data.planes_estudio?.tratamiento ||
-      data.planes_estudio?.estudios_complementarios ||
-      data.planes_estudio?.cie10_codes?.length
-
-    await createNote({
+    const cleaned = omitEmpty(data)
+    const payload = {
       paciente_id: pacienteId,
-      motivo_consulta: data.motivo_consulta || undefined,
-      ant_gine_andro: data.ant_gine_andro || undefined,
-      ...(Object.values(data.aparatos_sistemas ?? {}).some(Boolean) && {
-        aparatos_sistemas: data.aparatos_sistemas,
+      ...(historiaId && { historia_medica_id: historiaId }),
+      creado_at: mergeFechaHora(data.fecha, data.hora),
+      ...(cleaned.motivo_consulta && {
+        motivo_consulta: cleaned.motivo_consulta,
       }),
-      ...(Object.values(data.informacion_fisica ?? {}).some(Boolean) && {
-        informacion_fisica: data.informacion_fisica,
+      ...(cleaned.ant_gine_andro && { ant_gine_andro: cleaned.ant_gine_andro }),
+      ...(cleaned.aparatos_sistemas && {
+        aparatos_sistemas: cleaned.aparatos_sistemas,
       }),
-      ...(hasPlan && { planes_estudio: data.planes_estudio }),
-    })
+      ...(cleaned.informacion_fisica && {
+        informacion_fisica: cleaned.informacion_fisica,
+      }),
+      ...(cleaned.planes_estudio && { planes_estudio: cleaned.planes_estudio }),
+    }
+
+    if (isEdit) {
+      await updateNote(note.id, payload)
+    } else {
+      await createNote(payload)
+    }
     onCloseModal?.()
   }
 
   return (
     <StepFormShell
-      title="Nueva Nota de Evolución"
-      submitLabel="Guardar nota"
+      title={isEdit ? 'Editar Nota de Evolución' : 'Nueva Nota de Evolución'}
+      submitLabel={isEdit ? 'Actualizar nota' : 'Guardar nota'}
       steps={STEPS}
       onSubmit={onSubmit}
-      isPending={isCreating}
+      isPending={isEdit ? isUpdating : isCreating}
+      isEdit={isEdit}
+      isDirty={isDirty}
       onCloseModal={onCloseModal}
       {...stepForm}
     >
