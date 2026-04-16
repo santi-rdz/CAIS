@@ -8,6 +8,7 @@ import {
 export const notaEvolucionBaseSchema = z.object({
   motivo_consulta: z.string().nullish(),
   ant_gine_andro: z.string().nullish(),
+  estudios_complementarios_efectuados: z.string().nullish(),
 })
 
 export const evolutionNoteSchema = z.object({
