@@ -27,7 +27,12 @@ export default function PlanEstudioSection({ plan }) {
         />
       </div>
 
-      <CIE10List codes={cie10_codes} />
+      <div className="space-y-3">
+        <Heading as="h4" showBar>
+          Diagnóstico — Código CIE-10
+        </Heading>
+        <CIE10List codes={cie10_codes} />
+      </div>
     </div>
   )
 }

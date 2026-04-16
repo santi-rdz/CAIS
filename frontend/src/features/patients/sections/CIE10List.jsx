@@ -1,9 +1,6 @@
 export default function CIE10List({ codes }) {
   return (
     <div className="space-y-2">
-      <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
-        Diagnóstico CIE-10
-      </p>
       {!codes?.length ? (
         <p className="text-5 text-zinc-300">—</p>
       ) : (
