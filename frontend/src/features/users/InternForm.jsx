@@ -5,13 +5,12 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { useRef, useEffect } from 'react'
-import { z } from 'zod'
+import { useRef } from 'react'
 import {
   internCreateSchema,
   internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
-import { correoSchema, dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 
 const internSignupFormSchema = internSelfRegisterBaseSchema
   .omit({ token: true })
@@ -38,22 +37,12 @@ export default function InternForm({
   isPending = false,
 }) {
   const { createUser, isCreating } = useCreateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
-
-  const isUabcDomainRef = useRef(isUabcDomain)
-  useEffect(() => { isUabcDomainRef.current = isUabcDomain }, [isUabcDomain])
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
   const createFormSchema = useRef(
     internCreateSchema
       .omit({ rol: true })
-      .extend({
-        fechaNacimiento: dayjsDateSchema,
-        correo: z.string().min(1, 'Ingresa un usuario').max(255).superRefine((val, ctx) => {
-          if (!isUabcDomainRef.current && !correoSchema.safeParse(val).success) {
-            ctx.addIssue({ code: 'custom', message: 'Correo electrónico inválido' })
-          }
-        }),
-      })
+      .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
   ).current
 
   const stepsFields = [
