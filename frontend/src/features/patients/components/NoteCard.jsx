@@ -24,8 +24,11 @@ export default function NoteCard({
           isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
         }`}
       >
-        {/* Top row: Doctor + DateTime + Edit */}
+        {/* Top row: DateTime + Doctor + Edit */}
         <div className="flex shrink-0 items-center justify-between gap-3 px-4 pt-3 pb-1.5">
+          <time className="text-6 font-mono text-zinc-400 shrink-0">
+            {date} {hour}h
+          </time>
           <div className="flex min-w-0 items-center gap-2">
             {doctor?.foto ? (
               <img
@@ -40,9 +43,6 @@ export default function NoteCard({
               {doctor?.nombre ?? 'Dr. no registrado'}
             </span>
           </div>
-          <time className="text-6 font-mono text-zinc-400 shrink-0">
-            {date} {hour}h
-          </time>
         </div>
 
         {/* Edit button (top right) */}
