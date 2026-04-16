@@ -5,7 +5,7 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { z } from 'zod'
 import {
   internCreateSchema,
@@ -40,14 +40,21 @@ export default function InternForm({
   const { createUser, isCreating } = useCreateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
 
-  const createFormSchema = useMemo(() => {
-    const correoField = isUabcDomain
-      ? z.string().min(1, 'Ingresa un usuario').max(255)
-      : correoSchema
-    return internCreateSchema
+  const isUabcDomainRef = useRef(isUabcDomain)
+  useEffect(() => { isUabcDomainRef.current = isUabcDomain }, [isUabcDomain])
+
+  const createFormSchema = useRef(
+    internCreateSchema
       .omit({ rol: true })
-      .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
-  }, [isUabcDomain])
+      .extend({
+        fechaNacimiento: dayjsDateSchema,
+        correo: z.string().min(1, 'Ingresa un usuario').max(255).superRefine((val, ctx) => {
+          if (!isUabcDomainRef.current && !correoSchema.safeParse(val).success) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Correo electrónico inválido' })
+          }
+        }),
+      })
+  ).current
 
   const stepsFields = [
     ['nombre', 'apellido', 'fechaNacimiento', 'telefono'],
