@@ -130,7 +130,8 @@ function RequiredSection({ register, control, errors }) {
       </Heading>
       <Row className="gap-4">
         <BirthdayField
-          birthdate={true}
+          birthdate={false}
+          required={true}
           name="fecha"
           control={control}
           errors={errors}

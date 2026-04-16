@@ -8,11 +8,13 @@ export default function BirthdayField({
   errors,
   birthdate = true,
   name = 'fechaNacimiento',
+  required,
 }) {
   const label = birthdate ? 'Fecha de nacimiento' : 'Fecha'
   const requiredMessage = birthdate
     ? 'Ingresa la fecha de nacimiento'
     : 'Ingresa la fecha'
+  const showRequired = required !== undefined ? required : birthdate
 
   const fecha = useWatch({ control, name })
   const edad =
@@ -25,7 +27,7 @@ export default function BirthdayField({
       className="w-full"
       htmlFor={name}
       label={label}
-      required={birthdate}
+      required={showRequired}
     >
       <DatePickerComponent
         name={name}
