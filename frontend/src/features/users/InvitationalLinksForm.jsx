@@ -27,7 +27,8 @@ export default function InvitationalLinksForm({ onClose }) {
   const [users, setUsers] = useState([])
   const [idEdit, setIdEdit] = useState('')
   const [role, setRole] = useState('pasante')
-  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
 
   const inviteSchema = useRef(z.object({ email: correoField })).current
 

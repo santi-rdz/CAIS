@@ -89,6 +89,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
               size="md"
               className="gap-1.5"
               onClick={handleOpenCreate}
+              disabled={!historiaId}
             >
               <HiOutlinePlus size={14} />
               Nueva nota
