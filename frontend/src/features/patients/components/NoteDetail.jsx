@@ -115,12 +115,7 @@ export default function NoteDetail({ note, onBack, onEdit }) {
 
           <Tab.Panel value="plan" scrollable={false}>
             {planes_estudio ? (
-              <PlanEstudioSection
-                plan={planes_estudio}
-                estudios_complementarios={
-                  planes_estudio?.estudios_complementarios
-                }
-              />
+              <PlanEstudioSection plan={planes_estudio} />
             ) : (
               <p className="text-5 py-8 text-center text-zinc-400">
                 Sin plan de estudio registrado.
