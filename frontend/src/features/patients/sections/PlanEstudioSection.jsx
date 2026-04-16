@@ -1,4 +1,3 @@
-import Heading from '@components/Heading'
 import DataField from '@components/DataField'
 import CIE10List from './CIE10List'
 
@@ -27,12 +26,7 @@ export default function PlanEstudioSection({ plan }) {
         />
       </div>
 
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Diagnóstico — Código CIE-10
-        </Heading>
-        <CIE10List codes={cie10_codes} />
-      </div>
+      <CIE10List codes={cie10_codes} />
     </div>
   )
 }

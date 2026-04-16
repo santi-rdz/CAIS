@@ -1,11 +1,12 @@
 export default function CIE10List({ codes }) {
-  if (!codes?.length) return null
-
   return (
     <div className="space-y-2">
       <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
         Diagnóstico CIE-10
       </p>
+      {!codes?.length ? (
+        <p className="text-5 text-zinc-300">—</p>
+      ) : (
       <div className="flex flex-wrap gap-2">
         {codes.map(({ codigo, descripcion }) => (
           <div
@@ -24,6 +25,7 @@ export default function CIE10List({ codes }) {
           </div>
         ))}
       </div>
+      )}
     </div>
   )
 }
