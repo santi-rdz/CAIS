@@ -75,25 +75,29 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
           )}
           <div className="flex items-center gap-2">
             {/* Layout Toggle Buttons */}
-            <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">
-              <Button
-                variant={layout === 'grid' ? 'primary' : 'ghost'}
-                size="sm"
-                className="p-2"
+            <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
+              <button
+                className={`p-2 rounded text-gray-500 transition-colors ${
+                  layout === 'grid'
+                    ? 'bg-gray-100 text-gray-700'
+                    : 'hover:bg-gray-50'
+                }`}
                 aria-label="Vista en grid"
                 onClick={() => setLayout('grid')}
               >
                 <HiOutlineSquares2X2 size={16} />
-              </Button>
-              <Button
-                variant={layout === 'list' ? 'primary' : 'ghost'}
-                size="sm"
-                className="p-2"
+              </button>
+              <button
+                className={`p-2 rounded text-gray-500 transition-colors ${
+                  layout === 'list'
+                    ? 'bg-gray-100 text-gray-700'
+                    : 'hover:bg-gray-50'
+                }`}
                 aria-label="Vista en lista"
                 onClick={() => setLayout('list')}
               >
                 <HiOutlineListBullet size={16} />
-              </Button>
+              </button>
             </div>
 
             <Modal.Open opens="create-note">
