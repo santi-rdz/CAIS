@@ -5,7 +5,6 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { useRef } from 'react'
 import {
   coordCreateSchema,
   coordSelfRegisterBaseSchema,
@@ -39,11 +38,9 @@ export default function CoordForm({
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
-  const createFormSchema = useRef(
-    coordCreateSchema
-      .omit({ rol: true })
-      .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
-  ).current
+  const createFormSchema = coordCreateSchema
+    .omit({ rol: true })
+    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = [
     ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],

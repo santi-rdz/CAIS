@@ -36,7 +36,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
 
       <Row className="gap-4">
         <BirthdayField
-          birthdate={false}
+          birthdate={true}
           name="fecha"
           control={control}
           errors={errors}

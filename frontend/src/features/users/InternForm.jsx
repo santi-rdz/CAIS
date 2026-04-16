@@ -5,7 +5,6 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { useRef } from 'react'
 import {
   internCreateSchema,
   internSelfRegisterBaseSchema,
@@ -40,11 +39,9 @@ export default function InternForm({
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
-  const createFormSchema = useRef(
-    internCreateSchema
-      .omit({ rol: true })
-      .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
-  ).current
+  const createFormSchema = internCreateSchema
+    .omit({ rol: true })
+    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = [
     ['nombre', 'apellido', 'fechaNacimiento', 'telefono'],

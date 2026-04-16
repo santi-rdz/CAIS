@@ -30,7 +30,7 @@ export default function InvitationalLinksForm({ onClose }) {
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
-  const inviteSchema = useRef(z.object({ email: correoField })).current
+  const inviteSchema = z.object({ email: correoField })
 
   const isEditMode = Boolean(idEdit)
   const {
