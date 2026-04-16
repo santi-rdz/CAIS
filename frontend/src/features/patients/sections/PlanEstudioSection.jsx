@@ -6,17 +6,19 @@ export default function PlanEstudioSection({ plan }) {
   const { cie10_codes, plan_tratamiento, tratamiento, estudios_complementarios } = plan ?? {}
   return (
     <div className="space-y-6">
-      <Heading as="h4" showBar>
-        Plan y Diagnóstico
-      </Heading>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField
-          label="Plan de tratamiento"
-          value={plan_tratamiento}
-          multiline
-          block
-        />
-        <DataField label="Tratamiento" value={tratamiento} multiline block />
+      <div className="space-y-3">
+        <Heading as="h4" showBar>
+          Plan y Tratamiento
+        </Heading>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <DataField
+            label="Plan de tratamiento"
+            value={plan_tratamiento}
+            multiline
+            block
+          />
+          <DataField label="Tratamiento" value={tratamiento} multiline block />
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -31,7 +33,12 @@ export default function PlanEstudioSection({ plan }) {
         />
       </div>
 
-      <CIE10List codes={cie10_codes} />
+      <div className="space-y-3">
+        <Heading as="h4" showBar>
+          Diagnóstico — Código CIE-10
+        </Heading>
+        <CIE10List codes={cie10_codes} />
+      </div>
     </div>
   )
 }
