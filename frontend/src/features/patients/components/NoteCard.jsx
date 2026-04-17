@@ -178,7 +178,7 @@ export default function NoteCard({
           Motivo de consulta
         </p>
         {motivo_consulta ? (
-          <p className="text-5 text-zinc-600">{motivo_consulta}</p>
+          <p className="text-5 line-clamp-2 text-zinc-600">{motivo_consulta}</p>
         ) : (
           <p className="text-5 text-zinc-300 italic">Sin motivo de consulta</p>
         )}
