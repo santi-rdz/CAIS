@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import {
   HiOutlinePlus,
@@ -58,8 +58,14 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
     const next = new URLSearchParams(searchParams)
     next.set('editNote', note.id)
     setSearchParams(next, { replace: true })
-    openModalRef.current?.click()
   }
+
+  // Gate modal open until noteToEdit loads to avoid remount flash
+  useEffect(() => {
+    if (editNoteId && noteToEdit?.id === editNoteId) {
+      openModalRef.current?.click()
+    }
+  }, [editNoteId, noteToEdit?.id])
 
   function handleCloseNoteModal() {
     const next = new URLSearchParams(searchParams)
