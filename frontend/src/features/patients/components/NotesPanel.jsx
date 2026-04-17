@@ -35,6 +35,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
   const [selectedNoteId, setSelectedNoteId] = useState(null)
   const openModalRef = useRef(null)
+  const pendingOpenRef = useRef(false)
 
   const { note: selectedNote, isPending: isSelectedPending } =
     useEvolutionNote(selectedNoteId)
@@ -55,14 +56,16 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
 
   function handleOpenEdit(note, { showDetail = false } = {}) {
     if (showDetail) setSelectedNoteId(note.id)
+    pendingOpenRef.current = true
     const next = new URLSearchParams(searchParams)
     next.set('editNote', note.id)
     setSearchParams(next, { replace: true })
   }
 
-  // Gate modal open until noteToEdit loads to avoid remount flash
+  // Only open modal if we explicitly triggered an edit (not on URL persistence)
   useEffect(() => {
-    if (editNoteId && noteToEdit?.id === editNoteId) {
+    if (pendingOpenRef.current && noteToEdit?.id === editNoteId) {
+      pendingOpenRef.current = false
       openModalRef.current?.click()
     }
   }, [editNoteId, noteToEdit?.id])
