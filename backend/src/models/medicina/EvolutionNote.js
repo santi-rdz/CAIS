@@ -165,7 +165,7 @@ export class EvolutionNoteModel {
       await tx.notas_evolucion.update({
         where: { id: uuidToBuffer(id) },
         data: {
-          ...(data.creado_at !== undefined && {
+          ...(data.creado_at != null && {
             creado_at: new Date(data.creado_at),
           }),
           ...(data.paciente_id !== undefined && {
