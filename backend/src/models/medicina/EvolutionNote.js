@@ -119,6 +119,9 @@ export class EvolutionNoteModel {
   }
 
   static async create(data, userId, tx = prisma) {
+    if (!userId) {
+      throw new Error('EvolutionNote.create requires a userId')
+    }
     const noteId = randomUUID()
 
     await tx.notas_evolucion.create({
