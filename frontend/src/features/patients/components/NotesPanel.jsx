@@ -167,7 +167,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             layout === 'grid'
               ? {
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, 280px)',
                   gap: '12px',
                 }
               : undefined

@@ -22,7 +22,9 @@ export function formatFecha(fechaHora) {
 /** '11 de marzo de 2026' — para vistas de detalle */
 export function formatFechaLong(fechaHora) {
   if (!fechaHora) return '---'
-  return dayjs(toLocalParseable(fechaHora)).locale(es).format('DD [de] MMMM [de] YYYY')
+  return dayjs(toLocalParseable(fechaHora))
+    .locale(es)
+    .format('DD [de] MMMM [de] YYYY')
 }
 
 /** '13:25' */
