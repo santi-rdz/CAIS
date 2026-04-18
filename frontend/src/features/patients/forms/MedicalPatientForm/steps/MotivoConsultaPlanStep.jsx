@@ -1,0 +1,77 @@
+import { useFormContext } from 'react-hook-form'
+import dayjs from 'dayjs'
+import Heading from '@components/Heading'
+import FormRow from '@components/FormRow'
+import Input from '@components/Input'
+import Grid from '@components/Grid'
+import Divider from '@components/Divider'
+import DatePickerComponent from '@ui/DatePickerComponent'
+import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
+
+export default function MotivoConsultaPlanStep() {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
+
+  return (
+    <div className="space-y-5">
+      <Heading as="h3" showBar required>
+        Motivo de Consulta y Plan
+      </Heading>
+
+      <FormRow label="Fecha de la Historia" className="w-1/2" required>
+        <DatePickerComponent
+          name="creado_at"
+          control={control}
+          birthdate={false}
+          label="DD/MM/AAAA"
+          hasError={errors?.creado_at?.message}
+          maxDate={dayjs()}
+          rules={{
+            required: 'Ingresa la fecha de la historia',
+            validate: (val) => val !== 'invalid' || 'Ingresa una fecha válida',
+          }}
+        />
+      </FormRow>
+
+      <Divider />
+
+      <Grid cols={2} gap={4} mobileCols={1}>
+        <FormRow htmlFor="motivo_consulta" label="Motivo de Consulta">
+          <Input
+            {...register('motivo_consulta')}
+            id="motivo_consulta"
+            textarea
+            rows={4}
+            placeholder="Describe el motivo principal por el que consulta el paciente"
+            variant="outline"
+            size="md"
+          />
+        </FormRow>
+        <FormRow
+          htmlFor="historia_enfermedad_actual"
+          label="Historia de la Enfermedad Actual"
+        >
+          <Input
+            {...register('historia_enfermedad_actual')}
+            id="historia_enfermedad_actual"
+            textarea
+            rows={4}
+            placeholder="Describe detalladamente el padecimiento actual del paciente"
+            variant="outline"
+            size="md"
+          />
+        </FormRow>
+      </Grid>
+
+      <Divider />
+
+      <PlanTratamientoSection>
+        <PlanTratamientoSection.Tratamiento prefix="planes_estudio" />
+        <PlanTratamientoSection.Diagnostico prefix="planes_estudio" />
+      </PlanTratamientoSection>
+    </div>
+  )
+}

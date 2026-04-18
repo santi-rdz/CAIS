@@ -6,9 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import {
-  internCreateFormSchema,
-  internSignupFormSchema,
+  internCreateSchema,
+  internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
+import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+
+const internSignupFormSchema = internSelfRegisterBaseSchema
+  .omit({ token: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
 import useCreateUser from './hooks/useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'
@@ -27,7 +36,12 @@ export default function InternForm({
   isPending = false,
 }) {
   const { createUser, isCreating } = useCreateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
+
+  const createFormSchema = internCreateSchema
+    .omit({ rol: true })
+    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = [
     ['nombre', 'apellido', 'fechaNacimiento', 'telefono'],
@@ -55,7 +69,7 @@ export default function InternForm({
     steps,
     stepsFields,
     registration ? { correo: email } : {},
-    zodResolver(registration ? internSignupFormSchema : internCreateFormSchema)
+    zodResolver(registration ? internSignupFormSchema : createFormSchema)
   )
 
   const busy = registration ? isPending : isCreating

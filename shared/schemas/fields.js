@@ -43,3 +43,19 @@ export const passwordSchema = z
 export const rolesSchema = z.enum(['pasante', 'coordinador'], {
   error: 'El rol debe ser pasante o coordinador',
 })
+
+// ISO datetime con offset para el API (ej. fecha_hora, creado_at)
+export const isoDateTimeSchema = z.iso.datetime({
+  offset: true,
+  message: 'Fecha y hora inválidas',
+})
+
+// Campos separados fecha + hora para formularios con date/time pickers
+export const fechaHoraFormFields = {
+  fecha: z
+    .any()
+    .refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
+  hora: z.any().refine((v) => v !== null && v !== undefined, {
+    message: 'Ingresa la hora',
+  }),
+}

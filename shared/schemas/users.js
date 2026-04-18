@@ -4,20 +4,12 @@ import {
   correoSchema,
   passwordSchema,
   rolesSchema,
-  dayjsDateSchema,
   dateSchema,
 } from './fields.js'
-
-// ─── Campos compartidos ─────────────────────────────────────────────
 
 const tempPasswordSchema = z
   .string()
   .min(6, 'La contraseña debe tener al menos 6 caracteres')
-
-const coreFields = {
-  ...personaBaseFields,
-  fechaNacimiento: dateSchema,
-}
 
 // usuarios.matricula y cedula son VarChar(20) en DB
 const internFields = {
@@ -32,23 +24,29 @@ const cedulaField = {
   cedula: z.string().min(1, 'La cédula es requerida').max(20),
 }
 
-const passwordConfirmRefine = (schema) =>
+const confirmPasswordRefine = (schema) =>
   schema.refine((d) => d.password === d.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
 
-// ─── BE: Creación directa por admin ─────────────────────────────────
-
-const adminCreateBase = z.object({
-  ...coreFields,
-  password: tempPasswordSchema,
+export const internCreateSchema = z.object({
+  ...personaBaseFields,
+  fechaNacimiento: dateSchema,
+  ...internFields,
   correo: correoSchema,
+  password: tempPasswordSchema,
   rol: rolesSchema,
 })
 
-export const internCreateSchema = adminCreateBase.extend(internFields)
-export const coordCreateSchema = adminCreateBase.extend(cedulaField)
+export const coordCreateSchema = z.object({
+  ...personaBaseFields,
+  fechaNacimiento: dateSchema,
+  ...cedulaField,
+  correo: correoSchema,
+  password: tempPasswordSchema,
+  rol: rolesSchema,
+})
 
 export function validateAdminCreate(input) {
   const rol = input?.rol
@@ -56,9 +54,10 @@ export function validateAdminCreate(input) {
   return internCreateSchema.safeParse(input)
 }
 
-const userUpdateSchema = z
+export const userUpdateSchema = z
   .object({
-    ...coreFields,
+    ...personaBaseFields,
+    fechaNacimiento: dateSchema,
     ...internFields,
     ...cedulaField,
     correo: correoSchema,
@@ -70,61 +69,26 @@ export function validateUserUpdate(input) {
   return userUpdateSchema.safeParse(input)
 }
 
-// ─── BE: Auto-registro con token ────────────────────────────────────
-
-const selfRegisterBase = z.object({
-  ...coreFields,
+export const internSelfRegisterBaseSchema = z.object({
+  ...personaBaseFields,
+  fechaNacimiento: dateSchema,
+  ...internFields,
   password: passwordSchema,
-  token: z.uuid('Token inválido'),
   confirmPassword: z.string(),
+  token: z.uuid('Token inválido'),
 })
 
-export const internSelfRegisterSchema = passwordConfirmRefine(
-  selfRegisterBase.extend(internFields)
-)
-
-export const coordSelfRegisterSchema = passwordConfirmRefine(
-  selfRegisterBase.extend(cedulaField)
-)
+export const coordSelfRegisterBaseSchema = z.object({
+  ...personaBaseFields,
+  fechaNacimiento: dateSchema,
+  ...cedulaField,
+  password: passwordSchema,
+  confirmPassword: z.string(),
+  token: z.uuid('Token inválido'),
+})
 
 export function validateSelfRegister(input, rol) {
-  if (rol === 'COORDINADOR') return coordSelfRegisterSchema.safeParse(input)
-  return internSelfRegisterSchema.safeParse(input)
+  if (rol === 'COORDINADOR')
+    return confirmPasswordRefine(coordSelfRegisterBaseSchema).safeParse(input)
+  return confirmPasswordRefine(internSelfRegisterBaseSchema).safeParse(input)
 }
-
-// ─── FE: Schemas derivados para react-hook-form ─────────────────────
-// Se derivan de los schemas BE con .omit() / .extend() para evitar
-// duplicación. Solo cambian: fechaNacimiento (dayjs), correo (relajado),
-// y se quitan campos que el FE inyecta aparte (rol, token).
-
-const overrides = {
-  fechaNacimiento: dayjsDateSchema,
-  // Si contiene '@' se valida formato email; sin '@' es usuario de dominio.
-  correo: z
-    .string()
-    .min(1, 'Ingresa un usuario')
-    .refine(
-      (val) => !val.includes('@') || z.email().safeParse(val).success,
-      'Ingresa un correo válido'
-    ),
-}
-
-export const internCreateFormSchema = internCreateSchema
-  .omit({ rol: true })
-  .extend(overrides)
-
-export const coordCreateFormSchema = coordCreateSchema
-  .omit({ rol: true })
-  .extend(overrides)
-
-const signupFormBase = selfRegisterBase
-  .omit({ token: true })
-  .extend({ fechaNacimiento: dayjsDateSchema })
-
-export const internSignupFormSchema = passwordConfirmRefine(
-  signupFormBase.extend(internFields)
-)
-
-export const coordSignupFormSchema = passwordConfirmRefine(
-  signupFormBase.extend(cedulaField)
-)

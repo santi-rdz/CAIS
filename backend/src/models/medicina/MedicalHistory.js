@@ -11,6 +11,7 @@ import {
 } from '#lib/prismaHelpers.js'
 
 const includeRelations = {
+  usuarios: { select: { nombre: true, foto: true } },
   antecedentes_familiares: true,
   antecedentes_patologicos: true,
   antecedentes_no_patologicos: true,
@@ -45,10 +46,10 @@ function formatMedicalHistory(n) {
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
 
+    usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
     planes_estudio: planes_estudio
       ? {
           ...planes_estudio,
-          usuario_id: toUUID(planes_estudio.usuario_id),
           historia_medica_id: undefined,
           cie10_codes:
             planes_estudio.planes_estudio_cie10?.map(
@@ -108,6 +109,7 @@ export class MedicalHistoryModel {
       data: {
         id: uuidToBuffer(historyId),
         paciente_id: uuidToBuffer(data.paciente_id),
+        usuario_id: uuidToBuffer(userId),
         creado_at: data.creado_at,
         tipo_sangre: data.tipo_sangre,
         vacunas_infancia_completas: data.vacunas_infancia_completas,
@@ -115,7 +117,7 @@ export class MedicalHistoryModel {
         historia_enfermedad_actual: data.historia_enfermedad_actual,
         ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
         ...(data.planes_estudio && {
-          planes_estudio: planesEstudioCreate(data.planes_estudio, userId),
+          planes_estudio: planesEstudioCreate(data.planes_estudio),
         }),
       },
     })
@@ -150,7 +152,7 @@ export class MedicalHistoryModel {
           historia_enfermedad_actual: data.historia_enfermedad_actual,
           ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
           ...(data.planes_estudio && {
-            planes_estudio: planesEstudioUpsert(data.planes_estudio, userId),
+            planes_estudio: planesEstudioUpsert(data.planes_estudio),
           }),
         },
       })

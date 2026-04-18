@@ -41,7 +41,7 @@ export default function DomainEmailInput({
             isDomain || isValidEmail(val) || 'Ingresa un correo válido',
           onChange: (e) => {
             const val = e.target.value
-            handleDomainChange(!val.includes('@'))
+            setIsDomain(!val.includes('@'))
           },
         })}
         id={id}

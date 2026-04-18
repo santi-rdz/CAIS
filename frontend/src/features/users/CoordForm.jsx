@@ -6,9 +6,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import {
-  coordCreateFormSchema,
-  coordSignupFormSchema,
+  coordCreateSchema,
+  coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
+import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+
+const coordSignupFormSchema = coordSelfRegisterBaseSchema
+  .omit({ token: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
 import useCreateUser from './hooks/useCreateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'
@@ -26,7 +35,12 @@ export default function CoordForm({
   isPending = false,
 }) {
   const { createUser, isCreating } = useCreateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
+
+  const createFormSchema = coordCreateSchema
+    .omit({ rol: true })
+    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = [
     ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],
@@ -46,7 +60,7 @@ export default function CoordForm({
     steps,
     stepsFields,
     registration ? { correo: email } : {},
-    zodResolver(registration ? coordSignupFormSchema : coordCreateFormSchema)
+    zodResolver(registration ? coordSignupFormSchema : createFormSchema)
   )
 
   const busy = registration ? isPending : isCreating

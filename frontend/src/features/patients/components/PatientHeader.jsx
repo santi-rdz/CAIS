@@ -11,7 +11,7 @@ import Heading from '@components/Heading'
 import Tag from '@components/Tag'
 import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
-import MetaChip from './MetaChip'
+import MetaChip from '@components/MetaChip'
 
 export default function PatientHeader({ patient }) {
   const {

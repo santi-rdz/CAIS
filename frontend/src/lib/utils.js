@@ -17,6 +17,56 @@ export const isValidEmail = (email) =>
   /^[\w.-]+@([\w-]+\.)+[a-zA-Z]{2,}$/.test(email)
 
 /**
+ * Omite recursivamente keys con valor vacío ('', null, undefined).
+ * Si un objeto anidado queda sin keys, también se omite.
+ * Solo recursiona en objetos planos, preservando Dayjs, Date, y otras instancias.
+ */
+export function omitEmpty(obj) {
+  const result = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (v == null || (typeof v === 'string' && v.trim() === '')) continue
+    if (
+      typeof v === 'object' &&
+      Object.getPrototypeOf(v) === Object.prototype
+    ) {
+      const cleaned = omitEmpty(v)
+      if (Object.keys(cleaned).length) result[k] = cleaned
+    } else {
+      result[k] = v
+    }
+  }
+  return result
+}
+
+/**
+ * Extrae solo los campos que el usuario modificó (dirty) del formulario.
+ */
+export function pickDirty(data, dirtyFields) {
+  const result = {}
+  for (const key of Object.keys(dirtyFields)) {
+    if (key in data) result[key] = data[key]
+  }
+  return result
+}
+
+/** Convierte recursivamente strings vacíos a null (usado en edición para limpiar campos). */
+export function nullifyEmpty(obj) {
+  const result = {}
+  for (const [k, v] of Object.entries(obj)) {
+    if (
+      v !== null &&
+      typeof v === 'object' &&
+      Object.getPrototypeOf(v) === Object.prototype
+    ) {
+      result[k] = nullifyEmpty(v)
+    } else {
+      result[k] = typeof v === 'string' && v.trim() === '' ? null : v
+    }
+  }
+  return result
+}
+
+/**
  * Formats a 10-digit phone string to (XXX) XXX-XXXX.
  * Strips non-digits first, so it works with raw stored values or partially typed input.
  * @param {string} value - Raw or formatted phone string
