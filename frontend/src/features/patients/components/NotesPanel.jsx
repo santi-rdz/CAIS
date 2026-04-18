@@ -109,7 +109,12 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             </Modal.Open>
           </div>
           <Modal.Open opens="create-note">
-            <button ref={openModalRef} className="hidden" aria-hidden="true" />
+            <button
+              ref={openModalRef}
+              type="button"
+              className="hidden"
+              aria-hidden="true"
+            />
           </Modal.Open>
         </div>
 
