@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import {
   HiOutlinePlus,
@@ -26,20 +26,19 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { histories } = useMedicalHistories(pacienteId)
   const [layout, setLayout] = useState('grid')
+  const [noteToEditId, setNoteToEditId] = useState(null)
 
   const selectedId = searchParams.get('historia')
-  const editNoteId = searchParams.get('editNote')
   const mostRecentId = histories[0]?.id ?? null
   const historiaId = selectedId ?? mostRecentId
 
   const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
   const [selectedNoteId, setSelectedNoteId] = useState(null)
   const openModalRef = useRef(null)
-  const pendingOpenRef = useRef(false)
 
   const { note: selectedNote, isPending: isSelectedPending } =
     useEvolutionNote(selectedNoteId)
-  const { note: noteToEdit } = useEvolutionNote(editNoteId)
+  const { note: noteToEdit } = useEvolutionNote(noteToEditId)
 
   const periodos = histories.map(formatHistoriaOption)
 
@@ -48,32 +47,14 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
     setSelectedNoteId(null)
   }
 
-  function handleOpenCreate() {
-    const next = new URLSearchParams(searchParams)
-    next.delete('editNote')
-    setSearchParams(next, { replace: true })
-  }
-
   function handleOpenEdit(note, { showDetail = false } = {}) {
     if (showDetail) setSelectedNoteId(note.id)
-    pendingOpenRef.current = true
-    const next = new URLSearchParams(searchParams)
-    next.set('editNote', note.id)
-    setSearchParams(next, { replace: true })
+    setNoteToEditId(note.id)
+    openModalRef.current?.click()
   }
 
-  // Only open modal if we explicitly triggered an edit (not on URL persistence)
-  useEffect(() => {
-    if (pendingOpenRef.current && noteToEdit?.id === editNoteId) {
-      pendingOpenRef.current = false
-      openModalRef.current?.click()
-    }
-  }, [editNoteId, noteToEdit?.id])
-
   function handleCloseNoteModal() {
-    const next = new URLSearchParams(searchParams)
-    next.delete('editNote')
-    setSearchParams(next, { replace: true })
+    setNoteToEditId(null)
   }
 
   return (
@@ -119,7 +100,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 variant="primary"
                 size="md"
                 className="gap-1.5"
-                onClick={handleOpenCreate}
+                onClick={() => setNoteToEditId(null)}
                 disabled={!historiaId}
               >
                 <HiOutlinePlus size={14} />
@@ -177,11 +158,6 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div
-          className={
-            layout === 'grid'
-              ? 'auto-fit-grid grid gap-3'
-              : 'flex flex-col gap-3'
-          }
           style={
             layout === 'grid'
               ? {
@@ -191,6 +167,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 }
               : undefined
           }
+          className={layout === 'list' ? 'flex flex-col gap-3' : ''}
         >
           {notes.map((note) => (
             <NoteCard
