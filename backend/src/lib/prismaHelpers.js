@@ -1,4 +1,4 @@
-import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
+import { bufferToUUID } from '#lib/uuid.js'
 
 /**
  * Convierte un valor BINARY(16) de la DB a string UUID.

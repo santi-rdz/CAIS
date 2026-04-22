@@ -110,7 +110,7 @@ describe('validateAdminCreate — creación directa por admin', () => {
    * @test Pasante sin matrícula es rechazado.
    */
   test('rechaza pasante sin matrícula', () => {
-    const { matricula, ...sinMatricula } = basePasante
+    const { matricula: _matricula, ...sinMatricula } = basePasante
     const result = validateAdminCreate(sinMatricula)
     assert.equal(result.success, false)
   })
@@ -119,7 +119,7 @@ describe('validateAdminCreate — creación directa por admin', () => {
    * @test Coordinador sin cédula es rechazado.
    */
   test('rechaza coordinador sin cédula', () => {
-    const { cedula, ...sinCedula } = baseCoord
+    const { cedula: _cedula, ...sinCedula } = baseCoord
     const result = validateAdminCreate(sinCedula)
     assert.equal(result.success, false)
   })

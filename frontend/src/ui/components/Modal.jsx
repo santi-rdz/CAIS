@@ -131,7 +131,10 @@ Modal.Content = function Content({
 
   return createPortal(
     <ContentContext.Provider value={{ variant, icon }}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div
           ref={ref}
           className={`relative flex ${heightClass} ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}

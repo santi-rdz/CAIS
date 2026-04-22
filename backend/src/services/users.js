@@ -46,4 +46,18 @@ export class UserService {
       emailErrors,
     }
   }
+
+  static async resendInvitation(correo) {
+    const updated = await InvitationModel.refreshToken(correo)
+    if (!updated) return null
+
+    const url = `http://localhost:5173/registro?token=${updated.token}`
+    await sendEmail({
+      to: correo,
+      subject: 'Completa tu registro — CAIS',
+      html: registerEmail(correo, url),
+    })
+
+    return { correo }
+  }
 }

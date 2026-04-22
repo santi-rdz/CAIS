@@ -4,8 +4,16 @@ import RowActionsMenu from '@components/RowActionsMenu'
 import Modal from '@components/Modal'
 import DangerConfirm from '@components/DangerConfirm'
 import Button from '@components/Button'
-import { HiLockClosed, HiOutlineLockClosed } from 'react-icons/hi2'
-import useDeleteUser from './hooks/useDeleteUser'
+import {
+  HiLockClosed,
+  HiOutlineLockClosed,
+  HiPaperAirplane,
+  HiOutlineTrash,
+  HiLockOpen,
+} from 'react-icons/hi2'
+import useResendInvitation from './hooks/useResendInvitation'
+import useDeleteInvitation from './hooks/useDeleteInvitation'
+import useToggleUserEstado from './hooks/useToggleUserEstado'
 import useMe from './hooks/useMe'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
@@ -32,8 +40,15 @@ export default function UserRow({ user }) {
 
   const status = statusUp?.toLowerCase() ?? ''
   const role = roleUp?.toLowerCase() ?? ''
+  const isPending = status === 'pendiente'
 
-  const { deleteUser, isPending: isDeleting } = useDeleteUser()
+  const { resendInvitation, isResending } = useResendInvitation()
+  const { deleteInvitation, isDeleting: isDeletingInvitation } =
+    useDeleteInvitation()
+  const { toggleEstado, isPending: isTogglingEstado } = useToggleUserEstado()
+
+  const isInactive = status === 'inactivo'
+  const nextEstado = isInactive ? 'ACTIVO' : 'INACTIVO'
   const navigate = useNavigate()
   const isCurrentUser = userId === id
   const showedName = isCurrentUser ? `Tú` : fullName
@@ -41,17 +56,21 @@ export default function UserRow({ user }) {
   return (
     <Table.Row
       isCurrentUser={isCurrentUser}
-      onClick={() => navigate(`/usuarios/${id}`)}
+      onClick={!isPending ? () => navigate(`/usuarios/${id}`) : undefined}
     >
-      <span className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <span className="pointer-events-none absolute inset-y-0 right-16 flex translate-x-2 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
-        <span className="text-6 flex items-center gap-1.5 rounded-full bg-blue-800 px-3 py-1.5 font-medium text-white shadow-sm">
-          Ver detalles
-          <span className="animate-nudge-x">
-            <HiArrowRight size={11} />
+      {!isPending && (
+        <>
+          <span className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <span className="pointer-events-none absolute inset-y-0 right-16 flex translate-x-2 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+            <span className="text-6 flex items-center gap-1.5 rounded-full bg-blue-800 px-3 py-1.5 font-medium text-white shadow-sm">
+              Ver detalles
+              <span className="animate-nudge-x">
+                <HiArrowRight size={11} />
+              </span>
+            </span>
           </span>
-        </span>
-      </span>
+        </>
+      )}
       <PersonCell
         name={showedName}
         secondary={email}
@@ -63,35 +82,88 @@ export default function UserRow({ user }) {
         <Tag type={status}>{status}</Tag>
       </div>
 
-      <Modal>
-        <RowActionsMenu>
-          <Modal.Open opens="block-user">
+      {isPending ? (
+        <Modal>
+          <RowActionsMenu>
             <Button
               variant="ghost"
               size="md"
               className="flex items-center gap-1 text-nowrap"
+              onClick={() => resendInvitation(email)}
+              disabled={isResending}
             >
-              <HiLockClosed />
-              Bloquear usuario
+              <HiPaperAirplane />
+              Reenviar invitación
             </Button>
-          </Modal.Open>
-        </RowActionsMenu>
+            <Modal.Open opens="delete-invitation">
+              <Button
+                variant="ghost"
+                size="md"
+                className="flex w-full items-center gap-1 text-nowrap text-red-600 hover:text-red-700"
+              >
+                <HiOutlineTrash />
+                Eliminar invitación
+              </Button>
+            </Modal.Open>
+          </RowActionsMenu>
 
-        <Modal.Content
-          name="block-user"
-          noPadding
-          variant="alert"
-          icon={<HiOutlineLockClosed size={26} />}
-        >
-          <DangerConfirm
-            title="Bloquear usuario"
-            description="¿Estás seguro de bloquear a este usuario?"
-            confirmLabel="Bloquear"
-            onConfirm={() => deleteUser(id)}
-            isPending={isDeleting}
-          />
-        </Modal.Content>
-      </Modal>
+          <Modal.Content
+            name="delete-invitation"
+            noPadding
+            variant="alert"
+            icon={<HiOutlineTrash size={26} />}
+          >
+            <DangerConfirm
+              title="Eliminar invitación"
+              description={
+                <>
+                  ¿Eliminar la invitación enviada a<br />
+                  <span className="font-medium">{email}</span>?<br />
+                  El enlace de registro dejará de funcionar.
+                </>
+              }
+              confirmLabel="Eliminar"
+              onConfirm={() => deleteInvitation(email)}
+              isPending={isDeletingInvitation}
+            />
+          </Modal.Content>
+        </Modal>
+      ) : (
+        <Modal>
+          <RowActionsMenu>
+            <Modal.Open opens="toggle-estado">
+              <Button
+                variant="ghost"
+                size="md"
+                className="flex w-full items-center gap-1 text-nowrap"
+              >
+                {isInactive ? <HiLockOpen /> : <HiLockClosed />}
+                {isInactive ? 'Activar usuario' : 'Desactivar usuario'}
+              </Button>
+            </Modal.Open>
+          </RowActionsMenu>
+
+          <Modal.Content
+            name="toggle-estado"
+            noPadding
+            variant="alert"
+            icon={<HiOutlineLockClosed size={26} />}
+          >
+            <DangerConfirm
+              title={isInactive ? 'Activar usuario' : 'Desactivar usuario'}
+              description={
+                isInactive
+                  ? '¿Activar este usuario? Volverá a tener acceso a la plataforma.'
+                  : '¿Desactivar este usuario? Perderá el acceso a la plataforma.'
+              }
+              confirmLabel={isInactive ? 'Activar' : 'Desactivar'}
+              confirmVariant={isInactive ? 'primary' : 'danger'}
+              onConfirm={() => toggleEstado({ id, estado: nextEstado })}
+              isPending={isTogglingEstado}
+            />
+          </Modal.Content>
+        </Modal>
+      )}
     </Table.Row>
   )
 }

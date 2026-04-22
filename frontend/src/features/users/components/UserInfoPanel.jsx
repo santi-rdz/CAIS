@@ -19,8 +19,6 @@ function formatPeriodo(periodo) {
 
 export default function UserInfoPanel({ user }) {
   const {
-    correo,
-    telefono,
     fecha_nacimiento,
     area,
     matricula,

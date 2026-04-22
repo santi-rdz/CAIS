@@ -65,4 +65,43 @@ describe('POST /auth/login', () => {
       `status should be 400, 401, or 500, got ${res.status}`
     )
   })
+
+  /**
+   * @test Usuario con estado INACTIVO devuelve 403 tras autenticar credenciales correctas.
+   */
+  test('403 — cuenta desactivada no puede iniciar sesión', async () => {
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
+    const { randomUUID } = await import('node:crypto')
+    const bcrypt = await import('bcryptjs')
+
+    const correo = `inactivo.${Date.now()}@test.com`
+    const userId = randomUUID()
+
+    const [inactiveStatus, roleRow] = await Promise.all([
+      prisma.estados.findFirst({ where: { codigo: 'INACTIVO' } }),
+      prisma.roles.findFirst({ where: { codigo: 'PASANTE' } }),
+    ])
+
+    await prisma.usuarios.create({
+      data: {
+        id: uuidToBuffer(userId),
+        nombre: 'Test Inactivo',
+        correo,
+        password_hash: await bcrypt.hash('Test1234!', 10),
+        estado_id: inactiveStatus.id,
+        rol_id: roleRow.id,
+      },
+    })
+
+    try {
+      const res = await api
+        .post('/auth/login')
+        .send({ email: correo, password: 'Test1234!' })
+      assert.equal(res.status, 403)
+      assert(res.body.error !== undefined, 'body.error should exist')
+    } finally {
+      await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
+    }
+  })
 })

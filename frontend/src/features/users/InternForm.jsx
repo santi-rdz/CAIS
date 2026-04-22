@@ -35,9 +35,8 @@ const internEditSchema = z.object({
 })
 
 function parseUserDefaults(user) {
-  const parts = (user.nombre ?? '').trim().split(/\s+/)
-  const nombre = parts[0] ?? ''
-  const apellido = parts.slice(1).join(' ')
+  const nombre = user.nombre ?? ''
+  const apellido = user.apellido ?? ''
 
   const [inicioAnio = '', inicioPeriodo = ''] = (
     user.inicio_servicio ?? ''
@@ -75,12 +74,14 @@ const EDIT_STEPS = ['Inf. Personal']
 
 export default function InternForm({
   onClose,
+  onCloseModal,
   registration = false,
   email,
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
 }) {
+  const close = onClose ?? onCloseModal
   const isEdit = Boolean(user)
   const steps = isEdit ? EDIT_STEPS : CREATE_STEPS
 
@@ -154,7 +155,7 @@ export default function InternForm({
             servicioFinPeriodo: data.servicioFinPeriodo,
           },
         },
-        { onSuccess: () => onClose?.() }
+        { onSuccess: () => close?.() }
       )
       return
     }
@@ -189,7 +190,7 @@ export default function InternForm({
           servicioFinPeriodo: data.servicioFinPeriodo,
           password: data.password,
         },
-        { onSuccess: () => onClose?.() }
+        { onSuccess: () => close?.() }
       )
     }
   }
@@ -235,7 +236,7 @@ export default function InternForm({
     </div>
   ) : (
     <ModalActions
-      onClose={onClose}
+      onClose={close}
       primaryAction={{
         label: primaryLabel,
         icon: isLast ? (
@@ -272,7 +273,9 @@ export default function InternForm({
             <InterPersonalInfoForm />
             <div className="mt-6">
               <InterAcademicInfoForm
-                disabledEmail={registration ? email : undefined}
+                disabledEmail={
+                  isEdit ? user.correo : registration ? email : undefined
+                }
                 isUabcDomain={isUabcDomain}
                 setIsUabcDomain={setIsUabcDomain}
               />

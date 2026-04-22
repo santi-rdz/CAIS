@@ -31,9 +31,8 @@ const coordEditSchema = z.object({
 })
 
 function parseUserDefaults(user) {
-  const parts = (user.nombre ?? '').trim().split(/\s+/)
-  const nombre = parts[0] ?? ''
-  const apellido = parts.slice(1).join(' ')
+  const nombre = user.nombre ?? ''
+  const apellido = user.apellido ?? ''
 
   return {
     nombre,
@@ -61,12 +60,14 @@ const EDIT_STEPS = ['Inf. Personal']
 
 export default function CoordForm({
   onClose,
+  onCloseModal,
   registration = false,
   email,
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
 }) {
+  const close = onClose ?? onCloseModal
   const isEdit = Boolean(user)
   const steps = isEdit ? EDIT_STEPS : CREATE_STEPS
 
@@ -139,7 +140,7 @@ export default function CoordForm({
             cedula: data.cedula,
           },
         },
-        { onSuccess: () => onClose?.() }
+        { onSuccess: () => close?.() }
       )
       return
     }
@@ -166,7 +167,7 @@ export default function CoordForm({
           cedula: data.cedula,
           password: data.password,
         },
-        { onSuccess: () => onClose?.() }
+        { onSuccess: () => close?.() }
       )
     }
   }
@@ -210,7 +211,7 @@ export default function CoordForm({
     </div>
   ) : (
     <ModalActions
-      onClose={onClose}
+      onClose={close}
       primaryAction={{
         label: primaryLabel,
         icon: isLast ? (
@@ -247,7 +248,9 @@ export default function CoordForm({
       >
         {currStep === 0 && (
           <CoordPersonalInfoForm
-            disabledEmail={registration ? email : undefined}
+            disabledEmail={
+              isEdit ? user.correo : registration ? email : undefined
+            }
             isUabcDomain={isUabcDomain}
             setIsUabcDomain={setIsUabcDomain}
           />

@@ -69,6 +69,46 @@ describe('GET /usuarios', () => {
   })
 
   /**
+   * @test Sin filtro de status incluye invitaciones pendientes vigentes en el resultado.
+   */
+  test('200 — sin filtro incluye pendientes', async () => {
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
+    const { randomUUID } = await import('node:crypto')
+
+    const token = randomUUID()
+    const correo = `no.filter.pending.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(token),
+        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
+
+    try {
+      const res = await agent.get('/usuarios')
+      assert.equal(res.status, 200)
+      const found = res.body.users.some((u) => u.correo === correo)
+      assert(
+        found,
+        'pending invitation should appear when no status filter is applied'
+      )
+    } finally {
+      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+    }
+  })
+
+  /**
    * @test Búsqueda por nombre o correo devuelve 200.
    */
   test('200 — busca por nombre o correo', async () => {
@@ -82,6 +122,84 @@ describe('GET /usuarios', () => {
   test('200 — ordena por nombre ascendente', async () => {
     const res = await agent.get('/usuarios?sortBy=nombre-asc')
     assert.equal(res.status, 200)
+  })
+
+  /**
+   * @test Filtrando por status=PENDIENTE devuelve invitaciones no usadas con estado PENDIENTE.
+   */
+  test('200 — filtra invitaciones pendientes con status=PENDIENTE', async () => {
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
+    const { randomUUID } = await import('node:crypto')
+
+    const token = randomUUID()
+    const correo = `pending.filter.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(token),
+        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
+
+    try {
+      const res = await agent.get('/usuarios?status=PENDIENTE')
+      assert.equal(res.status, 200)
+      assert(Array.isArray(res.body.users), 'users should be an array')
+      assert(res.body.count >= 1, 'count should be at least 1')
+      for (const user of res.body.users) {
+        assert.equal(user.estado, 'PENDIENTE')
+        assert(user.correo !== undefined, 'pendiente user should have correo')
+      }
+    } finally {
+      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+    }
+  })
+
+  /**
+   * @test Invitaciones expiradas no aparecen en el listado de pendientes.
+   */
+  test('200 — excluye invitaciones expiradas del listado de pendientes', async () => {
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
+    const { randomUUID } = await import('node:crypto')
+
+    const token = randomUUID()
+    const correo = `expired.filter.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(token),
+        expira_at: new Date(Date.now() - 1000), // ya expiró
+        creado_por: userRow.id,
+      },
+    })
+
+    try {
+      const res = await agent.get('/usuarios?status=PENDIENTE')
+      assert.equal(res.status, 200)
+      const found = res.body.users.some((u) => u.correo === correo)
+      assert(!found, 'expired invitation should not appear in pending list')
+    } finally {
+      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+    }
   })
 })
 
@@ -345,6 +463,55 @@ describe('PATCH /usuarios/:id', () => {
       .patch('/usuarios/00000000-0000-0000-0000-000000000000')
       .send({ nombre: 'No existe' })
     assert.equal(res.status, 404)
+  })
+})
+
+// ─── PATCH /usuarios/:id — estado ──────────────────────────────────
+
+/**
+ * @description Suite para PATCH /usuarios/:id actualizando el campo estado.
+ */
+describe('PATCH /usuarios/:id — actualizar estado', () => {
+  let userId
+
+  beforeAll(async () => {
+    const res = await agent.get('/usuarios?status=ACTIVO&limit=1&page=1')
+    userId = res.body.users[0]?.id
+  })
+
+  /**
+   * @test Cambiar estado a INACTIVO devuelve 200 con estado actualizado.
+   */
+  test('200 — bloquea usuario (ACTIVO → INACTIVO)', async () => {
+    if (!userId) return
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ estado: 'INACTIVO' })
+    assert.equal(res.status, 200)
+    assert.equal(res.body.estado, 'INACTIVO')
+  })
+
+  /**
+   * @test Cambiar estado a ACTIVO devuelve 200 con estado actualizado.
+   */
+  test('200 — desbloquea usuario (INACTIVO → ACTIVO)', async () => {
+    if (!userId) return
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ estado: 'ACTIVO' })
+    assert.equal(res.status, 200)
+    assert.equal(res.body.estado, 'ACTIVO')
+  })
+
+  /**
+   * @test Estado inválido devuelve 422.
+   */
+  test('422 — estado inválido es rechazado', async () => {
+    if (!userId) return
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ estado: 'BLOQUEADO' })
+    assert.equal(res.status, 422)
   })
 })
 

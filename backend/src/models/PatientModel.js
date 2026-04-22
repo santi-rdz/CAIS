@@ -12,7 +12,7 @@ const SORT_OPTIONS = formatDefs(PATIENT_SORT_DEFS)
 
 function formatPatient(u) {
   if (!u) return null
-  const { usuarios, ...rest } = u
+  const { usuarios: _usuarios, ...rest } = u
   return {
     ...rest,
     id: bufferToUUID(u.id),
