@@ -1,10 +1,10 @@
 import Spinner from '@components/Spinner'
 import { Navigate } from 'react-router-dom'
-import useUser from '@features/users/hooks/useUser'
+import useMe from '@features/users/hooks/useMe'
 import useSessionSync from '@features/users/hooks/useSessionSync'
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isPending } = useUser()
+  const { isAuthenticated, isPending } = useMe()
   useSessionSync()
 
   // Loading - solo mostrar spinner si está pendiente y hay usuario

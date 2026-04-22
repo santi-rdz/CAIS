@@ -41,6 +41,7 @@ export class UserModel {
     if (search) {
       where.OR = [
         { nombre: { contains: search } },
+        { apellido: { contains: search } },
         { correo: { contains: search } },
       ]
     }
@@ -88,9 +89,14 @@ export class UserModel {
   static async update(id, data) {
     const fieldMap = {
       nombre: 'nombre',
+      apellido: 'apellido',
       correo: 'correo',
       fechaNacimiento: 'fecha_nacimiento',
       telefono: 'telefono',
+      matricula: 'matricula',
+      cedula: 'cedula',
+      inicioServicio: 'inicio_servicio',
+      finServicio: 'fin_servicio',
     }
 
     const prismaData = Object.fromEntries(
@@ -128,6 +134,7 @@ export class UserModel {
       data: {
         id: uuidToBuffer(userId),
         nombre: userData.nombre,
+        apellido: userData.apellido ?? null,
         correo: userData.correo,
         fecha_nacimiento: userData.fechaNacimiento,
         telefono: userData.telefono,

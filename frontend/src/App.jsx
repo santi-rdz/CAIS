@@ -10,6 +10,7 @@ import Emergencies from './pages/Emergencies'
 import EmergencyDetail from './pages/EmergencyDetail'
 import Patients from './pages/Patients'
 import PatientDetail from './pages/PatientDetail'
+import UserDetail from './pages/UserDetail'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="pacientes" element={<Patients />} />
           <Route path="pacientes/:id" element={<PatientDetail />} />
           <Route path="usuarios" element={<Users />} />
+          <Route path="usuarios/:id" element={<UserDetail />} />
           <Route path="emergencias" element={<Emergencies />} />
           <Route path="emergencias/:id" element={<EmergencyDetail />} />
         </Route>

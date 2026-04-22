@@ -1,45 +1,13 @@
-import { getMe, logout as logoutApi } from '@services/ApiAuth'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { getUser } from '@services/ApiUsers'
+import { useQuery } from '@tanstack/react-query'
+import { useParams } from 'react-router'
 
-export default function useUser() {
-  const queryClient = useQueryClient()
-  const navigate = useNavigate()
-
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ['user'],
-    queryFn: getMe,
-    retry: false,
+export function useUser() {
+  const { id } = useParams()
+  const { data: user, isPending } = useQuery({
+    queryKey: ['user', id],
+    queryFn: () => getUser(id),
   })
 
-  const logout = async () => {
-    try {
-      await logoutApi()
-    } catch {
-      // sesión ya expirada en el servidor — limpiamos el estado local igual
-    }
-    try {
-      localStorage.setItem(
-        'session_event',
-        JSON.stringify({ type: 'logout', ts: Date.now() })
-      )
-    } catch {
-      // localStorage deshabilitado o cuota excedida — continuamos el logout igual
-    }
-    queryClient.clear()
-    navigate('/login', { replace: true })
-  }
-
-  if (isError) return { isAuthenticated: false, logout }
-
-  return {
-    user,
-    isPending: isLoading,
-    isAuthenticated: Boolean(user?.id),
-    logout,
-  }
+  return { user, isPending }
 }

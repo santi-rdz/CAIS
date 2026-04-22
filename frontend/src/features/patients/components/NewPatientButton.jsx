@@ -1,7 +1,7 @@
 import { HiOutlinePlus } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
-import useUser from '@features/users/hooks/useUser'
+import useMe from '@features/users/hooks/useMe'
 import MedicalPatientForm from '../forms/MedicalPatientForm/MedicalPatientForm'
 
 const AREA_FORMS = {
@@ -16,7 +16,7 @@ export default function NewPatientButton({
   variant = 'primary',
   className,
 }) {
-  const { user } = useUser()
+  const { user } = useMe()
   const area = user?.area?.toLowerCase()
   const config = AREA_FORMS[area]
 

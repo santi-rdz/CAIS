@@ -27,6 +27,7 @@ export class PatientModel {
     if (search) {
       where.OR = [
         { nombre: { contains: search } },
+        { apellidos: { contains: search } },
         { telefono: { contains: search } },
       ]
     }

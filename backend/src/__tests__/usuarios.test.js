@@ -305,6 +305,39 @@ describe('PATCH /usuarios/:id', () => {
   })
 
   /**
+   * @test Actualizar teléfono devuelve 200 con el nuevo valor.
+   */
+  test('200 — actualiza telefono', async () => {
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ telefono: '6861234567' })
+    assert.equal(res.status, 200)
+    assert.equal(res.body.telefono, '6861234567')
+  })
+
+  /**
+   * @test Actualizar matrícula devuelve 200 con el nuevo valor.
+   */
+  test('200 — actualiza matricula', async () => {
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ matricula: 'MAT-UPDATED' })
+    assert.equal(res.status, 200)
+    assert.equal(res.body.matricula, 'MAT-UPDATED')
+  })
+
+  /**
+   * @test Actualizar nombre y apellido los combina en el campo nombre.
+   */
+  test('200 — combina nombre y apellido', async () => {
+    const res = await agent
+      .patch(`/usuarios/${userId}`)
+      .send({ nombre: 'Nuevo', apellido: 'Nombre' })
+    assert.equal(res.status, 200)
+    assert.equal(res.body.nombre, 'Nuevo Nombre')
+  })
+
+  /**
    * @test UUID inexistente devuelve 404.
    */
   test('404 — usuario no existe', async () => {

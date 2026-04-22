@@ -3,6 +3,7 @@ import { telefonoSchema, correoSchema, dateSchema } from '../fields.js'
 
 export const patientSchema = z.object({
   nombre: z.string().trim().min(1, 'El nombre es requerido').max(255),
+  apellidos: z.string().trim().min(1, 'Los apellidos son requeridos').max(255),
   fecha_nacimiento: dateSchema,
   es_externo: z.boolean().optional(),
   correo: z.preprocess(

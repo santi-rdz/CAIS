@@ -605,6 +605,7 @@ model pacientes {
   id                            Bytes                           @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   doctor_id                     Bytes                           @db.Binary(16)
   nombre                        String?                         @db.VarChar(255)
+  apellidos                     String?                         @db.VarChar(255)
   fecha_nacimiento              DateTime?                       @db.Date
   es_externo                    Boolean?                        @default(false)
   correo                        String?                         @db.VarChar(255)
@@ -890,6 +891,7 @@ model tratamiento_alt_nutricion {
 model usuarios {
   id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   nombre                String?                 @db.VarChar(255)
+  apellido              String?                 @db.VarChar(255)
   fecha_nacimiento      DateTime?               @db.Date
   correo                String?                 @unique(map: "correo") @db.VarChar(255)
   telefono              String?                 @db.VarChar(30)

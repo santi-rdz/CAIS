@@ -10,6 +10,8 @@ import {
   coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { z } from 'zod'
+import dayjs from 'dayjs'
 
 const coordSignupFormSchema = coordSelfRegisterBaseSchema
   .omit({ token: true })
@@ -18,14 +20,44 @@ const coordSignupFormSchema = coordSelfRegisterBaseSchema
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
+
+const coordEditSchema = z.object({
+  nombre: z.string().min(2, 'El nombre es requerido'),
+  apellido: z.string().min(2, 'El apellido es requerido'),
+  fechaNacimiento: dayjsDateSchema,
+  telefono: z.string().optional(),
+  correo: z.string().email('Correo inválido'),
+  cedula: z.string().min(1, 'La cédula es requerida').max(20),
+})
+
+function parseUserDefaults(user) {
+  const parts = (user.nombre ?? '').trim().split(/\s+/)
+  const nombre = parts[0] ?? ''
+  const apellido = parts.slice(1).join(' ')
+
+  return {
+    nombre,
+    apellido,
+    fechaNacimiento: user.fecha_nacimiento
+      ? dayjs(user.fecha_nacimiento)
+      : null,
+    telefono: user.telefono ?? '',
+    correo: user.correo ?? '',
+    cedula: user.cedula ?? '',
+  }
+}
+
 import useCreateUser from './hooks/useCreateUser'
+import useUpdateUser from './hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
+import Modal from '@components/Modal'
 
-const steps = ['Inf. Personal', 'Contraseña']
+const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
+const EDIT_STEPS = ['Inf. Personal']
 
 export default function CoordForm({
   onClose,
@@ -33,8 +65,13 @@ export default function CoordForm({
   email,
   onSubmit: externalOnSubmit,
   isPending = false,
+  user, // present in edit mode
 }) {
+  const isEdit = Boolean(user)
+  const steps = isEdit ? EDIT_STEPS : CREATE_STEPS
+
   const { createUser, isCreating } = useCreateUser()
+  const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
@@ -42,10 +79,38 @@ export default function CoordForm({
     .omit({ rol: true })
     .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
-  const stepsFields = [
-    ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],
-    registration ? ['password', 'confirmPassword'] : ['password'],
-  ]
+  const stepsFields = isEdit
+    ? [
+        [
+          'nombre',
+          'apellido',
+          'correo',
+          'fechaNacimiento',
+          'telefono',
+          'cedula',
+        ],
+      ]
+    : [
+        [
+          'nombre',
+          'apellido',
+          'correo',
+          'fechaNacimiento',
+          'telefono',
+          'cedula',
+        ],
+        registration ? ['password', 'confirmPassword'] : ['password'],
+      ]
+
+  const defaultValues = isEdit
+    ? parseUserDefaults(user)
+    : registration
+      ? { correo: email }
+      : {}
+
+  const resolver = isEdit
+    ? zodResolver(coordEditSchema)
+    : zodResolver(registration ? coordSignupFormSchema : createFormSchema)
 
   const {
     currStep,
@@ -56,16 +121,29 @@ export default function CoordForm({
     methods,
     handleSubmit,
     getFormKeyDown,
-  } = useStepForm(
-    steps,
-    stepsFields,
-    registration ? { correo: email } : {},
-    zodResolver(registration ? coordSignupFormSchema : createFormSchema)
-  )
+  } = useStepForm(steps, stepsFields, defaultValues, resolver)
 
-  const busy = registration ? isPending : isCreating
+  const busy = isEdit ? isUpdating : registration ? isPending : isCreating
 
   function onSubmit(data) {
+    if (isEdit) {
+      updateUser(
+        {
+          id: user.id,
+          data: {
+            nombre: data.nombre,
+            apellido: data.apellido,
+            correo: data.correo,
+            fechaNacimiento: data.fechaNacimiento,
+            telefono: data.telefono,
+            cedula: data.cedula,
+          },
+        },
+        { onSuccess: () => onClose?.() }
+      )
+      return
+    }
+
     if (registration) {
       externalOnSubmit({
         nombre: data.nombre,
@@ -96,6 +174,12 @@ export default function CoordForm({
   const PasswordComponent = registration
     ? RegistrationPasswordForm
     : PasswordForm
+
+  const primaryLabel = isEdit
+    ? 'Guardar cambios'
+    : isLast
+      ? 'Crear usuario'
+      : 'Siguiente'
 
   const nav = registration ? (
     <div className="mt-8 flex gap-3">
@@ -128,7 +212,7 @@ export default function CoordForm({
     <ModalActions
       onClose={onClose}
       primaryAction={{
-        label: isLast ? 'Crear usuario' : 'Siguiente',
+        label: primaryLabel,
         icon: isLast ? (
           <HiCheck strokeWidth={1} />
         ) : (
@@ -150,7 +234,13 @@ export default function CoordForm({
 
   const content = (
     <>
-      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      {steps.length > 1 && (
+        <Stepper
+          steps={steps}
+          current={currStep}
+          setCurrStep={handleStepClick}
+        />
+      )}
       <form
         className={registration ? 'mt-6 space-y-6' : 'mt-6'}
         onKeyDown={getFormKeyDown(onSubmit, busy)}
@@ -162,14 +252,25 @@ export default function CoordForm({
             setIsUabcDomain={setIsUabcDomain}
           />
         )}
-        {currStep === 1 && <PasswordComponent />}
+        {!isEdit && currStep === 1 && <PasswordComponent />}
       </form>
     </>
   )
 
   return (
     <FormProvider {...methods}>
-      {registration ? <div>{content}</div> : <ModalBody>{content}</ModalBody>}
+      {registration ? (
+        <div>{content}</div>
+      ) : (
+        <>
+          {isEdit && (
+            <Modal.Heading>
+              <Modal.Title>Editar coordinador</Modal.Title>
+            </Modal.Heading>
+          )}
+          <ModalBody>{content}</ModalBody>
+        </>
+      )}
       {nav}
     </FormProvider>
   )

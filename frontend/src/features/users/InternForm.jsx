@@ -10,6 +10,8 @@ import {
   internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { z } from 'zod'
+import dayjs from 'dayjs'
 
 const internSignupFormSchema = internSelfRegisterBaseSchema
   .omit({ token: true })
@@ -18,15 +20,58 @@ const internSignupFormSchema = internSelfRegisterBaseSchema
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
+
+const internEditSchema = z.object({
+  nombre: z.string().min(2, 'El nombre es requerido'),
+  apellido: z.string().min(2, 'El apellido es requerido'),
+  fechaNacimiento: dayjsDateSchema,
+  telefono: z.string().optional(),
+  correo: z.string().email('Correo inválido'),
+  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
+  servicioInicioAnio: z.string().min(1, 'Selecciona el año de inicio'),
+  servicioInicioPeriodo: z.string().min(1, 'Selecciona el periodo de inicio'),
+  servicioFinAnio: z.string().min(1, 'Selecciona el año de fin'),
+  servicioFinPeriodo: z.string().min(1, 'Selecciona el periodo de fin'),
+})
+
+function parseUserDefaults(user) {
+  const parts = (user.nombre ?? '').trim().split(/\s+/)
+  const nombre = parts[0] ?? ''
+  const apellido = parts.slice(1).join(' ')
+
+  const [inicioAnio = '', inicioPeriodo = ''] = (
+    user.inicio_servicio ?? ''
+  ).split('-')
+  const [finAnio = '', finPeriodo = ''] = (user.fin_servicio ?? '').split('-')
+
+  return {
+    nombre,
+    apellido,
+    fechaNacimiento: user.fecha_nacimiento
+      ? dayjs(user.fecha_nacimiento)
+      : null,
+    telefono: user.telefono ?? '',
+    correo: user.correo ?? '',
+    matricula: user.matricula ?? '',
+    servicioInicioAnio: inicioAnio,
+    servicioInicioPeriodo: inicioPeriodo,
+    servicioFinAnio: finAnio,
+    servicioFinPeriodo: finPeriodo,
+  }
+}
+
 import useCreateUser from './hooks/useCreateUser'
+import useUpdateUser from './hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
 import InterPersonalInfoForm from './InterPersonalInfoForm'
 import InterAcademicInfoForm from './InterAcademicInfoForm'
+import Modal from '@components/Modal'
 
-const steps = ['Inf. Personal', 'Inf. Académica', 'Contraseña']
+const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
+const EDIT_STEPS = ['Inf. Personal']
 
 export default function InternForm({
   onClose,
@@ -34,8 +79,13 @@ export default function InternForm({
   email,
   onSubmit: externalOnSubmit,
   isPending = false,
+  user, // present in edit mode
 }) {
+  const isEdit = Boolean(user)
+  const steps = isEdit ? EDIT_STEPS : CREATE_STEPS
+
   const { createUser, isCreating } = useCreateUser()
+  const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
@@ -43,18 +93,35 @@ export default function InternForm({
     .omit({ rol: true })
     .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
 
-  const stepsFields = [
-    ['nombre', 'apellido', 'fechaNacimiento', 'telefono'],
-    [
-      'correo',
-      'matricula',
-      'servicioInicioAnio',
-      'servicioInicioPeriodo',
-      'servicioFinAnio',
-      'servicioFinPeriodo',
-    ],
-    registration ? ['password', 'confirmPassword'] : ['password'],
+  const allPersonalAndAcademicFields = [
+    'nombre',
+    'apellido',
+    'fechaNacimiento',
+    'telefono',
+    'correo',
+    'matricula',
+    'servicioInicioAnio',
+    'servicioInicioPeriodo',
+    'servicioFinAnio',
+    'servicioFinPeriodo',
   ]
+
+  const stepsFields = isEdit
+    ? [allPersonalAndAcademicFields]
+    : [
+        allPersonalAndAcademicFields,
+        registration ? ['password', 'confirmPassword'] : ['password'],
+      ]
+
+  const defaultValues = isEdit
+    ? parseUserDefaults(user)
+    : registration
+      ? { correo: email }
+      : {}
+
+  const resolver = isEdit
+    ? zodResolver(internEditSchema)
+    : zodResolver(registration ? internSignupFormSchema : createFormSchema)
 
   const {
     currStep,
@@ -65,16 +132,33 @@ export default function InternForm({
     methods,
     handleSubmit,
     getFormKeyDown,
-  } = useStepForm(
-    steps,
-    stepsFields,
-    registration ? { correo: email } : {},
-    zodResolver(registration ? internSignupFormSchema : createFormSchema)
-  )
+  } = useStepForm(steps, stepsFields, defaultValues, resolver)
 
-  const busy = registration ? isPending : isCreating
+  const busy = isEdit ? isUpdating : registration ? isPending : isCreating
 
   function onSubmit(data) {
+    if (isEdit) {
+      updateUser(
+        {
+          id: user.id,
+          data: {
+            nombre: data.nombre,
+            apellido: data.apellido,
+            correo: data.correo,
+            fechaNacimiento: data.fechaNacimiento,
+            telefono: data.telefono,
+            matricula: data.matricula,
+            servicioInicioAnio: data.servicioInicioAnio,
+            servicioInicioPeriodo: data.servicioInicioPeriodo,
+            servicioFinAnio: data.servicioFinAnio,
+            servicioFinPeriodo: data.servicioFinPeriodo,
+          },
+        },
+        { onSuccess: () => onClose?.() }
+      )
+      return
+    }
+
     if (registration) {
       externalOnSubmit({
         nombre: data.nombre,
@@ -114,6 +198,14 @@ export default function InternForm({
     ? RegistrationPasswordForm
     : PasswordForm
 
+  const primaryLabel = isEdit
+    ? isLast
+      ? 'Guardar cambios'
+      : 'Siguiente'
+    : isLast
+      ? 'Crear usuario'
+      : 'Siguiente'
+
   const nav = registration ? (
     <div className="mt-8 flex gap-3">
       {currStep > 0 && (
@@ -145,7 +237,7 @@ export default function InternForm({
     <ModalActions
       onClose={onClose}
       primaryAction={{
-        label: isLast ? 'Crear usuario' : 'Siguiente',
+        label: primaryLabel,
         icon: isLast ? (
           <HiCheck strokeWidth={1} />
         ) : (
@@ -167,17 +259,27 @@ export default function InternForm({
 
   const content = (
     <>
-      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      {steps.length > 1 && (
+        <Stepper
+          steps={steps}
+          current={currStep}
+          setCurrStep={handleStepClick}
+        />
+      )}
       <form className="mt-6" onKeyDown={getFormKeyDown(onSubmit, busy)}>
-        {currStep === 0 && <InterPersonalInfoForm />}
-        {currStep === 1 && (
-          <InterAcademicInfoForm
-            disabledEmail={registration ? email : undefined}
-            isUabcDomain={isUabcDomain}
-            setIsUabcDomain={setIsUabcDomain}
-          />
+        {currStep === 0 && (
+          <>
+            <InterPersonalInfoForm />
+            <div className="mt-6">
+              <InterAcademicInfoForm
+                disabledEmail={registration ? email : undefined}
+                isUabcDomain={isUabcDomain}
+                setIsUabcDomain={setIsUabcDomain}
+              />
+            </div>
+          </>
         )}
-        {currStep === 2 && <PasswordComponent />}
+        {!isEdit && currStep === 1 && <PasswordComponent />}
       </form>
     </>
   )
@@ -187,7 +289,14 @@ export default function InternForm({
       {registration ? (
         <div>{content}</div>
       ) : (
-        <ModalBody py={6}>{content}</ModalBody>
+        <>
+          {isEdit && (
+            <Modal.Heading>
+              <Modal.Title>Editar pasante</Modal.Title>
+            </Modal.Heading>
+          )}
+          <ModalBody py={6}>{content}</ModalBody>
+        </>
       )}
       {nav}
     </FormProvider>
