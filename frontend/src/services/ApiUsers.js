@@ -39,6 +39,18 @@ export async function registroUsuario(data) {
   })
 }
 
+export async function updateUser(id, data) {
+  return fetchApi(`/usuarios/${id}`, {
+    method: 'PATCH',
+    body: data,
+    errorMsg: 'Error al actualizar usuario',
+  })
+}
+
+export async function updateUserEstado(id, estado) {
+  return updateUser(id, { estado })
+}
+
 export async function deleteUser(id) {
   return fetchApi(`/usuarios/${id}`, {
     method: 'DELETE',

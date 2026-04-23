@@ -12,7 +12,7 @@ const SORT_OPTIONS = formatDefs(PATIENT_SORT_DEFS)
 
 function formatPatient(u) {
   if (!u) return null
-  const { usuarios, ...rest } = u
+  const { usuarios: _usuarios, ...rest } = u
   return {
     ...rest,
     id: bufferToUUID(u.id),
@@ -27,6 +27,7 @@ export class PatientModel {
     if (search) {
       where.OR = [
         { nombre: { contains: search } },
+        { apellidos: { contains: search } },
         { telefono: { contains: search } },
       ]
     }

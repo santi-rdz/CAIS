@@ -11,3 +11,15 @@ invitationRouter.get('/:token', InvitationController.validateToken)
 
 // Requiere sesión y rol
 invitationRouter.post('/', requireAuth, privileged, InvitationController.create)
+invitationRouter.post(
+  '/reenviar',
+  requireAuth,
+  privileged,
+  InvitationController.resend
+)
+invitationRouter.delete(
+  '/',
+  requireAuth,
+  privileged,
+  InvitationController.remove
+)

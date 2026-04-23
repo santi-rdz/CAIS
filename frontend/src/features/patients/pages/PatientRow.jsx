@@ -14,12 +14,15 @@ export default function PatientRow({ patient }) {
   const {
     id,
     nombre,
+    apellidos,
     actualizado_at,
     fecha_nacimiento,
     genero,
     telefono,
     correo,
   } = patient
+
+  const fullName = [nombre, apellidos].filter(Boolean).join(' ')
   const { deletePatient, isDeleting } = useDeletePatient()
   const navigate = useNavigate()
 
@@ -35,7 +38,7 @@ export default function PatientRow({ patient }) {
         </span>
       </span>
       <PersonCell
-        name={nombre}
+        name={fullName}
         secondary={telefono ?? correo}
         avatar={<PersonCell.PatientAvatar />}
       />

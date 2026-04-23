@@ -28,7 +28,9 @@ export default function PatientDetail() {
     <Modal>
       <div className="space-y-5">
         <PatientActionBar
-          patientName={patient.nombre}
+          patientName={[patient.nombre, patient.apellidos]
+            .filter(Boolean)
+            .join(' ')}
           isDeleting={isDeleting}
         />
         <Tab defaultTab="historia">

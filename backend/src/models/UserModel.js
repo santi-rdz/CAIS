@@ -24,46 +24,144 @@ function formatUser(u) {
   }
 }
 
+function formatPendingInvitation(inv) {
+  return {
+    id: inv.correo,
+    nombre: null,
+    apellidos: null,
+    correo: inv.correo,
+    foto: null,
+    ultimo_acceso: null,
+    estado: 'PENDIENTE',
+    rol: inv.roles?.codigo ?? null,
+    area: null,
+  }
+}
+
+function buildPendingWhere({ rol, search }) {
+  const where = { usado: false, expira_at: { gt: new Date() } }
+  if (rol) {
+    where.roles = {
+      codigo: { in: rol.split(',').map((r) => r.trim().toUpperCase()) },
+    }
+  }
+  if (search) {
+    where.correo = { contains: search }
+  }
+  return where
+}
+
+function buildUserWhere({ statuses, rol, search }) {
+  const where = {}
+  if (statuses?.length) {
+    where.estados = { codigo: { in: statuses } }
+  }
+  if (rol) {
+    where.roles = {
+      codigo: { in: rol.split(',').map((r) => r.trim().toUpperCase()) },
+    }
+  }
+  if (search) {
+    where.OR = [
+      { nombre: { contains: search } },
+      { apellidos: { contains: search } },
+      { correo: { contains: search } },
+    ]
+  }
+  return where
+}
+
+async function queryPending({ where, skip, take }) {
+  if (take <= 0) return { items: [], count: 0 }
+  const [items, count] = await prisma.$transaction([
+    prisma.invitaciones_registro.findMany({
+      where,
+      include: { roles: true },
+      orderBy: { creado_at: 'desc' },
+      skip,
+      take,
+    }),
+    prisma.invitaciones_registro.count({ where }),
+  ])
+  return { items, count }
+}
+
+async function queryUsers({ where, orderBy, skip, take }) {
+  if (take <= 0) return { items: [], count: 0 }
+  const [items, count] = await prisma.$transaction([
+    prisma.usuarios.findMany({
+      where,
+      include: includeRelations,
+      orderBy,
+      skip,
+      take,
+    }),
+    prisma.usuarios.count({ where }),
+  ])
+  return { items, count }
+}
+
 export class UserModel {
   static async getAll({ status, rol, sortBy, search, page, limit }) {
-    const where = {}
+    const statuses = status
+      ? status.split(',').map((s) => s.trim().toUpperCase())
+      : null
 
-    if (status) {
-      const statuses = status.split(',').map((s) => s.trim().toUpperCase())
-      where.estados = { codigo: { in: statuses } }
-    }
+    const includePending = !statuses || statuses.includes('PENDIENTE')
+    const onlyPending = statuses?.length === 1 && statuses[0] === 'PENDIENTE'
+    const userStatuses = statuses?.filter((s) => s !== 'PENDIENTE') ?? null
 
-    if (rol) {
-      const roles = rol.split(',').map((r) => r.trim().toUpperCase())
-      where.roles = { codigo: { in: roles } }
-    }
+    const pendingWhere = buildPendingWhere({ rol, search })
+    const userWhere = buildUserWhere({ statuses: userStatuses, rol, search })
+    const orderBy = SORT_OPTIONS[sortBy] ?? { creado_at: 'desc' }
+    const globalOffset = (page - 1) * limit
 
-    if (search) {
-      where.OR = [
-        { nombre: { contains: search } },
-        { correo: { contains: search } },
-      ]
-    }
-
-    const orderBy =
-      sortBy && SORT_OPTIONS[sortBy]
-        ? SORT_OPTIONS[sortBy]
-        : { creado_at: 'desc' }
-
-    const offset = (page - 1) * limit
-
-    const [users, total] = await prisma.$transaction([
-      prisma.usuarios.findMany({
-        where,
-        include: includeRelations,
+    if (!includePending) {
+      const { items, count } = await queryUsers({
+        where: userWhere,
         orderBy,
-        skip: offset,
+        skip: globalOffset,
         take: limit,
-      }),
-      prisma.usuarios.count({ where }),
+      })
+      return { users: items.map(formatUser), count }
+    }
+
+    // Pendientes primero — contar ambas fuentes en paralelo
+    const [pendingCount, userCount] = await Promise.all([
+      prisma.invitaciones_registro.count({ where: pendingWhere }),
+      onlyPending
+        ? Promise.resolve(0)
+        : prisma.usuarios.count({ where: userWhere }),
     ])
 
-    return { users: users.map(formatUser), count: total }
+    const pendingSkip = Math.min(globalOffset, pendingCount)
+    const pendingTake = Math.min(pendingCount - pendingSkip, limit)
+    const userSkip = Math.max(0, globalOffset - pendingCount)
+    const userTake = limit - pendingTake
+
+    const [{ items: pendingItems }, { items: userItems }] = await Promise.all([
+      queryPending({
+        where: pendingWhere,
+        skip: pendingSkip,
+        take: pendingTake,
+      }),
+      onlyPending
+        ? Promise.resolve({ items: [] })
+        : queryUsers({
+            where: userWhere,
+            orderBy,
+            skip: userSkip,
+            take: userTake,
+          }),
+    ])
+
+    return {
+      users: [
+        ...pendingItems.map(formatPendingInvitation),
+        ...userItems.map(formatUser),
+      ],
+      count: pendingCount + userCount,
+    }
   }
 
   static async getById(id, tx = prisma) {
@@ -88,9 +186,14 @@ export class UserModel {
   static async update(id, data) {
     const fieldMap = {
       nombre: 'nombre',
+      apellidos: 'apellidos',
       correo: 'correo',
       fechaNacimiento: 'fecha_nacimiento',
       telefono: 'telefono',
+      matricula: 'matricula',
+      cedula: 'cedula',
+      inicioServicio: 'inicio_servicio',
+      finServicio: 'fin_servicio',
     }
 
     const prismaData = Object.fromEntries(
@@ -98,6 +201,13 @@ export class UserModel {
         .filter(([k]) => fieldMap[k])
         .map(([k, v]) => [fieldMap[k], v])
     )
+
+    if (data.estado) {
+      const estadoRow = await prisma.estados.findFirst({
+        where: { codigo: data.estado.toUpperCase() },
+      })
+      if (estadoRow) prismaData.estado_id = estadoRow.id
+    }
 
     try {
       await prisma.usuarios.update({
@@ -128,6 +238,7 @@ export class UserModel {
       data: {
         id: uuidToBuffer(userId),
         nombre: userData.nombre,
+        apellidos: userData.apellidos ?? null,
         correo: userData.correo,
         fecha_nacimiento: userData.fechaNacimiento,
         telefono: userData.telefono,

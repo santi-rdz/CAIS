@@ -195,3 +195,203 @@
 //     assert.equal(res.status, 404)
 //   })
 // })
+
+/**
+ * @file Tests de integración para POST /invitaciones/reenviar.
+ */
+
+import request from 'supertest'
+import app from '#app'
+import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
+import assert from 'assert'
+
+let agent
+
+beforeAll(async () => {
+  agent = request.agent(app)
+  await agent.post('/auth/login').send({
+    email: 'carlos.herrera@cais.com',
+    password: '123',
+  })
+})
+
+// ─── POST /invitaciones/reenviar ────────────────────────────────────
+
+/**
+ * @description Suite para POST /invitaciones/reenviar.
+ * Verifica reenvío de correo de registro a una invitación pendiente.
+ */
+describe('POST /invitaciones/reenviar', () => {
+  let testCorreo
+
+  beforeAll(async () => {
+    const { randomUUID } = await import('node:crypto')
+    testCorreo = `reenviar.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo: testCorreo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(randomUUID()),
+        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
+  })
+
+  afterAll(async () => {
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: testCorreo },
+    })
+  })
+
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app)
+      .post('/invitaciones/reenviar')
+      .send({ correo: testCorreo })
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test Sin correo en el body devuelve 422.
+   */
+  test('422 — falta correo en el body', async () => {
+    const res = await agent.post('/invitaciones/reenviar').send({})
+    assert.equal(res.status, 422)
+    assert.equal(res.body['error'], 'ValidationError')
+  })
+
+  /**
+   * @test Correo sin invitación pendiente devuelve 404.
+   */
+  test('404 — correo sin invitación pendiente', async () => {
+    const res = await agent
+      .post('/invitaciones/reenviar')
+      .send({ correo: 'noexiste@test.com' })
+    assert.equal(res.status, 404)
+    assert.equal(res.body['error'], 'NotFound')
+  })
+
+  /**
+   * @test Correo con invitación pendiente válida devuelve 200 con message.
+   */
+  test('200 — reenvía invitación pendiente', async () => {
+    const res = await agent
+      .post('/invitaciones/reenviar')
+      .send({ correo: testCorreo })
+    assert.equal(res.status, 200)
+    assert(res.body['message'] !== undefined, 'property message should exist')
+  })
+
+  /**
+   * @test El token se renueva tras el reenvío (el nuevo token es distinto al anterior).
+   */
+  test('200 — el token se renueva tras el reenvío', async () => {
+    const before = await prisma.invitaciones_registro.findFirst({
+      where: { correo: testCorreo },
+      select: { token: true },
+    })
+
+    await agent.post('/invitaciones/reenviar').send({ correo: testCorreo })
+
+    const after = await prisma.invitaciones_registro.findFirst({
+      where: { correo: testCorreo },
+      select: { token: true },
+    })
+
+    assert.notDeepEqual(before.token, after.token, 'token should be refreshed')
+  })
+})
+
+// ─── DELETE /invitaciones ────────────────────────────────────────────
+
+/**
+ * @description Suite para DELETE /invitaciones.
+ * Verifica eliminación de invitaciones pendientes.
+ */
+describe('DELETE /invitaciones', () => {
+  let deleteCorreo
+
+  beforeEach(async () => {
+    const { randomUUID } = await import('node:crypto')
+    deleteCorreo = `delete.inv.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo: deleteCorreo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(randomUUID()),
+        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
+  })
+
+  afterEach(async () => {
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: deleteCorreo },
+    })
+  })
+
+  /**
+   * @test Sin sesión devuelve 401.
+   */
+  test('401 — sin sesión devuelve 401', async () => {
+    const res = await request(app)
+      .delete('/invitaciones')
+      .send({ correo: deleteCorreo })
+    assert.equal(res.status, 401)
+  })
+
+  /**
+   * @test Sin correo en el body devuelve 422.
+   */
+  test('422 — falta correo en el body', async () => {
+    const res = await agent.delete('/invitaciones').send({})
+    assert.equal(res.status, 422)
+    assert.equal(res.body['error'], 'ValidationError')
+  })
+
+  /**
+   * @test Correo sin invitación pendiente devuelve 404.
+   */
+  test('404 — correo sin invitación pendiente', async () => {
+    const res = await agent
+      .delete('/invitaciones')
+      .send({ correo: 'noexiste@test.com' })
+    assert.equal(res.status, 404)
+    assert.equal(res.body['error'], 'NotFound')
+  })
+
+  /**
+   * @test Invitación existente se elimina y devuelve 200 con message.
+   */
+  test('200 — elimina invitación pendiente', async () => {
+    const res = await agent
+      .delete('/invitaciones')
+      .send({ correo: deleteCorreo })
+    assert.equal(res.status, 200)
+    assert(res.body['message'] !== undefined, 'property message should exist')
+
+    const found = await prisma.invitaciones_registro.findFirst({
+      where: { correo: deleteCorreo },
+    })
+    assert.equal(found, null, 'invitation should be deleted from db')
+  })
+})

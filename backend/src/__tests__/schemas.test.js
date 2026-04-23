@@ -23,7 +23,7 @@ import assert from 'assert'
 describe('validateAdminCreate — creación directa por admin', () => {
   const basePasante = {
     nombre: 'Juan',
-    apellido: 'Pérez',
+    apellidos: 'Pérez',
     correo: 'juan@uabc.edu.mx',
     fechaNacimiento: '2000-01-15',
     telefono: '6861234567',
@@ -38,7 +38,7 @@ describe('validateAdminCreate — creación directa por admin', () => {
 
   const baseCoord = {
     nombre: 'Ana',
-    apellido: 'López',
+    apellidos: 'López',
     correo: 'ana@uabc.edu.mx',
     fechaNacimiento: '1990-05-20',
     telefono: '6869876543',
@@ -110,7 +110,7 @@ describe('validateAdminCreate — creación directa por admin', () => {
    * @test Pasante sin matrícula es rechazado.
    */
   test('rechaza pasante sin matrícula', () => {
-    const { matricula, ...sinMatricula } = basePasante
+    const { matricula: _matricula, ...sinMatricula } = basePasante
     const result = validateAdminCreate(sinMatricula)
     assert.equal(result.success, false)
   })
@@ -119,7 +119,7 @@ describe('validateAdminCreate — creación directa por admin', () => {
    * @test Coordinador sin cédula es rechazado.
    */
   test('rechaza coordinador sin cédula', () => {
-    const { cedula, ...sinCedula } = baseCoord
+    const { cedula: _cedula, ...sinCedula } = baseCoord
     const result = validateAdminCreate(sinCedula)
     assert.equal(result.success, false)
   })
@@ -167,7 +167,7 @@ describe('validateSelfRegister — auto-registro', () => {
   const basePasante = {
     token: validToken,
     nombre: 'Juan',
-    apellido: 'Pérez',
+    apellidos: 'Pérez',
     fechaNacimiento: '2000-01-15',
     telefono: '6861234567',
     password: 'Abc12345!',
@@ -182,7 +182,7 @@ describe('validateSelfRegister — auto-registro', () => {
   const baseCoord = {
     token: validToken,
     nombre: 'Ana',
-    apellido: 'López',
+    apellidos: 'López',
     fechaNacimiento: '1990-05-20',
     telefono: '6869876543',
     password: 'Abc12345!',

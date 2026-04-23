@@ -87,7 +87,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     const res = await api.post('/usuarios/registro').send({
       token: pasanteToken,
       nombre: 'Reg',
-      apellido: 'Pasante',
+      apellidos: 'Pasante',
       fechaNacimiento: '2000-01-01',
       telefono: '6861111111',
       password: 'Abc12345!',
@@ -112,7 +112,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     const res = await api.post('/usuarios/registro').send({
       token: coordToken,
       nombre: 'Reg',
-      apellido: 'Coord',
+      apellidos: 'Coord',
       fechaNacimiento: '1990-01-01',
       telefono: '6862222222',
       password: 'Abc12345!',
@@ -131,7 +131,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     const res = await api.post('/usuarios/registro').send({
       token: pasanteToken,
       nombre: 'X',
-      apellido: 'Y',
+      apellidos: 'Y',
       fechaNacimiento: '2000-01-01',
       telefono: '6863333333',
       password: 'Abc12345!',
@@ -154,7 +154,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     const res = await api.post('/usuarios/registro').send({
       token: randomUUID(),
       nombre: 'X',
-      apellido: 'Y',
+      apellidos: 'Y',
       fechaNacimiento: '2000-01-01',
       telefono: '6864444444',
       password: 'Abc12345!',
@@ -194,7 +194,7 @@ describe('POST /usuarios/registro — auto-registro con token', () => {
     const res = await api.post('/usuarios/registro').send({
       token: weakToken,
       nombre: 'Weak',
-      apellido: 'Pass',
+      apellidos: 'Pass',
       fechaNacimiento: '2000-01-01',
       telefono: '6865555555',
       password: 'simple',

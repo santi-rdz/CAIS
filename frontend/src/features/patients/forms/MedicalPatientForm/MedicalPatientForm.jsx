@@ -152,7 +152,7 @@ const DEFAULT_VALUES = {
   planes_estudio: PLAN_ESTUDIO_DEFAULTS,
 }
 
-const PATIENT_KEYS = new Set([...Object.keys(patientSchema.shape), 'apellidos'])
+const PATIENT_KEYS = new Set(Object.keys(patientSchema.shape))
 
 const HISTORY_NESTED = new Set([
   'antecedentes_familiares',
@@ -186,14 +186,10 @@ function splitFormData(rawData) {
     historia_enfermedad_actual,
     tipo_sangre,
     vacunas_infancia_completas,
-    apellidos: _apellidos,
     ...patientFields
   } = data
 
-  const patientData = {
-    ...patientFields,
-    nombre: `${rawData.nombre} ${rawData.apellidos}`.trim(),
-  }
+  const patientData = { ...patientFields }
 
   const historyData = {
     ...(creado_at && { creado_at }),
@@ -239,12 +235,8 @@ function fillDefaults(defaults, source) {
 }
 
 function buildEditDefaults(patient, historia) {
-  const nameParts = (patient.nombre ?? '').split(' ')
-
   const source = {
     ...patient,
-    nombre: nameParts[0] ?? '',
-    apellidos: nameParts.slice(1).join(' '),
     fecha_nacimiento: patient.fecha_nacimiento
       ? dayjs(patient.fecha_nacimiento)
       : null,
@@ -347,14 +339,6 @@ export default function MedicalPatientForm({
       }
 
       if (Object.keys(dirtyPatient).length) {
-        // Si nombre o apellidos cambió, enviar nombre completo
-        if (
-          dirtyPatient.nombre !== undefined ||
-          dirtyPatient.apellidos !== undefined
-        ) {
-          dirtyPatient.nombre = `${data.nombre} ${data.apellidos}`.trim()
-          delete dirtyPatient.apellidos
-        }
         patientData = nullifyEmpty(dirtyPatient)
       }
 

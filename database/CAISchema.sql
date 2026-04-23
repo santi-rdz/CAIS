@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS entidades (
 CREATE TABLE IF NOT EXISTS usuarios (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     nombre VARCHAR(255),
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE,
     correo VARCHAR(255) UNIQUE,
     telefono VARCHAR(30),
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS pacientes (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     doctor_id BINARY(16) NOT NULL,
     nombre VARCHAR(255),
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE,
     es_externo BOOLEAN DEFAULT FALSE,
     correo VARCHAR(255),
@@ -873,6 +875,7 @@ INSERT INTO
     usuarios (
         id,
         nombre,
+        apellidos,
         fecha_nacimiento,
         correo,
         telefono,
@@ -889,7 +892,8 @@ INSERT INTO
 VALUES
     (
         UUID_TO_BIN(UUID()),
-        'Dr. Carlos Herrera',
+        'Carlos',
+        'Herrera',
         '1980-04-12',
         'carlos.herrera@cais.com',
         '6861000001',
@@ -905,7 +909,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Dra. Sofia Navarro',
+        'Sofia',
+        'Navarro',
         '1992-03-10',
         'sofia.navarro@uabc.edu.mx',
         '6861000002',
@@ -921,7 +926,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Luis Mendoza',
+        'Luis',
+        'Mendoza',
         '1998-07-25',
         'luis.mendoza@uabc.edu.mx',
         '6861000003',
@@ -937,7 +943,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Ana Torres',
+        'Ana',
+        'Torres',
         '1999-11-20',
         'ana.torres@uabc.edu.mx',
         '6861000004',
@@ -1089,6 +1096,7 @@ INSERT INTO
     pacientes (
         doctor_id,
         nombre,
+        apellidos,
         fecha_nacimiento,
         es_externo,
         correo,
@@ -1117,7 +1125,7 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Carlos Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com', '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC', 'Contador', 'Casado', 'Licenciatura', 'Católica', '45678912301', NULL,
+        ), 'Carlos', 'Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com', '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC', 'Contador', 'Casado', 'Licenciatura', 'Católica', '45678912301', NULL,
         'Laura Ruiz Pérez',
         '6641112233',
         'Esposa',
@@ -1133,7 +1141,7 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Ana Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com', '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC', 'Maestra', 'Soltera', 'Maestría', 'Cristiana', '78912345602', NULL,
+        ), 'Ana', 'Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com', '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC', 'Maestra', 'Soltera', 'Maestría', 'Cristiana', '78912345602', NULL,
         'Pedro Fernández López',
         '6642223344',
         'Padre',
@@ -1149,7 +1157,7 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Jorge Reyes Castillo', '1978-11-05 00:00:00', TRUE,
+        ), 'Jorge', 'Reyes Castillo', '1978-11-05 00:00:00', TRUE,
         'jorge.reyes@yahoo.com',
         '6644567890',
         'Masculino',
@@ -1175,7 +1183,7 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Lucía Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com', '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC', 'Estudiante', 'Soltera', 'Bachillerato', 'Católica', '96385274104', NULL,
+        ), 'Lucía', 'Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com', '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC', 'Estudiante', 'Soltera', 'Bachillerato', 'Católica', '96385274104', NULL,
         'Rosa Soto Díaz',
         '6644445566',
         'Madre',

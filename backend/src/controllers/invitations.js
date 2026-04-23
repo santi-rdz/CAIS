@@ -33,6 +33,60 @@ export class InvitationController {
     }
   }
 
+  static async remove(req, res) {
+    const { correo } = req.body
+
+    if (!correo) {
+      return res
+        .status(422)
+        .json({ error: 'ValidationError', message: 'correo es requerido' })
+    }
+
+    try {
+      const deleted = await InvitationModel.deleteByCorreo(correo)
+      if (!deleted) {
+        return res.status(404).json({
+          error: 'NotFound',
+          message: 'No existe invitación pendiente para este correo',
+        })
+      }
+      res.json({ message: 'Invitación eliminada exitosamente' })
+    } catch (err) {
+      console.error('Error al eliminar invitación:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al eliminar invitación',
+      })
+    }
+  }
+
+  static async resend(req, res) {
+    const { correo } = req.body
+
+    if (!correo) {
+      return res
+        .status(422)
+        .json({ error: 'ValidationError', message: 'correo es requerido' })
+    }
+
+    try {
+      const result = await UserService.resendInvitation(correo)
+      if (!result) {
+        return res.status(404).json({
+          error: 'NotFound',
+          message: 'No existe invitación pendiente para este correo',
+        })
+      }
+      res.json({ message: 'Invitación reenviada exitosamente' })
+    } catch (err) {
+      console.error('Error al reenviar invitación:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al reenviar invitación',
+      })
+    }
+  }
+
   static async validateToken(req, res) {
     const { token } = req.params
 

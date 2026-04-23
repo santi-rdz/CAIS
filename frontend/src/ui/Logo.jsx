@@ -1,5 +1,5 @@
 import caisLogo from '@assets/images/logo-cais.png'
-import useUser from '@features/users/hooks/useUser'
+import useMe from '@features/users/hooks/useMe'
 
 export default function Logo({ children, isExpanded = true }) {
   return (
@@ -25,7 +25,7 @@ Logo.Heading = function Heading() {
 }
 
 Logo.Area = function Area() {
-  const { user } = useUser()
+  const { user } = useMe()
   return (
     <span className="text-7 mt-1 inline-flex w-fit items-center rounded-full bg-green-50 px-2 py-0.5 font-medium tracking-wide text-green-700 capitalize">
       {user?.area.toLowerCase()}
