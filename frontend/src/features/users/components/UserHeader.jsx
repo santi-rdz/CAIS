@@ -15,7 +15,7 @@ import { formatFechaLong } from '@lib/dateHelpers'
 const ROL_LABELS = {
   coordinador: 'Coordinador',
   pasante: 'Pasante',
-  interno: 'Interno',
+  admin: 'Admin',
 }
 
 export default function UserHeader({ user }) {
@@ -32,9 +32,11 @@ export default function UserHeader({ user }) {
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
-  const age = fecha_nacimiento
-    ? dayjs().diff(dayjs(fecha_nacimiento), 'year')
-    : null
+  const parsedBirthDate = fecha_nacimiento ? dayjs(fecha_nacimiento) : null
+  const age =
+    parsedBirthDate?.isValid() && parsedBirthDate.isBefore(dayjs())
+      ? dayjs().diff(parsedBirthDate, 'year')
+      : null
 
   const initials =
     [nombre, apellidos]
@@ -60,7 +62,7 @@ export default function UserHeader({ user }) {
           {foto ? (
             <img
               src={foto}
-              alt={nombre}
+              alt={fullName || nombre}
               className="h-14 w-14 rounded-full object-cover"
             />
           ) : (

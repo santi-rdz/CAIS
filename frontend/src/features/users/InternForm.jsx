@@ -10,7 +10,6 @@ import {
   internSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
-import { z } from 'zod'
 import dayjs from 'dayjs'
 
 const internSignupFormSchema = internSelfRegisterBaseSchema
@@ -21,18 +20,9 @@ const internSignupFormSchema = internSelfRegisterBaseSchema
     path: ['confirmPassword'],
   })
 
-const internEditSchema = z.object({
-  nombre: z.string().min(2, 'El nombre es requerido'),
-  apellidos: z.string().min(2, 'El apellidos es requerido'),
-  fechaNacimiento: dayjsDateSchema,
-  telefono: z.string().optional(),
-  correo: z.string().email('Correo inválido'),
-  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
-  servicioInicioAnio: z.string().min(1, 'Selecciona el año de inicio'),
-  servicioInicioPeriodo: z.string().min(1, 'Selecciona el periodo de inicio'),
-  servicioFinAnio: z.string().min(1, 'Selecciona el año de fin'),
-  servicioFinPeriodo: z.string().min(1, 'Selecciona el periodo de fin'),
-})
+const internEditSchema = internCreateSchema
+  .omit({ rol: true, password: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''

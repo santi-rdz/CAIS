@@ -10,7 +10,6 @@ import {
   coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
-import { z } from 'zod'
 import dayjs from 'dayjs'
 
 const coordSignupFormSchema = coordSelfRegisterBaseSchema
@@ -21,14 +20,9 @@ const coordSignupFormSchema = coordSelfRegisterBaseSchema
     path: ['confirmPassword'],
   })
 
-const coordEditSchema = z.object({
-  nombre: z.string().min(2, 'El nombre es requerido'),
-  apellidos: z.string().min(2, 'El apellidos es requerido'),
-  fechaNacimiento: dayjsDateSchema,
-  telefono: z.string().optional(),
-  correo: z.string().email('Correo inválido'),
-  cedula: z.string().min(1, 'La cédula es requerida').max(20),
-})
+const coordEditSchema = coordCreateSchema
+  .omit({ rol: true, password: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''

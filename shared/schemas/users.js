@@ -62,7 +62,6 @@ export const userUpdateSchema = z
     ...cedulaField,
     correo: correoSchema,
     rol: rolesSchema,
-    estado: z.enum(['ACTIVO', 'INACTIVO']),
   })
   .partial()
 

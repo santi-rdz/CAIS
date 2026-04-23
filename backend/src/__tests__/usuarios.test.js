@@ -477,7 +477,7 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
 
   beforeAll(async () => {
     const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer, bufferToUUID } = await import('#lib/uuid.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
     const { randomUUID } = await import('node:crypto')
     const bcrypt = await import('bcryptjs')
 
