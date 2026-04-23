@@ -24,7 +24,7 @@ export default function UserDetail() {
     <Modal>
       <div className="space-y-5">
         <UserActionBar
-          userName={[user.nombre, user.apellido].filter(Boolean).join(' ')}
+          userName={[user.nombre, user.apellidos].filter(Boolean).join(' ')}
           canEdit={canEdit}
         />
         <Tab defaultTab="info">

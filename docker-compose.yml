@@ -21,6 +21,7 @@ services:
     working_dir: /app
     environment:
       DATABASE_URL: 'mysql://user:user@db:3306/cais'
+      FRONTEND_URL: 'http://localhost:5173'
     volumes:
       - .:/app
       - root_node_modules_backend:/app/node_modules

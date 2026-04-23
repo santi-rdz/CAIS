@@ -21,7 +21,7 @@ const ROL_LABELS = {
 export default function UserHeader({ user }) {
   const {
     nombre,
-    apellido,
+    apellidos,
     fecha_nacimiento,
     correo,
     telefono,
@@ -30,14 +30,14 @@ export default function UserHeader({ user }) {
     foto,
   } = user
 
-  const fullName = [nombre, apellido].filter(Boolean).join(' ')
+  const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
   const age = fecha_nacimiento
     ? dayjs().diff(dayjs(fecha_nacimiento), 'year')
     : null
 
   const initials =
-    [nombre, apellido]
+    [nombre, apellidos]
       .filter(Boolean)
       .map((s) => s[0].toUpperCase())
       .join('')

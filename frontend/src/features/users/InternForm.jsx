@@ -23,7 +23,7 @@ const internSignupFormSchema = internSelfRegisterBaseSchema
 
 const internEditSchema = z.object({
   nombre: z.string().min(2, 'El nombre es requerido'),
-  apellido: z.string().min(2, 'El apellido es requerido'),
+  apellidos: z.string().min(2, 'El apellidos es requerido'),
   fechaNacimiento: dayjsDateSchema,
   telefono: z.string().optional(),
   correo: z.string().email('Correo inválido'),
@@ -36,7 +36,7 @@ const internEditSchema = z.object({
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
-  const apellido = user.apellido ?? ''
+  const apellidos = user.apellidos ?? ''
 
   const [inicioAnio = '', inicioPeriodo = ''] = (
     user.inicio_servicio ?? ''
@@ -45,7 +45,7 @@ function parseUserDefaults(user) {
 
   return {
     nombre,
-    apellido,
+    apellidos,
     fechaNacimiento: user.fecha_nacimiento
       ? dayjs(user.fecha_nacimiento)
       : null,
@@ -96,7 +96,7 @@ export default function InternForm({
 
   const allPersonalAndAcademicFields = [
     'nombre',
-    'apellido',
+    'apellidos',
     'fechaNacimiento',
     'telefono',
     'correo',
@@ -144,7 +144,7 @@ export default function InternForm({
           id: user.id,
           data: {
             nombre: data.nombre,
-            apellido: data.apellido,
+            apellidos: data.apellidos,
             correo: data.correo,
             fechaNacimiento: data.fechaNacimiento,
             telefono: data.telefono,
@@ -163,7 +163,7 @@ export default function InternForm({
     if (registration) {
       externalOnSubmit({
         nombre: data.nombre,
-        apellido: data.apellido,
+        apellidos: data.apellidos,
         fechaNacimiento: data.fechaNacimiento,
         telefono: data.telefono,
         matricula: data.matricula,
@@ -178,7 +178,7 @@ export default function InternForm({
       createUser(
         {
           nombre: data.nombre,
-          apellido: data.apellido,
+          apellidos: data.apellidos,
           correo: resolveEmail(data.correo),
           fechaNacimiento: data.fechaNacimiento,
           telefono: data.telefono,

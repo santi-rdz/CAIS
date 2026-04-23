@@ -28,7 +28,7 @@ function formatPendingInvitation(inv) {
   return {
     id: inv.correo,
     nombre: null,
-    apellido: null,
+    apellidos: null,
     correo: inv.correo,
     foto: null,
     ultimo_acceso: null,
@@ -64,7 +64,7 @@ function buildUserWhere({ statuses, rol, search }) {
   if (search) {
     where.OR = [
       { nombre: { contains: search } },
-      { apellido: { contains: search } },
+      { apellidos: { contains: search } },
       { correo: { contains: search } },
     ]
   }
@@ -186,7 +186,7 @@ export class UserModel {
   static async update(id, data) {
     const fieldMap = {
       nombre: 'nombre',
-      apellido: 'apellido',
+      apellidos: 'apellidos',
       correo: 'correo',
       fechaNacimiento: 'fecha_nacimiento',
       telefono: 'telefono',
@@ -238,7 +238,7 @@ export class UserModel {
       data: {
         id: uuidToBuffer(userId),
         nombre: userData.nombre,
-        apellido: userData.apellido ?? null,
+        apellidos: userData.apellidos ?? null,
         correo: userData.correo,
         fecha_nacimiento: userData.fechaNacimiento,
         telefono: userData.telefono,

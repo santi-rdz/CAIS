@@ -34,7 +34,7 @@ function buildServicio(anio, periodo) {
 async function buildUserPayload(data) {
   return {
     nombre: data.nombre,
-    apellido: data.apellido,
+    apellidos: data.apellidos,
     foto: `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`,
     passwordHash: await bcrypt.hash(data.password, BCRYPT_ROUNDS),
     matricula: data.matricula || null,
@@ -92,7 +92,7 @@ export class UserController {
       const d = result.data
       const updatePayload = { ...d }
 
-      // nombre and apellido are stored separately — no concatenation needed
+      // nombre and apellidos are stored separately — no concatenation needed
 
       if (d.servicioInicioAnio || d.servicioInicioPeriodo) {
         updatePayload.inicioServicio = buildServicio(
@@ -207,7 +207,7 @@ export class UserController {
           data: {
             id: uuidToBuffer(userId),
             nombre: payload.nombre,
-            apellido: payload.apellido ?? null,
+            apellidos: payload.apellidos ?? null,
             correo: invitacion.correo,
             fecha_nacimiento: new Date(data.fechaNacimiento),
             telefono: data.telefono,

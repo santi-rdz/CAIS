@@ -4,7 +4,7 @@ export default function useDropdownPosition(
   dropdownHeight,
   {
     ignoreSelector = null,
-    _dropdownWidth = null,
+    dropdownWidth: _dropdownWidth = null,
     align = 'auto',
     fullWidth = false,
   } = {}

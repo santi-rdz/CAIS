@@ -11,9 +11,12 @@ import { formatFechaLong, formatFechaHora } from '@lib/dateHelpers'
 
 function formatPeriodo(periodo) {
   if (!periodo) return null
-  // e.g. "2024A" → "2024 — Periodo A"
-  const match = periodo.match(/^(\d{4})([AB])$/)
-  if (match) return `${match[1]} — Periodo ${match[2]}`
+  // e.g. "2026-1" → "2026 — Enero - Junio"
+  const match = periodo.match(/^(\d{4})-([12])$/)
+  if (match) {
+    const label = match[2] === '1' ? 'Enero - Junio' : 'Julio - Diciembre'
+    return `${match[1]} — ${label}`
+  }
   return periodo
 }
 

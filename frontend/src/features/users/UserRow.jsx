@@ -23,7 +23,7 @@ import { HiArrowRight } from 'react-icons/hi2'
 export default function UserRow({ user }) {
   const {
     nombre,
-    apellido,
+    apellidos,
     rol: roleUp,
     ultimo_acceso: lastLogin,
     correo: email,
@@ -32,7 +32,7 @@ export default function UserRow({ user }) {
     id,
   } = user
 
-  const fullName = [nombre, apellido].filter(Boolean).join(' ')
+  const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
   const {
     user: { id: userId },

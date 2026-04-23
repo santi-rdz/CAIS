@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS entidades (
 CREATE TABLE IF NOT EXISTS usuarios (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     nombre VARCHAR(255),
-    apellido VARCHAR(255),
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE,
     correo VARCHAR(255) UNIQUE,
     telefono VARCHAR(30),
@@ -875,7 +875,7 @@ INSERT INTO
     usuarios (
         id,
         nombre,
-        apellido,
+        apellidos,
         fecha_nacimiento,
         correo,
         telefono,

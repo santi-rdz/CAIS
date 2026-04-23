@@ -25,7 +25,7 @@ export const telefonoSchema = z
 // usuarios.nombre es VarChar(255) en DB
 export const personaBaseFields = {
   nombre: z.string().min(2, 'El nombre es requerido').max(255),
-  apellido: z.string().min(2, 'El apellido es requerido').max(255),
+  apellidos: z.string().min(2, 'Los apellidos son requeridos').max(255),
   telefono: telefonoSchema,
 }
 

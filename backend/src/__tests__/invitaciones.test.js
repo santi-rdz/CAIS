@@ -313,13 +313,13 @@ describe('POST /invitaciones/reenviar', () => {
   })
 })
 
-// ─── DELETE /invitaciones/reenviar ──────────────────────────────────
+// ─── DELETE /invitaciones ────────────────────────────────────────────
 
 /**
- * @description Suite para DELETE /invitaciones/reenviar.
+ * @description Suite para DELETE /invitaciones.
  * Verifica eliminación de invitaciones pendientes.
  */
-describe('DELETE /invitaciones/reenviar', () => {
+describe('DELETE /invitaciones', () => {
   let deleteCorreo
 
   beforeEach(async () => {

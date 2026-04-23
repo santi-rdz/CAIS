@@ -261,7 +261,7 @@ describe('GET /usuarios/:id', () => {
 describe('POST /usuarios — creación directa por admin', () => {
   const pasanteValido = {
     nombre: 'Test',
-    apellido: 'Pasante',
+    apellidos: 'Pasante',
     correo: `test.pasante.${Date.now()}@test.com`,
     fechaNacimiento: '2000-01-01',
     telefono: '6861111111',
@@ -276,7 +276,7 @@ describe('POST /usuarios — creación directa por admin', () => {
 
   const coordValido = {
     nombre: 'Test',
-    apellido: 'Coord',
+    apellidos: 'Coord',
     correo: `test.coord.${Date.now()}@test.com`,
     fechaNacimiento: '1990-01-01',
     telefono: '6862222222',
@@ -382,7 +382,7 @@ describe('PATCH /usuarios/:id', () => {
   beforeAll(async () => {
     const res = await agent.post('/usuarios').send({
       nombre: 'Patch',
-      apellido: 'Test',
+      apellidos: 'Test',
       correo: `patch.${Date.now()}@test.com`,
       fechaNacimiento: '2000-01-01',
       telefono: '6863333333',
@@ -445,14 +445,15 @@ describe('PATCH /usuarios/:id', () => {
   })
 
   /**
-   * @test Actualizar nombre y apellido los combina en el campo nombre.
+   * @test Actualizar nombre y apellidos devuelve ambos campos actualizados.
    */
-  test('200 — combina nombre y apellido', async () => {
+  test('200 — actualiza nombre y apellidos', async () => {
     const res = await agent
       .patch(`/usuarios/${userId}`)
-      .send({ nombre: 'Nuevo', apellido: 'Nombre' })
+      .send({ nombre: 'Nuevo', apellidos: 'Apellido' })
     assert.equal(res.status, 200)
-    assert.equal(res.body.nombre, 'Nuevo Nombre')
+    assert.equal(res.body.nombre, 'Nuevo')
+    assert.equal(res.body.apellidos, 'Apellido')
   })
 
   /**
@@ -475,15 +476,42 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
   let userId
 
   beforeAll(async () => {
-    const res = await agent.get('/usuarios?status=ACTIVO&limit=1&page=1')
-    userId = res.body.users[0]?.id
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer, bufferToUUID } = await import('#lib/uuid.js')
+    const { randomUUID } = await import('node:crypto')
+    const bcrypt = await import('bcryptjs')
+
+    const [estadoRow, rolRow] = await Promise.all([
+      prisma.estados.findFirst({ where: { codigo: 'ACTIVO' } }),
+      prisma.roles.findFirst({ where: { codigo: 'PASANTE' } }),
+    ])
+
+    const id = randomUUID()
+    await prisma.usuarios.create({
+      data: {
+        id: uuidToBuffer(id),
+        nombre: 'Test',
+        apellidos: 'Estado',
+        correo: `test.estado.${Date.now()}@test.com`,
+        password_hash: await bcrypt.hash('Test1234!', 10),
+        estado_id: estadoRow.id,
+        rol_id: rolRow.id,
+      },
+    })
+    userId = id
+  })
+
+  afterAll(async () => {
+    if (!userId) return
+    const { prisma } = await import('#config/prisma.js')
+    const { uuidToBuffer } = await import('#lib/uuid.js')
+    await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
   })
 
   /**
    * @test Cambiar estado a INACTIVO devuelve 200 con estado actualizado.
    */
-  test('200 — bloquea usuario (ACTIVO → INACTIVO)', async () => {
-    if (!userId) return
+  test('200 — desactiva usuario (ACTIVO → INACTIVO)', async () => {
     const res = await agent
       .patch(`/usuarios/${userId}`)
       .send({ estado: 'INACTIVO' })
@@ -494,8 +522,7 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
   /**
    * @test Cambiar estado a ACTIVO devuelve 200 con estado actualizado.
    */
-  test('200 — desbloquea usuario (INACTIVO → ACTIVO)', async () => {
-    if (!userId) return
+  test('200 — activa usuario (INACTIVO → ACTIVO)', async () => {
     const res = await agent
       .patch(`/usuarios/${userId}`)
       .send({ estado: 'ACTIVO' })
@@ -507,7 +534,6 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
    * @test Estado inválido devuelve 422.
    */
   test('422 — estado inválido es rechazado', async () => {
-    if (!userId) return
     const res = await agent
       .patch(`/usuarios/${userId}`)
       .send({ estado: 'BLOQUEADO' })
@@ -528,7 +554,7 @@ describe('DELETE /usuarios/:id', () => {
   beforeAll(async () => {
     const res = await agent.post('/usuarios').send({
       nombre: 'Delete',
-      apellido: 'Test',
+      apellidos: 'Test',
       correo: `delete.${Date.now()}@test.com`,
       fechaNacimiento: '2000-01-01',
       telefono: '6864444444',

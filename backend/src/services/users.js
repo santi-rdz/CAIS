@@ -4,6 +4,8 @@ import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { registerEmail } from '#lib/registerEmail.js'
 
+const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173'
+
 export class UserService {
   static async preRegister(usersData, creadoPor) {
     const invitations = []
@@ -29,7 +31,7 @@ export class UserService {
 
     const emailErrors = []
     for (const inv of invitations) {
-      const url = `http://localhost:5173/registro?token=${inv.token}`
+      const url = `${FRONTEND_URL}/registro?token=${inv.token}`
       try {
         await sendEmail({
           to: inv.correo,
@@ -51,7 +53,7 @@ export class UserService {
     const updated = await InvitationModel.refreshToken(correo)
     if (!updated) return null
 
-    const url = `http://localhost:5173/registro?token=${updated.token}`
+    const url = `${FRONTEND_URL}/registro?token=${updated.token}`
     await sendEmail({
       to: correo,
       subject: 'Completa tu registro — CAIS',

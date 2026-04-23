@@ -19,9 +19,9 @@ export default function ProfileCard({ isExpanded }) {
 
   if (isPending) return <Spinner />
 
-  const { nombre, apellido, correo, foto } = user
+  const { nombre, apellidos, correo, foto } = user
 
-  const formattedName = `Dr. ${[nombre, apellido].filter(Boolean).join(' ')}`
+  const formattedName = `Dr. ${[nombre, apellidos].filter(Boolean).join(' ')}`
 
   return (
     <div

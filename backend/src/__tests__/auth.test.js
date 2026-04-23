@@ -99,7 +99,7 @@ describe('POST /auth/login', () => {
         .post('/auth/login')
         .send({ email: correo, password: 'Test1234!' })
       assert.equal(res.status, 403)
-      assert(res.body.error !== undefined, 'body.error should exist')
+      assert.equal(res.body.error, 'Cuenta desactivada')
     } finally {
       await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
     }

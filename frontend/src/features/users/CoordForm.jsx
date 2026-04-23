@@ -23,7 +23,7 @@ const coordSignupFormSchema = coordSelfRegisterBaseSchema
 
 const coordEditSchema = z.object({
   nombre: z.string().min(2, 'El nombre es requerido'),
-  apellido: z.string().min(2, 'El apellido es requerido'),
+  apellidos: z.string().min(2, 'El apellidos es requerido'),
   fechaNacimiento: dayjsDateSchema,
   telefono: z.string().optional(),
   correo: z.string().email('Correo inválido'),
@@ -32,11 +32,11 @@ const coordEditSchema = z.object({
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
-  const apellido = user.apellido ?? ''
+  const apellidos = user.apellidos ?? ''
 
   return {
     nombre,
-    apellido,
+    apellidos,
     fechaNacimiento: user.fecha_nacimiento
       ? dayjs(user.fecha_nacimiento)
       : null,
@@ -84,7 +84,7 @@ export default function CoordForm({
     ? [
         [
           'nombre',
-          'apellido',
+          'apellidos',
           'correo',
           'fechaNacimiento',
           'telefono',
@@ -94,7 +94,7 @@ export default function CoordForm({
     : [
         [
           'nombre',
-          'apellido',
+          'apellidos',
           'correo',
           'fechaNacimiento',
           'telefono',
@@ -133,7 +133,7 @@ export default function CoordForm({
           id: user.id,
           data: {
             nombre: data.nombre,
-            apellido: data.apellido,
+            apellidos: data.apellidos,
             correo: data.correo,
             fechaNacimiento: data.fechaNacimiento,
             telefono: data.telefono,
@@ -148,7 +148,7 @@ export default function CoordForm({
     if (registration) {
       externalOnSubmit({
         nombre: data.nombre,
-        apellido: data.apellido,
+        apellidos: data.apellidos,
         fechaNacimiento: data.fechaNacimiento,
         telefono: data.telefono,
         cedula: data.cedula,
@@ -159,7 +159,7 @@ export default function CoordForm({
       createUser(
         {
           nombre: data.nombre,
-          apellido: data.apellido,
+          apellidos: data.apellidos,
           correo: resolveEmail(data.correo),
           fechaNacimiento: data.fechaNacimiento,
           telefono: data.telefono,
