@@ -54,7 +54,7 @@ export default function NoteCard({
           isList ? 'py-2.5' : 'pt-3 pb-2.5'
         }`}
       >
-        <time className="text-6 shrink-0 font-mono font-semibold tracking-wide text-zinc-600 uppercase">
+        <time className="text-6 shrink-0 font-semibold tracking-wide text-zinc-600 uppercase">
           {date} · {hour}h
         </time>
 

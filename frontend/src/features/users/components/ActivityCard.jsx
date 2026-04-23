@@ -154,7 +154,7 @@ export default function ActivityCard({
         )}
       </div>
       <div className="shrink-0 border-t border-gray-100 px-4 py-2.5">
-        <time className="text-6 font-mono text-zinc-400">{dateStr}</time>
+        <time className="text-6 text-zinc-400">{dateStr}</time>
       </div>
     </article>
   )
