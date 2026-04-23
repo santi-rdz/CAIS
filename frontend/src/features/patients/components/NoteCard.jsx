@@ -20,8 +20,8 @@ export default function NoteCard({
   return (
     <article
       onClick={onClick}
-      className={`group relative flex cursor-pointer overflow-hidden rounded-xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
-        isList ? 'flex-col' : 'h-[220px] flex-col'
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+        !isList && 'h-[220px]'
       } ${
         isSelected
           ? 'border-teal-400 ring-2 ring-teal-100'
@@ -58,7 +58,9 @@ export default function NoteCard({
           {date} · {hour}h
         </time>
 
-        <span className="text-zinc-200">|</span>
+        <span aria-hidden="true" className="text-zinc-200">
+          |
+        </span>
 
         <div className="flex min-w-0 items-center gap-1.5">
           {doctor?.foto ? (

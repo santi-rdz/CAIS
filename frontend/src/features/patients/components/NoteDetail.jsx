@@ -38,11 +38,9 @@ export default function NoteDetail({ note, onBack, onEdit }) {
             <span className="text-5">Notas</span>
           </button>
           <span className="text-zinc-300">/</span>
-          <span className="text-5 font-semibold text-zinc-700">
-            {date ?? '—'}
-          </span>
+          <span className="text-5 font-semibold text-zinc-700">{date}</span>
           <span className="text-zinc-300">•</span>
-          <span className="text-5">{hour ?? '--:--'} h</span>
+          <span className="text-5">{hour} h</span>
           {doctorName && (
             <>
               <span className="text-zinc-300">•</span>
