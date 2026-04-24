@@ -1,19 +1,37 @@
 import express from 'express'
+import rateLimit from 'express-rate-limit'
 import { AuthController } from '#controllers/auth.js'
 import { requireAuth } from '#middleware/auth.js'
 
 export const authRouter = express.Router()
 
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  limit: 5,
+  message: { error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo' },
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+})
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  limit: 10,
+  message: { error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo' },
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+})
+
+// ─── Sesión ────────────────────────────────────────────────────────────────
 authRouter.post('/login', AuthController.login)
 authRouter.get('/me', requireAuth, AuthController.me)
 authRouter.post('/logout', AuthController.logout)
-authRouter.post('/reset-password', AuthController.requestPasswordReset)
-authRouter.post('/reset-password/confirm', AuthController.resetPassword)
 
+// ─── Contraseña desde configuración (usuario autenticado) ──────────────────
+// PATCH /auth/password  { currentPassword, newPassword, confirmNewPassword }
+authRouter.patch('/password', requireAuth, AuthController.changePassword)
 
-// DEV ONLY: Get latest reset token for testing purposes
-// This endpoint is blocked in production (NODE_ENV === 'production')
-// authRouter.get(
-//   '/reset-password/dev-token',
-//   AuthController.getDevResetToken
-// )
+// ─── Flujo "olvidé mi contraseña" (sin sesión) ─────────────────────────────
+// POST /auth/password/forgot   { correo }
+// POST /auth/password/reset    { token, password, confirmPassword }
+authRouter.post('/password/forgot', forgotPasswordLimiter, AuthController.requestPasswordReset)
+authRouter.post('/password/reset', resetPasswordLimiter, AuthController.confirmPasswordReset)
