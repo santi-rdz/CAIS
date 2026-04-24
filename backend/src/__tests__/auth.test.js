@@ -1,6 +1,5 @@
 /**
- * @file Tests de integración para el endpoint de autenticación.
- * @description Verifica login, errores de credenciales y body vacío.
+ * @file Tests de integración para los endpoints de autenticación.
  */
 
 import request from 'supertest'
@@ -9,66 +8,41 @@ import assert from 'assert'
 
 const api = request(app)
 
-// ─── POST /auth/login ───────────────────────────────────────────────
+// ─── POST /auth/login ───────────────────────────────────────────────────────
 
-/**
- * @description Suite para POST /auth/login.
- * Cubre login exitoso, credenciales incorrectas y body vacío.
- */
 describe('POST /auth/login', () => {
-  /**
-   * @test Login con credenciales válidas devuelve 200 y ok: true.
-   */
   test('200 — login con credenciales correctas', async () => {
     const res = await api.post('/auth/login').send({
       email: 'carlos.herrera@cais.com',
       password: '123',
     })
-
     assert.equal(res.status, 200)
     assert.equal(res.body.ok, true)
   })
 
-  /**
-   * @test Correo no registrado devuelve 401 con propiedad error.
-   */
   test('401 — correo no registrado', async () => {
     const res = await api.post('/auth/login').send({
       email: 'no.existe@test.com',
       password: 'cualquier',
     })
-
     assert.equal(res.status, 401)
-    assert(res.body.error !== undefined, 'body.error should exist')
+    assert(res.body.error !== undefined)
   })
 
-  /**
-   * @test Contraseña incorrecta para correo existente devuelve 401.
-   */
   test('401 — contraseña incorrecta', async () => {
     const res = await api.post('/auth/login').send({
       email: 'carlos.herrera@cais.com',
       password: 'incorrecta',
     })
-
     assert.equal(res.status, 401)
-    assert(res.body.error !== undefined, 'body.error should exist')
+    assert(res.body.error !== undefined)
   })
 
-  /**
-   * @test Body vacío devuelve 400, 401 o 500 (cualquier error válido).
-   */
-  test('500 / 400 — body vacío', async () => {
+  test('400 / 401 / 500 — body vacío', async () => {
     const res = await api.post('/auth/login').send({})
-    assert(
-      [400, 401, 500].includes(res.status),
-      `status should be 400, 401, or 500, got ${res.status}`
-    )
+    assert([400, 401, 500].includes(res.status), `status inesperado: ${res.status}`)
   })
 
-  /**
-   * @test Usuario con estado INACTIVO devuelve 403 tras autenticar credenciales correctas.
-   */
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
     const { prisma } = await import('#config/prisma.js')
     const { uuidToBuffer } = await import('#lib/uuid.js')
@@ -95,13 +69,101 @@ describe('POST /auth/login', () => {
     })
 
     try {
-      const res = await api
-        .post('/auth/login')
-        .send({ email: correo, password: 'Test1234!' })
+      const res = await api.post('/auth/login').send({ email: correo, password: 'Test1234!' })
       assert.equal(res.status, 403)
       assert.equal(res.body.error, 'Cuenta desactivada')
     } finally {
       await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
     }
+  })
+})
+
+// ─── POST /auth/password/forgot ─────────────────────────────────────────────
+
+describe('POST /auth/password/forgot', () => {
+  test('200 — correo existente devuelve mensaje genérico', async () => {
+    const res = await api.post('/auth/password/forgot').send({
+      correo: 'carlos.herrera@cais.com',
+    })
+    assert.equal(res.status, 200)
+    assert(typeof res.body.message === 'string')
+  })
+
+  test('200 — correo inexistente devuelve el mismo mensaje (anti-enumeración)', async () => {
+    const res = await api.post('/auth/password/forgot').send({
+      correo: 'no.existe@test.com',
+    })
+    assert.equal(res.status, 200)
+    assert(typeof res.body.message === 'string')
+  })
+
+  test('422 — correo inválido', async () => {
+    const res = await api.post('/auth/password/forgot').send({ correo: 'noesuncorreo' })
+    assert.equal(res.status, 422)
+    assert(res.body.error !== undefined)
+  })
+
+  test('422 — body vacío', async () => {
+    const res = await api.post('/auth/password/forgot').send({})
+    assert.equal(res.status, 422)
+  })
+})
+
+// ─── POST /auth/password/reset ──────────────────────────────────────────────
+
+describe('POST /auth/password/reset', () => {
+  test('400 — token inválido (uuid inexistente)', async () => {
+    const res = await api.post('/auth/password/reset').send({
+      token: '00000000-0000-0000-0000-000000000000',
+      password: 'NuevaPass1!',
+      confirmPassword: 'NuevaPass1!',
+    })
+    assert.equal(res.status, 400)
+    assert(res.body.error !== undefined)
+  })
+
+  test('422 — token no es uuid', async () => {
+    const res = await api.post('/auth/password/reset').send({
+      token: 'no-es-uuid',
+      password: 'NuevaPass1!',
+      confirmPassword: 'NuevaPass1!',
+    })
+    assert.equal(res.status, 422)
+  })
+
+  test('422 — contraseñas no coinciden', async () => {
+    const res = await api.post('/auth/password/reset').send({
+      token: '00000000-0000-0000-0000-000000000000',
+      password: 'NuevaPass1!',
+      confirmPassword: 'Diferente1!',
+    })
+    assert.equal(res.status, 422)
+  })
+
+  test('422 — contraseña débil', async () => {
+    const res = await api.post('/auth/password/reset').send({
+      token: '00000000-0000-0000-0000-000000000000',
+      password: 'debil',
+      confirmPassword: 'debil',
+    })
+    assert.equal(res.status, 422)
+  })
+})
+
+// ─── PATCH /auth/password ────────────────────────────────────────────────────
+
+describe('PATCH /auth/password', () => {
+  test('401 — sin sesión activa', async () => {
+    const res = await api.patch('/auth/password').send({
+      currentPassword: 'cualquiera',
+      newPassword: 'NuevaPass1!',
+      confirmNewPassword: 'NuevaPass1!',
+    })
+    assert.equal(res.status, 401)
+  })
+
+  test('422 — body vacío sin sesión devuelve 401', async () => {
+    const res = await api.patch('/auth/password').send({})
+    assert.equal(res.status, 401)
   })
 })
