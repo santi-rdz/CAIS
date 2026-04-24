@@ -26,6 +26,12 @@ export class InvitationController {
           emails: err.emails,
         })
       }
+      if (err.code === 'P2002') {
+        return res.status(409).json({
+          error: 'Conflict',
+          message: 'Uno o más correos ya tienen una invitación pendiente',
+        })
+      }
       console.error('Error en preRegister:', err)
       res.status(500).json({
         error: 'InternalError',

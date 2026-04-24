@@ -211,7 +211,7 @@ let agent
 beforeAll(async () => {
   agent = request.agent(app)
   await agent.post('/auth/login').send({
-    email: 'carlos.herrera@cais.com',
+    email: 'sofia.navarro@uabc.edu.mx',
     password: '123',
   })
 })
@@ -228,6 +228,7 @@ describe('POST /invitaciones — correo ya registrado en usuarios', () => {
     const row = await prisma.usuarios.findFirst({
       select: { correo: true },
     })
+    assert(row, 'Se requiere al menos un usuario en la DB para este test')
     existingCorreo = row.correo
   })
 
@@ -265,7 +266,9 @@ describe('POST /invitaciones — correo con invitación pendiente', () => {
       where: { codigo: 'PASANTE' },
       select: { id: true },
     })
+    assert(rolRow, 'Se requiere el rol PASANTE en la DB para este test')
     const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+    assert(userRow, 'Se requiere al menos un usuario en la DB para este test')
 
     await prisma.invitaciones_registro.create({
       data: {

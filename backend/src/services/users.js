@@ -18,6 +18,15 @@ export class UserService {
   static async preRegister(usersData, creadoPor) {
     const emails = usersData.map((u) => u.email)
 
+    const uniqueEmails = [...new Set(emails)]
+    if (uniqueEmails.length < emails.length) {
+      const seen = new Set()
+      const dupes = emails.filter((e) => (seen.has(e) ? true : !seen.add(e)))
+      throw new EmailConflictError('El payload contiene correos duplicados', [
+        ...new Set(dupes),
+      ])
+    }
+
     const existing = await prisma.usuarios.findMany({
       where: { correo: { in: emails } },
       select: { correo: true },
