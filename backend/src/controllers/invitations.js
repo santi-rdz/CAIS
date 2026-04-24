@@ -19,16 +19,18 @@ export class InvitationController {
       const response = await UserService.preRegister(result.data, creadoPor)
       res.status(201).json(response)
     } catch (err) {
-      if (err.code === 'P2002') {
+      if (err.name === 'EmailConflictError') {
         return res.status(409).json({
           error: 'Conflict',
-          message: 'Uno o más correos ya tienen una invitación pendiente',
+          message: err.message,
+          emails: err.emails,
         })
       }
       console.error('Error en preRegister:', err)
       res.status(500).json({
         error: 'InternalError',
-        message: 'Error al crear invitaciones',
+        message:
+          'Ocurrió un error al enviar las invitaciones. Inténtalo de nuevo.',
       })
     }
   }

@@ -216,6 +216,84 @@ beforeAll(async () => {
   })
 })
 
+// ─── POST /invitaciones — correo ya registrado ──────────────────────
+
+/**
+ * @description Verifica que invitar un correo que ya existe en usuarios devuelve 409.
+ */
+describe('POST /invitaciones — correo ya registrado en usuarios', () => {
+  let existingCorreo
+
+  beforeAll(async () => {
+    const row = await prisma.usuarios.findFirst({
+      select: { correo: true },
+    })
+    existingCorreo = row.correo
+  })
+
+  /**
+   * @test Invitar un correo que ya tiene cuenta registrada devuelve 409 con emails.
+   */
+  test('409 — rechaza correo ya registrado en usuarios', async () => {
+    const res = await agent
+      .post('/invitaciones')
+      .send([{ email: existingCorreo, role: 'pasante' }])
+
+    assert.equal(res.status, 409)
+    assert.equal(res.body['error'], 'Conflict')
+    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
+    assert(res.body['emails'].includes(existingCorreo))
+  })
+})
+
+// ─── POST /invitaciones — invitación pendiente ──────────────────────
+
+/**
+ * @description Verifica que invitar un correo con invitación pendiente devuelve 409 con emails.
+ */
+describe('POST /invitaciones — correo con invitación pendiente', () => {
+  let pendingCorreo
+
+  beforeAll(async () => {
+    const { randomUUID } = await import('node:crypto')
+    pendingCorreo = `pending.${Date.now()}@test.com`
+
+    const rolRow = await prisma.roles.findFirst({
+      where: { codigo: 'PASANTE' },
+      select: { id: true },
+    })
+    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
+
+    await prisma.invitaciones_registro.create({
+      data: {
+        correo: pendingCorreo,
+        rol_id: rolRow.id,
+        token: uuidToBuffer(randomUUID()),
+        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        creado_por: userRow.id,
+      },
+    })
+  })
+
+  afterAll(async () => {
+    await prisma.invitaciones_registro.deleteMany({ where: { correo: pendingCorreo } })
+  })
+
+  /**
+   * @test Invitar un correo con invitación pendiente devuelve 409 con emails.
+   */
+  test('409 — rechaza correo con invitación pendiente', async () => {
+    const res = await agent
+      .post('/invitaciones')
+      .send([{ email: pendingCorreo, role: 'pasante' }])
+
+    assert.equal(res.status, 409)
+    assert.equal(res.body['error'], 'Conflict')
+    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
+    assert(res.body['emails'].includes(pendingCorreo))
+  })
+})
+
 // ─── POST /invitaciones/reenviar ────────────────────────────────────
 
 /**
