@@ -142,7 +142,11 @@ export class AuthController {
       await AuthModel.updatePassword(user.id, passwordHash)
 
       req.session.regenerate((err) => {
-        if (err) console.error('Error regenerando sesión tras cambio de contraseña:', err)
+        if (err)
+          console.error(
+            'Error regenerando sesión tras cambio de contraseña:',
+            err
+          )
         return res.json({ message: 'Contraseña actualizada exitosamente' })
       })
     } catch (err) {
@@ -235,7 +239,11 @@ export class AuthController {
 
       if (req.session?.userId) {
         req.session.destroy((err) => {
-          if (err) console.error('Error destruyendo sesión tras reset de contraseña:', err)
+          if (err)
+            console.error(
+              'Error destruyendo sesión tras reset de contraseña:',
+              err
+            )
         })
       }
 
