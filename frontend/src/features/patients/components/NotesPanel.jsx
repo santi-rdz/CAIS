@@ -62,11 +62,14 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
       <Modal>
         <div className="mb-4 flex items-center justify-between gap-4">
           {periodos.length > 0 && (
-            <HistoriaPeriodSelect
-              value={historiaId}
-              onChange={handleSelectHistory}
-              periodos={periodos}
-            />
+            <div className="flex items-center gap-2">
+              <span className="text-6 text-zinc-400">Historia médica</span>
+              <HistoriaPeriodSelect
+                value={historiaId}
+                onChange={handleSelectHistory}
+                periodos={periodos}
+              />
+            </div>
           )}
           <div className="flex items-center gap-2">
             {/* Layout Toggle Buttons */}
@@ -131,11 +134,11 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
       </Modal>
 
       {isPending ? (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
           {Array.from({ length: 3 }, (_, i) => (
             <div
               key={i}
-              className="h-[176px] animate-pulse rounded-xl bg-zinc-100"
+              className="h-[220px] animate-pulse rounded-xl bg-zinc-100"
             />
           ))}
         </div>
@@ -163,16 +166,11 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
       ) : (
         <div
-          style={
+          className={
             layout === 'grid'
-              ? {
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, 280px)',
-                  gap: '12px',
-                }
-              : undefined
+              ? 'grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3'
+              : 'flex flex-col gap-3'
           }
-          className={layout === 'list' ? 'flex flex-col gap-3' : ''}
         >
           {notes.map((note) => (
             <NoteCard
