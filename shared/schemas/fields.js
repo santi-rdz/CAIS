@@ -22,8 +22,8 @@ export const telefonoSchema = z
   .string()
   .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
-const noHtml = (v) => !/<|>|&/.test(v)
-const noHtmlMessage = 'No puede contener caracteres especiales (< > &)'
+const noHtml = (v) => !/<|>/.test(v)
+const noHtmlMessage = 'No puede contener caracteres especiales (< >)'
 
 // usuarios.nombre es VarChar(255) en DB
 export const personaBaseFields = {
