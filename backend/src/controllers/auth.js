@@ -8,6 +8,7 @@ import {
   validateChangePassword,
 } from '@cais/shared/schemas/users'
 import { correoSchema } from '@cais/shared/schemas/fields'
+import { formatZodErrors } from '#lib/formatErrors.js'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
@@ -109,7 +110,7 @@ export class AuthController {
       if (!validation.success) {
         return res.status(422).json({
           error: 'Datos inválidos',
-          details: validation.error.flatten(),
+          details: formatZodErrors(validation.error),
         })
       }
 
@@ -205,7 +206,7 @@ export class AuthController {
       if (!validation.success) {
         return res.status(422).json({
           error: 'Datos inválidos',
-          details: validation.error.flatten(),
+          details: formatZodErrors(validation.error),
         })
       }
 
