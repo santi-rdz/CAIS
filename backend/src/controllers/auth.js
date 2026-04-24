@@ -12,6 +12,8 @@ import { formatZodErrors } from '#lib/formatErrors.js'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
+const BCRYPT_ROUNDS = 12
+
 function formatUser(user) {
   return {
     id: bufferToUUID(user.id),
@@ -138,7 +140,7 @@ export class AuthController {
           .json({ error: 'La contraseña actual es incorrecta' })
       }
 
-      const passwordHash = await bcrypt.hash(newPassword, 10)
+      const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
       await AuthModel.updatePassword(user.id, passwordHash)
       await AuthModel.deleteResetTokensByUser(user.id)
 
@@ -235,7 +237,7 @@ export class AuthController {
         return res.status(400).json({ error: 'Token expirado' })
       }
 
-      const passwordHash = await bcrypt.hash(password, 10)
+      const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
       await AuthModel.consumeResetToken(
         resetToken.token,
         resetToken.usuario_id,
