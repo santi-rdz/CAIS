@@ -9,10 +9,9 @@ import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { parsePagination } from '#lib/paginate.js'
+import { BCRYPT_ROUNDS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '#lib/formatErrors.js'
-
-const BCRYPT_ROUNDS = 12
 
 async function getAreaIdFromCreator(creatorId) {
   if (!creatorId) return null

@@ -9,10 +9,9 @@ import {
 } from '@cais/shared/schemas/users'
 import { correoSchema } from '@cais/shared/schemas/fields'
 import { formatZodErrors } from '#lib/formatErrors.js'
+import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-
-const BCRYPT_ROUNDS = 12
 
 function formatUser(user) {
   return {
@@ -187,7 +186,7 @@ export class AuthController {
       if (!user) return res.json(okResponse)
 
       const token = crypto.randomUUID()
-      const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hora
+      const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS)
 
       await AuthModel.createResetToken(user.id, token, expiresAt)
 

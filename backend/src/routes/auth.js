@@ -1,26 +1,31 @@
 import express from 'express'
 import rateLimit from 'express-rate-limit'
+import {
+  RATE_LIMIT_WINDOW_MS,
+  RATE_LIMIT_FORGOT_PASSWORD,
+  RATE_LIMIT_RESET_PASSWORD,
+} from '#lib/constants.js'
 import { AuthController } from '#controllers/auth.js'
 import { requireAuth } from '#middleware/auth.js'
 
 export const authRouter = express.Router()
 
+const rateLimitMessage = {
+  error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo',
+}
+
 const forgotPasswordLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 5,
-  message: {
-    error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo',
-  },
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  limit: RATE_LIMIT_FORGOT_PASSWORD,
+  message: rateLimitMessage,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })
 
 const resetPasswordLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  limit: 10,
-  message: {
-    error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo',
-  },
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  limit: RATE_LIMIT_RESET_PASSWORD,
+  message: rateLimitMessage,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { INVITATION_TTL_MS } from '#lib/constants.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
@@ -63,7 +64,7 @@ export class UserService {
         correo: u.email,
         rolId: roleRow.id,
         token: randomUUID(),
-        expiraAt: new Date(Date.now() + 1000 * 60 * 60 * 48),
+        expiraAt: new Date(Date.now() + INVITATION_TTL_MS),
         creadoPor,
       })
     }
