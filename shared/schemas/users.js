@@ -93,3 +93,34 @@ export function validateSelfRegister(input, rol) {
     return confirmPasswordRefine(coordSelfRegisterBaseSchema).safeParse(input)
   return confirmPasswordRefine(internSelfRegisterBaseSchema).safeParse(input)
 }
+
+// ─── Password Reset (flujo "olvidé mi contraseña") ─────────────────────────
+
+export const passwordResetSchema = confirmPasswordRefine(
+  z.object({
+    token: z.uuid('Token inválido'),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+)
+
+export function validatePasswordReset(input) {
+  return passwordResetSchema.safeParse(input)
+}
+
+// ─── Change Password (flujo desde configuración del usuario) ────────────────
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Ingresa tu contraseña actual'),
+    newPassword: passwordSchema,
+    confirmNewPassword: z.string(),
+  })
+  .refine((d) => d.newPassword === d.confirmNewPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmNewPassword'],
+  })
+
+export function validateChangePassword(input) {
+  return changePasswordSchema.safeParse(input)
+}
