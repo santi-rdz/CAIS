@@ -40,7 +40,10 @@ describe('POST /auth/login', () => {
 
   test('400 / 401 / 500 — body vacío', async () => {
     const res = await api.post('/auth/login').send({})
-    assert([400, 401, 500].includes(res.status), `status inesperado: ${res.status}`)
+    assert(
+      [400, 401, 500].includes(res.status),
+      `status inesperado: ${res.status}`
+    )
   })
 
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
@@ -69,7 +72,9 @@ describe('POST /auth/login', () => {
     })
 
     try {
-      const res = await api.post('/auth/login').send({ email: correo, password: 'Test1234!' })
+      const res = await api
+        .post('/auth/login')
+        .send({ email: correo, password: 'Test1234!' })
       assert.equal(res.status, 403)
       assert.equal(res.body.error, 'Cuenta desactivada')
     } finally {
@@ -98,7 +103,9 @@ describe('POST /auth/password/forgot', () => {
   })
 
   test('422 — correo inválido', async () => {
-    const res = await api.post('/auth/password/forgot').send({ correo: 'noesuncorreo' })
+    const res = await api
+      .post('/auth/password/forgot')
+      .send({ correo: 'noesuncorreo' })
     assert.equal(res.status, 422)
     assert(res.body.error !== undefined)
   })
