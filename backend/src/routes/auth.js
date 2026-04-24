@@ -8,7 +8,9 @@ export const authRouter = express.Router()
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   limit: 5,
-  message: { error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo' },
+  message: {
+    error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo',
+  },
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })
@@ -16,7 +18,9 @@ const forgotPasswordLimiter = rateLimit({
 const resetPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   limit: 10,
-  message: { error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo' },
+  message: {
+    error: 'Demasiados intentos, espera 15 minutos antes de intentar de nuevo',
+  },
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })
@@ -33,5 +37,13 @@ authRouter.patch('/password', requireAuth, AuthController.changePassword)
 // ─── Flujo "olvidé mi contraseña" (sin sesión) ─────────────────────────────
 // POST /auth/password/forgot   { correo }
 // POST /auth/password/reset    { token, password, confirmPassword }
-authRouter.post('/password/forgot', forgotPasswordLimiter, AuthController.requestPasswordReset)
-authRouter.post('/password/reset', resetPasswordLimiter, AuthController.confirmPasswordReset)
+authRouter.post(
+  '/password/forgot',
+  forgotPasswordLimiter,
+  AuthController.requestPasswordReset
+)
+authRouter.post(
+  '/password/reset',
+  resetPasswordLimiter,
+  AuthController.confirmPasswordReset
+)
