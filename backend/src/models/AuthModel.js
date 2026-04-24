@@ -25,7 +25,7 @@ export class AuthModel {
   // ─── Reset tokens ─────────────────────────────────────────────────────────
 
   static tokenToBuffer(token) {
-    return Buffer.from(token.replace(/-/g, ''), 'hex').slice(0, 16)
+    return Buffer.from(token.replace(/-/g, ''), 'hex')
   }
 
   static async createResetToken(userId, token, expiresAt) {
@@ -62,6 +62,12 @@ export class AuthModel {
   static async deleteResetToken(token) {
     return prisma.password_reset_tokens.delete({
       where: { token: AuthModel.tokenToBuffer(token) },
+    })
+  }
+
+  static async deleteResetTokensByUser(userId) {
+    return prisma.password_reset_tokens.deleteMany({
+      where: { usuario_id: userId },
     })
   }
 }

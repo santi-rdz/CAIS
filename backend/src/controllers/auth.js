@@ -140,6 +140,7 @@ export class AuthController {
 
       const passwordHash = await bcrypt.hash(newPassword, 10)
       await AuthModel.updatePassword(user.id, passwordHash)
+      await AuthModel.deleteResetTokensByUser(user.id)
 
       req.session.regenerate((err) => {
         if (err)
@@ -244,10 +245,11 @@ export class AuthController {
               'Error destruyendo sesión tras reset de contraseña:',
               err
             )
+          return res.json({ message: 'Contraseña actualizada exitosamente' })
         })
+      } else {
+        return res.json({ message: 'Contraseña actualizada exitosamente' })
       }
-
-      return res.json({ message: 'Contraseña actualizada exitosamente' })
     } catch (err) {
       console.error('Error confirmando reset de contraseña:', err)
       return res.status(500).json({ error: 'Error del servidor' })
