@@ -142,12 +142,16 @@ export class AuthController {
       await AuthModel.updatePassword(user.id, passwordHash)
       await AuthModel.deleteResetTokensByUser(user.id)
 
+      const userId = bufferToUUID(user.id)
+      const role = req.session.role
+
       req.session.regenerate((err) => {
-        if (err)
-          console.error(
-            'Error regenerando sesión tras cambio de contraseña:',
-            err
-          )
+        if (err) {
+          console.error('Error regenerando sesión tras cambio de contraseña:', err)
+          return res.status(500).json({ error: 'Error del servidor' })
+        }
+        req.session.userId = userId
+        req.session.role = role
         return res.json({ message: 'Contraseña actualizada exitosamente' })
       })
     } catch (err) {
