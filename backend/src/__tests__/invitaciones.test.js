@@ -241,7 +241,10 @@ describe('POST /invitaciones — correo ya registrado en usuarios', () => {
 
     assert.equal(res.status, 409)
     assert.equal(res.body['error'], 'Conflict')
-    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
+    assert(
+      Array.isArray(res.body['emails']),
+      'property emails should be an array'
+    )
     assert(res.body['emails'].includes(existingCorreo))
   })
 })
@@ -276,7 +279,9 @@ describe('POST /invitaciones — correo con invitación pendiente', () => {
   })
 
   afterAll(async () => {
-    await prisma.invitaciones_registro.deleteMany({ where: { correo: pendingCorreo } })
+    await prisma.invitaciones_registro.deleteMany({
+      where: { correo: pendingCorreo },
+    })
   })
 
   /**
@@ -289,7 +294,10 @@ describe('POST /invitaciones — correo con invitación pendiente', () => {
 
     assert.equal(res.status, 409)
     assert.equal(res.body['error'], 'Conflict')
-    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
+    assert(
+      Array.isArray(res.body['emails']),
+      'property emails should be an array'
+    )
     assert(res.body['emails'].includes(pendingCorreo))
   })
 })
