@@ -6,8 +6,51 @@ import { registerEmail } from '#lib/registerEmail.js'
 
 const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173'
 
+export class EmailConflictError extends Error {
+  constructor(message, emails) {
+    super(message)
+    this.name = 'EmailConflictError'
+    this.emails = emails
+  }
+}
+
 export class UserService {
   static async preRegister(usersData, creadoPor) {
+    const emails = usersData.map((u) => u.email)
+
+    const uniqueEmails = [...new Set(emails)]
+    if (uniqueEmails.length < emails.length) {
+      const seen = new Set()
+      const dupes = emails.filter((e) => (seen.has(e) ? true : !seen.add(e)))
+      throw new EmailConflictError('El payload contiene correos duplicados', [
+        ...new Set(dupes),
+      ])
+    }
+
+    const existing = await prisma.usuarios.findMany({
+      where: { correo: { in: emails } },
+      select: { correo: true },
+    })
+
+    if (existing.length > 0) {
+      throw new EmailConflictError(
+        'Uno o más correos ya tienen una cuenta registrada',
+        existing.map((u) => u.correo)
+      )
+    }
+
+    const pendingInvitations = await prisma.invitaciones_registro.findMany({
+      where: { correo: { in: emails }, usado: false },
+      select: { correo: true },
+    })
+
+    if (pendingInvitations.length > 0) {
+      throw new EmailConflictError(
+        'Uno o más correos ya tienen una invitación pendiente',
+        pendingInvitations.map((i) => i.correo)
+      )
+    }
+
     const invitations = []
 
     for (const u of usersData) {

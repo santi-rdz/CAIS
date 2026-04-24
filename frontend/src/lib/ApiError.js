@@ -19,7 +19,10 @@ export class ApiError extends Error {
  */
 export async function throwApiError(res, fallback) {
   const body = await res.json().catch(() => ({}))
-  throw new ApiError(body.message || fallback, body.fields || [])
+  const fields =
+    body.fields ||
+    (body.emails?.map((e) => ({ field: 'email', message: e })) ?? [])
+  throw new ApiError(body.message || fallback, fields)
 }
 
 /**
