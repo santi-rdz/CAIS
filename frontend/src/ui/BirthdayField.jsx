@@ -8,11 +8,14 @@ export default function BirthdayField({
   errors,
   birthdate = true,
   name = 'fechaNacimiento',
+  required,
+  disableFuture = false,
 }) {
   const label = birthdate ? 'Fecha de nacimiento' : 'Fecha'
   const requiredMessage = birthdate
     ? 'Ingresa la fecha de nacimiento'
     : 'Ingresa la fecha'
+  const showRequired = required !== undefined ? required : birthdate
 
   const fecha = useWatch({ control, name })
   const edad =
@@ -20,12 +23,14 @@ export default function BirthdayField({
       ? dayjs().diff(fecha, 'year')
       : null
 
+  const maxDate = disableFuture ? dayjs() : undefined
+
   return (
     <FormRow
       className="w-full"
       htmlFor={name}
       label={label}
-      required={birthdate}
+      required={showRequired}
     >
       <DatePickerComponent
         name={name}
@@ -36,6 +41,7 @@ export default function BirthdayField({
         }}
         hasError={errors?.[name]?.message}
         birthdate={birthdate}
+        maxDate={maxDate}
       />
       {birthdate && edad !== null && (
         <p className="mt-1 text-xs text-zinc-500">{edad} años</p>

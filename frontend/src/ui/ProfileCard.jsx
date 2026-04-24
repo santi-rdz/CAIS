@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import useUser from '@features/users/hooks/useUser'
+import useMe from '@features/users/hooks/useMe'
 import useClickOutside from '@hooks/useClickOutside'
 import useHoverOpen from '@hooks/useHoverOpen'
 import { HiOutlineChevronUpDown } from 'react-icons/hi2'
@@ -8,7 +8,7 @@ import Spinner from './components/Spinner'
 import ProfileDropdown from './ProfileDropdown'
 
 export default function ProfileCard({ isExpanded }) {
-  const { user = {}, isPending, logout } = useUser()
+  const { user = {}, isPending, logout } = useMe()
   const [isOpen, setIsOpen] = useState(false)
 
   const open = useCallback(() => setIsOpen(true), [])
@@ -19,9 +19,9 @@ export default function ProfileCard({ isExpanded }) {
 
   if (isPending) return <Spinner />
 
-  const { nombre, correo, foto } = user
+  const { nombre, apellidos, correo, foto } = user
 
-  const formattedName = `Dr. ${nombre}`
+  const formattedName = `Dr. ${[nombre, apellidos].filter(Boolean).join(' ')}`
 
   return (
     <div

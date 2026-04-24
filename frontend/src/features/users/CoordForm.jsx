@@ -6,32 +6,106 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import {
-  coordCreateFormSchema,
-  coordSignupFormSchema,
+  coordCreateSchema,
+  coordSelfRegisterBaseSchema,
 } from '@cais/shared/schemas/users'
+import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+import dayjs from 'dayjs'
+
+const coordSignupFormSchema = coordSelfRegisterBaseSchema
+  .omit({ token: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })
+
+const coordEditSchema = coordCreateSchema
+  .omit({ rol: true, password: true })
+  .extend({ fechaNacimiento: dayjsDateSchema })
+
+function parseUserDefaults(user) {
+  const nombre = user.nombre ?? ''
+  const apellidos = user.apellidos ?? ''
+
+  return {
+    nombre,
+    apellidos,
+    fechaNacimiento: user.fecha_nacimiento
+      ? dayjs(user.fecha_nacimiento)
+      : null,
+    telefono: user.telefono ?? '',
+    correo: user.correo ?? '',
+    cedula: user.cedula ?? '',
+  }
+}
+
 import useCreateUser from './hooks/useCreateUser'
+import useUpdateUser from './hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
 import { useStepForm } from '../../hooks/useStepForm'
 import CoordPersonalInfoForm from './CoordPersonalInfoForm'
 import PasswordForm from './PasswordForm'
 import RegistrationPasswordForm from './RegistrationPasswordForm'
+import Modal from '@components/Modal'
 
-const steps = ['Inf. Personal', 'Contraseña']
+const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
+const EDIT_STEPS = ['Inf. Personal']
 
 export default function CoordForm({
   onClose,
+  onCloseModal,
   registration = false,
   email,
   onSubmit: externalOnSubmit,
   isPending = false,
+  user, // present in edit mode
 }) {
-  const { createUser, isCreating } = useCreateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
+  const close = onClose ?? onCloseModal
+  const isEdit = Boolean(user)
+  const steps = isEdit ? EDIT_STEPS : CREATE_STEPS
 
-  const stepsFields = [
-    ['nombre', 'apellido', 'correo', 'fechaNacimiento', 'telefono', 'cedula'],
-    registration ? ['password', 'confirmPassword'] : ['password'],
-  ]
+  const { createUser, isCreating } = useCreateUser()
+  const { updateUser, isUpdating } = useUpdateUser()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
+
+  const createFormSchema = coordCreateSchema
+    .omit({ rol: true })
+    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
+
+  const stepsFields = isEdit
+    ? [
+        [
+          'nombre',
+          'apellidos',
+          'correo',
+          'fechaNacimiento',
+          'telefono',
+          'cedula',
+        ],
+      ]
+    : [
+        [
+          'nombre',
+          'apellidos',
+          'correo',
+          'fechaNacimiento',
+          'telefono',
+          'cedula',
+        ],
+        registration ? ['password', 'confirmPassword'] : ['password'],
+      ]
+
+  const defaultValues = isEdit
+    ? parseUserDefaults(user)
+    : registration
+      ? { correo: email }
+      : {}
+
+  const resolver = isEdit
+    ? zodResolver(coordEditSchema)
+    : zodResolver(registration ? coordSignupFormSchema : createFormSchema)
 
   const {
     currStep,
@@ -42,20 +116,33 @@ export default function CoordForm({
     methods,
     handleSubmit,
     getFormKeyDown,
-  } = useStepForm(
-    steps,
-    stepsFields,
-    registration ? { correo: email } : {},
-    zodResolver(registration ? coordSignupFormSchema : coordCreateFormSchema)
-  )
+  } = useStepForm(steps, stepsFields, defaultValues, resolver)
 
-  const busy = registration ? isPending : isCreating
+  const busy = isEdit ? isUpdating : registration ? isPending : isCreating
 
   function onSubmit(data) {
+    if (isEdit) {
+      updateUser(
+        {
+          id: user.id,
+          data: {
+            nombre: data.nombre,
+            apellidos: data.apellidos,
+            correo: data.correo,
+            fechaNacimiento: data.fechaNacimiento,
+            telefono: data.telefono,
+            cedula: data.cedula,
+          },
+        },
+        { onSuccess: () => close?.() }
+      )
+      return
+    }
+
     if (registration) {
       externalOnSubmit({
         nombre: data.nombre,
-        apellido: data.apellido,
+        apellidos: data.apellidos,
         fechaNacimiento: data.fechaNacimiento,
         telefono: data.telefono,
         cedula: data.cedula,
@@ -66,7 +153,7 @@ export default function CoordForm({
       createUser(
         {
           nombre: data.nombre,
-          apellido: data.apellido,
+          apellidos: data.apellidos,
           correo: resolveEmail(data.correo),
           fechaNacimiento: data.fechaNacimiento,
           telefono: data.telefono,
@@ -74,7 +161,7 @@ export default function CoordForm({
           cedula: data.cedula,
           password: data.password,
         },
-        { onSuccess: () => onClose?.() }
+        { onSuccess: () => close?.() }
       )
     }
   }
@@ -82,6 +169,12 @@ export default function CoordForm({
   const PasswordComponent = registration
     ? RegistrationPasswordForm
     : PasswordForm
+
+  const primaryLabel = isEdit
+    ? 'Guardar cambios'
+    : isLast
+      ? 'Crear usuario'
+      : 'Siguiente'
 
   const nav = registration ? (
     <div className="mt-8 flex gap-3">
@@ -112,9 +205,9 @@ export default function CoordForm({
     </div>
   ) : (
     <ModalActions
-      onClose={onClose}
+      onClose={close}
       primaryAction={{
-        label: isLast ? 'Crear usuario' : 'Siguiente',
+        label: primaryLabel,
         icon: isLast ? (
           <HiCheck strokeWidth={1} />
         ) : (
@@ -136,26 +229,45 @@ export default function CoordForm({
 
   const content = (
     <>
-      <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
+      {steps.length > 1 && (
+        <Stepper
+          steps={steps}
+          current={currStep}
+          setCurrStep={handleStepClick}
+        />
+      )}
       <form
         className={registration ? 'mt-6 space-y-6' : 'mt-6'}
         onKeyDown={getFormKeyDown(onSubmit, busy)}
       >
         {currStep === 0 && (
           <CoordPersonalInfoForm
-            disabledEmail={registration ? email : undefined}
+            disabledEmail={
+              isEdit ? user.correo : registration ? email : undefined
+            }
             isUabcDomain={isUabcDomain}
             setIsUabcDomain={setIsUabcDomain}
           />
         )}
-        {currStep === 1 && <PasswordComponent />}
+        {!isEdit && currStep === 1 && <PasswordComponent />}
       </form>
     </>
   )
 
   return (
     <FormProvider {...methods}>
-      {registration ? <div>{content}</div> : <ModalBody>{content}</ModalBody>}
+      {registration ? (
+        <div>{content}</div>
+      ) : (
+        <>
+          {isEdit && (
+            <Modal.Heading>
+              <Modal.Title>Editar coordinador</Modal.Title>
+            </Modal.Heading>
+          )}
+          <ModalBody>{content}</ModalBody>
+        </>
+      )}
       {nav}
     </FormProvider>
   )

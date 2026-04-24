@@ -153,6 +153,7 @@ describe('POST /medicina/notas-evolucion', () => {
     if (!pacienteId) return
     const res = await agent.post('/medicina/notas-evolucion').send({
       paciente_id: pacienteId,
+      creado_at: new Date().toISOString(),
       motivo_consulta: 'Dolor de cabeza',
       ant_gine_andro: 'Sin antecedentes',
     })
@@ -181,6 +182,7 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
     if (!pacienteId) return
     const res = await agent.post('/medicina/notas-evolucion').send({
       paciente_id: pacienteId,
+      creado_at: new Date().toISOString(),
       motivo_consulta: 'Nota para patch',
     })
     noteId = res.body.note?.id
@@ -239,6 +241,7 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
     if (!pacienteId) return
     const res = await agent.post('/medicina/notas-evolucion').send({
       paciente_id: pacienteId,
+      creado_at: new Date().toISOString(),
       motivo_consulta: 'Nota para delete',
     })
     noteId = res.body.note?.id

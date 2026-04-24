@@ -39,6 +39,7 @@ export class AuthController {
           correo: true,
           password_hash: true,
           roles: { select: { codigo: true } },
+          estados: { select: { codigo: true } },
         },
       })
 
@@ -51,6 +52,10 @@ export class AuthController {
       const isMatch = await bcrypt.compare(password, user.password_hash)
       if (!isMatch) {
         return res.status(401).json({ error: 'Contraseña invalida' })
+      }
+
+      if (user.estados?.codigo !== 'ACTIVO') {
+        return res.status(403).json({ error: 'Cuenta desactivada' })
       }
 
       req.session.regenerate((err) => {

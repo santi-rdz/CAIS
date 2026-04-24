@@ -19,6 +19,13 @@ export class InvitationController {
       const response = await UserService.preRegister(result.data, creadoPor)
       res.status(201).json(response)
     } catch (err) {
+      if (err.name === 'EmailConflictError') {
+        return res.status(409).json({
+          error: 'Conflict',
+          message: err.message,
+          emails: err.emails,
+        })
+      }
       if (err.code === 'P2002') {
         return res.status(409).json({
           error: 'Conflict',
@@ -28,7 +35,62 @@ export class InvitationController {
       console.error('Error en preRegister:', err)
       res.status(500).json({
         error: 'InternalError',
-        message: 'Error al crear invitaciones',
+        message:
+          'Ocurrió un error al enviar las invitaciones. Inténtalo de nuevo.',
+      })
+    }
+  }
+
+  static async remove(req, res) {
+    const { correo } = req.body
+
+    if (!correo) {
+      return res
+        .status(422)
+        .json({ error: 'ValidationError', message: 'correo es requerido' })
+    }
+
+    try {
+      const deleted = await InvitationModel.deleteByCorreo(correo)
+      if (!deleted) {
+        return res.status(404).json({
+          error: 'NotFound',
+          message: 'No existe invitación pendiente para este correo',
+        })
+      }
+      res.json({ message: 'Invitación eliminada exitosamente' })
+    } catch (err) {
+      console.error('Error al eliminar invitación:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al eliminar invitación',
+      })
+    }
+  }
+
+  static async resend(req, res) {
+    const { correo } = req.body
+
+    if (!correo) {
+      return res
+        .status(422)
+        .json({ error: 'ValidationError', message: 'correo es requerido' })
+    }
+
+    try {
+      const result = await UserService.resendInvitation(correo)
+      if (!result) {
+        return res.status(404).json({
+          error: 'NotFound',
+          message: 'No existe invitación pendiente para este correo',
+        })
+      }
+      res.json({ message: 'Invitación reenviada exitosamente' })
+    } catch (err) {
+      console.error('Error al reenviar invitación:', err)
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al reenviar invitación',
       })
     }
   }

@@ -33,7 +33,8 @@ function buildServicio(anio, periodo) {
 
 async function buildUserPayload(data) {
   return {
-    nombre: `${data.nombre} ${data.apellido}`,
+    nombre: data.nombre,
+    apellidos: data.apellidos,
     foto: `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`,
     passwordHash: await bcrypt.hash(data.password, BCRYPT_ROUNDS),
     matricula: data.matricula || null,
@@ -88,7 +89,29 @@ export class UserController {
 
     const { id } = req.params
     try {
-      const updatedUser = await UserModel.update(id, result.data)
+      const d = result.data
+      const updatePayload = { ...d }
+
+      // nombre and apellidos are stored separately — no concatenation needed
+
+      if (d.servicioInicioAnio || d.servicioInicioPeriodo) {
+        updatePayload.inicioServicio = buildServicio(
+          d.servicioInicioAnio,
+          d.servicioInicioPeriodo
+        )
+      }
+      if (d.servicioFinAnio || d.servicioFinPeriodo) {
+        updatePayload.finServicio = buildServicio(
+          d.servicioFinAnio,
+          d.servicioFinPeriodo
+        )
+      }
+      delete updatePayload.servicioInicioAnio
+      delete updatePayload.servicioInicioPeriodo
+      delete updatePayload.servicioFinAnio
+      delete updatePayload.servicioFinPeriodo
+
+      const updatedUser = await UserModel.update(id, updatePayload)
       if (!updatedUser)
         return res.status(404).json({ message: 'Usuario no encontrado' })
       res.json(updatedUser)
@@ -184,6 +207,7 @@ export class UserController {
           data: {
             id: uuidToBuffer(userId),
             nombre: payload.nombre,
+            apellidos: payload.apellidos ?? null,
             correo: invitacion.correo,
             fecha_nacimiento: new Date(data.fechaNacimiento),
             telefono: data.telefono,

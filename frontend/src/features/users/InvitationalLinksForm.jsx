@@ -6,6 +6,8 @@ import TabLayout from '@ui/TabLayout'
 
 import { createContext, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { toast } from 'sonner'
 import useEmailDomain from '@hooks/useEmailDomain'
 import {
@@ -25,7 +27,10 @@ export default function InvitationalLinksForm({ onClose }) {
   const [users, setUsers] = useState([])
   const [idEdit, setIdEdit] = useState('')
   const [role, setRole] = useState('pasante')
-  const { isUabcDomain, setIsUabcDomain, resolveEmail } = useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
+    useEmailDomain()
+
+  const inviteSchema = z.object({ email: correoField })
 
   const isEditMode = Boolean(idEdit)
   const {
@@ -34,7 +39,7 @@ export default function InvitationalLinksForm({ onClose }) {
     formState: { errors },
     reset,
     setValue,
-  } = useForm()
+  } = useForm({ resolver: zodResolver(inviteSchema) })
 
   const handleEdit = (user) => {
     const isUabc = user.email.endsWith('@uabc.edu.mx')

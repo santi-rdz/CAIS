@@ -43,7 +43,9 @@
     "//be": "Abrir shell en el container de backend",
     "be": "docker compose exec backend sh",
     "//sql": "Abrir consola MySQL (password: user)",
-    "sql": "docker compose exec db mysql -u user -p"
+    "sql": "docker compose exec db mysql -u user -p",
+    "//rb": "Reinicia e inicia el servicio del backend",
+    "rb": "docker compose restart backend && docker compose up -d backend"
   },
   "dependencies": {
     "frontend": "^0.0.0",

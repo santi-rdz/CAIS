@@ -11,8 +11,9 @@ import useClickOutside from '@hooks/useClickOutside'
 import Heading from './Heading'
 
 const ModalContext = createContext()
+const ContentContext = createContext({ variant: 'default', icon: null })
 
-export default function Modal({ children, variant = 'default', icon }) {
+export default function Modal({ children }) {
   const [openName, setOpenName] = useState('')
   return (
     <ModalContext.Provider
@@ -20,8 +21,6 @@ export default function Modal({ children, variant = 'default', icon }) {
         openName,
         close: () => setOpenName(''),
         open: setOpenName,
-        variant,
-        icon,
       }}
     >
       {children}
@@ -30,7 +29,7 @@ export default function Modal({ children, variant = 'default', icon }) {
 }
 
 Modal.Heading = function ModalHeadingComp({ children }) {
-  const { variant, icon } = useContext(ModalContext)
+  const { variant, icon } = useContext(ContentContext)
   if (variant === 'alert') {
     return (
       <div className="flex flex-col items-center gap-1.5 p-8 text-center">
@@ -51,7 +50,7 @@ Modal.Heading = function ModalHeadingComp({ children }) {
 }
 
 Modal.Title = function ModalTitleComp({ children }) {
-  const { variant } = useContext(ModalContext)
+  const { variant } = useContext(ContentContext)
   if (variant === 'alert') {
     return <p className="text-base font-semibold text-zinc-800">{children}</p>
   }
@@ -64,7 +63,18 @@ Modal.Description = function ModalDescriptionComp({ children }) {
 
 Modal.Open = function Open({ children, opens: opensWindowName }) {
   const { open } = useContext(ModalContext)
-  return cloneElement(children, { onClick: () => open(opensWindowName) })
+  return cloneElement(children, {
+    onClick: (e) => {
+      children.props?.onClick?.(e)
+      if (!e.defaultPrevented) open(opensWindowName)
+    },
+  })
+}
+
+const HEIGHTS = {
+  70: 'h-[70vh] max-h-[70vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
+  80: 'h-[80vh] max-h-[80vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
+  90: 'h-[90vh] max-h-[90vh] max-sm:h-[95dvh] max-sm:max-h-[95dvh]',
 }
 
 Modal.Content = function Content({
@@ -72,8 +82,11 @@ Modal.Content = function Content({
   name,
   noPadding = false,
   size = 'md',
+  height = 80,
+  variant = 'default',
+  icon,
 }) {
-  const { openName, close, variant } = useContext(ModalContext)
+  const { openName, close } = useContext(ModalContext)
   const ref = useClickOutside(
     close,
     true,
@@ -110,43 +123,56 @@ Modal.Content = function Content({
 
   if (openName !== name) return null
 
-  const sizeClass =
-    variant === 'alert'
-      ? 'w-fit'
-      : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
+  const isAlert = variant === 'alert'
+  const sizeClass = isAlert
+    ? 'w-fit'
+    : ({ sm: 'w-lg', md: 'w-2xl', lg: 'w-3xl', xl: 'w-4xl' }[size] ?? 'w-2xl')
+  const heightClass = isAlert ? 'h-fit' : (HEIGHTS[height] ?? HEIGHTS[80])
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0">
+    <ContentContext.Provider value={{ variant, icon }}>
       <div
-        ref={ref}
-        className={`relative flex max-h-[80vh] ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:h-[95dvh] max-sm:max-h-[95dvh] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
-        style={{
-          transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
-          transition: isDragging ? 'none' : 'transform 0.3s ease',
-        }}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag handle — mobile only */}
-        <div className="hidden flex-col items-center pt-3 pb-1 max-sm:flex">
-          <div className="h-1 w-10 rounded-full bg-zinc-300" />
-        </div>
-
-        <button
-          onClick={close}
-          className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:hidden"
-        >
-          <HiXMark className="size-5" />
-        </button>
         <div
-          ref={scrollRef}
-          className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto px-(--mpx) py-(--mpy)'}`}
+          ref={ref}
+          className={`relative flex ${heightClass} ${sizeClass} flex-col overflow-hidden rounded-xl bg-white shadow-xl [--mpx:2rem] [--mpy:1rem] max-sm:w-full max-sm:self-end max-sm:rounded-b-none max-sm:[--mpx:1.25rem] max-sm:[--mpy:0.6rem]`}
+          style={{
+            transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
+            transition: isDragging ? 'none' : 'transform 0.3s ease',
+          }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
-          {cloneElement(children, { onCloseModal: close })}
+          {/* Drag handle — mobile only */}
+          <div className="hidden flex-col items-center pt-3 pb-1 max-sm:flex">
+            <div className="h-1 w-10 rounded-full bg-zinc-300" />
+          </div>
+
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Cerrar modal"
+            className="absolute top-4 right-5 z-20 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 max-sm:top-3 max-sm:right-3"
+          >
+            <HiXMark className="size-5" />
+          </button>
+          <div
+            ref={scrollRef}
+            className={`flex min-h-0 flex-1 flex-col ${noPadding ? '' : 'overflow-y-auto px-(--mpx) py-(--mpy)'}`}
+          >
+            {cloneElement(children, {
+              onCloseModal: (...args) => {
+                children.props?.onCloseModal?.(...args)
+                close()
+              },
+            })}
+          </div>
         </div>
       </div>
-    </div>,
+    </ContentContext.Provider>,
     document.body
   )
 }

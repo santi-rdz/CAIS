@@ -3,7 +3,7 @@ import { cn } from '@lib/utils'
 import SpinnerMini from './SpinnerMini'
 
 const buttonVariants = cva(
-  'flex items-center text-nowrap justify-center gap-2 rounded-lg transition-colors duration-300',
+  'flex items-center text-nowrap justify-center focus-visible:outline-2 focus-visible:outline-green-800 focus-visible:outline-offset-2 gap-2 rounded-lg transition-colors duration-300',
   {
     variants: {
       variant: {
@@ -54,6 +54,7 @@ export default function Button({
       type={type}
       className={baseStyle}
       disabled={isButtonDisabled}
+      tabIndex={isButtonDisabled ? -1 : 0}
       {...props}
     >
       {isLoading ? (

@@ -1,4 +1,6 @@
+import { prisma } from '#config/prisma.js'
 import { MedicalHistoryModel } from '#models/medicina/MedicalHistory.js'
+import { PatientModel } from '#models/PatientModel.js'
 import {
   validateMedicalHistory,
   validatePartialMedicalHistory,
@@ -18,7 +20,15 @@ export class MedicalHistoryController {
     }
 
     try {
-      const history = await MedicalHistoryModel.create(result.data)
+      const history = await prisma.$transaction(async (tx) => {
+        const h = await MedicalHistoryModel.create(
+          result.data,
+          req.session.userId,
+          tx
+        )
+        await PatientModel.touch(result.data.paciente_id, tx)
+        return h
+      })
       return res
         .status(201)
         .json({ message: 'Historia médica registrada', history })
@@ -26,18 +36,26 @@ export class MedicalHistoryController {
       console.error('Error al crear historia médica:', error)
       return res
         .status(500)
-        .json({ error: 'Error al registrar historia médica' })
+        .json({ message: 'Error al registrar historia médica' })
     }
   }
 
   static async getAll(req, res) {
-    const { paciente_id } = req.query
+    const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
+
+    const parsedFields = fields
+      ? fields
+          .split(',')
+          .map((f) => f.trim())
+          .filter(Boolean)
+      : null
 
     const result = await MedicalHistoryModel.getAll({
       paciente_id,
       page,
       limit,
+      fields: parsedFields,
     })
     res.json(result)
   }
@@ -79,7 +97,17 @@ export class MedicalHistoryController {
 
     const { id } = req.params
     try {
-      const updatedHistory = await MedicalHistoryModel.update(id, result.data)
+      const updatedHistory = await prisma.$transaction(async (tx) => {
+        const h = await MedicalHistoryModel.update(
+          id,
+          result.data,
+          req.session.userId,
+          tx
+        )
+        if (!h) return null
+        await PatientModel.touch(h.paciente_id, tx)
+        return h
+      })
       if (!updatedHistory)
         return res
           .status(404)

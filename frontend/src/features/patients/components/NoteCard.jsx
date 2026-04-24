@@ -1,67 +1,119 @@
-import { HiOutlineUserCircle } from 'react-icons/hi2'
-import { formatFecha } from '@lib/dateHelpers'
+import { HiOutlinePencilSquare, HiOutlineUserCircle } from 'react-icons/hi2'
+import { formatFecha, formatHora } from '@lib/dateHelpers'
+import Button from '@components/Button'
 
-export default function NoteCard({ note, onClick, isSelected = false }) {
-  const { motivo_consulta, planes_estudio } = note
+export default function NoteCard({
+  note,
+  onClick,
+  onEdit,
+  isSelected = false,
+  layout = 'grid',
+}) {
+  const { motivo_consulta, planes_estudio, usuarios, creado_at } = note
 
-  const date = formatFecha(planes_estudio?.generado_en)
-  const doctorName = planes_estudio?.usuarios?.nombre
-  const cie10Codes = planes_estudio?.planes_estudio_cie10 ?? []
+  const date = formatFecha(creado_at)
+  const hour = formatHora(creado_at)
+  const doctor = usuarios
+  const cie10Codes = planes_estudio?.cie10_codes ?? []
+  const isList = layout === 'list'
 
   return (
     <article
       onClick={onClick}
-      className={`flex h-[200px] cursor-pointer flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
-        isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'border-gray-200'
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+        !isList && 'h-[220px]'
+      } ${
+        isSelected
+          ? 'border-teal-400 ring-2 ring-teal-100'
+          : 'border-gray-200 shadow-sm'
       }`}
     >
-      {/* Identity: date + dot */}
-      <div className="flex shrink-0 items-center justify-between px-4 pt-4 pb-1.5">
-        <time className="text-5 font-mono font-semibold text-zinc-700">
-          {date ?? '—'}
+      {/* Edit button */}
+      <div
+        className={`absolute top-2.5 right-2.5 z-10 transition-opacity ${
+          isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          className="rounded-lg bg-white/90 p-1.5 text-zinc-400 shadow-sm backdrop-blur-sm hover:text-zinc-700"
+          aria-label="Editar nota"
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit?.(note)
+          }}
+        >
+          <HiOutlinePencilSquare size={14} />
+        </Button>
+      </div>
+
+      {/* Header: date, hour, doctor */}
+      <div
+        className={`flex shrink-0 items-center gap-3 border-b border-zinc-100 bg-zinc-50/50 px-4 ${
+          isList ? 'py-2.5' : 'pt-3 pb-2.5'
+        }`}
+      >
+        <time className="text-6 shrink-0 font-semibold tracking-wide text-zinc-600 uppercase">
+          {date} · {hour}h
         </time>
-        <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-      </div>
 
-      {/* Doctor */}
-      <div className="flex shrink-0 items-center gap-1.5 px-4 pb-3">
-        <HiOutlineUserCircle size={13} className="shrink-0 text-zinc-300" />
-        <span className="text-6 truncate text-zinc-400">
-          {doctorName ?? 'Dr. no registrado'}
+        <span aria-hidden="true" className="text-zinc-200">
+          |
         </span>
+
+        <div className="flex min-w-0 items-center gap-1.5">
+          {doctor?.foto ? (
+            <img
+              src={doctor.foto}
+              alt={doctor.nombre}
+              className="h-5 w-5 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <HiOutlineUserCircle size={16} className="shrink-0 text-zinc-300" />
+          )}
+          <span className="text-6 truncate text-zinc-400">
+            {doctor?.nombre ?? 'Dr. no registrado'}
+          </span>
+        </div>
       </div>
 
-      {/* Motivo */}
-      <div className="flex-1 overflow-hidden border-t border-gray-100 px-4 py-3">
-        {motivo_consulta ? (
-          <p className="text-5 line-clamp-2 leading-relaxed text-zinc-600">
-            {motivo_consulta}
-          </p>
-        ) : (
-          <p className="text-5 text-zinc-300 italic">Sin motivo de consulta</p>
-        )}
+      {/* Body: motivo */}
+      <div
+        className={`flex-1 overflow-hidden px-4 ${isList ? 'py-2.5' : 'py-3'}`}
+      >
+        <p className="text-7 mb-1 font-medium tracking-wide text-zinc-400 uppercase">
+          Motivo de consulta
+        </p>
+        <p
+          className={`text-5 text-zinc-600 ${isList ? 'line-clamp-1' : 'line-clamp-3'}`}
+        >
+          {motivo_consulta || (
+            <span className="text-zinc-300 italic">Sin motivo de consulta</span>
+          )}
+        </p>
       </div>
 
-      {/* CIE-10 footer */}
-      <div className="shrink-0 border-t border-gray-100 px-4 py-2.5">
+      {/* Footer: CIE-10 codes */}
+      <div className="shrink-0 border-t border-zinc-100 px-4 py-2.5">
         {cie10Codes.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {cie10Codes.slice(0, 4).map((d) => (
+          <div className="flex flex-wrap gap-1.5">
+            {cie10Codes.slice(0, isList ? 6 : 3).map((d) => (
               <span
-                key={d.id}
-                className="text-6 rounded-md bg-blue-50 px-2 py-0.5 font-mono font-semibold text-blue-700"
+                key={d.codigo}
+                className="text-7 rounded-md border border-blue-100 bg-blue-50/80 px-1.5 py-0.5 font-mono font-semibold text-blue-600"
               >
                 {d.codigo}
               </span>
             ))}
-            {cie10Codes.length > 4 && (
-              <span className="text-6 rounded-md bg-gray-100 px-2 py-0.5 text-zinc-400">
-                +{cie10Codes.length - 4}
+            {cie10Codes.length > (isList ? 6 : 3) && (
+              <span className="text-7 rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-zinc-400">
+                +{cie10Codes.length - (isList ? 6 : 3)}
               </span>
             )}
           </div>
         ) : (
-          <span className="text-6 text-zinc-300 italic">Sin diagnósticos</span>
+          <span className="text-7 text-zinc-300 italic">Sin diagnósticos</span>
         )}
       </div>
     </article>

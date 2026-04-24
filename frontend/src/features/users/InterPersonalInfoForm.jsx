@@ -26,13 +26,13 @@ export default function InterPersonalInfoForm() {
             variant="outline"
           />
         </FormRow>
-        <FormRow htmlFor="apellido" label="Apellidos" className="w-full">
+        <FormRow htmlFor="apellidos" label="Apellidos" className="w-full">
           <Input
-            {...register('apellido')}
-            id="apellido"
+            {...register('apellidos')}
+            id="apellidos"
             type="text"
             placeholder="Ej. Perez Lopez"
-            hasError={errors?.apellido?.message}
+            hasError={errors?.apellidos?.message}
             variant="outline"
           />
         </FormRow>

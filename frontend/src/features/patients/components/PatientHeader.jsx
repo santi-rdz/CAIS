@@ -11,11 +11,12 @@ import Heading from '@components/Heading'
 import Tag from '@components/Tag'
 import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
-import MetaChip from './MetaChip'
+import MetaChip from '@components/MetaChip'
 
 export default function PatientHeader({ patient }) {
   const {
     nombre,
+    apellidos,
     fecha_nacimiento,
     genero,
     es_externo,
@@ -24,18 +25,18 @@ export default function PatientHeader({ patient }) {
     nss,
   } = patient
 
+  const fullName = [nombre, apellidos].filter(Boolean).join(' ')
+
   const age = fecha_nacimiento
     ? dayjs().diff(dayjs(fecha_nacimiento), 'year')
     : null
 
-  const initials = nombre
-    ? nombre
-        .trim()
-        .split(/\s+/)
-        .slice(0, 2)
-        .map((n) => n[0].toUpperCase())
-        .join('')
-    : null
+  const initials =
+    [nombre, apellidos]
+      .filter(Boolean)
+      .map((s) => s[0].toUpperCase())
+      .join('')
+      .slice(0, 2) || null
 
   const subtitle = [
     age != null && `${age} años`,
@@ -53,7 +54,7 @@ export default function PatientHeader({ patient }) {
         </div>
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Heading as="h2">{nombre ?? '---'}</Heading>
+            <Heading as="h2">{fullName || '---'}</Heading>
             {es_externo && (
               <Tag type="pendiente" size="sm">
                 Externo

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 
@@ -46,5 +47,25 @@ export class InvitationModel {
       where: { token: uuidToBuffer(token) },
       data: { usado: true },
     })
+  }
+
+  static async deleteByCorreo(correo) {
+    const result = await prisma.invitaciones_registro.deleteMany({
+      where: { correo, usado: false },
+    })
+    return result.count > 0
+  }
+
+  static async refreshToken(correo) {
+    const token = randomUUID()
+    const expiraAt = new Date(Date.now() + 1000 * 60 * 60 * 48)
+
+    const result = await prisma.invitaciones_registro.updateMany({
+      where: { correo, usado: false },
+      data: { token: uuidToBuffer(token), expira_at: expiraAt },
+    })
+
+    if (result.count === 0) return null
+    return { correo, token }
   }
 }

@@ -13,9 +13,12 @@ export default function useLogin() {
       navigate('/dashboard', { replace: true })
     },
     onError: (error) => {
+      const isDeactivated = error.message === 'Cuenta desactivada'
       toast.error(error.message, {
         position: 'top-center',
-        description: 'Verifica tus credenciales e inténtalo de nuevo.',
+        description: isDeactivated
+          ? 'Tu cuenta ha sido desactivada. Contacta a tu coordinador para más información.'
+          : 'Verifica tus credenciales e inténtalo de nuevo.',
       })
     },
   })

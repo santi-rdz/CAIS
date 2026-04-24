@@ -19,7 +19,21 @@ export class ApiError extends Error {
  */
 export async function throwApiError(res, fallback) {
   const body = await res.json().catch(() => ({}))
-  throw new ApiError(body.message || fallback, body.fields || [])
+  const fields =
+    body.fields ||
+    (body.emails?.map((e) => ({ field: 'email', message: e })) ?? [])
+  throw new ApiError(body.message || fallback, fields)
+}
+
+/**
+ * Muestra un toast de error con lista de mensajes como descripción.
+ */
+export function toastErrorList(title, messages) {
+  if (!messages.length) return
+  toast.error(title, {
+    description: messages.map((m) => `• ${m}`).join('\n'),
+    style: { whiteSpace: 'pre-line' },
+  })
 }
 
 /**
@@ -28,8 +42,10 @@ export async function throwApiError(res, fallback) {
  */
 export function toastApiError(error) {
   if (error instanceof ApiError && error.fields.length > 0) {
-    const description = error.fields.map((f) => `• ${f.message}`).join('\n')
-    toast.error(error.message, { description })
+    toastErrorList(
+      error.message,
+      error.fields.map((f) => f.message)
+    )
   } else {
     toast.error(error?.message ?? 'Ocurrió un error inesperado')
   }

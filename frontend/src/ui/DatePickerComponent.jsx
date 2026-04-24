@@ -59,7 +59,7 @@ export default function DatePickerComponent({
     defaultValue: birthdate ? null : dayjs(),
   })
 
-  const resolvedMax = birthdate ? dayjs() : maxDate
+  const resolvedMax = birthdate ? dayjs() : (maxDate ?? DEFAULT_MAX)
   const [digits, setDigits] = useState('')
   const [calendarView, setCalendarView] = useState('day')
 

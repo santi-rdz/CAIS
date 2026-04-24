@@ -103,7 +103,7 @@ const TRIGGER_STYLES = {
     inactive: 'text-gray-500 hover:bg-gray-200',
   },
   underline: {
-    base: 'whitespace-nowrap border-b-2 px-4 py-3 font-medium transition-colors duration-150',
+    base: 'whitespace-nowrap border-b-2 px-4 py-4 font-medium transition-colors duration-150',
     active: 'border-green-700 text-green-800',
     inactive: 'border-transparent text-zinc-400 hover:text-zinc-600',
   },

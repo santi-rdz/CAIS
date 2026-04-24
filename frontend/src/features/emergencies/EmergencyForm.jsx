@@ -15,9 +15,14 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useFormKeyDown } from '@hooks/useFormKeyDown'
 import { useCreateEmergency } from './hooks/useCreateEmergency'
 import { useUpdateEmergency } from './hooks/useUpdateEmergency'
-import { emergencyFormSchema } from '@cais/shared/schemas/medicina/emergency'
+import { emergencySchema } from '@cais/shared/schemas/medicina/emergency'
+import { fechaHoraFormFields } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 import Modal from '@components/Modal'
+
+const emergencyFormSchema = emergencySchema
+  .omit({ fecha_hora: true })
+  .extend(fechaHoraFormFields)
 
 export default function EmergencyForm({ onCloseModal, emergency }) {
   const isEditing = Boolean(emergency)
@@ -46,21 +51,24 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = methods
 
   const getFormKeyDown = useFormKeyDown(handleSubmit)
 
   function onSubmit(data) {
+    const toNullable = (v) =>
+      typeof v === 'string' ? v.trim() || null : (v ?? null)
+
     const payload = {
       fecha_hora: mergeFechaHora(data.fecha, data.hora),
       ubicacion: data.ubicacion,
       recurrente: data.recurrente ?? false,
-      nombre: data.nombre || undefined,
-      matricula: data.matricula || undefined,
-      telefono: data.telefono || undefined,
-      diagnostico: data.diagnostico || undefined,
-      accion_realizada: data.accion_realizada || undefined,
+      nombre: toNullable(data.nombre),
+      matricula: toNullable(data.matricula),
+      telefono: toNullable(data.telefono),
+      diagnostico: toNullable(data.diagnostico),
+      accion_realizada: toNullable(data.accion_realizada),
     }
 
     if (isEditing) {
@@ -106,7 +114,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
         primaryAction={{
           label: isEditing ? 'Guardar cambios' : 'Registrar emergencia',
           isLoading: isEditing ? isUpdating : isCreating,
-          disabled: isEditing ? isUpdating : isCreating,
+          disabled: isEditing ? isUpdating || !isDirty : isCreating,
           onClick: handleSubmit(onSubmit),
         }}
       />
@@ -123,6 +131,8 @@ function RequiredSection({ register, control, errors }) {
       <Row className="gap-4">
         <BirthdayField
           birthdate={false}
+          required={true}
+          disableFuture={true}
           name="fecha"
           control={control}
           errors={errors}

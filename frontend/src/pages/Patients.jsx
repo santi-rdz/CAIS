@@ -1,5 +1,5 @@
-import PatientsTable from '@features/patients/PatientsTable'
-import PatientsTableOperations from '@features/patients/PatientsTableOperations'
+import PatientsTable from '@features/patients/pages/PatientsTable'
+import PatientsTableOperations from '@features/patients/pages/PatientsTableOperations'
 import Heading from '@components/Heading'
 
 export default function Patients() {

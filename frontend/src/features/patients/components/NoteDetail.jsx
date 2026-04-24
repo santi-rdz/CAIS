@@ -1,138 +1,71 @@
-import { HiOutlineArrowLeft } from 'react-icons/hi2'
+import { HiOutlineArrowLeft, HiOutlinePencilSquare } from 'react-icons/hi2'
 import Tab from '@components/Tab'
-import Heading from '@components/Heading'
-import DataField from './DataField'
-import SignosVitalesSection from '../historia/sections/SignosVitalesSection'
-import FieldsSection from '../historia/sections/FieldsSection'
-import { buildAparSistFields } from '../historia/constants'
-import { formatFecha } from '@lib/dateHelpers'
+import Button from '@components/Button'
+import DataField from '@components/DataField'
+import MotivoConsultaSection from '../sections/MotivoConsultaSection'
+import PlanEstudioSection from '../sections/PlanEstudioSection'
+import SignosVitalesSection from '../sections/SignosVitalesSection'
+import FieldsSection from '../sections/FieldsSection'
+import { buildAparSistFields } from '../constants'
+import { formatFecha, formatHora } from '@lib/dateHelpers'
 
-function ConsultaTab({ motivo_consulta, ant_gine_andro }) {
-  const hasContent = motivo_consulta || ant_gine_andro
-
-  if (!hasContent)
-    return (
-      <p className="text-5 py-8 text-center text-zinc-400">
-        Sin información de consulta registrada.
-      </p>
-    )
-
-  return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        <Heading as="h4" showBar>
-          Motivo de Consulta
-        </Heading>
-        <div className="flex flex-col gap-4">
-          <DataField
-            label="Motivo de consulta"
-            value={motivo_consulta}
-            multiline
-            block
-          />
-          {ant_gine_andro && (
-            <DataField
-              label="Antec. gin./androl."
-              value={ant_gine_andro}
-              multiline
-              block
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function PlanTab({ planes_estudio }) {
-  if (!planes_estudio)
-    return (
-      <p className="text-5 py-8 text-center text-zinc-400">
-        Sin plan de estudio registrado.
-      </p>
-    )
-
-  const {
-    planes_estudio_cie10 = [],
-    plan_tratamiento,
-    tratamiento,
-    estudios_complementarios,
-  } = planes_estudio
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField
-          label="Plan de tratamiento"
-          value={plan_tratamiento}
-          multiline
-          block
-        />
-        <DataField label="Tratamiento" value={tratamiento} multiline block />
-      </div>
-
-      <DataField
-        label="Estudios complementarios efectuados"
-        value={estudios_complementarios}
-        multiline
-        block
-      />
-
-      {planes_estudio_cie10.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-6 font-semibold tracking-widest text-zinc-400 uppercase">
-            Diagnóstico CIE-10
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {planes_estudio_cie10.map((d) => (
-              <div
-                key={d.id}
-                className="inline-flex items-center rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5"
-              >
-                <span className="text-5 shrink-0 font-bold text-blue-700">
-                  {d.codigo}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default function NoteDetail({ note, onBack }) {
+export default function NoteDetail({ note, onBack, onEdit }) {
   const {
     motivo_consulta,
     ant_gine_andro,
     planes_estudio,
     aparatos_sistemas,
     informacion_fisica,
+    usuarios,
+    creado_at,
   } = note
 
-  const date = formatFecha(planes_estudio?.generado_en)
-  const doctorName = planes_estudio?.usuarios?.nombre
+  const date = formatFecha(creado_at)
+  const hour = formatHora(creado_at)
+  const doctorName = usuarios?.nombre
+  const doctorPhoto = usuarios?.foto
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-4 border-b border-gray-100 px-5 py-4">
-        <button
-          onClick={onBack}
-          className="flex cursor-pointer items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-700"
-        >
-          <HiOutlineArrowLeft size={14} />
-          <span className="text-5">Notas</span>
-        </button>
-        <span className="text-gray-200">/</span>
-        <div className="flex items-center gap-2">
-          <span className="text-5 font-mono font-semibold text-zinc-700">
-            {date ?? '—'}
-          </span>
+      <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-zinc-50/60 px-5 py-4">
+        <div className="flex min-w-0 items-center gap-2 text-zinc-500">
+          <button
+            onClick={onBack}
+            className="flex shrink-0 cursor-pointer items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-700"
+          >
+            <HiOutlineArrowLeft size={14} />
+            <span className="text-5">Notas</span>
+          </button>
+          <span className="text-zinc-300">/</span>
+          <span className="text-5 font-semibold text-zinc-700">{date}</span>
+          <span className="text-zinc-300">•</span>
+          <span className="text-5">{hour} h</span>
           {doctorName && (
-            <span className="text-5 text-zinc-400">{doctorName}</span>
+            <>
+              <span className="text-zinc-300">•</span>
+              <span className="flex min-w-0 items-center gap-1.5">
+                {doctorPhoto ? (
+                  <img
+                    src={doctorPhoto}
+                    alt={doctorName}
+                    className="h-5 w-5 shrink-0 rounded-full object-cover"
+                  />
+                ) : null}
+                <span className="text-5 truncate">{doctorName}</span>
+              </span>
+            </>
           )}
         </div>
+        <Button
+          variant="secondary"
+          size="md"
+          className="gap-1.5"
+          onClick={onEdit}
+        >
+          <HiOutlinePencilSquare size={14} />
+          Editar nota
+        </Button>
       </div>
 
       {/* Tabs — variant underline, igual que PatientHistoria */}
@@ -146,10 +79,14 @@ export default function NoteDetail({ note, onBack }) {
 
         <div className="p-5">
           <Tab.Panel value="consulta" scrollable={false}>
-            <ConsultaTab
-              motivo_consulta={motivo_consulta}
-              ant_gine_andro={ant_gine_andro}
-            />
+            <MotivoConsultaSection motivo_consulta={motivo_consulta}>
+              <DataField
+                label="Antec. gin./androl."
+                value={ant_gine_andro}
+                multiline
+                block
+              />
+            </MotivoConsultaSection>
           </Tab.Panel>
 
           <Tab.Panel value="aparatos" scrollable={false}>
@@ -164,7 +101,7 @@ export default function NoteDetail({ note, onBack }) {
           </Tab.Panel>
 
           <Tab.Panel value="plan" scrollable={false}>
-            <PlanTab planes_estudio={planes_estudio} />
+            <PlanEstudioSection plan={planes_estudio} />
           </Tab.Panel>
         </div>
       </Tab>

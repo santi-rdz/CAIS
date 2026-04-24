@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS entidades (
 CREATE TABLE IF NOT EXISTS usuarios (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     nombre VARCHAR(255),
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE,
     correo VARCHAR(255) UNIQUE,
     telefono VARCHAR(30),
@@ -61,17 +62,21 @@ CREATE TABLE IF NOT EXISTS pacientes (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     doctor_id BINARY(16) NOT NULL,
     nombre VARCHAR(255),
+    apellidos VARCHAR(255),
     fecha_nacimiento DATE,
     es_externo BOOLEAN DEFAULT FALSE,
     correo VARCHAR(255),
     telefono VARCHAR(30),
     genero VARCHAR(20),
     domicilio VARCHAR(255),
+    fuente_informacion VARCHAR(100),
+    lugar_nacimiento VARCHAR(255),
     ocupacion VARCHAR(100),
     estado_civil VARCHAR(50),
     nivel_educativo VARCHAR(100),
     religion VARCHAR(100),
     nss VARCHAR(50),
+    curp_matricula VARCHAR(50),
     contacto_emergencia VARCHAR(255),
     telefono_emergencia VARCHAR(30),
     parentesco_emergencia VARCHAR(100),
@@ -83,7 +88,6 @@ CREATE TABLE IF NOT EXISTS pacientes (
 -- ===============================
 -- TABLAS MEDICAS SIN FK
 -- ===============================
-
 -- ===============================
 -- TABLAS NUTRICION SIN FK
 -- ===============================
@@ -350,11 +354,14 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 CREATE TABLE IF NOT EXISTS historias_medicas (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
+    usuario_id BINARY(16) NOT NULL,
+    creado_at DATE DEFAULT (CURDATE()),
     tipo_sangre VARCHAR(5),
     vacunas_infancia_completas BOOLEAN,
     motivo_consulta TEXT,
     historia_enfermedad_actual TEXT,
-    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    CONSTRAINT fk_historia_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    CONSTRAINT fk_historia_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
 CREATE TABLE IF NOT EXISTS antecedentes_familiares (
@@ -403,9 +410,24 @@ CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
     CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
 );
 
+CREATE TABLE IF NOT EXISTS notas_evolucion (
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
+    historia_medica_id BINARY(16),
+    paciente_id BINARY(16),
+    usuario_id BINARY(16) NOT NULL,
+    motivo_consulta TEXT,
+    ant_gine_andro TEXT,
+    estudios_complementarios_efectuados TEXT,
+    creado_at DATETIME DEFAULT NOW(),
+    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_nota_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
 CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    historia_medica_id BINARY(16) NULL UNIQUE,
+    nota_evolucion_id BINARY(16) UNIQUE,
     neurologico TEXT,
     cardiovascular TEXT,
     respiratorio TEXT,
@@ -416,7 +438,8 @@ CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     endocrinologico TEXT,
     metabolico TEXT,
     nutricional TEXT,
-    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_as_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS servicios (
@@ -444,54 +467,42 @@ CREATE TABLE IF NOT EXISTS inmunizaciones (
 
 CREATE TABLE IF NOT EXISTS informacion_fisica (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
-    peso FLOAT NOT NULL,
-    altura FLOAT NOT NULL,
-    pa_sistolica INT NOT NULL,
-    pa_diastolica INT NOT NULL,
-    fc INT NOT NULL,
-    fr INT NOT NULL,
-    circ_cintura FLOAT NOT NULL,
-    circ_cadera FLOAT NOT NULL,
-    sp_o2 FLOAT NOT NULL,
-    glucosa_capilar FLOAT NOT NULL,
-    temperatura FLOAT NOT NULL,
+    historia_medica_id BINARY(16) NULL UNIQUE,
+    nota_evolucion_id BINARY(16) UNIQUE,
+    peso FLOAT,
+    altura FLOAT,
+    pa_sistolica INT,
+    pa_diastolica INT,
+    fc INT,
+    fr INT,
+    circ_cintura FLOAT,
+    circ_cadera FLOAT,
+    sp_o2 FLOAT,
+    glucosa_capilar FLOAT,
+    temperatura FLOAT,
     exploracion_fisica TEXT,
     habito_exterior TEXT,
-    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_infoF_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    historia_medica_id BINARY(16) NOT NULL UNIQUE,
+    historia_medica_id BINARY(16) NULL UNIQUE,
+    nota_evolucion_id BINARY(16) NULL UNIQUE,
     plan_tratamiento TEXT,
-    usuario_id BINARY(16) NOT NULL,
-    generado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
     tratamiento TEXT,
-    CONSTRAINT fk_plan_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    estudios_complementarios TEXT,
+    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_plan_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
     id INT AUTO_INCREMENT PRIMARY KEY,
     plan_estudio_id INT NOT NULL,
     codigo VARCHAR(10) NOT NULL,
+    descripcion TEXT,
     CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
-);
-CREATE TABLE IF NOT EXISTS notas_evolucion (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    historia_medica_id BINARY(16),
-    paciente_id BINARY(16),
-    motivo_consulta TEXT,
-    ant_gine_andro TEXT,
-    aparatos_sistemas_id INT,
-    informacion_fisica_id INT,
-    plan_estudio_id INT,
-    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
-    CONSTRAINT fk_nota_as FOREIGN KEY (aparatos_sistemas_id) REFERENCES aparatos_sistemas(id),
-    CONSTRAINT fk_nota_info FOREIGN KEY (informacion_fisica_id) REFERENCES informacion_fisica(id),
-    CONSTRAINT fk_nota_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
 );
 
 -- ===============================
@@ -883,6 +894,7 @@ INSERT INTO
     usuarios (
         id,
         nombre,
+        apellidos,
         fecha_nacimiento,
         correo,
         telefono,
@@ -899,7 +911,8 @@ INSERT INTO
 VALUES
     (
         UUID_TO_BIN(UUID()),
-        'Dr. Carlos Herrera',
+        'Carlos',
+        'Herrera',
         '1980-04-12',
         'carlos.herrera@cais.com',
         '6861000001',
@@ -915,7 +928,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Dra. Sofia Navarro',
+        'Sofia',
+        'Navarro',
         '1992-03-10',
         'sofia.navarro@uabc.edu.mx',
         '6861000002',
@@ -931,7 +945,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Luis Mendoza',
+        'Luis',
+        'Mendoza',
         '1998-07-25',
         'luis.mendoza@uabc.edu.mx',
         '6861000003',
@@ -947,7 +962,8 @@ VALUES
     ),
     (
         UUID_TO_BIN(UUID()),
-        'Ana Torres',
+        'Ana',
+        'Torres',
         '1999-11-20',
         'ana.torres@uabc.edu.mx',
         '6861000004',
@@ -1099,6 +1115,7 @@ INSERT INTO
     pacientes (
         doctor_id,
         nombre,
+        apellidos,
         fecha_nacimiento,
         es_externo,
         correo,
@@ -1110,6 +1127,7 @@ INSERT INTO
         nivel_educativo,
         religion,
         nss,
+        curp_matricula,
         contacto_emergencia,
         telefono_emergencia,
         parentesco_emergencia,
@@ -1126,8 +1144,13 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Carlos Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com', '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC', 'Contador', 'Casado', 'Licenciatura', 'Católica', '45678912301', 'Laura Ruiz Pérez', '6641112233', 'Esposa', '2026-03-12 10:30:00'
-    ), (
+        ), 'Carlos', 'Mendoza Ruiz', '1985-03-14 00:00:00', FALSE, 'carlos.mendoza@gmail.com', '6642345678', 'Masculino', 'Av. Revolución 456, Tijuana, BC', 'Contador', 'Casado', 'Licenciatura', 'Católica', '45678912301', NULL,
+        'Laura Ruiz Pérez',
+        '6641112233',
+        'Esposa',
+        '2026-03-12 10:30:00'
+    ),
+    (
         (
             SELECT
                 id
@@ -1137,8 +1160,13 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Ana Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com', '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC', 'Maestra', 'Soltera', 'Maestría', 'Cristiana', '78912345602', 'Pedro Fernández López', '6642223344', 'Padre', '2026-03-10 09:15:00'
-    ), (
+        ), 'Ana', 'Fernández Torres', '1992-07-22 00:00:00', FALSE, 'ana.fernandez@hotmail.com', '6643456789', 'Femenino', 'Calle Quinta 89, Tijuana, BC', 'Maestra', 'Soltera', 'Maestría', 'Cristiana', '78912345602', NULL,
+        'Pedro Fernández López',
+        '6642223344',
+        'Padre',
+        '2026-03-10 09:15:00'
+    ),
+    (
         (
             SELECT
                 id
@@ -1148,7 +1176,7 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Jorge Reyes Castillo', '1978-11-05 00:00:00', TRUE,
+        ), 'Jorge', 'Reyes Castillo', '1978-11-05 00:00:00', TRUE,
         'jorge.reyes@yahoo.com',
         '6644567890',
         'Masculino',
@@ -1158,6 +1186,7 @@ VALUES
         'Doctorado',
         'Ninguna',
         '32165498703',
+        NULL,
         'María Castillo Vega',
         '6643334455',
         'Madre',
@@ -1173,7 +1202,11 @@ VALUES
                 correo = 'sofia.navarro@uabc.edu.mx'
             LIMIT
                 1
-        ), 'Lucía Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com', '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC', 'Estudiante', 'Soltera', 'Bachillerato', 'Católica', '96385274104', 'Rosa Soto Díaz', '6644445566', 'Madre', '2026-03-05 14:20:00'
+        ), 'Lucía', 'Ramírez Soto', '2000-05-30 00:00:00', FALSE, 'lucia.ramirez@gmail.com', '6645678901', 'Femenino', 'Calle Madero 12, Tijuana, BC', 'Estudiante', 'Soltera', 'Bachillerato', 'Católica', '96385274104', NULL,
+        'Rosa Soto Díaz',
+        '6644445566',
+        'Madre',
+        '2026-03-05 14:20:00'
     );
 
 -- ===============================
@@ -1183,6 +1216,7 @@ INSERT INTO
     historias_medicas (
         id,
         paciente_id,
+        usuario_id,
         tipo_sangre,
         vacunas_infancia_completas,
         motivo_consulta,
@@ -1190,39 +1224,86 @@ INSERT INTO
     )
 VALUES
     (
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), 'O+', TRUE,
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'O+', TRUE,
         'Revisión anual',
         'Paciente acude a revisión de rutina sin síntomas agudos'
     ),
     (
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'ana.fernandez@hotmail.com'
-            LIMIT
-                1
-        ), 'A-', TRUE,
+        UUID_TO_BIN('6ba7b810-9dad-11d1-80b4-00c04fd430c8'),
+        (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'A-', TRUE,
         'Control de diabetes',
         'Paciente con DM2 de 5 años de evolución, refiere polidipsia y poliuria'
+    ),
+    (
+        UUID_TO_BIN('7ca8b911-0ebe-22e2-91c5-11d505641c29'),
+        (SELECT id FROM pacientes WHERE correo = 'jorge.reyes@yahoo.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'O-', TRUE,
+        'Evaluación general',
+        'Médico externo, acude a evaluación anual de salud'
+    ),
+    (
+        UUID_TO_BIN('8db9ca22-1fcf-33f3-a2d6-22e616752d30'),
+        (SELECT id FROM pacientes WHERE correo = 'lucia.ramirez@gmail.com' LIMIT 1),
+        (SELECT id FROM usuarios LIMIT 1),
+        'B+', TRUE,
+        'Examen preventivo',
+        'Estudiante joven, sin antecedentes relevantes, acude a examen preventivo'
+    );
+
+INSERT INTO
+    notas_evolucion (
+        id,
+        paciente_id,
+        historia_medica_id,
+        usuario_id,
+        motivo_consulta,
+        ant_gine_andro,
+        estudios_complementarios_efectuados,
+        creado_at
+    )
+VALUES
+    (
+        UUID_TO_BIN('f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 'Examen médico general de rutina', '2026-01-10 10:00:00'
+    ), (
+        UUID_TO_BIN('6ba7b811-9dad-11d1-80b4-00c04fd430c9'),
+        (SELECT id FROM pacientes WHERE correo = 'ana.fernandez@hotmail.com' LIMIT 1),
+        UUID_TO_BIN('6ba7b810-9dad-11d1-80b4-00c04fd430c8'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 'Glucosa en ayuno, HbA1c', '2026-02-14 14:30:00'
+    ), (
+        UUID_TO_BIN('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'),
+        (SELECT id FROM pacientes WHERE correo = 'carlos.mendoza@gmail.com' LIMIT 1),
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 'Resultados de laboratorio normales', '2026-03-22 09:15:00'
+    ), (
+        UUID_TO_BIN('c1fed0aa-0adc-4483-b678-7cca71863e42'),
+        (SELECT id FROM pacientes WHERE correo = 'jorge.reyes@yahoo.com' LIMIT 1),
+        UUID_TO_BIN('7ca8b911-0ebe-22e2-91c5-11d505641c29'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Evaluación integral. Profesional médico en buen estado de salud.', 'Sin antecedentes relevantes', 'Examen clínico completo, signos vitales normales', '2026-03-01 11:45:00'
+    ), (
+        UUID_TO_BIN('d2aebbaa-1bed-5594-c789-8ddb82974f53'),
+        (SELECT id FROM pacientes WHERE correo = 'lucia.ramirez@gmail.com' LIMIT 1),
+        UUID_TO_BIN('8db9ca22-1fcf-33f3-a2d6-22e616752d30'),
+        (SELECT id FROM usuarios LIMIT 1),
+        'Examen preventivo anual. Estudiante sin síntomas. Vida sana.', 'Ginecología normal, ciclos regulares', 'Laboratorio rutinario, ecografía pélvica', '2026-02-20 15:30:00'
     );
 
 INSERT INTO
     aparatos_sistemas (
         historia_medica_id,
+        nota_evolucion_id,
         neurologico,
         cardiovascular,
         respiratorio,
@@ -1236,7 +1317,8 @@ INSERT INTO
     )
 VALUES
     (
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        UUID_TO_BIN('f47ac10b-58cc-4372-a567-0e02b2c3d479'),
         'Sin alteraciones',
         'Ritmo cardíaco regular',
         'Respiración normal',
@@ -1249,7 +1331,8 @@ VALUES
         'Nutrición adecuada'
     ),
     (
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        UUID_TO_BIN('6ba7b810-9dad-11d1-80b4-00c04fd430c8'),
+        UUID_TO_BIN('6ba7b811-9dad-11d1-80b4-00c04fd430c9'),
         'Cefalea ocasional',
         'Palpitaciones leves',
         'Tos crónica leve',
@@ -1265,6 +1348,7 @@ VALUES
 INSERT INTO
     informacion_fisica (
         historia_medica_id,
+        nota_evolucion_id,
         peso,
         altura,
         pa_sistolica,
@@ -1281,7 +1365,8 @@ INSERT INTO
     )
 VALUES
     (
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        UUID_TO_BIN('f47ac10b-58cc-4372-a567-0e02b2c3d479'),
         72.5,
         1.75,
         120,
@@ -1297,7 +1382,8 @@ VALUES
         'Paciente en buen estado general'
     ),
     (
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        UUID_TO_BIN('6ba7b810-9dad-11d1-80b4-00c04fd430c8'),
+        UUID_TO_BIN('6ba7b811-9dad-11d1-80b4-00c04fd430c9'),
         85.0,
         1.68,
         135,
@@ -1316,92 +1402,30 @@ VALUES
 INSERT INTO
     planes_estudio (
         historia_medica_id,
+        nota_evolucion_id,
         plan_tratamiento,
-        usuario_id,
         tratamiento
     )
 VALUES
     (
-        UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'),
+        UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440000'),
+        UUID_TO_BIN('f47ac10b-58cc-4372-a567-0e02b2c3d479'),
         'Examen médico general de rutina. BH, QS, EGO.',
-        (
-            SELECT
-                id
-            FROM
-                usuarios
-            WHERE
-                correo = 'sofia.navarro@uabc.edu.mx'
-            LIMIT
-                1
-        ), 'Observación y seguimiento en 3 meses'
-       
-    ), 
-    (
-        UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'),
+        'Observación y seguimiento en 3 meses'
+    ), (
+        UUID_TO_BIN('6ba7b810-9dad-11d1-80b4-00c04fd430c8'),
+        UUID_TO_BIN('6ba7b811-9dad-11d1-80b4-00c04fd430c9'),
         'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
-        (
-            SELECT
-                id
-            FROM
-                usuarios
-            WHERE
-                correo = 'carlos.herrera@cais.com'
-            LIMIT
-                1
-        ), 'Metformina 850mg c/12h + dieta hipocalórica'
+        'Metformina 850mg c/12h + dieta hipocalórica'
     );
 
 INSERT INTO
-    planes_estudio_cie10 (plan_estudio_id, codigo)
+    planes_estudio_cie10 (plan_estudio_id, codigo, descripcion)
 VALUES
-    (1, 'Z00.0'),
-    (2, 'E11.9'),
-    (2, 'E78.5');
-
-INSERT INTO
-    notas_evolucion (
-        id,
-        paciente_id,
-        historia_medica_id,
-        motivo_consulta,
-        ant_gine_andro,
-        aparatos_sistemas_id,
-        informacion_fisica_id,
-        plan_estudio_id
-    )
-VALUES
+    (1, 'Z00.0', 'Examen médico general'),
     (
-        UUID_TO_BIN('bbbbbbbb-0001-0001-0001-000000000001'),
-        (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Revisión anual. Paciente sin quejas.', 'Sin antecedentes gineco-andros relevantes', 1, 1, 1
-    ), (
-        UUID_TO_BIN('bbbbbbbb-0002-0002-0002-000000000002'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'ana.fernandez@hotmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0002-0002-0002-000000000002'), 'Control de diabetes. Refiere mejora parcial con medicamento.', 'G2 P2 A0, ciclos regulares', 2, 2, 2
-    ), (
-        UUID_TO_BIN('bbbbbbbb-0003-0003-0003-000000000003'), (
-            SELECT
-                id
-            FROM
-                pacientes
-            WHERE
-                correo = 'carlos.mendoza@gmail.com'
-            LIMIT
-                1
-        ), UUID_TO_BIN('aaaaaaaa-0001-0001-0001-000000000001'), 'Seguimiento post-revisión. Resultados de laboratorio normales.', 'Sin cambios', 1, 1, 1
-    );
+        2,
+        'E11.9',
+        'Diabetes mellitus tipo 2 sin complicaciones'
+    ),
+    (2, 'E78.5', 'Hiperlipidemia no especificada');

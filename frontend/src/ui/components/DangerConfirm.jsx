@@ -5,6 +5,7 @@ export default function DangerConfirm({
   onCloseModal,
   onConfirm,
   confirmLabel = 'Eliminar',
+  confirmVariant = 'danger',
   isPending = false,
   title,
   description,
@@ -20,9 +21,10 @@ export default function DangerConfirm({
           Cancelar
         </Button>
         <Button
-          variant="danger"
+          variant={confirmVariant}
           onClick={() => {
             onConfirm()
+            onCloseModal()
           }}
           disabled={isPending}
         >
