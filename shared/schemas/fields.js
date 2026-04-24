@@ -22,13 +22,13 @@ export const telefonoSchema = z
   .string()
   .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
-const noHtml = (v) => !/<|>/.test(v)
-const noHtmlMessage = 'No puede contener caracteres especiales (< >)'
+const soloLetras = (v) => /^[\p{L}\s\-']+$/u.test(v)
+const soloLetrasMessage = 'Solo puede contener letras, espacios, guiones y apóstrofes'
 
 // usuarios.nombre es VarChar(255) en DB
 export const personaBaseFields = {
-  nombre: z.string().min(2, 'El nombre es requerido').max(255).refine(noHtml, noHtmlMessage),
-  apellidos: z.string().min(2, 'Los apellidos son requeridos').max(255).refine(noHtml, noHtmlMessage),
+  nombre: z.string().min(2, 'El nombre es requerido').max(255).refine(soloLetras, soloLetrasMessage),
+  apellidos: z.string().min(2, 'Los apellidos son requeridos').max(255).refine(soloLetras, soloLetrasMessage),
   telefono: telefonoSchema,
 }
 
