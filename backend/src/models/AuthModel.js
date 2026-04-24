@@ -31,7 +31,9 @@ export class AuthModel {
   static async createResetToken(userId, token, expiresAt) {
     const tokenBuffer = AuthModel.tokenToBuffer(token)
     return prisma.$transaction([
-      prisma.password_reset_tokens.deleteMany({ where: { usuario_id: userId } }),
+      prisma.password_reset_tokens.deleteMany({
+        where: { usuario_id: userId },
+      }),
       prisma.password_reset_tokens.create({
         data: { usuario_id: userId, token: tokenBuffer, expira_at: expiresAt },
       }),
