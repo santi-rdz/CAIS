@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { INVITATION_TTL_MS } from '#lib/constants.js'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 
@@ -58,7 +59,7 @@ export class InvitationModel {
 
   static async refreshToken(correo) {
     const token = randomUUID()
-    const expiraAt = new Date(Date.now() + 1000 * 60 * 60 * 48)
+    const expiraAt = new Date(Date.now() + INVITATION_TTL_MS)
 
     const result = await prisma.invitaciones_registro.updateMany({
       where: { correo, usado: false },

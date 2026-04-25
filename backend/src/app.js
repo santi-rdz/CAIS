@@ -1,3 +1,4 @@
+import { SESSION_MAX_AGE_MS } from '#lib/constants.js'
 import { userRouter } from '#routes/users.js'
 import { authRouter } from '#routes/auth.js'
 import { invitationRouter } from '#routes/invitations.js'
@@ -25,10 +26,11 @@ app.use(
     secret: process.env.SESSION_SECRET || 'dev-secret-change-in-prod',
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 8 * 60 * 60 * 1000,
+      maxAge: SESSION_MAX_AGE_MS,
       sameSite: 'lax',
     },
     store: new PrismaSessionStore(),

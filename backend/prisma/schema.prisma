@@ -911,6 +911,7 @@ model usuarios {
   invitaciones_registro invitaciones_registro[]
   notas_evolucion       notas_evolucion[]
   pacientes             pacientes[]
+  password_reset_tokens password_reset_tokens[]
   registro_auditoria    registro_auditoria[]
   areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
   estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
@@ -919,4 +920,16 @@ model usuarios {
   @@index([area_id], map: "fk_usuario_area")
   @@index([estado_id], map: "fk_usuario_estado")
   @@index([rol_id], map: "fk_usuario_rol")
+}
+
+model password_reset_tokens {
+  id         Int       @id @default(autoincrement())
+  usuario_id Bytes     @db.Binary(16)
+  token      Bytes     @unique(map: "token") @db.Binary(16)
+  usado      Boolean?  @default(false)
+  expira_at  DateTime  @db.DateTime(0)
+  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  usuarios   usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_usuario")
+
+  @@index([usuario_id], map: "idx_password_reset_usuario")
 }

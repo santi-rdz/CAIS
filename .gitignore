@@ -33,6 +33,9 @@ docs/plans/
 
 .agents/*
 
+# Bruno API collections
+bruno/
+
 # Workspace lockfiles (only root package-lock.json is used)
 frontend/package-lock.json
 backend/package-lock.json
