@@ -42,12 +42,12 @@ export class AuthController {
       }
 
       if (!user.password_hash) {
-        return res.status(401).json({ error: 'Contraseña invalida' })
+        return res.status(401).json({ error: 'Contraseña inválida' })
       }
 
       const isMatch = await bcrypt.compare(password, user.password_hash)
       if (!isMatch) {
-        return res.status(401).json({ error: 'Contraseña invalida' })
+        return res.status(401).json({ error: 'Contraseña inválida' })
       }
 
       if (user.estados?.codigo !== 'ACTIVO') {
