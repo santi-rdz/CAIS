@@ -157,6 +157,104 @@ describe('POST /auth/password/reset', () => {
   })
 })
 
+// ─── Flujo completo: forgot → reset ─────────────────────────────────────────
+
+describe('Flujo completo: forgot password → reset password', () => {
+  let prisma, uuidToBuffer, bufferToUUID, bcrypt, userId, correo
+
+  beforeAll(async () => {
+    ;({ prisma } = await import('#config/prisma.js'))
+    ;({ uuidToBuffer, bufferToUUID } = await import('#lib/uuid.js'))
+    bcrypt = await import('bcryptjs')
+    const { randomUUID } = await import('node:crypto')
+
+    correo = `reset.flow.${Date.now()}@test.com`
+    userId = randomUUID()
+
+    const [activeStatus, roleRow] = await Promise.all([
+      prisma.estados.findFirst({ where: { codigo: 'ACTIVO' } }),
+      prisma.roles.findFirst({ where: { codigo: 'PASANTE' } }),
+    ])
+
+    await prisma.usuarios.create({
+      data: {
+        id: uuidToBuffer(userId),
+        nombre: 'Test Reset',
+        correo,
+        password_hash: await bcrypt.hash('OldPass1!', 10),
+        estado_id: activeStatus.id,
+        rol_id: roleRow.id,
+      },
+    })
+  })
+
+  afterAll(async () => {
+    await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
+  })
+
+  test('forgot: crea token en DB para usuario existente', async () => {
+    const res = await api.post('/auth/password/forgot').send({ correo })
+    assert.equal(res.status, 200)
+
+    const userRow = await prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+    })
+    const token = await prisma.password_reset_tokens.findFirst({
+      where: { usuario_id: userRow.id },
+    })
+    assert(token !== null, 'Debe existir un token en DB')
+    assert.equal(token.usado, false)
+    assert(token.expira_at > new Date(), 'El token no debe estar expirado')
+  })
+
+  test('reset: actualiza password_hash e invalida el token', async () => {
+    const userRow = await prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+      select: { id: true, password_hash: true },
+    })
+    const tokenRow = await prisma.password_reset_tokens.findFirst({
+      where: { usuario_id: userRow.id },
+    })
+    const token = bufferToUUID(tokenRow.token)
+
+    const res = await api.post('/auth/password/reset').send({
+      token,
+      password: 'NewPass1!',
+      confirmPassword: 'NewPass1!',
+    })
+    assert.equal(res.status, 200)
+
+    const updated = await prisma.usuarios.findUnique({
+      where: { id: userRow.id },
+      select: { password_hash: true },
+    })
+    const passwordChanged = await bcrypt.compare('NewPass1!', updated.password_hash)
+    assert(passwordChanged, 'La contraseña debe haberse actualizado')
+
+    const usedToken = await prisma.password_reset_tokens.findFirst({
+      where: { usuario_id: userRow.id },
+    })
+    assert.equal(usedToken.usado, true, 'El token debe estar marcado como usado')
+  })
+
+  test('reset: token ya usado devuelve 400', async () => {
+    const userRow = await prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+    })
+    const tokenRow = await prisma.password_reset_tokens.findFirst({
+      where: { usuario_id: userRow.id },
+    })
+    const token = bufferToUUID(tokenRow.token)
+
+    const res = await api.post('/auth/password/reset').send({
+      token,
+      password: 'AnotherPass1!',
+      confirmPassword: 'AnotherPass1!',
+    })
+    assert.equal(res.status, 400)
+  })
+})
+
 // ─── PATCH /auth/password ────────────────────────────────────────────────────
 
 describe('PATCH /auth/password', () => {
