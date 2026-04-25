@@ -47,16 +47,26 @@ export class AuthModel {
   }
 
   static async consumeResetToken(tokenBuffer, userId, newPasswordHash) {
-    return prisma.$transaction([
-      prisma.usuarios.update({
+    return prisma.$transaction(async (tx) => {
+      const { count } = await tx.password_reset_tokens.updateMany({
+        where: {
+          token: tokenBuffer,
+          usuario_id: userId,
+          usado: false,
+          expira_at: { gte: new Date() },
+        },
+        data: { usado: true },
+      })
+
+      if (count !== 1) {
+        throw new Error('Token inválido, expirado o ya utilizado')
+      }
+
+      await tx.usuarios.update({
         where: { id: userId },
         data: { password_hash: newPasswordHash },
-      }),
-      prisma.password_reset_tokens.update({
-        where: { token: tokenBuffer },
-        data: { usado: true },
-      }),
-    ])
+      })
+    })
   }
 
   static async deleteResetToken(token) {

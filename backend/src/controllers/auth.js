@@ -237,11 +237,16 @@ export class AuthController {
       }
 
       const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
-      await AuthModel.consumeResetToken(
-        resetToken.token,
-        resetToken.usuario_id,
-        passwordHash
-      )
+
+      try {
+        await AuthModel.consumeResetToken(
+          resetToken.token,
+          resetToken.usuario_id,
+          passwordHash
+        )
+      } catch {
+        return res.status(400).json({ error: 'Token inválido, expirado o ya utilizado' })
+      }
 
       if (req.session?.userId) {
         req.session.destroy((err) => {
