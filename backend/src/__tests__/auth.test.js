@@ -228,13 +228,20 @@ describe('Flujo completo: forgot password → reset password', () => {
       where: { id: userRow.id },
       select: { password_hash: true },
     })
-    const passwordChanged = await bcrypt.compare('NewPass1!', updated.password_hash)
+    const passwordChanged = await bcrypt.compare(
+      'NewPass1!',
+      updated.password_hash
+    )
     assert(passwordChanged, 'La contraseña debe haberse actualizado')
 
     const usedToken = await prisma.password_reset_tokens.findFirst({
       where: { usuario_id: userRow.id },
     })
-    assert.equal(usedToken.usado, true, 'El token debe estar marcado como usado')
+    assert.equal(
+      usedToken.usado,
+      true,
+      'El token debe estar marcado como usado'
+    )
   })
 
   test('reset: token ya usado devuelve 400', async () => {

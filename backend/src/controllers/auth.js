@@ -148,7 +148,10 @@ export class AuthController {
 
       req.session.regenerate((err) => {
         if (err) {
-          console.error('Error regenerando sesión tras cambio de contraseña:', err)
+          console.error(
+            'Error regenerando sesión tras cambio de contraseña:',
+            err
+          )
           return res.status(500).json({ error: 'Error del servidor' })
         }
         req.session.userId = userId
@@ -245,7 +248,9 @@ export class AuthController {
           passwordHash
         )
       } catch {
-        return res.status(400).json({ error: 'Token inválido, expirado o ya utilizado' })
+        return res
+          .status(400)
+          .json({ error: 'Token inválido, expirado o ya utilizado' })
       }
 
       if (req.session?.userId) {
