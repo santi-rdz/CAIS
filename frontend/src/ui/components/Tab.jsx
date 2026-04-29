@@ -27,15 +27,17 @@ export default function Tab({
   const [tabMeta, setTabMeta] = useState({})
 
   // When syncUrl, derive activeTab directly from URL — no local state needed
-  const activeTab = syncUrl
-    ? (searchParams.get('tab') ?? defaultTab)
-    : localTab
+  const activeTab = syncUrl ? (searchParams.get('tab') ?? defaultTab) : localTab
 
   const handleSetActiveTab = useCallback(
     (tab) => {
       if (syncUrl) {
         setSearchParams(
-          (prev) => { const next = new URLSearchParams(prev); next.set('tab', tab); return next },
+          (prev) => {
+            const next = new URLSearchParams(prev)
+            next.set('tab', tab)
+            return next
+          },
           { replace: true }
         )
       } else {
