@@ -10,6 +10,7 @@ import { parsePagination } from '#lib/paginate.js'
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
 
 function isValidUUID(val) {
   return typeof val === 'string' && UUID_REGEX.test(val)
@@ -66,6 +67,16 @@ export class BiochemicalEvalController {
           .map((f) => f.trim())
           .filter(Boolean)
       : null
+
+    if (parsedFields) {
+      const invalid = parsedFields.filter((f) => !ALLOWED_FIELDS.has(f))
+      if (invalid.length) {
+        return res.status(400).json({
+          error: 'BadRequest',
+          message: `Campos no permitidos: ${invalid.join(', ')}`,
+        })
+      }
+    }
 
     const result = await BiochemicalEvalModel.getAll({
       paciente_id,
