@@ -22,7 +22,7 @@ export default function Stepper({
               className={`flex flex-1 shrink-0 items-center ${isLast ? 'grow-0' : ''}`}
               style={{ gap }}
             >
-              <div className="relative">
+              <div className="group relative">
                 <button
                   type="button"
                   onClick={() => setCurrStep(i)}
@@ -31,11 +31,13 @@ export default function Stepper({
                   {isCompleted ? <HiCheck strokeWidth={1} /> : i + 1}
                 </button>
                 <p
-                  title={step}
                   className={`text-6 absolute left-1/2 mt-2 max-w-[10ch] -translate-x-1/2 truncate text-center text-nowrap text-gray-500 ${isActive || isCompleted ? 'text-green-800' : ''}`}
                 >
                   {step}
                 </p>
+                <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-zinc-800 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 z-10">
+                  {step}
+                </span>
               </div>
               {!isLast && (
                 <div
