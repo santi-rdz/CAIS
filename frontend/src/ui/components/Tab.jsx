@@ -35,7 +35,7 @@ export default function Tab({
     (tab) => {
       if (syncUrl) {
         setSearchParams(
-          (prev) => { prev.set('tab', tab); return prev },
+          (prev) => { const next = new URLSearchParams(prev); next.set('tab', tab); return next },
           { replace: true }
         )
       } else {
