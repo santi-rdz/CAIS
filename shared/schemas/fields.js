@@ -48,15 +48,30 @@ export const PASSWORD_REQUIREMENTS = [
   { label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },
   { label: 'Una letra mayúscula', test: (v) => /[A-Z]/.test(v) },
   { label: 'Una letra minúscula', test: (v) => /[a-z]/.test(v) },
-  { label: 'Un carácter especial (!@#$%^&*)', test: (v) => /[!@#$%^&*]/.test(v) },
+  {
+    label: 'Un carácter especial (!@#$%^&*)',
+    test: (v) => /[!@#$%^&*]/.test(v),
+  },
 ]
 
 export const passwordSchema = z
   .string()
-  .refine((v) => PASSWORD_REQUIREMENTS[0].test(v), PASSWORD_REQUIREMENTS[0].label)
-  .refine((v) => PASSWORD_REQUIREMENTS[1].test(v), PASSWORD_REQUIREMENTS[1].label)
-  .refine((v) => PASSWORD_REQUIREMENTS[2].test(v), PASSWORD_REQUIREMENTS[2].label)
-  .refine((v) => PASSWORD_REQUIREMENTS[3].test(v), PASSWORD_REQUIREMENTS[3].label)
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[0].test(v),
+    PASSWORD_REQUIREMENTS[0].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[1].test(v),
+    PASSWORD_REQUIREMENTS[1].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[2].test(v),
+    PASSWORD_REQUIREMENTS[2].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[3].test(v),
+    PASSWORD_REQUIREMENTS[3].label
+  )
 
 export const rolesSchema = z.enum(['pasante', 'coordinador'], {
   error: 'El rol debe ser pasante o coordinador',

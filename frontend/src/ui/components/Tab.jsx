@@ -38,7 +38,13 @@ export default function Tab({
     (tab) => {
       setActiveTab(tab)
       if (syncUrl) {
-        setSearchParams((prev) => { prev.set('tab', tab); return prev }, { replace: true })
+        setSearchParams(
+          (prev) => {
+            prev.set('tab', tab)
+            return prev
+          },
+          { replace: true }
+        )
       }
     },
     [syncUrl, setSearchParams]

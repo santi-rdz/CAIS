@@ -10,7 +10,11 @@ import DropdownPanel from '@components/DropdownPanel'
 
 const NAV_ITEMS = [
   { icon: HiOutlineUser, label: 'Mi Perfil', path: '/perfil' },
-  { icon: HiOutlineCog6Tooth, label: 'Configuración', path: '/perfil?tab=configuracion' },
+  {
+    icon: HiOutlineCog6Tooth,
+    label: 'Configuración',
+    path: '/perfil?tab=configuracion',
+  },
 ]
 
 function DropdownNavItem({ icon: Icon, label, onClick }) {
@@ -67,8 +71,12 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           </p>
           <p className="truncate text-xs text-zinc-400">{correo}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <Tag rounded="full" size="xs" type="outline">{area}</Tag>
-            <Tag rounded="full" size="xs" type="activo">{rol}</Tag>
+            <Tag rounded="full" size="xs" type="outline">
+              {area}
+            </Tag>
+            <Tag rounded="full" size="xs" type="activo">
+              {rol}
+            </Tag>
           </div>
         </div>
       </div>
