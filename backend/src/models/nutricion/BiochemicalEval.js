@@ -5,8 +5,6 @@ import {
   toUUID,
   nestedCreate,
   nestedUpsert,
-  planesEstudioCreate,
-  planesEstudioUpsert,
   buildNestedRelations,
 } from '#lib/prismaHelpers.js'
 
@@ -102,7 +100,7 @@ export class BiochemicalEvalModel {
       },
     })
 
-    return this.getById(evaluationIdId, tx)
+    return this.getById(evaluationId, tx)
   }
 
   static async delete(id) {

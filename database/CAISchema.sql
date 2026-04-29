@@ -483,6 +483,7 @@ CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
+    creado_at DATE DEFAULT (CURRENT_DATE),
     /* id_perfil_anemia INT, */
     /* id_perfil_endocrino INT, */
     /* id_perfil_renal_electrolitos INT, */
@@ -504,7 +505,7 @@ CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
 
 CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     eritrocitos FLOAT,
     hemoglobina FLOAT,
     hematocrito FLOAT,
@@ -519,7 +520,7 @@ CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
 
 CREATE TABLE IF NOT EXISTS perfil_endocrino(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     glucosa FLOAT,
     hbAlc FLOAT,
     insulina FLOAT,
@@ -530,7 +531,7 @@ CREATE TABLE IF NOT EXISTS perfil_endocrino(
 
 CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     osmolaridad FLOAT,
     urea FLOAT,
     bun FLOAT,
@@ -553,7 +554,7 @@ CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
 
 CREATE TABLE IF NOT EXISTS perfil_lipidos(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     colesterol FLOAT,
     c_hdl FLOAT,
     c_ldl FLOAT,
@@ -563,7 +564,7 @@ CREATE TABLE IF NOT EXISTS perfil_lipidos(
 
 CREATE TABLE IF NOT EXISTS balance_acido_base(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     ph_serico FLOAT,
     saturacion_o2 FLOAT,
     bicarbonato FLOAT,
@@ -573,7 +574,7 @@ CREATE TABLE IF NOT EXISTS balance_acido_base(
 
 CREATE TABLE IF NOT EXISTS perfil_orina(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     volumen_urinario FLOAT,
     densidad FLOAT,
     alteraciones_urinarias VARCHAR(20),
@@ -586,7 +587,7 @@ CREATE TABLE IF NOT EXISTS perfil_orina(
 
 CREATE TABLE IF NOT EXISTS perfil_inflamatorio(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     pcr FLOAT,
     plaquetas INT,
     CONSTRAINT fk_eval_bioq_inflamatorio FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
@@ -594,7 +595,7 @@ CREATE TABLE IF NOT EXISTS perfil_inflamatorio(
 
 CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    id_eval_bioq BINARY(16) NOT NULL,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
     leucocitos FLOAT,
     linfocitos FLOAT,
     ctl FLOAT,
