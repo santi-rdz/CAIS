@@ -76,7 +76,7 @@ export default function ProfileDropdown({ user, onClose, logout }) {
       <Divider />
 
       <div className="p-1.5">
-        {NAV_ITEMS.map(({ icon, label, path, state }) => (
+        {NAV_ITEMS.map(({ icon, label, path }) => (
           <DropdownNavItem
             key={label}
             icon={icon}
