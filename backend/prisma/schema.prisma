@@ -540,12 +540,14 @@ model usuarios {
 
 model balance_acido_base {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   ph_serico           Float?              @db.Float
   saturacion_o2       Float?              @db.Float
   bicarbonato         Float?              @db.Float
   pco2_total          Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_balance")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_balance")
 }
 
 model bitacora_emergencias {
@@ -634,26 +636,25 @@ model eval_antro_ad_nutricion {
 }
 
 model eval_bioq_nutricion {
-  id                        Bytes                      @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  paciente_id               Bytes                      @db.Binary(16)
-  fecha                     DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
-  creado_at                 DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
-  balance_acido_base        balance_acido_base?
-  pacientes                 pacientes                  @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
-  eval_estado_nutricion     eval_estado_nutricion?
-  perfil_anemia_nutricion   perfil_anemia_nutricion?
-  perfil_endocrino          perfil_endocrino?
-  perfil_inflamatorio       perfil_inflamatorio?
-  perfil_lipidos            perfil_lipidos?
-  perfil_orina              perfil_orina?
-  perfil_renal_electrolitos perfil_renal_electrolitos?
+  id                        Bytes                       @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  paciente_id               Bytes                       @db.Binary(16)
+  fecha                     DateTime?                   @default(dbgenerated("(curdate())")) @db.Date
+  balance_acido_base        balance_acido_base[]
+  pacientes                 pacientes                   @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
+  eval_estado_nutricion     eval_estado_nutricion[]
+  perfil_anemia_nutricion   perfil_anemia_nutricion[]
+  perfil_endocrino          perfil_endocrino[]
+  perfil_inflamatorio       perfil_inflamatorio[]
+  perfil_lipidos            perfil_lipidos[]
+  perfil_orina              perfil_orina[]
+  perfil_renal_electrolitos perfil_renal_electrolitos[]
 
   @@index([paciente_id], map: "fk_paciente_eval_bioq")
 }
 
 model eval_estado_nutricion {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   leucocitos          Float?              @db.Float
   linfocitos          Float?              @db.Float
   ctl                 Float?              @db.Float
@@ -661,6 +662,8 @@ model eval_estado_nutricion {
   pre_albumina        Float?              @db.Float
   transferrina        Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_estado_nutr")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_estado_nutr")
 }
 
 model eval_nutr_fh {
@@ -753,7 +756,7 @@ model patron_alimentacion_nutricion {
 
 model perfil_anemia_nutricion {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   eritrocitos         Float?              @db.Float
   hemoglobina         Float?              @db.Float
   hematocrito         Float?              @db.Float
@@ -764,40 +767,48 @@ model perfil_anemia_nutricion {
   cap_fij_tot_he      Float?              @db.Float
   saturacion_hierro   Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_anemia")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_anemia")
 }
 
 model perfil_endocrino {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   glucosa             Float?              @db.Float
   hbAlc               Float?              @db.Float
   insulina            Float?              @db.Float
   tiroxina_libre      Float?              @db.Float
   triyodotironina     Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_endocrino")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_endocrino")
 }
 
 model perfil_inflamatorio {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   pcr                 Float?              @db.Float
   plaquetas           Int?
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_inflamatorio")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_inflamatorio")
 }
 
 model perfil_lipidos {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   colesterol          Float?              @db.Float
   c_hdl               Float?              @db.Float
   c_ldl               Float?              @db.Float
   trigliceridos       Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_lipidos")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_lipidos")
 }
 
 model perfil_orina {
   id                     Int                 @id @default(autoincrement())
-  id_eval_bioq           Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq           Bytes               @db.Binary(16)
   volumen_urinario       Float?              @db.Float
   densidad               Float?              @db.Float
   alteraciones_urinarias String?             @db.VarChar(20)
@@ -806,11 +817,13 @@ model perfil_orina {
   cetonas                String?             @db.VarChar(50)
   sodio                  Int?                @db.SmallInt
   eval_bioq_nutricion    eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_orina")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_orina")
 }
 
 model perfil_renal_electrolitos {
   id                  Int                 @id @default(autoincrement())
-  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  id_eval_bioq        Bytes               @db.Binary(16)
   osmolaridad         Float?              @db.Float
   urea                Float?              @db.Float
   bun                 Float?              @db.Float
@@ -829,6 +842,8 @@ model perfil_renal_electrolitos {
   tfge                Float?              @db.Float
   albuminuria         Float?              @db.Float
   eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_renal")
+
+  @@index([id_eval_bioq], map: "fk_eval_bioq_renal")
 }
 
 model rec_24h_comidas {

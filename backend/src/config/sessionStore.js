@@ -1,13 +1,5 @@
 import { Store } from 'express-session'
-
-let _prisma = null
-async function getPrisma() {
-  if (!_prisma) {
-    const mod = await import('./prisma.js')
-    _prisma = mod.prisma
-  }
-  return _prisma
-}
+import { prisma } from './prisma.js'
 
 function getExpire(session) {
   return session.cookie?.expires instanceof Date
@@ -18,7 +10,6 @@ function getExpire(session) {
 export class PrismaSessionStore extends Store {
   async get(sid, cb) {
     try {
-      const prisma = await getPrisma()
       const row = await prisma.sessions.findUnique({ where: { sid } })
       if (!row || row.expire < new Date()) return cb(null, null)
       cb(null, JSON.parse(row.data))
@@ -29,7 +20,6 @@ export class PrismaSessionStore extends Store {
 
   async set(sid, session, cb) {
     try {
-      const prisma = await getPrisma()
       const expire = getExpire(session)
       await prisma.sessions.upsert({
         where: { sid },
@@ -44,7 +34,6 @@ export class PrismaSessionStore extends Store {
 
   async destroy(sid, cb) {
     try {
-      const prisma = await getPrisma()
       await prisma.sessions.delete({ where: { sid } })
     } catch {
       // already gone
@@ -54,7 +43,6 @@ export class PrismaSessionStore extends Store {
 
   async touch(sid, session, cb) {
     try {
-      const prisma = await getPrisma()
       await prisma.sessions.update({
         where: { sid },
         data: { expire: getExpire(session) },
