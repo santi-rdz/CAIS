@@ -38,13 +38,29 @@ const NESTED_RELATIONS = [
   'eval_estado_nutricion',
 ]
 
+function formatNestedArray(arr) {
+  if (!arr?.length) return []
+  return arr.map(({ id_eval_bioq, ...rest }) => ({
+    ...rest,
+    id_eval_bioq: toUUID(id_eval_bioq),
+  }))
+}
+
 function formatBiochemicalEval(n) {
   if (!n) return null
-  const { ...rest } = n
   return {
-    ...rest,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
+    fecha: n.fecha,
+    creado_at: n.creado_at,
+    perfil_anemia_nutricion: formatNestedArray(n.perfil_anemia_nutricion),
+    perfil_endocrino: formatNestedArray(n.perfil_endocrino),
+    perfil_renal_electrolitos: formatNestedArray(n.perfil_renal_electrolitos),
+    perfil_lipidos: formatNestedArray(n.perfil_lipidos),
+    balance_acido_base: formatNestedArray(n.balance_acido_base),
+    perfil_orina: formatNestedArray(n.perfil_orina),
+    perfil_inflamatorio: formatNestedArray(n.perfil_inflamatorio),
+    eval_estado_nutricion: formatNestedArray(n.eval_estado_nutricion),
   }
 }
 
@@ -91,18 +107,25 @@ export class BiochemicalEvalModel {
 
   static async create(data, userId, tx = prisma) {
     const evaluationId = randomUUID()
+    const evalBuffer = uuidToBuffer(evaluationId)
 
     await tx.eval_bioq_nutricion.create({
       data: {
-        id: uuidToBuffer(evaluationId),
+        id: evalBuffer,
         paciente_id: uuidToBuffer(data.paciente_id),
-        creado_at: data.creado_at,
-        fecha: data.creado_at,
-        ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
+        fecha: data.fecha ?? null,
       },
     })
 
-    return this.getById(evaluationIdId, tx)
+    await Promise.all(
+      NESTED_RELATIONS.filter((key) => data[key]).map((key) =>
+        tx[key].create({
+          data: { ...data[key], id_eval_bioq: evalBuffer },
+        })
+      )
+    )
+
+    return this.getById(evaluationId, tx)
   }
 
   static async delete(id) {
@@ -120,15 +143,30 @@ export class BiochemicalEvalModel {
 
   static async update(id, data, userId, tx = prisma) {
     try {
-      await tx.eval_bioq_nutricion.update({
-        where: { id: uuidToBuffer(id) },
-        data: {
-          ...(data.creado_at !== undefined && {
-            creado_at: data.creado_at,
-          }),
-          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
-        },
+      const evalBuffer = uuidToBuffer(id)
+
+      const exists = await tx.eval_bioq_nutricion.findUnique({
+        where: { id: evalBuffer },
       })
+      if (!exists) return null
+
+      await Promise.all([
+        tx.eval_bioq_nutricion.update({
+          where: { id: evalBuffer },
+          data: {
+            ...(data.fecha !== undefined && { fecha: data.fecha }),
+          },
+        }),
+        ...NESTED_RELATIONS.map((key) => {
+          if (!data[key]) return null
+          return tx[key].upsert({
+            where: { id_eval_bioq: evalBuffer },
+            create: { ...data[key], id_eval_bioq: evalBuffer },
+            update: { ...data[key] },
+          })
+        }).filter(Boolean),
+      ])
+
       return this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
