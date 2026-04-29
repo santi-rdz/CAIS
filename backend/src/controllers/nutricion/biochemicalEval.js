@@ -53,16 +53,15 @@ export class BiochemicalEvalController {
     const { page, limit } = parsePagination(req.query)
 
     if (paciente_id && !isValidUUID(paciente_id)) {
-      return res
-        .status(400)
-        .json({
-          error: 'BadRequest',
-          message: 'paciente_id debe ser un UUID válido',
-        })
+      return res.status(400).json({
+        error: 'BadRequest',
+        message: 'paciente_id debe ser un UUID válido',
+      })
     }
 
-    const parsedFields = fields
-      ? fields
+    const rawFields = Array.isArray(fields) ? fields.join(',') : fields
+    const parsedFields = rawFields
+      ? rawFields
           .split(',')
           .map((f) => f.trim())
           .filter(Boolean)
