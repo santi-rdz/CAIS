@@ -116,6 +116,10 @@ export const changePasswordSchema = z
     newPassword: passwordSchema,
     confirmNewPassword: z.string(),
   })
+  .refine((d) => d.newPassword !== d.currentPassword, {
+    message: 'La nueva contraseña no puede ser igual a la actual',
+    path: ['newPassword'],
+  })
   .refine((d) => d.newPassword === d.confirmNewPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmNewPassword'],

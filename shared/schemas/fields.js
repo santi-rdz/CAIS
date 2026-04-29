@@ -44,13 +44,34 @@ export const personaBaseFields = {
 // usuarios.correo y pacientes.correo son VarChar(255) en DB
 export const correoSchema = z.email('Correo electrónico inválido').max(255)
 
+export const PASSWORD_REQUIREMENTS = [
+  { label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },
+  { label: 'Una letra mayúscula', test: (v) => /[A-Z]/.test(v) },
+  { label: 'Una letra minúscula', test: (v) => /[a-z]/.test(v) },
+  {
+    label: 'Un carácter especial (!@#$%^&*)',
+    test: (v) => /[!@#$%^&*]/.test(v),
+  },
+]
+
 export const passwordSchema = z
   .string()
-  .min(8, 'La contraseña debe tener al menos 8 caracteres')
-  .regex(/[A-Z]/, 'Debe contener al menos una letra mayúscula')
-  .regex(/[a-z]/, 'Debe contener al menos una letra minúscula')
-  .regex(/[0-9]/, 'Debe contener al menos un número')
-  .regex(/[!@#$%^&*]/, 'Debe contener al menos un carácter especial (!@#$%^&*)')
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[0].test(v),
+    PASSWORD_REQUIREMENTS[0].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[1].test(v),
+    PASSWORD_REQUIREMENTS[1].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[2].test(v),
+    PASSWORD_REQUIREMENTS[2].label
+  )
+  .refine(
+    (v) => PASSWORD_REQUIREMENTS[3].test(v),
+    PASSWORD_REQUIREMENTS[3].label
+  )
 
 export const rolesSchema = z.enum(['pasante', 'coordinador'], {
   error: 'El rol debe ser pasante o coordinador',

@@ -33,7 +33,7 @@ export default function PatientDetail() {
             .join(' ')}
           isDeleting={isDeleting}
         />
-        <Tab defaultTab="historia">
+        <Tab defaultTab="historia" syncUrl>
           <PatientHeader patient={patient} />
           <div className="mt-4 space-y-4">
             <Tab.Panel value="historia" scrollable={false}>

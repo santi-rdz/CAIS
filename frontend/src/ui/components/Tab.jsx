@@ -5,6 +5,7 @@ import {
   useLayoutEffect,
   useState,
 } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Heading from './Heading'
 
 const TabContext = createContext()
@@ -12,15 +13,39 @@ const TabContext = createContext()
 /**
  * Contenedor principal. Maneja el tab activo y metadatos de cada trigger.
  * @param {string} defaultTab - value del tab activo por defecto
+ * @param {boolean} [syncUrl] - sincroniza el tab activo con ?tab= en la URL
  * @param {'primary'|'secondary'} variant - estilo de los botones
  */
 export default function Tab({
   children,
   defaultTab = '',
+  syncUrl = false,
   variant = 'primary',
 }) {
-  const [activeTab, setActiveTab] = useState(defaultTab)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [localTab, setLocalTab] = useState(defaultTab)
   const [tabMeta, setTabMeta] = useState({})
+
+  // When syncUrl, derive activeTab directly from URL — no local state needed
+  const activeTab = syncUrl ? (searchParams.get('tab') ?? defaultTab) : localTab
+
+  const handleSetActiveTab = useCallback(
+    (tab) => {
+      if (syncUrl) {
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev)
+            next.set('tab', tab)
+            return next
+          },
+          { replace: true }
+        )
+      } else {
+        setLocalTab(tab)
+      }
+    },
+    [syncUrl, setSearchParams]
+  )
 
   const registerTrigger = useCallback((value, meta) => {
     setTabMeta((prev) => {
@@ -32,7 +57,13 @@ export default function Tab({
 
   return (
     <TabContext.Provider
-      value={{ activeTab, setActiveTab, variant, tabMeta, registerTrigger }}
+      value={{
+        activeTab,
+        setActiveTab: handleSetActiveTab,
+        variant,
+        tabMeta,
+        registerTrigger,
+      }}
     >
       {children}
     </TabContext.Provider>

@@ -70,6 +70,8 @@ export default function InternForm({
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
+  title,
+  hint,
 }) {
   const close = onClose ?? onCloseModal
   const isEdit = Boolean(user)
@@ -285,7 +287,8 @@ export default function InternForm({
         <>
           {isEdit && (
             <Modal.Heading>
-              <Modal.Title>Editar pasante</Modal.Title>
+              <Modal.Title>{title ?? 'Editar pasante'}</Modal.Title>
+              {typeof hint === 'function' ? hint(close) : hint}
             </Modal.Heading>
           )}
           <ModalBody py={6}>{content}</ModalBody>
