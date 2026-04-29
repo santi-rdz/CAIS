@@ -27,7 +27,7 @@ export default function UserDetail() {
           userName={[user.nombre, user.apellidos].filter(Boolean).join(' ')}
           canEdit={canEdit}
         />
-        <Tab defaultTab="info">
+        <Tab defaultTab="info" syncUrl>
           <UserHeader user={user} />
           <div className="mt-4 space-y-4">
             <Tab.Panel value="info" scrollable={false}>
