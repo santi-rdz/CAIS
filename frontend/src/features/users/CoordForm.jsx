@@ -60,6 +60,8 @@ export default function CoordForm({
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
+  title,
+  hint,
 }) {
   const close = onClose ?? onCloseModal
   const isEdit = Boolean(user)
@@ -262,7 +264,8 @@ export default function CoordForm({
         <>
           {isEdit && (
             <Modal.Heading>
-              <Modal.Title>Editar coordinador</Modal.Title>
+              <Modal.Title>{title ?? 'Editar coordinador'}</Modal.Title>
+              {typeof hint === 'function' ? hint(close) : hint}
             </Modal.Heading>
           )}
           <ModalBody>{content}</ModalBody>
