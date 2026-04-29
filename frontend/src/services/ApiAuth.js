@@ -28,3 +28,19 @@ export async function logout() {
     credentials: 'include',
   })
 }
+
+export async function changePassword(data) {
+  const res = await fetch(`${BASE_URL}/auth/password`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Error al cambiar la contraseña')
+  }
+
+  return await res.json()
+}
