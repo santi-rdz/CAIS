@@ -99,77 +99,6 @@ model areas {
   usuarios usuarios[]
 }
 
-model balance_acido_base {
-  id                  Int                   @id @default(autoincrement())
-  ph_serico           Float?                @db.Float
-  saturacion_o2       Float?                @db.Float
-  bicarbonato         Float?                @db.Float
-  pco2_total          Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model bitacora_emergencias {
-  id                Bytes     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  usuario_id        Bytes     @db.Binary(16)
-  fecha_hora        DateTime? @default(now()) @db.DateTime(0)
-  ubicacion         String    @db.VarChar(255)
-  nombre            String?   @db.VarChar(255)
-  matricula         String?   @db.VarChar(20)
-  telefono          String?   @db.VarChar(30)
-  diagnostico       String?   @db.VarChar(255)
-  accion_realizada  String?   @db.VarChar(255)
-  tratamiento_admin String?   @db.VarChar(255)
-  recurrente        Boolean?  @default(false)
-  usuarios          usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bitacora_usuario")
-
-  @@index([usuario_id], map: "fk_bitacora_usuario")
-}
-
-model cal_get_nutr {
-  id               Int       @id @default(autoincrement())
-  paciente_id      Bytes     @db.Binary(16)
-  fecha_eval       DateTime? @default(dbgenerated("(curdate())")) @db.Date
-  verdura          Int?      @db.TinyInt
-  fruta            Int?      @db.TinyInt
-  cereal_sin_grasa Int?      @db.TinyInt
-  cereal_con_grasa Int?      @db.TinyInt
-  leguminosas      Int?      @db.TinyInt
-  aoa_a            Int?      @db.TinyInt
-  aoa_b            Int?      @db.TinyInt
-  aoa_c            Int?      @db.TinyInt
-  aoa_d            Int?      @db.TinyInt
-  leche_a          Int?      @db.TinyInt
-  leche_b          Int?      @db.TinyInt
-  leche_c          Int?      @db.TinyInt
-  grasa_a          Int?      @db.TinyInt
-  grasa_b          Int?      @db.TinyInt
-  azucares         Int?      @db.TinyInt
-  rice_dream       Int?      @db.TinyInt
-  silk             Int?      @db.TinyInt
-  soyactive        Int?      @db.TinyInt
-  almond_breeze    Int?      @db.TinyInt
-  aube_baja        Int?      @db.TinyInt
-  nan_one          Int?      @db.TinyInt
-  aube_alta        Int?      @db.TinyInt
-  pacientes        pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_cal_get")
-
-  @@index([paciente_id], map: "fk_paciente_cal_get")
-}
-
-model diagnostico_nutricional_adulto {
-  id                           Int                          @id @default(autoincrement())
-  reporte_een_id               Int
-  pes                          String?                      @db.VarChar(255)
-  intervencion                 String?                      @db.VarChar(50)
-  objetivos                    String?                      @db.VarChar(255)
-  indicadores                  String?                      @db.VarChar(255)
-  criterio                     String?                      @db.VarChar(255)
-  progreso                     String?                      @db.VarChar(20)
-  reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
-
-  @@index([reporte_een_id], map: "fk_reporte_diagnostico")
-}
-
 model entidades {
   id                 Int                  @id @default(autoincrement())
   nombre             String               @unique(map: "nombre") @db.VarChar(50)
@@ -248,29 +177,6 @@ model eval_antro_ad_kid_nutricion {
   eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
 }
 
-model eval_antro_ad_nutricion {
-  id                             Int                             @id @default(autoincrement())
-  paciente_id                    Bytes                           @db.Binary(16)
-  eval_antro_ad_kid_id           Int?
-  eval_antro_ad_adulto_id        Int?
-  fecha                          DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
-  peso_actual                    Float?                          @db.Float
-  estatura                       Float?                          @db.Float
-  imc                            Float?                          @db.Float
-  pantorrilla                    Float?                          @db.Float
-  cintura                        Float?                          @db.Float
-  pb                             Float?                          @db.Float
-  pct                            Float?                          @db.Float
-  pcse                           Float?                          @db.Float
-  eval_antro_ad_adulto_nutricion eval_antro_ad_adulto_nutricion? @relation(fields: [eval_antro_ad_adulto_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_adulto_eval_antro")
-  eval_antro_ad_kid_nutricion    eval_antro_ad_kid_nutricion?    @relation(fields: [eval_antro_ad_kid_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_kid_eval_antro")
-  pacientes                      pacientes                       @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_antro")
-
-  @@index([eval_antro_ad_adulto_id], map: "fk_adulto_eval_antro")
-  @@index([eval_antro_ad_kid_id], map: "fk_kid_eval_antro")
-  @@index([paciente_id], map: "fk_paciente_eval_antro")
-}
-
 model eval_apetito_nutricion {
   id                        Int            @id @default(autoincrement())
   apetito                   String?        @db.VarChar(20)
@@ -280,39 +186,6 @@ model eval_apetito_nutricion {
   puntaje_total             Int?           @db.TinyInt
   clasif_alteracion_apetito String?        @db.VarChar(20)
   eval_nutr_fh              eval_nutr_fh[]
-}
-
-model eval_bioq_nutricion {
-  id                           Int                        @id @default(autoincrement())
-  paciente_id                  Bytes                      @db.Binary(16)
-  fecha                        DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
-  id_perfil_anemia             Int?
-  id_perfil_endocrino          Int?
-  id_perfil_renal_electrolitos Int?
-  id_perfil_lipidos            Int?
-  id_balance_acido_base        Int?
-  id_perfil_orina              Int?
-  id_perfil_inflamatorio       Int?
-  id_eval_estado_nutr          Int?
-  balance_acido_base           balance_acido_base?        @relation(fields: [id_balance_acido_base], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_acido_base_eval_bioq")
-  perfil_anemia_nutricion      perfil_anemia_nutricion?   @relation(fields: [id_perfil_anemia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_anemia_eval_bioq")
-  perfil_endocrino             perfil_endocrino?          @relation(fields: [id_perfil_endocrino], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_endocrino_eval_bioq")
-  eval_estado_nutricion        eval_estado_nutricion?     @relation(fields: [id_eval_estado_nutr], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_estado_eval_bioq")
-  perfil_inflamatorio          perfil_inflamatorio?       @relation(fields: [id_perfil_inflamatorio], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inflamatorio_eval_bioq")
-  perfil_lipidos               perfil_lipidos?            @relation(fields: [id_perfil_lipidos], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_lipidos_eval_bioq")
-  perfil_orina                 perfil_orina?              @relation(fields: [id_perfil_orina], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orina_eval_bioq")
-  pacientes                    pacientes                  @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
-  perfil_renal_electrolitos    perfil_renal_electrolitos? @relation(fields: [id_perfil_renal_electrolitos], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_renal_eval_bioq")
-
-  @@index([id_balance_acido_base], map: "fk_acido_base_eval_bioq")
-  @@index([id_perfil_anemia], map: "fk_anemia_eval_bioq")
-  @@index([id_perfil_endocrino], map: "fk_endocrino_eval_bioq")
-  @@index([id_eval_estado_nutr], map: "fk_estado_eval_bioq")
-  @@index([id_perfil_inflamatorio], map: "fk_inflamatorio_eval_bioq")
-  @@index([id_perfil_lipidos], map: "fk_lipidos_eval_bioq")
-  @@index([id_perfil_orina], map: "fk_orina_eval_bioq")
-  @@index([paciente_id], map: "fk_paciente_eval_bioq")
-  @@index([id_perfil_renal_electrolitos], map: "fk_renal_eval_bioq")
 }
 
 model eval_cal_sueno {
@@ -325,35 +198,6 @@ model eval_cal_sueno {
   historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
 
   @@index([historia_paciente_id], map: "fk_cal_sueno_paciente")
-}
-
-model eval_estado_nutricion {
-  id                  Int                   @id @default(autoincrement())
-  leucocitos          Float?                @db.Float
-  linfocitos          Float?                @db.Float
-  ctl                 Float?                @db.Float
-  albumina            Float?                @db.Float
-  pre_albumina        Float?                @db.Float
-  transferrina        Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model eval_nutr_fh {
-  id                               Int                               @id @default(autoincrement())
-  paciente_id                      Bytes                             @db.Binary(16)
-  fecha                            DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
-  id_horarios_comida               Int?
-  id_eval_apetito                  Int?
-  id_frec_consumo                  Int?
-  eval_apetito_nutricion           eval_apetito_nutricion?           @relation(fields: [id_eval_apetito], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_apetito_eval_nutr")
-  frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion? @relation(fields: [id_frec_consumo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_frec_consumo_eval_nutr")
-  horarios_comida_nutricion        horarios_comida_nutricion?        @relation(fields: [id_horarios_comida], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
-  pacientes                        pacientes                         @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_nutr")
-
-  @@index([id_eval_apetito], map: "fk_apetito_eval_nutr")
-  @@index([id_frec_consumo], map: "fk_frec_consumo_eval_nutr")
-  @@index([id_horarios_comida], map: "fk_horarios_eval_nutr")
-  @@index([paciente_id], map: "fk_paciente_eval_nutr")
 }
 
 model eval_perdida_peso_nutricion {
@@ -384,35 +228,6 @@ model eval_semiologia_nutricional {
   descripcion                      String?                    @db.Text
   descripcion_sist_genito_urinario String?                    @db.Text
   exam_fis_orien_nutricion         exam_fis_orien_nutricion[]
-}
-
-model eval_sintomas_gastroin_nutricion {
-  id                       Int                      @id @default(autoincrement())
-  exam_fis_id              Int
-  presenta_sgi             Boolean?
-  presencia                String?                  @db.VarChar(50)
-  exam_fis_orien_nutricion exam_fis_orien_nutricion @relation(fields: [exam_fis_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exam_fis_sintomas")
-
-  @@index([exam_fis_id], map: "fk_exam_fis_sintomas")
-}
-
-model exam_fis_orien_nutricion {
-  id                               Int                                @id @default(autoincrement())
-  paciente_id                      Bytes                              @db.Binary(16)
-  fecha                            DateTime?                          @default(dbgenerated("(curdate())")) @db.Date
-  id_perdida_peso                  Int
-  id_signos_vitales                Int
-  id_semiologia                    Int
-  eval_sintomas_gastroin_nutricion eval_sintomas_gastroin_nutricion[]
-  pacientes                        pacientes                          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_exam_fis")
-  eval_perdida_peso_nutricion      eval_perdida_peso_nutricion        @relation(fields: [id_perdida_peso], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_perdida_peso_exam_fis")
-  eval_semiologia_nutricional      eval_semiologia_nutricional        @relation(fields: [id_semiologia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_semiologia_exam_fis")
-  signos_vitales_nutricion         signos_vitales_nutricion           @relation(fields: [id_signos_vitales], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_signos_vitales_exam_fis")
-
-  @@index([paciente_id], map: "fk_paciente_exam_fis")
-  @@index([id_perdida_peso], map: "fk_perdida_peso_exam_fis")
-  @@index([id_semiologia], map: "fk_semiologia_exam_fis")
-  @@index([id_signos_vitales], map: "fk_signos_vitales_exam_fis")
 }
 
 model frec_consumo_alimentos_nutricion {
@@ -564,22 +379,6 @@ model inmunizaciones {
   historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inmu_historia")
 }
 
-model invitaciones_registro {
-  id         Int       @id @default(autoincrement())
-  correo     String    @unique(map: "correo") @db.VarChar(255)
-  rol_id     Int
-  token      Bytes     @unique(map: "token") @db.Binary(16)
-  usado      Boolean?  @default(false)
-  expira_at  DateTime  @db.DateTime(0)
-  creado_at  DateTime? @default(now()) @db.DateTime(0)
-  creado_por Bytes     @db.Binary(16)
-  usuarios   usuarios  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_creado_por")
-  roles      roles     @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_rol")
-
-  @@index([creado_por], map: "fk_invitacion_creado_por")
-  @@index([rol_id], map: "fk_invitacion_rol")
-}
-
 model notas_evolucion {
   id                                  Bytes               @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_medica_id                  Bytes?              @db.Binary(16)
@@ -643,93 +442,6 @@ model pacientes {
   @@index([doctor_id], map: "fk_pacientes_usuario")
 }
 
-model patron_alimentacion_nutricion {
-  id                 Int       @id @default(autoincrement())
-  paciente_id        Bytes     @db.Binary(16)
-  fecha              DateTime? @db.Date
-  sigue_dieta        Boolean?
-  tiene_alergia      Boolean?
-  cual_alergia       String?   @db.Text
-  alimentos_disgusta String?   @db.Text
-  pacientes          pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_patron_alimentacion")
-
-  @@index([paciente_id], map: "fk_paciente_patron_alimentacion")
-}
-
-model perfil_anemia_nutricion {
-  id                  Int                   @id @default(autoincrement())
-  eritrocitos         Float?                @db.Float
-  hemoglobina         Float?                @db.Float
-  hematocrito         Float?                @db.Float
-  vcm                 Float?                @db.Float
-  homocisteina        Float?                @db.Float
-  ferritina           Float?                @db.Float
-  hierro              Float?                @db.Float
-  cap_fij_tot_he      Float?                @db.Float
-  saturacion_hierro   Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model perfil_endocrino {
-  id                  Int                   @id @default(autoincrement())
-  glucosa             Float?                @db.Float
-  hbAlc               Float?                @db.Float
-  insulina            Float?                @db.Float
-  tiroxina_libre      Float?                @db.Float
-  triyodotironina     Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model perfil_inflamatorio {
-  id                  Int                   @id @default(autoincrement())
-  pcr                 Float?                @db.Float
-  plaquetas           Int?
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model perfil_lipidos {
-  id                  Int                   @id @default(autoincrement())
-  colesterol          Float?                @db.Float
-  c_hdl               Float?                @db.Float
-  c_ldl               Float?                @db.Float
-  trigliceridos       Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
-model perfil_orina {
-  id                     Int                   @id @default(autoincrement())
-  volumen_urinario       Float?                @db.Float
-  densidad               Float?                @db.Float
-  alteraciones_urinarias String?               @db.VarChar(20)
-  litos                  String?               @db.VarChar(50)
-  ph                     Float?                @db.Float
-  cetonas                String?               @db.VarChar(50)
-  sodio                  Int?                  @db.SmallInt
-  eval_bioq_nutricion    eval_bioq_nutricion[]
-}
-
-model perfil_renal_electrolitos {
-  id                  Int                   @id @default(autoincrement())
-  osmolaridad         Float?                @db.Float
-  urea                Float?                @db.Float
-  bun                 Float?                @db.Float
-  creatinina          Float?                @db.Float
-  acido_urico         Float?                @db.Float
-  sodio               Float?                @db.Float
-  peso_sin_edema      Float?                @db.Float
-  agua                Float?                @db.Float
-  potasio             Float?                @db.Float
-  fosforo             Float?                @db.Float
-  calcio_serico       Float?                @db.Float
-  ca_corregido        Float?                @db.Float
-  producto_caP        Float?                @db.Float
-  pth                 Float?                @db.Float
-  vitamina_d          Float?                @db.Float
-  tfge                Float?                @db.Float
-  albuminuria         Float?                @db.Float
-  eval_bioq_nutricion eval_bioq_nutricion[]
-}
-
 model planes_estudio {
   id                       Int                    @id @default(autoincrement())
   historia_medica_id       Bytes?                 @unique(map: "historia_medica_id") @db.Binary(16)
@@ -750,6 +462,373 @@ model planes_estudio_cie10 {
   planes_estudio  planes_estudio @relation(fields: [plan_estudio_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cie10_plan")
 
   @@index([plan_estudio_id], map: "fk_cie10_plan")
+}
+
+model roles {
+  id                    Int                     @id @default(autoincrement())
+  codigo                String                  @unique(map: "codigo") @db.VarChar(50)
+  invitaciones_registro invitaciones_registro[]
+  usuarios              usuarios[]
+}
+
+model servicios {
+  id                 Int               @id @default(autoincrement())
+  historia_medica_id Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
+  gas                Boolean?
+  luz                Boolean?
+  agua               Boolean?
+  drenaje            Boolean?
+  cable_tel          Boolean?
+  internet           Boolean?
+  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_servicios_historia")
+}
+
+model signos_vitales_nutricion {
+  id                       Int                        @id @default(autoincrement())
+  tas                      Float?                     @db.Float
+  tad                      Float?                     @db.Float
+  temperatura              Float?                     @db.Float
+  dificultad_respiratoria  Boolean?
+  exam_fis_orien_nutricion exam_fis_orien_nutricion[]
+}
+
+model tratamiento_alt_nutricion {
+  id                            Int                           @id @default(autoincrement())
+  historia_paciente_id          Bytes                         @db.Binary(16)
+  producto                      String?                       @db.Text
+  cual_producto                 String?                       @db.Text
+  mejora                        String?                       @db.VarChar(10)
+  dosis                         String?                       @db.VarChar(20)
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
+
+  @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
+}
+
+model usuarios {
+  id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  nombre                String?                 @db.VarChar(255)
+  apellidos             String?                 @db.VarChar(255)
+  fecha_nacimiento      DateTime?               @db.Date
+  correo                String?                 @unique(map: "correo") @db.VarChar(255)
+  telefono              String?                 @db.VarChar(30)
+  password_hash         String?                 @db.VarChar(255)
+  estado_id             Int
+  rol_id                Int
+  area_id               Int?
+  creado_at             DateTime?               @default(now()) @db.DateTime(0)
+  ultimo_acceso         DateTime?               @db.DateTime(0)
+  foto                  String?                 @db.VarChar(255)
+  matricula             String?                 @db.VarChar(20)
+  cedula                String?                 @db.VarChar(20)
+  inicio_servicio       String?                 @db.VarChar(8)
+  fin_servicio          String?                 @db.VarChar(8)
+  bitacora_emergencias  bitacora_emergencias[]
+  historias_medicas     historias_medicas[]
+  invitaciones_registro invitaciones_registro[]
+  notas_evolucion       notas_evolucion[]
+  pacientes             pacientes[]
+  password_reset_tokens password_reset_tokens[]
+  registro_auditoria    registro_auditoria[]
+  areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
+  estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
+  roles                 roles                   @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
+
+  @@index([area_id], map: "fk_usuario_area")
+  @@index([estado_id], map: "fk_usuario_estado")
+  @@index([rol_id], map: "fk_usuario_rol")
+}
+
+model balance_acido_base {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  ph_serico           Float?              @db.Float
+  saturacion_o2       Float?              @db.Float
+  bicarbonato         Float?              @db.Float
+  pco2_total          Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_balance")
+}
+
+model bitacora_emergencias {
+  id                Bytes     @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  usuario_id        Bytes     @db.Binary(16)
+  fecha_hora        DateTime? @default(now()) @db.DateTime(0)
+  ubicacion         String    @db.VarChar(255)
+  nombre            String?   @db.VarChar(255)
+  matricula         String?   @db.VarChar(20)
+  telefono          String?   @db.VarChar(30)
+  diagnostico       String?   @db.VarChar(255)
+  accion_realizada  String?   @db.VarChar(255)
+  tratamiento_admin String?   @db.VarChar(255)
+  recurrente        Boolean?  @default(false)
+  usuarios          usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bitacora_usuario")
+
+  @@index([usuario_id], map: "fk_bitacora_usuario")
+}
+
+model cal_get_nutr {
+  id               Int       @id @default(autoincrement())
+  paciente_id      Bytes     @db.Binary(16)
+  fecha_eval       DateTime? @default(dbgenerated("(curdate())")) @db.Date
+  verdura          Int?      @db.TinyInt
+  fruta            Int?      @db.TinyInt
+  cereal_sin_grasa Int?      @db.TinyInt
+  cereal_con_grasa Int?      @db.TinyInt
+  leguminosas      Int?      @db.TinyInt
+  aoa_a            Int?      @db.TinyInt
+  aoa_b            Int?      @db.TinyInt
+  aoa_c            Int?      @db.TinyInt
+  aoa_d            Int?      @db.TinyInt
+  leche_a          Int?      @db.TinyInt
+  leche_b          Int?      @db.TinyInt
+  leche_c          Int?      @db.TinyInt
+  grasa_a          Int?      @db.TinyInt
+  grasa_b          Int?      @db.TinyInt
+  azucares         Int?      @db.TinyInt
+  rice_dream       Int?      @db.TinyInt
+  silk             Int?      @db.TinyInt
+  soyactive        Int?      @db.TinyInt
+  almond_breeze    Int?      @db.TinyInt
+  aube_baja        Int?      @db.TinyInt
+  nan_one          Int?      @db.TinyInt
+  aube_alta        Int?      @db.TinyInt
+  pacientes        pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_cal_get")
+
+  @@index([paciente_id], map: "fk_paciente_cal_get")
+}
+
+model diagnostico_nutricional_adulto {
+  id                           Int                          @id @default(autoincrement())
+  reporte_een_id               Int
+  pes                          String?                      @db.VarChar(255)
+  intervencion                 String?                      @db.VarChar(50)
+  objetivos                    String?                      @db.VarChar(255)
+  indicadores                  String?                      @db.VarChar(255)
+  criterio                     String?                      @db.VarChar(255)
+  progreso                     String?                      @db.VarChar(20)
+  reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
+
+  @@index([reporte_een_id], map: "fk_reporte_diagnostico")
+}
+
+model eval_antro_ad_nutricion {
+  id                             Int                             @id @default(autoincrement())
+  paciente_id                    Bytes                           @db.Binary(16)
+  eval_antro_ad_kid_id           Int?
+  eval_antro_ad_adulto_id        Int?
+  fecha                          DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
+  peso_actual                    Float?                          @db.Float
+  estatura                       Float?                          @db.Float
+  imc                            Float?                          @db.Float
+  pantorrilla                    Float?                          @db.Float
+  cintura                        Float?                          @db.Float
+  pb                             Float?                          @db.Float
+  pct                            Float?                          @db.Float
+  pcse                           Float?                          @db.Float
+  eval_antro_ad_adulto_nutricion eval_antro_ad_adulto_nutricion? @relation(fields: [eval_antro_ad_adulto_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_adulto_eval_antro")
+  eval_antro_ad_kid_nutricion    eval_antro_ad_kid_nutricion?    @relation(fields: [eval_antro_ad_kid_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_kid_eval_antro")
+  pacientes                      pacientes                       @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_antro")
+
+  @@index([eval_antro_ad_adulto_id], map: "fk_adulto_eval_antro")
+  @@index([eval_antro_ad_kid_id], map: "fk_kid_eval_antro")
+  @@index([paciente_id], map: "fk_paciente_eval_antro")
+}
+
+model eval_bioq_nutricion {
+  id                        Bytes                      @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
+  paciente_id               Bytes                      @db.Binary(16)
+  fecha                     DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
+  creado_at                 DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
+  balance_acido_base        balance_acido_base?
+  pacientes                 pacientes                  @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
+  eval_estado_nutricion     eval_estado_nutricion?
+  perfil_anemia_nutricion   perfil_anemia_nutricion?
+  perfil_endocrino          perfil_endocrino?
+  perfil_inflamatorio       perfil_inflamatorio?
+  perfil_lipidos            perfil_lipidos?
+  perfil_orina              perfil_orina?
+  perfil_renal_electrolitos perfil_renal_electrolitos?
+
+  @@index([paciente_id], map: "fk_paciente_eval_bioq")
+}
+
+model eval_estado_nutricion {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  leucocitos          Float?              @db.Float
+  linfocitos          Float?              @db.Float
+  ctl                 Float?              @db.Float
+  albumina            Float?              @db.Float
+  pre_albumina        Float?              @db.Float
+  transferrina        Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_estado_nutr")
+}
+
+model eval_nutr_fh {
+  id                               Int                               @id @default(autoincrement())
+  paciente_id                      Bytes                             @db.Binary(16)
+  fecha                            DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
+  id_horarios_comida               Int?
+  id_eval_apetito                  Int?
+  id_frec_consumo                  Int?
+  eval_apetito_nutricion           eval_apetito_nutricion?           @relation(fields: [id_eval_apetito], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_apetito_eval_nutr")
+  frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion? @relation(fields: [id_frec_consumo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_frec_consumo_eval_nutr")
+  horarios_comida_nutricion        horarios_comida_nutricion?        @relation(fields: [id_horarios_comida], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
+  pacientes                        pacientes                         @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_nutr")
+
+  @@index([id_eval_apetito], map: "fk_apetito_eval_nutr")
+  @@index([id_frec_consumo], map: "fk_frec_consumo_eval_nutr")
+  @@index([id_horarios_comida], map: "fk_horarios_eval_nutr")
+  @@index([paciente_id], map: "fk_paciente_eval_nutr")
+}
+
+model eval_sintomas_gastroin_nutricion {
+  id                       Int                      @id @default(autoincrement())
+  exam_fis_id              Int
+  presenta_sgi             Boolean?
+  presencia                String?                  @db.VarChar(50)
+  exam_fis_orien_nutricion exam_fis_orien_nutricion @relation(fields: [exam_fis_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exam_fis_sintomas")
+
+  @@index([exam_fis_id], map: "fk_exam_fis_sintomas")
+}
+
+model exam_fis_orien_nutricion {
+  id                               Int                                @id @default(autoincrement())
+  paciente_id                      Bytes                              @db.Binary(16)
+  fecha                            DateTime?                          @default(dbgenerated("(curdate())")) @db.Date
+  id_perdida_peso                  Int
+  id_signos_vitales                Int
+  id_semiologia                    Int
+  eval_sintomas_gastroin_nutricion eval_sintomas_gastroin_nutricion[]
+  pacientes                        pacientes                          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_exam_fis")
+  eval_perdida_peso_nutricion      eval_perdida_peso_nutricion        @relation(fields: [id_perdida_peso], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_perdida_peso_exam_fis")
+  eval_semiologia_nutricional      eval_semiologia_nutricional        @relation(fields: [id_semiologia], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_semiologia_exam_fis")
+  signos_vitales_nutricion         signos_vitales_nutricion           @relation(fields: [id_signos_vitales], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_signos_vitales_exam_fis")
+
+  @@index([paciente_id], map: "fk_paciente_exam_fis")
+  @@index([id_perdida_peso], map: "fk_perdida_peso_exam_fis")
+  @@index([id_semiologia], map: "fk_semiologia_exam_fis")
+  @@index([id_signos_vitales], map: "fk_signos_vitales_exam_fis")
+}
+
+model invitaciones_registro {
+  id         Int       @id @default(autoincrement())
+  correo     String    @unique(map: "correo") @db.VarChar(255)
+  rol_id     Int
+  token      Bytes     @unique(map: "token") @db.Binary(16)
+  usado      Boolean?  @default(false)
+  expira_at  DateTime  @db.DateTime(0)
+  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  creado_por Bytes     @db.Binary(16)
+  usuarios   usuarios  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_creado_por")
+  roles      roles     @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_rol")
+
+  @@index([creado_por], map: "fk_invitacion_creado_por")
+  @@index([rol_id], map: "fk_invitacion_rol")
+}
+
+model password_reset_tokens {
+  id         Int       @id @default(autoincrement())
+  usuario_id Bytes     @db.Binary(16)
+  token      Bytes     @unique(map: "token") @db.Binary(16)
+  usado      Boolean?  @default(false)
+  expira_at  DateTime  @db.DateTime(0)
+  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  usuarios   usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_usuario")
+
+  @@index([usuario_id], map: "idx_password_reset_usuario")
+}
+
+model patron_alimentacion_nutricion {
+  id                 Int       @id @default(autoincrement())
+  paciente_id        Bytes     @db.Binary(16)
+  fecha              DateTime? @db.Date
+  sigue_dieta        Boolean?
+  tiene_alergia      Boolean?
+  cual_alergia       String?   @db.Text
+  alimentos_disgusta String?   @db.Text
+  pacientes          pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_patron_alimentacion")
+
+  @@index([paciente_id], map: "fk_paciente_patron_alimentacion")
+}
+
+model perfil_anemia_nutricion {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  eritrocitos         Float?              @db.Float
+  hemoglobina         Float?              @db.Float
+  hematocrito         Float?              @db.Float
+  vcm                 Float?              @db.Float
+  homocisteina        Float?              @db.Float
+  ferritina           Float?              @db.Float
+  hierro              Float?              @db.Float
+  cap_fij_tot_he      Float?              @db.Float
+  saturacion_hierro   Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_anemia")
+}
+
+model perfil_endocrino {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  glucosa             Float?              @db.Float
+  hbAlc               Float?              @db.Float
+  insulina            Float?              @db.Float
+  tiroxina_libre      Float?              @db.Float
+  triyodotironina     Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_endocrino")
+}
+
+model perfil_inflamatorio {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  pcr                 Float?              @db.Float
+  plaquetas           Int?
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_inflamatorio")
+}
+
+model perfil_lipidos {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  colesterol          Float?              @db.Float
+  c_hdl               Float?              @db.Float
+  c_ldl               Float?              @db.Float
+  trigliceridos       Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_lipidos")
+}
+
+model perfil_orina {
+  id                     Int                 @id @default(autoincrement())
+  id_eval_bioq           Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  volumen_urinario       Float?              @db.Float
+  densidad               Float?              @db.Float
+  alteraciones_urinarias String?             @db.VarChar(20)
+  litos                  String?             @db.VarChar(50)
+  ph                     Float?              @db.Float
+  cetonas                String?             @db.VarChar(50)
+  sodio                  Int?                @db.SmallInt
+  eval_bioq_nutricion    eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_orina")
+}
+
+model perfil_renal_electrolitos {
+  id                  Int                 @id @default(autoincrement())
+  id_eval_bioq        Bytes               @unique(map: "id_eval_bioq") @db.Binary(16)
+  osmolaridad         Float?              @db.Float
+  urea                Float?              @db.Float
+  bun                 Float?              @db.Float
+  creatinina          Float?              @db.Float
+  acido_urico         Float?              @db.Float
+  sodio               Float?              @db.Float
+  peso_sin_edema      Float?              @db.Float
+  agua                Float?              @db.Float
+  potasio             Float?              @db.Float
+  fosforo             Float?              @db.Float
+  calcio_serico       Float?              @db.Float
+  ca_corregido        Float?              @db.Float
+  producto_caP        Float?              @db.Float
+  pth                 Float?              @db.Float
+  vitamina_d          Float?              @db.Float
+  tfge                Float?              @db.Float
+  albuminuria         Float?              @db.Float
+  eval_bioq_nutricion eval_bioq_nutricion @relation(fields: [id_eval_bioq], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_bioq_renal")
 }
 
 model rec_24h_comidas {
@@ -823,40 +902,12 @@ model reporte_een_kids_nutricion {
   @@index([paciente_id], map: "fk_paciente_reporte_een_kid")
 }
 
-model roles {
-  id                    Int                     @id @default(autoincrement())
-  codigo                String                  @unique(map: "codigo") @db.VarChar(50)
-  invitaciones_registro invitaciones_registro[]
-  usuarios              usuarios[]
-}
-
-model servicios {
-  id                 Int               @id @default(autoincrement())
-  historia_medica_id Bytes             @unique(map: "historia_medica_id") @db.Binary(16)
-  gas                Boolean?
-  luz                Boolean?
-  agua               Boolean?
-  drenaje            Boolean?
-  cable_tel          Boolean?
-  internet           Boolean?
-  historias_medicas  historias_medicas @relation(fields: [historia_medica_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_servicios_historia")
-}
-
 model sessions {
   sid    String   @id @db.VarChar(255)
   data   String   @db.Text
   expire DateTime
 
   @@index([expire])
-}
-
-model signos_vitales_nutricion {
-  id                       Int                        @id @default(autoincrement())
-  tas                      Float?                     @db.Float
-  tad                      Float?                     @db.Float
-  temperatura              Float?                     @db.Float
-  dificultad_respiratoria  Boolean?
-  exam_fis_orien_nutricion exam_fis_orien_nutricion[]
 }
 
 model tpan_nutricion {
@@ -874,62 +925,4 @@ model tpan_nutricion {
   pacientes       pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_tpan")
 
   @@index([paciente_id], map: "fk_paciente_tpan")
-}
-
-model tratamiento_alt_nutricion {
-  id                            Int                           @id @default(autoincrement())
-  historia_paciente_id          Bytes                         @db.Binary(16)
-  producto                      String?                       @db.Text
-  cual_producto                 String?                       @db.Text
-  mejora                        String?                       @db.VarChar(10)
-  dosis                         String?                       @db.VarChar(20)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
-
-  @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
-}
-
-model usuarios {
-  id                    Bytes                   @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  nombre                String?                 @db.VarChar(255)
-  apellidos             String?                 @db.VarChar(255)
-  fecha_nacimiento      DateTime?               @db.Date
-  correo                String?                 @unique(map: "correo") @db.VarChar(255)
-  telefono              String?                 @db.VarChar(30)
-  password_hash         String?                 @db.VarChar(255)
-  estado_id             Int
-  rol_id                Int
-  area_id               Int?
-  creado_at             DateTime?               @default(now()) @db.DateTime(0)
-  ultimo_acceso         DateTime?               @db.DateTime(0)
-  foto                  String?                 @db.VarChar(255)
-  matricula             String?                 @db.VarChar(20)
-  cedula                String?                 @db.VarChar(20)
-  inicio_servicio       String?                 @db.VarChar(8)
-  fin_servicio          String?                 @db.VarChar(8)
-  bitacora_emergencias  bitacora_emergencias[]
-  historias_medicas     historias_medicas[]
-  invitaciones_registro invitaciones_registro[]
-  notas_evolucion       notas_evolucion[]
-  pacientes             pacientes[]
-  password_reset_tokens password_reset_tokens[]
-  registro_auditoria    registro_auditoria[]
-  areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")
-  estados               estados                 @relation(fields: [estado_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_estado")
-  roles                 roles                   @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_rol")
-
-  @@index([area_id], map: "fk_usuario_area")
-  @@index([estado_id], map: "fk_usuario_estado")
-  @@index([rol_id], map: "fk_usuario_rol")
-}
-
-model password_reset_tokens {
-  id         Int       @id @default(autoincrement())
-  usuario_id Bytes     @db.Binary(16)
-  token      Bytes     @unique(map: "token") @db.Binary(16)
-  usado      Boolean?  @default(false)
-  expira_at  DateTime  @db.DateTime(0)
-  creado_at  DateTime? @default(now()) @db.DateTime(0)
-  usuarios   usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_usuario")
-
-  @@index([usuario_id], map: "idx_password_reset_usuario")
 }

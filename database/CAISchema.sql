@@ -107,92 +107,6 @@ CREATE TABLE IF NOT EXISTS adicciones(
     cual_med_contr TEXT
 );
 
-CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    eritrocitos FLOAT,
-    hemoglobina FLOAT,
-    hematocrito FLOAT,
-    vcm FLOAT,
-    homocisteina FLOAT,
-    ferritina FLOAT,
-    hierro FLOAT,
-    cap_fij_tot_he FLOAT,
-    saturacion_hierro FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS perfil_endocrino(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    glucosa FLOAT,
-    hbAlc FLOAT,
-    insulina FLOAT,
-    tiroxina_libre FLOAT,
-    triyodotironina FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    osmolaridad FLOAT,
-    urea FLOAT,
-    bun FLOAT,
-    creatinina FLOAT,
-    acido_urico FLOAT,
-    sodio FLOAT,
-    peso_sin_edema FLOAT,
-    agua FLOAT,
-    potasio FLOAT,
-    fosforo FLOAT,
-    calcio_serico FLOAT,
-    ca_corregido FLOAT,
-    producto_caP FLOAT,
-    pth FLOAT,
-    vitamina_d FLOAT,
-    tfge FLOAT,
-    albuminuria FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS perfil_lipidos(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    colesterol FLOAT,
-    c_hdl FLOAT,
-    c_ldl FLOAT,
-    trigliceridos FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS balance_acido_base(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ph_serico FLOAT,
-    saturacion_o2 FLOAT,
-    bicarbonato FLOAT,
-    pco2_total FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS perfil_orina(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    volumen_urinario FLOAT,
-    densidad FLOAT,
-    alteraciones_urinarias VARCHAR(20),
-    litos VARCHAR(50),
-    ph FLOAT,
-    cetonas VARCHAR(50),
-    sodio SMALLINT
-);
-
-CREATE TABLE IF NOT EXISTS perfil_inflamatorio(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pcr FLOAT,
-    plaquetas INT
-);
-
-CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    leucocitos FLOAT,
-    linfocitos FLOAT,
-    ctl FLOAT,
-    albumina FLOAT,
-    pre_albumina FLOAT,
-    transferrina FLOAT
-);
-
 CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     hora_desayuno VARCHAR(20),
@@ -566,26 +480,129 @@ CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
 -- EVALUACION BIOQUIMICA
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
-    id_perfil_anemia INT,
-    id_perfil_endocrino INT,
-    id_perfil_renal_electrolitos INT,
-    id_perfil_lipidos INT,
-    id_balance_acido_base INT,
-    id_perfil_orina INT,
-    id_perfil_inflamatorio INT,
-    id_eval_estado_nutr INT,
-    CONSTRAINT fk_paciente_eval_bioq FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_anemia_eval_bioq FOREIGN KEY (id_perfil_anemia) REFERENCES perfil_anemia_nutricion(id),
-    CONSTRAINT fk_endocrino_eval_bioq FOREIGN KEY (id_perfil_endocrino) REFERENCES perfil_endocrino(id),
-    CONSTRAINT fk_renal_eval_bioq FOREIGN KEY (id_perfil_renal_electrolitos) REFERENCES perfil_renal_electrolitos(id),
-    CONSTRAINT fk_lipidos_eval_bioq FOREIGN KEY (id_perfil_lipidos) REFERENCES perfil_lipidos(id),
-    CONSTRAINT fk_acido_base_eval_bioq FOREIGN KEY (id_balance_acido_base) REFERENCES balance_acido_base(id),
-    CONSTRAINT fk_orina_eval_bioq FOREIGN KEY (id_perfil_orina) REFERENCES perfil_orina(id),
-    CONSTRAINT fk_inflamatorio_eval_bioq FOREIGN KEY (id_perfil_inflamatorio) REFERENCES perfil_inflamatorio(id),
-    CONSTRAINT fk_estado_eval_bioq FOREIGN KEY (id_eval_estado_nutr) REFERENCES eval_estado_nutricion(id)
+    creado_at DATE DEFAULT (CURRENT_DATE),
+    /* id_perfil_anemia INT, */
+    /* id_perfil_endocrino INT, */
+    /* id_perfil_renal_electrolitos INT, */
+    /* id_perfil_lipidos INT, */
+    /* id_balance_acido_base INT, */
+    /* id_perfil_orina INT, */
+    /* id_perfil_inflamatorio INT, */
+    /* id_eval_estado_nutr INT, */
+    CONSTRAINT fk_paciente_eval_bioq FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+    /* CONSTRAINT fk_anemia_eval_bioq FOREIGN KEY (id_perfil_anemia) REFERENCES perfil_anemia_nutricion(id), */
+    /* CONSTRAINT fk_endocrino_eval_bioq FOREIGN KEY (id_perfil_endocrino) REFERENCES perfil_endocrino(id), */
+    /* CONSTRAINT fk_renal_eval_bioq FOREIGN KEY (id_perfil_renal_electrolitos) REFERENCES perfil_renal_electrolitos(id), */
+    /* CONSTRAINT fk_lipidos_eval_bioq FOREIGN KEY (id_perfil_lipidos) REFERENCES perfil_lipidos(id), */
+    /* CONSTRAINT fk_acido_base_eval_bioq FOREIGN KEY (id_balance_acido_base) REFERENCES balance_acido_base(id), */
+    /* CONSTRAINT fk_orina_eval_bioq FOREIGN KEY (id_perfil_orina) REFERENCES perfil_orina(id), */
+    /* CONSTRAINT fk_inflamatorio_eval_bioq FOREIGN KEY (id_perfil_inflamatorio) REFERENCES perfil_inflamatorio(id), */
+    /* CONSTRAINT fk_estado_eval_bioq FOREIGN KEY (id_eval_estado_nutr) REFERENCES eval_estado_nutricion(id) */
+);
+
+CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    eritrocitos FLOAT,
+    hemoglobina FLOAT,
+    hematocrito FLOAT,
+    vcm FLOAT,
+    homocisteina FLOAT,
+    ferritina FLOAT,
+    hierro FLOAT,
+    cap_fij_tot_he FLOAT,
+    saturacion_hierro FLOAT,
+    CONSTRAINT fk_eval_bioq_anemia FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS perfil_endocrino(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    glucosa FLOAT,
+    hbAlc FLOAT,
+    insulina FLOAT,
+    tiroxina_libre FLOAT,
+    triyodotironina FLOAT,
+    CONSTRAINT fk_eval_bioq_endocrino FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS perfil_renal_electrolitos(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    osmolaridad FLOAT,
+    urea FLOAT,
+    bun FLOAT,
+    creatinina FLOAT,
+    acido_urico FLOAT,
+    sodio FLOAT,
+    peso_sin_edema FLOAT,
+    agua FLOAT,
+    potasio FLOAT,
+    fosforo FLOAT,
+    calcio_serico FLOAT,
+    ca_corregido FLOAT,
+    producto_caP FLOAT,
+    pth FLOAT,
+    vitamina_d FLOAT,
+    tfge FLOAT,
+    albuminuria FLOAT,
+    CONSTRAINT fk_eval_bioq_renal FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS perfil_lipidos(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    colesterol FLOAT,
+    c_hdl FLOAT,
+    c_ldl FLOAT,
+    trigliceridos FLOAT,
+    CONSTRAINT fk_eval_bioq_lipidos FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS balance_acido_base(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    ph_serico FLOAT,
+    saturacion_o2 FLOAT,
+    bicarbonato FLOAT,
+    pco2_total FLOAT,
+    CONSTRAINT fk_eval_bioq_balance FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS perfil_orina(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    volumen_urinario FLOAT,
+    densidad FLOAT,
+    alteraciones_urinarias VARCHAR(20),
+    litos VARCHAR(50),
+    ph FLOAT,
+    cetonas VARCHAR(50),
+    sodio SMALLINT,
+    CONSTRAINT fk_eval_bioq_orina FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS perfil_inflamatorio(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    pcr FLOAT,
+    plaquetas INT,
+    CONSTRAINT fk_eval_bioq_inflamatorio FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
+);
+
+CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_bioq BINARY(16) NOT NULL UNIQUE,
+    leucocitos FLOAT,
+    linfocitos FLOAT,
+    ctl FLOAT,
+    albumina FLOAT,
+    pre_albumina FLOAT,
+    transferrina FLOAT,
+    CONSTRAINT fk_eval_bioq_estado_nutr FOREIGN KEY (id_eval_bioq) REFERENCES eval_bioq_nutricion(id)
 );
 
 -- ===============================
