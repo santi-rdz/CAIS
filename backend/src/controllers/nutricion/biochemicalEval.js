@@ -8,6 +8,13 @@ import {
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isValidUUID(val) {
+  return typeof val === 'string' && UUID_REGEX.test(val)
+}
+
 export class BiochemicalEvalController {
   static async create(req, res) {
     const result = validateEvalBioqNutricion(req.body)
@@ -44,6 +51,15 @@ export class BiochemicalEvalController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
+    if (paciente_id && !isValidUUID(paciente_id)) {
+      return res
+        .status(400)
+        .json({
+          error: 'BadRequest',
+          message: 'paciente_id debe ser un UUID válido',
+        })
+    }
+
     const parsedFields = fields
       ? fields
           .split(',')
@@ -62,6 +78,11 @@ export class BiochemicalEvalController {
 
   static async getById(req, res) {
     const { id } = req.params
+    if (!isValidUUID(id)) {
+      return res
+        .status(400)
+        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+    }
     const evaluation = await BiochemicalEvalModel.getById(id)
     if (!evaluation)
       return res
@@ -72,6 +93,11 @@ export class BiochemicalEvalController {
 
   static async delete(req, res) {
     const { id } = req.params
+    if (!isValidUUID(id)) {
+      return res
+        .status(400)
+        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+    }
     try {
       const evaluation = await BiochemicalEvalModel.delete(id)
       if (!evaluation)
@@ -98,6 +124,11 @@ export class BiochemicalEvalController {
     }
 
     const { id } = req.params
+    if (!isValidUUID(id)) {
+      return res
+        .status(400)
+        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+    }
     try {
       const updatedEval = await prisma.$transaction(async (tx) => {
         const h = await BiochemicalEvalModel.update(
