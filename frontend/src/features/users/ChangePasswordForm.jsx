@@ -42,7 +42,7 @@ export default function ChangePasswordForm() {
         <PasswordInput
           id="newPassword"
           label="Nueva contraseña"
-          placeholder="Mínimo 8 caracteres y una mayúscula"
+          placeholder="Ingresa una contraseña segura"
           error={errors.newPassword?.message}
           registration={register('newPassword')}
           variant="outline"
