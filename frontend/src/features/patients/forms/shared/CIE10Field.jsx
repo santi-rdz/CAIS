@@ -1,16 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiMagnifyingGlass, HiXMark } from 'react-icons/hi2'
 import Input from '@components/Input'
 import DropdownPanel from '@components/DropdownPanel'
 import useDropdownPosition from '@hooks/useDropdownPosition'
-import { CIE10_DATA } from './cie10Data'
+import { searchIcd11 } from '@services/apiIcd11'
 
 export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { control } = useFormContext()
   const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchError, setSearchError] = useState(false)
   const { triggerRef, isOpen, positionStyle, open, close } =
     useDropdownPosition(320)
+  const debounceRef = useRef(null)
+
+  useEffect(() => {
+    const q = query.trim()
+    if (q.length < 1) {
+      setResults([])
+      setSearchError(false)
+      return
+    }
+
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+      setIsLoading(true)
+      setSearchError(false)
+      try {
+        const data = await searchIcd11(q)
+        setResults(data.slice(0, 8))
+      } catch {
+        setResults([])
+        setSearchError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }, 350)
+
+    return () => clearTimeout(debounceRef.current)
+  }, [query])
 
   function openPanel() {
     open()
@@ -24,19 +54,11 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
       render={({ field: { value: selected = [], onChange } }) => {
         const selectedCodigos = selected.map((c) => c.codigo)
 
-        const filtered =
-          query.trim().length >= 1
-            ? CIE10_DATA.filter(
-                (c) =>
-                  c.codigo.toLowerCase().includes(query.toLowerCase()) ||
-                  c.descripcion.toLowerCase().includes(query.toLowerCase())
-              ).slice(0, 8)
-            : []
-
         function handleSelect(code) {
           if (!selectedCodigos.includes(code.codigo))
             onChange([...selected, code])
           setQuery('')
+          setResults([])
           close()
         }
 
@@ -82,8 +104,16 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
                 }}
                 className="overflow-hidden p-1.5"
               >
-                {filtered.length > 0 ? (
-                  filtered.map((code) => (
+                {isLoading ? (
+                  <p className="px-3 py-2.5 text-sm text-zinc-400">
+                    Buscando...
+                  </p>
+                ) : searchError ? (
+                  <p className="px-3 py-2.5 text-sm text-red-500">
+                    Error al conectar con la API de ICD-11
+                  </p>
+                ) : results.length > 0 ? (
+                  results.map((code) => (
                     <button
                       key={code.codigo}
                       type="button"
