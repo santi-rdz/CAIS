@@ -6,6 +6,21 @@ export const icd11Router = new Router()
 const TOKEN_URL = 'https://icdaccessmanagement.who.int/connect/token'
 const SEARCH_URL = 'https://id.who.int/icd/release/11/2024-01/mms/search'
 const TOKEN_TTL_MS = 60 * 60 * 1000 // 1 hour
+const UPSTREAM_TIMEOUT_MS = 10_000
+
+async function fetchWithTimeout(
+  url,
+  options = {},
+  timeoutMs = UPSTREAM_TIMEOUT_MS
+) {
+  const controller = new AbortController()
+  const t = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { ...options, signal: controller.signal })
+  } finally {
+    clearTimeout(t)
+  }
+}
 
 let cachedToken = null
 let tokenExpiresAt = 0
@@ -18,7 +33,7 @@ async function getToken() {
     `${process.env.ICD_CLIENT_ID}:${process.env.ICD_CLIENT_SECRET}`
   ).toString('base64')
 
-  const res = await fetch(TOKEN_URL, {
+  const res = await fetchWithTimeout(TOKEN_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -58,7 +73,7 @@ icd11Router.get('/search', async (req, res) => {
     const token = await getToken()
     const url = `${SEARCH_URL}?q=${encodeURIComponent(q)}`
 
-    const apiRes = await fetch(url, {
+    const apiRes = await fetchWithTimeout(url, {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: 'application/json',
