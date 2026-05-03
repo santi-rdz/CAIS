@@ -15,27 +15,33 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { triggerRef, isOpen, positionStyle, open, close } =
     useDropdownPosition(320)
   const debounceRef = useRef(null)
+  const requestSeqRef = useRef(0)
 
   useEffect(() => {
     const q = query.trim()
     if (q.length < 1) {
+      requestSeqRef.current += 1
       setResults([])
+      setIsLoading(false)
       setSearchError(false)
       return
     }
 
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
+      const seq = ++requestSeqRef.current
       setIsLoading(true)
       setSearchError(false)
       try {
         const data = await searchIcd11(q)
+        if (seq !== requestSeqRef.current) return
         setResults(data.slice(0, 8))
       } catch {
+        if (seq !== requestSeqRef.current) return
         setResults([])
         setSearchError(true)
       } finally {
-        setIsLoading(false)
+        if (seq === requestSeqRef.current) setIsLoading(false)
       }
     }, 350)
 
