@@ -167,7 +167,7 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
 
             {selected.length === 0 && (
               <p className="text-xs text-zinc-400">
-                Código ICD-10 — selecciona todos los diagnósticos
+                Código ICD-11 — selecciona todos los diagnósticos
                 correspondientes
               </p>
             )}
