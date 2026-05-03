@@ -48,7 +48,9 @@ function mockFetchSuccess() {
   return async (url) => ({
     ok: true,
     json: async () =>
-      url.includes('icdaccessmanagement') ? FAKE_TOKEN_RESPONSE : FAKE_SEARCH_RESPONSE,
+      url.includes('icdaccessmanagement')
+        ? FAKE_TOKEN_RESPONSE
+        : FAKE_SEARCH_RESPONSE,
   })
 }
 
@@ -112,7 +114,10 @@ describe('GET /api/icd11/search', () => {
     assert(res.body.length > 0, 'array should not be empty')
     const first = res.body[0]
     assert(first['codigo'] !== undefined, 'property codigo should exist')
-    assert(first['descripcion'] !== undefined, 'property descripcion should exist')
+    assert(
+      first['descripcion'] !== undefined,
+      'property descripcion should exist'
+    )
   })
 
   /**

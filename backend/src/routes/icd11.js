@@ -37,7 +37,8 @@ async function getToken() {
 
   const data = await res.json()
   cachedToken = data.access_token
-  tokenExpiresAt = Date.now() + (data.expires_in ? data.expires_in * 1000 : TOKEN_TTL_MS)
+  tokenExpiresAt =
+    Date.now() + (data.expires_in ? data.expires_in * 1000 : TOKEN_TTL_MS)
   return cachedToken
 }
 
@@ -50,7 +51,8 @@ icd11Router.use(requireAuth)
 
 icd11Router.get('/search', async (req, res) => {
   const q = req.query.q?.trim()
-  if (!q) return res.status(400).json({ message: 'El parámetro q es requerido' })
+  if (!q)
+    return res.status(400).json({ message: 'El parámetro q es requerido' })
 
   try {
     const token = await getToken()
