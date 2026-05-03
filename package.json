@@ -45,7 +45,9 @@
     "//sql": "Abrir consola MySQL (password: user)",
     "sql": "docker compose exec db mysql -u user -p",
     "//rb": "Reinicia e inicia el servicio del backend",
-    "rb": "docker compose restart backend && docker compose up -d backend"
+    "rb": "docker compose restart backend && docker compose up -d backend",
+    "//all": "Ejecuta fresh y logs",
+    "all": "npm run fresh && npm run logs"
   },
   "dependencies": {
     "frontend": "^0.0.0",
