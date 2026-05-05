@@ -1,16 +1,17 @@
 # CAIS — Sistema de Administración
 
-Sistema de administración interna para el Centro de Atención Integral para la Salud (CAIS) de la UABC. Gestiona usuarios (internos y coordinadores), pacientes, emergencias y expedientes clínicos.
+Sistema de administración interna para el Centro de Atención Integral para la Salud (CAIS) de la UABC. Gestiona usuarios (internos y coordinadores), pacientes, emergencias y expedientes clínicos con módulos de medicina y nutrición.
 
 ## Stack
 
-| Capa          | Tecnología                        |
-| ------------- | --------------------------------- |
-| Frontend      | React 19 + Vite + Tailwind CSS v4 |
-| Backend       | Node.js + Express 5               |
-| ORM           | Prisma                            |
-| Base de datos | MySQL 8                           |
-| Contenedores  | Docker + Docker Compose           |
+| Capa           | Tecnología                        |
+| -------------- | --------------------------------- |
+| Frontend       | React 19 + Vite + Tailwind CSS v4 |
+| Backend        | Node.js + Express 5               |
+| ORM            | Prisma                            |
+| Validación     | Zod 4 (esquemas compartidos)      |
+| Base de datos  | MySQL 8                           |
+| Contenedores   | Docker + Docker Compose           |
 
 ## Requisitos
 
@@ -41,8 +42,13 @@ npm run stop      # Detiene los containers
 npm run down      # Baja los containers (conserva la DB)
 npm run restart   # Rebuild + up (usar al cambiar Dockerfile o dependencias)
 npm run fresh     # Reset total: borra volúmenes y reconstruye desde cero
+npm run rb        # Reinicia solo el backend
 npm run logs      # Logs en tiempo real de todos los servicios
 npm run ps        # Estado de los containers
+
+# Calidad de código
+npm run check     # Lint + formateo (sin modificar archivos)
+npm run format    # Formatea el código con Prettier
 
 # Acceso a shells
 npm run fe        # Shell en el container del frontend
@@ -52,7 +58,7 @@ npm run sql       # Consola MySQL interactiva
 
 ## Desarrollo
 
-El proyecto usa npm workspaces. Los directorios `frontend/` y `backend/` son paquetes independientes con sus propias dependencias.
+El proyecto usa npm workspaces con tres paquetes: `frontend/`, `backend/` y `shared/`.
 
 ### Frontend
 
@@ -60,7 +66,6 @@ El proyecto usa npm workspaces. Los directorios `frontend/` y `backend/` son paq
 cd frontend
 npm run dev     # Servidor de desarrollo (puerto 5173)
 npm run test    # Tests con Vitest
-npm run lint    # ESLint
 ```
 
 ### Backend
@@ -78,18 +83,27 @@ npm run prisma:studio   # Prisma Studio (explorador visual de la DB)
 CAIS/
 ├── frontend/
 │   └── src/
-│       ├── features/       # Módulos por dominio (users, emergencies, auth)
+│       ├── features/       # Módulos por dominio
+│       │   ├── authenticaction/
+│       │   ├── users/
+│       │   ├── patients/
+│       │   └── emergencies/
 │       ├── pages/          # Componentes de ruta
 │       ├── ui/             # Componentes reutilizables
 │       ├── services/       # Llamadas a la API
 │       └── hooks/          # Hooks compartidos
-└── backend/
-    └── src/
-        ├── routes/         # Definición de rutas Express
-        ├── controllers/    # Lógica de cada endpoint
-        ├── services/       # Lógica de negocio
-        ├── models/         # Modelos Prisma
-        └── schemas/        # Validaciones Zod
+├── backend/
+│   └── src/
+│       ├── routes/         # Definición de rutas Express
+│       ├── controllers/    # Lógica de cada endpoint
+│       ├── services/       # Lógica de negocio
+│       ├── models/         # Modelos Prisma
+│       └── middleware/     # Autenticación, etc.
+├── shared/
+│   ├── schemas/            # Validaciones Zod compartidas front/back
+│   └── constants/          # Constantes compartidas
+└── database/
+    └── migrations/         # Migraciones SQL
 ```
 
 ## Variables de entorno
