@@ -38,7 +38,7 @@ function formatPendingInvitation(inv) {
   }
 }
 
-function buildPendingWhere({ rol, search }) {
+function buildPendingWhere({ rol, search, areaId }) {
   const where = { usado: false, expira_at: { gt: new Date() } }
   if (rol) {
     where.roles = {
@@ -48,10 +48,13 @@ function buildPendingWhere({ rol, search }) {
   if (search) {
     where.correo = { contains: search }
   }
+  if (areaId != null) {
+    where.usuarios = { area_id: areaId }
+  }
   return where
 }
 
-function buildUserWhere({ statuses, rol, search }) {
+function buildUserWhere({ statuses, rol, search, areaId }) {
   const where = {}
   if (statuses?.length) {
     where.estados = { codigo: { in: statuses } }
@@ -67,6 +70,9 @@ function buildUserWhere({ statuses, rol, search }) {
       { apellidos: { contains: search } },
       { correo: { contains: search } },
     ]
+  }
+  if (areaId != null) {
+    where.area_id = areaId
   }
   return where
 }
@@ -102,7 +108,7 @@ async function queryUsers({ where, orderBy, skip, take }) {
 }
 
 export class UserModel {
-  static async getAll({ status, rol, sortBy, search, page, limit }) {
+  static async getAll({ status, rol, sortBy, search, page, limit, areaId }) {
     const statuses = status
       ? status.split(',').map((s) => s.trim().toUpperCase())
       : null
@@ -111,8 +117,8 @@ export class UserModel {
     const onlyPending = statuses?.length === 1 && statuses[0] === 'PENDIENTE'
     const userStatuses = statuses?.filter((s) => s !== 'PENDIENTE') ?? null
 
-    const pendingWhere = buildPendingWhere({ rol, search })
-    const userWhere = buildUserWhere({ statuses: userStatuses, rol, search })
+    const pendingWhere = buildPendingWhere({ rol, search, areaId })
+    const userWhere = buildUserWhere({ statuses: userStatuses, rol, search, areaId })
     const orderBy = SORT_OPTIONS[sortBy] ?? { creado_at: 'desc' }
     const globalOffset = (page - 1) * limit
 

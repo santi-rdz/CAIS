@@ -13,3 +13,13 @@ export function requireRole(...roles) {
     next()
   }
 }
+
+export function requireArea(...areas) {
+  return (req, res, next) => {
+    if (req.session?.role === 'ADMIN') return next()
+    if (!areas.includes(req.session?.area)) {
+      return res.status(403).json({ error: 'Sin permiso para esta área' })
+    }
+    next()
+  }
+}
