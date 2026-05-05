@@ -78,7 +78,9 @@ export default function UserRow({ user, isAdmin }) {
         avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
       />
       <div className="capitalize">{role}</div>
-      {isAdmin && <div className="capitalize">{area?.toLowerCase() ?? '—'}</div>}
+      {isAdmin && (
+        <div className="capitalize">{area?.toLowerCase() ?? '—'}</div>
+      )}
       <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>

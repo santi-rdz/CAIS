@@ -110,13 +110,13 @@ CAIS/
 
 Todos comparten la contraseña: `123`
 
-| Correo                       | Rol         | Área      |
-| ---------------------------- | ----------- | --------- |
-| `carlos.herrera@cais.com`    | Pasante     | Medicina  |
+| Correo                      | Rol         | Área      |
+| --------------------------- | ----------- | --------- |
+| `carlos.herrera@cais.com`   | Pasante     | Medicina  |
 | `sofia.navarro@uabc.edu.mx` | Coordinador | Medicina  |
 | `maria.lopez@uabc.edu.mx`   | Coordinador | Nutrición |
 | `luis.mendoza@uabc.edu.mx`  | Pasante     | Nutrición |
-| `admin@cais.com`             | Admin       | —         |
+| `admin@cais.com`            | Admin       | —         |
 
 ## Variables de entorno
 

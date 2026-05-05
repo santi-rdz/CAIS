@@ -12,7 +12,11 @@ export default function UsersTable() {
   if (isPending) return <UsersTableSkeleton />
 
   return (
-    <Table columns={isAdmin ? '27fr 10fr 10fr 15fr 15fr 2fr' : '27fr 10fr 15fr 15fr 2fr'}>
+    <Table
+      columns={
+        isAdmin ? '27fr 10fr 10fr 15fr 15fr 2fr' : '27fr 10fr 15fr 15fr 2fr'
+      }
+    >
       <Table.Header>
         <div>Nombre</div>
         <div>Rol</div>
@@ -23,7 +27,9 @@ export default function UsersTable() {
       </Table.Header>
       <Table.Body
         data={users}
-        render={(user) => <UserRow user={user} key={user.id} isAdmin={isAdmin} />}
+        render={(user) => (
+          <UserRow user={user} key={user.id} isAdmin={isAdmin} />
+        )}
       />
       <Table.Footer>
         <Pagination count={count} />

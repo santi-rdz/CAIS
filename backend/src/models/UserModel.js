@@ -118,7 +118,12 @@ export class UserModel {
     const userStatuses = statuses?.filter((s) => s !== 'PENDIENTE') ?? null
 
     const pendingWhere = buildPendingWhere({ rol, search, areaId })
-    const userWhere = buildUserWhere({ statuses: userStatuses, rol, search, areaId })
+    const userWhere = buildUserWhere({
+      statuses: userStatuses,
+      rol,
+      search,
+      areaId,
+    })
     const orderBy = SORT_OPTIONS[sortBy] ?? { creado_at: 'desc' }
     const globalOffset = (page - 1) * limit
 
