@@ -58,6 +58,8 @@ export class AuthController {
         if (err) return res.status(500).json({ error: 'Server error' })
         req.session.userId = bufferToUUID(user.id)
         req.session.role = user.roles?.codigo
+        req.session.areaId = user.area_id ?? null
+        req.session.area = user.areas?.nombre ?? null
         prisma.usuarios
           .update({
             where: { id: user.id },
@@ -145,6 +147,8 @@ export class AuthController {
 
       const userId = bufferToUUID(user.id)
       const role = req.session.role
+      const areaId = req.session.areaId
+      const area = req.session.area
 
       req.session.regenerate((err) => {
         if (err) {
@@ -156,6 +160,8 @@ export class AuthController {
         }
         req.session.userId = userId
         req.session.role = role
+        req.session.areaId = areaId
+        req.session.area = area
         return res.json({ message: 'Contraseña actualizada exitosamente' })
       })
     } catch (err) {
