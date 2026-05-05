@@ -6,7 +6,7 @@ export default function Table({ columns = '', children }) {
   return (
     <TableContext.Provider value={{ columns }}>
       <div className="text-5 text-dark-gray mt-4 overflow-x-auto rounded-xl border border-zinc-200/60 bg-white shadow-sm">
-        <div className="min-w-max">{children}</div>
+        <div className="min-w-4xl">{children}</div>
       </div>
     </TableContext.Provider>
   )
