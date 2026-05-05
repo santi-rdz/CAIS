@@ -479,8 +479,7 @@ async function main() {
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Revisión anual. Paciente sin quejas.',
       ant_gine_andro: 'Sin antecedentes gineco-andros relevantes',
-      estudios_complementarios_efectuados:
-        'Examen médico general de rutina',
+      estudios_complementarios_efectuados: 'Examen médico general de rutina',
       creado_at: new Date('2026-01-10T10:00:00'),
     },
     {
@@ -502,8 +501,7 @@ async function main() {
       motivo_consulta:
         'Seguimiento post-revisión. Resultados de laboratorio normales.',
       ant_gine_andro: 'Sin cambios',
-      estudios_complementarios_efectuados:
-        'Resultados de laboratorio normales',
+      estudios_complementarios_efectuados: 'Resultados de laboratorio normales',
       creado_at: new Date('2026-03-22T09:15:00'),
     },
     {
@@ -606,8 +604,7 @@ async function main() {
       sp_o2: 98.0,
       glucosa_capilar: 95.0,
       temperatura: 36.5,
-      exploracion_fisica:
-        'Exploración física sin hallazgos relevantes',
+      exploracion_fisica: 'Exploración física sin hallazgos relevantes',
       habito_exterior: 'Paciente en buen estado general',
     },
     {
@@ -625,8 +622,7 @@ async function main() {
       glucosa_capilar: 110.0,
       temperatura: 37.1,
       exploracion_fisica: 'Obesidad grado I, abdomen globoso',
-      habito_exterior:
-        'Paciente con sobrepeso, consciente y orientado',
+      habito_exterior: 'Paciente con sobrepeso, consciente y orientado',
     },
   ]
 
@@ -648,8 +644,7 @@ async function main() {
     {
       historia_medica_id: uuidToBuf(HM_IDS.carlos),
       nota_evolucion_id: uuidToBuf(NE_IDS.ne1),
-      plan_tratamiento:
-        'Examen médico general de rutina. BH, QS, EGO.',
+      plan_tratamiento: 'Examen médico general de rutina. BH, QS, EGO.',
       tratamiento: 'Observación y seguimiento en 3 meses',
     },
     {
