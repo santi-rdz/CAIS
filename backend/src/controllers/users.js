@@ -51,6 +51,9 @@ export class UserController {
     const { status, rol, sortBy, search } = req.query
     const { page, limit } = parsePagination(req.query)
 
+    // ADMIN ve todos; el resto solo ve usuarios de su área
+    const areaId = req.session.role === 'ADMIN' ? null : req.session.areaId
+
     const users = await UserModel.getAll({
       status,
       rol,
@@ -58,6 +61,7 @@ export class UserController {
       search,
       page,
       limit,
+      areaId,
     })
     res.json(users)
   }
