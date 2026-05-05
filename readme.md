@@ -4,14 +4,14 @@ Sistema de administración interna para el Centro de Atención Integral para la 
 
 ## Stack
 
-| Capa           | Tecnología                        |
-| -------------- | --------------------------------- |
-| Frontend       | React 19 + Vite + Tailwind CSS v4 |
-| Backend        | Node.js + Express 5               |
-| ORM            | Prisma                            |
-| Validación     | Zod 4 (esquemas compartidos)      |
-| Base de datos  | MySQL 8                           |
-| Contenedores   | Docker + Docker Compose           |
+| Capa          | Tecnología                        |
+| ------------- | --------------------------------- |
+| Frontend      | React 19 + Vite + Tailwind CSS v4 |
+| Backend       | Node.js + Express 5               |
+| ORM           | Prisma                            |
+| Validación    | Zod 4 (esquemas compartidos)      |
+| Base de datos | MySQL 8                           |
+| Contenedores  | Docker + Docker Compose           |
 
 ## Requisitos
 
