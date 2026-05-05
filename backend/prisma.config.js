@@ -23,4 +23,7 @@ export default defineConfig({
   migrate: {
     adapter: makeAdapter,
   },
+  migrations: {
+    seed: 'node prisma/seed.js',
+  },
 })
