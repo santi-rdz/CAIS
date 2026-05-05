@@ -20,7 +20,7 @@ import PersonCell from '@components/PersonCell'
 import { useNavigate } from 'react-router'
 import { HiArrowRight } from 'react-icons/hi2'
 
-export default function UserRow({ user }) {
+export default function UserRow({ user, isAdmin }) {
   const {
     nombre,
     apellidos,
@@ -29,6 +29,7 @@ export default function UserRow({ user }) {
     correo: email,
     estado: statusUp,
     foto: picture,
+    area,
     id,
   } = user
 
@@ -77,6 +78,7 @@ export default function UserRow({ user }) {
         avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
       />
       <div className="capitalize">{role}</div>
+      {isAdmin && <div className="capitalize">{area?.toLowerCase() ?? '—'}</div>}
       <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>

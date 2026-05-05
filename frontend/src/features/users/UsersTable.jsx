@@ -2,24 +2,28 @@ import Table from '@components/Table'
 import UserRow from './UserRow'
 import { useUsers } from './hooks/useUsers'
 import Pagination from '@components/Pagination'
+import useMe from './hooks/useMe'
 
 export default function UsersTable() {
   const { users, count, isPending } = useUsers()
+  const { user: me } = useMe()
+  const isAdmin = me?.rol === 'ADMIN'
 
   if (isPending) return <UsersTableSkeleton />
 
   return (
-    <Table columns="27fr 10fr 15fr 15fr 2fr">
+    <Table columns={isAdmin ? '27fr 10fr 10fr 15fr 15fr 2fr' : '27fr 10fr 15fr 15fr 2fr'}>
       <Table.Header>
         <div>Nombre</div>
         <div>Rol</div>
+        {isAdmin && <div>Área</div>}
         <div>Ultimo login</div>
         <div>Estado</div>
         <div></div>
       </Table.Header>
       <Table.Body
         data={users}
-        render={(user) => <UserRow user={user} key={user.id} />}
+        render={(user) => <UserRow user={user} key={user.id} isAdmin={isAdmin} />}
       />
       <Table.Footer>
         <Pagination count={count} />
