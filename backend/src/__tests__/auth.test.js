@@ -268,8 +268,8 @@ describe('PATCH /auth/password', () => {
   test('401 — sin sesión activa', async () => {
     const res = await api.patch('/auth/password').send({
       currentPassword: 'cualquiera',
-      newPassword: 'NuevaPass1!',
-      confirmNewPassword: 'NuevaPass1!',
+      password: 'NuevaPass1!',
+      confirmPassword: 'NuevaPass1!',
     })
     assert.equal(res.status, 401)
   })

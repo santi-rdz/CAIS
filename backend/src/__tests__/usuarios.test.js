@@ -17,7 +17,7 @@ beforeAll(async () => {
   agent = request.agent(app)
 
   await agent.post('/auth/login').send({
-    email: 'carlos.herrera@cais.com',
+    email: 'admin@cais.com',
     password: '123',
   })
 })
@@ -214,7 +214,7 @@ describe('GET /usuarios/:id', () => {
   let userId
 
   beforeAll(async () => {
-    const res = await agent.get('/usuarios?page=1&limit=1')
+    const res = await agent.get('/usuarios?page=1&limit=1&status=ACTIVO')
     userId = res.body.users[0]?.id
   })
 
@@ -263,26 +263,28 @@ describe('POST /usuarios — creación directa por admin', () => {
     nombre: 'Test',
     apellidos: 'Pasante',
     correo: `test.pasante.${Date.now()}@test.com`,
-    fechaNacimiento: '2000-01-01',
+    fecha_nacimiento: '2000-01-01',
     telefono: '6861111111',
     rol: 'pasante',
     password: 'Abc12345!',
     matricula: 'TMAT01',
-    servicioInicioAnio: '2026',
-    servicioInicioPeriodo: '1',
-    servicioFinAnio: '2026',
-    servicioFinPeriodo: '2',
+    servicio_inicio_anio: '2026',
+    servicio_inicio_periodo: '1',
+    servicio_fin_anio: '2026',
+    servicio_fin_periodo: '2',
+    area: 'MEDICINA',
   }
 
   const coordValido = {
     nombre: 'Test',
     apellidos: 'Coord',
     correo: `test.coord.${Date.now()}@test.com`,
-    fechaNacimiento: '1990-01-01',
+    fecha_nacimiento: '1990-01-01',
     telefono: '6862222222',
     rol: 'coordinador',
     password: 'Abc12345!',
     cedula: 'TCED01',
+    area: 'MEDICINA',
   }
 
   /**
@@ -384,15 +386,16 @@ describe('PATCH /usuarios/:id', () => {
       nombre: 'Patch',
       apellidos: 'Test',
       correo: `patch.${Date.now()}@test.com`,
-      fechaNacimiento: '2000-01-01',
+      fecha_nacimiento: '2000-01-01',
       telefono: '6863333333',
       rol: 'pasante',
       password: 'Abc12345!',
       matricula: 'PMAT01',
-      servicioInicioAnio: '2026',
-      servicioInicioPeriodo: '1',
-      servicioFinAnio: '2026',
-      servicioFinPeriodo: '2',
+      servicio_inicio_anio: '2026',
+      servicio_inicio_periodo: '1',
+      servicio_fin_anio: '2026',
+      servicio_fin_periodo: '2',
+      area: 'MEDICINA',
     })
     userId = res.body.usuario.id
   })
@@ -556,15 +559,16 @@ describe('DELETE /usuarios/:id', () => {
       nombre: 'Delete',
       apellidos: 'Test',
       correo: `delete.${Date.now()}@test.com`,
-      fechaNacimiento: '2000-01-01',
+      fecha_nacimiento: '2000-01-01',
       telefono: '6864444444',
       rol: 'pasante',
       password: 'Abc12345!',
       matricula: 'DMAT01',
-      servicioInicioAnio: '2026',
-      servicioInicioPeriodo: '1',
-      servicioFinAnio: '2026',
-      servicioFinPeriodo: '2',
+      servicio_inicio_anio: '2026',
+      servicio_inicio_periodo: '1',
+      servicio_fin_anio: '2026',
+      servicio_fin_periodo: '2',
+      area: 'MEDICINA',
     })
     userId = res.body.usuario?.id
   })
