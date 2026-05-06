@@ -7,7 +7,7 @@ export default function BirthdayField({
   control,
   errors,
   birthdate = true,
-  name = 'fechaNacimiento',
+  name = 'fecha_nacimiento',
   required,
   disableFuture = false,
 }) {

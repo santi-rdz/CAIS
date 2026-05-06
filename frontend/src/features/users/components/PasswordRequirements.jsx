@@ -1,5 +1,5 @@
 import { HiCheck, HiXMark } from 'react-icons/hi2'
-import { PASSWORD_REQUIREMENTS as REQUIREMENTS } from '@cais/shared/schemas/fields'
+import { PASSWORD_REQUIREMENTS as REQUIREMENTS } from '@cais/shared/constants/users'
 
 function RequirementItem({ met, label }) {
   return (

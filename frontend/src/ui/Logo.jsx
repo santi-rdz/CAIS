@@ -28,7 +28,7 @@ Logo.Area = function Area() {
   const { user } = useMe()
   return (
     <span className="text-7 mt-1 inline-flex w-fit items-center rounded-full bg-green-50 px-2 py-0.5 font-medium tracking-wide text-green-700 capitalize">
-      {user?.area?.toLowerCase() ?? 'Admin'}
+      {user?.area?.toLowerCase() ?? user?.role?.toLowerCase()}
     </span>
   )
 }
