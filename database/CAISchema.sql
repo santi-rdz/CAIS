@@ -484,23 +484,7 @@ CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     creado_at DATE DEFAULT (CURRENT_DATE),
-    /* id_perfil_anemia INT, */
-    /* id_perfil_endocrino INT, */
-    /* id_perfil_renal_electrolitos INT, */
-    /* id_perfil_lipidos INT, */
-    /* id_balance_acido_base INT, */
-    /* id_perfil_orina INT, */
-    /* id_perfil_inflamatorio INT, */
-    /* id_eval_estado_nutr INT, */
     CONSTRAINT fk_paciente_eval_bioq FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
-    /* CONSTRAINT fk_anemia_eval_bioq FOREIGN KEY (id_perfil_anemia) REFERENCES perfil_anemia_nutricion(id), */
-    /* CONSTRAINT fk_endocrino_eval_bioq FOREIGN KEY (id_perfil_endocrino) REFERENCES perfil_endocrino(id), */
-    /* CONSTRAINT fk_renal_eval_bioq FOREIGN KEY (id_perfil_renal_electrolitos) REFERENCES perfil_renal_electrolitos(id), */
-    /* CONSTRAINT fk_lipidos_eval_bioq FOREIGN KEY (id_perfil_lipidos) REFERENCES perfil_lipidos(id), */
-    /* CONSTRAINT fk_acido_base_eval_bioq FOREIGN KEY (id_balance_acido_base) REFERENCES balance_acido_base(id), */
-    /* CONSTRAINT fk_orina_eval_bioq FOREIGN KEY (id_perfil_orina) REFERENCES perfil_orina(id), */
-    /* CONSTRAINT fk_inflamatorio_eval_bioq FOREIGN KEY (id_perfil_inflamatorio) REFERENCES perfil_inflamatorio(id), */
-    /* CONSTRAINT fk_estado_eval_bioq FOREIGN KEY (id_eval_estado_nutr) REFERENCES eval_estado_nutricion(id) */
 );
 
 CREATE TABLE IF NOT EXISTS perfil_anemia_nutricion(
