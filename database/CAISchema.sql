@@ -107,77 +107,6 @@ CREATE TABLE IF NOT EXISTS adicciones(
     cual_med_contr TEXT
 );
 
-CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    hora_desayuno VARCHAR(20),
-    hora_comida VARCHAR(20),
-    hora_cena VARCHAR(20),
-    hora_colac_1 VARCHAR(20),
-    hora_colac_2 VARCHAR(20),
-    hora_colac_3 VARCHAR(20),
-    hora_despierto VARCHAR(20),
-    tipo_alimentacion VARCHAR(10),
-    problemas_masticar BOOLEAN,
-    problemas_pasar_alimento BOOLEAN,
-    perdida_dientes BOOLEAN,
-    pensamientos_sobre_dieta VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    apetito VARCHAR(20),
-    lleno VARCHAR(20),
-    sabor_comida VARCHAR(20),
-    comidas_al_dia VARCHAR(20),
-    puntaje_total TINYINT,
-    clasif_alteracion_apetito VARCHAR(20)
-);
-
-CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    frutas VARCHAR(20),
-    verduras_cocidas VARCHAR(20),
-    verduras_crudas VARCHAR(20),
-    pescado VARCHAR(20),
-    mariscos VARCHAR(20),
-    pollo VARCHAR(20),
-    carne_roja VARCHAR(20),
-    quesos VARCHAR(20),
-    huevo_entero VARCHAR(20),
-    clara_huevo VARCHAR(20),
-    embutidos VARCHAR(20),
-    leguminosas VARCHAR(20),
-    tortilla_maiz VARCHAR(20),
-    cant_tortilla_maiz VARCHAR(20),
-    tortilla_harina VARCHAR(20),
-    cant_tortilla_harina VARCHAR(20),
-    pan_de_caja VARCHAR(20),
-    galletas_industr VARCHAR(20),
-    pan_dulce VARCHAR(20),
-    cereal_de_caja VARCHAR(20),
-    frituras_papas VARCHAR(20),
-    birote_bolillo VARCHAR(20),
-    pastas_arroz VARCHAR(20),
-    aderezos_capsu VARCHAR(20),
-    comida_rapida VARCHAR(20),
-    grasa_animal VARCHAR(20),
-    grasa_vegetal VARCHAR(20),
-    cafe_te VARCHAR(20),
-    litros_al_dia_cafe_te VARCHAR(20),
-    bebida_az VARCHAR(20),
-    litros_al_dia_beb_az VARCHAR(20),
-    bebida_endul_art VARCHAR(20),
-    litros_al_dia_beb_endul VARCHAR(20),
-    leche_sin_az VARCHAR(20),
-    litros_al_dia_leche_sin_az VARCHAR(20),
-    agua_simple VARCHAR(20),
-    litros_al_dia_agua_simple VARCHAR(20),
-    agrega_sal_extra VARCHAR(20),
-    cdas_al_dia_sal_extra TINYINT,
-    agrega_azucar VARCHAR(20),
-    cdas_sobres_al_dia_azucar TINYINT
-);
-
 CREATE TABLE IF NOT EXISTS eval_perdida_peso_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     peso_habitual FLOAT,
@@ -483,7 +412,7 @@ CREATE TABLE IF NOT EXISTS eval_bioq_nutricion(
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
-    creado_at DATE DEFAULT (CURRENT_DATE),
+    creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_paciente_eval_bioq FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
@@ -593,18 +522,95 @@ CREATE TABLE IF NOT EXISTS eval_estado_nutricion(
 -- EVALUACION NUTRICIONAL
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_nutr_fh(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
-    id_horarios_comida INT,
-    id_eval_apetito INT,
-    id_frec_consumo INT,
-    CONSTRAINT fk_paciente_eval_nutr FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_horarios_eval_nutr FOREIGN KEY (id_horarios_comida) REFERENCES horarios_comida_nutricion(id),
-    CONSTRAINT fk_apetito_eval_nutr FOREIGN KEY (id_eval_apetito) REFERENCES eval_apetito_nutricion(id),
-    CONSTRAINT fk_frec_consumo_eval_nutr FOREIGN KEY (id_frec_consumo) REFERENCES frec_consumo_alimentos_nutricion(id)
+    sigue_dieta BOOLEAN,
+    tiene_alergia BOOLEAN,
+    cual_alergia TEXT,
+    alimentos_disgusta TEXT,
+    creado_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_paciente_eval_nutr FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
+CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_nutr BINARY(16) NOT NULL UNIQUE,
+    hora_desayuno VARCHAR(20),
+    hora_comida VARCHAR(20),
+    hora_cena VARCHAR(20),
+    hora_colac_1 VARCHAR(20),
+    hora_colac_2 VARCHAR(20),
+    hora_colac_3 VARCHAR(20),
+    hora_despierto VARCHAR(20),
+    tipo_alimentacion VARCHAR(10),
+    problemas_masticar BOOLEAN,
+    problemas_pasar_alimento BOOLEAN,
+    perdida_dientes BOOLEAN,
+    pensamientos_sobre_dieta VARCHAR(255),
+    CONSTRAINT fk_horarios_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+);
+
+CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_nutr BINARY(16) NOT NULL UNIQUE,
+    apetito VARCHAR(20),
+    lleno VARCHAR(20),
+    sabor_comida VARCHAR(20),
+    comidas_al_dia VARCHAR(20),
+    puntaje_total TINYINT,
+    clasif_alteracion_apetito VARCHAR(20),
+    CONSTRAINT fk_apetito_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+);
+
+CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_eval_nutr BINARY(16) NOT NULL UNIQUE,
+    frutas VARCHAR(20),
+    verduras_cocidas VARCHAR(20),
+    verduras_crudas VARCHAR(20),
+    pescado VARCHAR(20),
+    mariscos VARCHAR(20),
+    pollo VARCHAR(20),
+    carne_roja VARCHAR(20),
+    quesos VARCHAR(20),
+    huevo_entero VARCHAR(20),
+    clara_huevo VARCHAR(20),
+    embutidos VARCHAR(20),
+    leguminosas VARCHAR(20),
+    tortilla_maiz VARCHAR(20),
+    cant_tortilla_maiz VARCHAR(20),
+    tortilla_harina VARCHAR(20),
+    cant_tortilla_harina VARCHAR(20),
+    pan_de_caja VARCHAR(20),
+    galletas_industr VARCHAR(20),
+    pan_dulce VARCHAR(20),
+    cereal_de_caja VARCHAR(20),
+    frituras_papas VARCHAR(20),
+    birote_bolillo VARCHAR(20),
+    pastas_arroz VARCHAR(20),
+    aderezos_capsu VARCHAR(20),
+    comida_rapida VARCHAR(20),
+    grasa_animal VARCHAR(20),
+    grasa_vegetal VARCHAR(20),
+    cafe_te VARCHAR(20),
+    litros_al_dia_cafe_te VARCHAR(20),
+    bebida_az VARCHAR(20),
+    litros_al_dia_beb_az VARCHAR(20),
+    bebida_endul_art VARCHAR(20),
+    litros_al_dia_beb_endul VARCHAR(20),
+    leche_sin_az VARCHAR(20),
+    litros_al_dia_leche_sin_az VARCHAR(20),
+    agua_simple VARCHAR(20),
+    litros_al_dia_agua_simple VARCHAR(20),
+    agrega_sal_extra VARCHAR(20),
+    cdas_al_dia_sal_extra TINYINT,
+    agrega_azucar VARCHAR(20),
+    cdas_sobres_al_dia_azucar TINYINT,
+    CONSTRAINT fk_consumo_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+);
+
+-- QUITAR
 CREATE TABLE IF NOT EXISTS patron_alimentacion_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
