@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { correoSchema, rolesSchema } from './fields.js'
+import { correoSchema, rolSchema } from './fields.js'
 
 const invitationSchema = z.object({
   email: correoSchema,
-  role: rolesSchema,
+  role: rolSchema,
 })
 
 export function validateInvitedUser(input) {
