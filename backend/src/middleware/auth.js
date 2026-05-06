@@ -1,3 +1,7 @@
+import { ROLES } from '@cais/shared/constants/users'
+
+const [, , ADMIN] = ROLES
+
 export function requireAuth(req, res, next) {
   if (!req.session?.userId) {
     return res.status(401).json({ error: 'No autenticado' })
@@ -16,7 +20,7 @@ export function requireRole(...roles) {
 
 export function requireArea(...areas) {
   return (req, res, next) => {
-    if (req.session?.role === 'ADMIN') return next()
+    if (req.session?.role === ADMIN) return next()
     if (!areas.includes(req.session?.area)) {
       return res.status(403).json({ error: 'Sin permiso para esta área' })
     }

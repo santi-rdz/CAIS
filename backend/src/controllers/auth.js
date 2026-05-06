@@ -6,8 +6,11 @@ import { prisma } from '#config/prisma.js'
 import {
   validatePasswordReset,
   validateChangePassword,
-} from '@cais/shared/schemas/users'
+} from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
+import { ESTADOS } from '@cais/shared/constants/users'
+
+const [ACTIVO] = ESTADOS
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
@@ -50,7 +53,7 @@ export class AuthController {
         return res.status(401).json({ error: 'Contraseña inválida' })
       }
 
-      if (user.estados?.codigo !== 'ACTIVO') {
+      if (user.estados?.codigo !== ACTIVO) {
         return res.status(403).json({ error: 'Cuenta desactivada' })
       }
 
@@ -105,7 +108,7 @@ export class AuthController {
 
   // ─── Flujo: cambiar contraseña desde configuración ──────────────────────────
   // PATCH /auth/password  (requiere sesión activa)
-  // Body: { currentPassword, newPassword, confirmNewPassword }
+  // Body: { currentPassword, password, confirmPassword }
 
   static async changePassword(req, res) {
     try {
@@ -117,7 +120,7 @@ export class AuthController {
         })
       }
 
-      const { currentPassword, newPassword } = validation.data
+      const { currentPassword, password: newPassword } = validation.data
 
       const user = await prisma.usuarios.findUnique({
         where: { id: uuidToBuffer(req.session.userId) },
