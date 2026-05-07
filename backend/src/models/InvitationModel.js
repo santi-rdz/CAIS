@@ -27,7 +27,7 @@ export class InvitationModel {
       },
       include: {
         roles: true,
-        usuarios: { select: { area_id: true } },
+        usuarios: { select: { areas: { select: { nombre: true } } } },
       },
     })
 
@@ -39,7 +39,7 @@ export class InvitationModel {
       rol: inv.roles.codigo,
       usado: inv.usado,
       expira_at: inv.expira_at,
-      area_id: inv.usuarios?.area_id ?? null,
+      area: inv.usuarios?.areas?.nombre ?? null,
     }
   }
 

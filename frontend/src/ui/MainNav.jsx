@@ -1,14 +1,23 @@
 import { NavLink } from 'react-router'
 import navRoutes from './navRoutes'
 import NewPatientButton from '@features/patients/components/NewPatientButton'
+import useMe from '@features/users/hooks/useMe'
 
 export default function MainNav({ isExpanded }) {
+  const { user } = useMe()
+  const isAdmin = user?.rol === 'ADMIN'
+  const userArea = user?.area?.toUpperCase() ?? null
+
+  const visibleRoutes = navRoutes.filter(
+    (r) => !r.areas || isAdmin || r.areas.includes(userArea)
+  )
+
   return (
     <nav className="flex flex-col gap-4">
       <ul
         className={`flex flex-col gap-1 ${isExpanded ? '' : 'lg:items-center'}`}
       >
-        {navRoutes.map((r) => (
+        {visibleRoutes.map((r) => (
           <NavLi route={r} key={r.path} isExpanded={isExpanded} />
         ))}
       </ul>

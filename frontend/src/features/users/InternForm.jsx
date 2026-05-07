@@ -5,24 +5,21 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import {
-  internCreateSchema,
-  internSelfRegisterBaseSchema,
-} from '@cais/shared/schemas/users'
+import { pasanteSchema, pasanteSignupSchema } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 
-const internSignupFormSchema = internSelfRegisterBaseSchema
+const internSignupFormSchema = pasanteSignupSchema
   .omit({ token: true })
-  .extend({ fechaNacimiento: dayjsDateSchema })
+  .extend({ fecha_nacimiento: dayjsDateSchema })
   .refine((d) => d.password === d.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
 
-const internEditSchema = internCreateSchema
+const internEditSchema = pasanteSchema
   .omit({ rol: true, password: true })
-  .extend({ fechaNacimiento: dayjsDateSchema })
+  .extend({ fecha_nacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
@@ -36,16 +33,16 @@ function parseUserDefaults(user) {
   return {
     nombre,
     apellidos,
-    fechaNacimiento: user.fecha_nacimiento
+    fecha_nacimiento: user.fecha_nacimiento
       ? dayjs(user.fecha_nacimiento)
       : null,
     telefono: user.telefono ?? '',
     correo: user.correo ?? '',
     matricula: user.matricula ?? '',
-    servicioInicioAnio: inicioAnio,
-    servicioInicioPeriodo: inicioPeriodo,
-    servicioFinAnio: finAnio,
-    servicioFinPeriodo: finPeriodo,
+    servicio_inicio_anio: inicioAnio,
+    servicio_inicio_periodo: inicioPeriodo,
+    servicio_fin_anio: finAnio,
+    servicio_fin_periodo: finPeriodo,
   }
 }
 
@@ -82,21 +79,21 @@ export default function InternForm({
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
-  const createFormSchema = internCreateSchema
+  const createFormSchema = pasanteSchema
     .omit({ rol: true })
-    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
+    .extend({ fecha_nacimiento: dayjsDateSchema, correo: correoField })
 
   const allPersonalAndAcademicFields = [
     'nombre',
     'apellidos',
-    'fechaNacimiento',
+    'fecha_nacimiento',
     'telefono',
     'correo',
     'matricula',
-    'servicioInicioAnio',
-    'servicioInicioPeriodo',
-    'servicioFinAnio',
-    'servicioFinPeriodo',
+    'servicio_inicio_anio',
+    'servicio_inicio_periodo',
+    'servicio_fin_anio',
+    'servicio_fin_periodo',
   ]
 
   const stepsFields = isEdit
@@ -138,13 +135,13 @@ export default function InternForm({
             nombre: data.nombre,
             apellidos: data.apellidos,
             correo: data.correo,
-            fechaNacimiento: data.fechaNacimiento,
+            fecha_nacimiento: data.fecha_nacimiento,
             telefono: data.telefono,
             matricula: data.matricula,
-            servicioInicioAnio: data.servicioInicioAnio,
-            servicioInicioPeriodo: data.servicioInicioPeriodo,
-            servicioFinAnio: data.servicioFinAnio,
-            servicioFinPeriodo: data.servicioFinPeriodo,
+            servicio_inicio_anio: data.servicio_inicio_anio,
+            servicio_inicio_periodo: data.servicio_inicio_periodo,
+            servicio_fin_anio: data.servicio_fin_anio,
+            servicio_fin_periodo: data.servicio_fin_periodo,
           },
         },
         { onSuccess: () => close?.() }
@@ -156,13 +153,13 @@ export default function InternForm({
       externalOnSubmit({
         nombre: data.nombre,
         apellidos: data.apellidos,
-        fechaNacimiento: data.fechaNacimiento,
+        fecha_nacimiento: data.fecha_nacimiento,
         telefono: data.telefono,
         matricula: data.matricula,
-        servicioInicioAnio: data.servicioInicioAnio,
-        servicioInicioPeriodo: data.servicioInicioPeriodo,
-        servicioFinAnio: data.servicioFinAnio,
-        servicioFinPeriodo: data.servicioFinPeriodo,
+        servicio_inicio_anio: data.servicio_inicio_anio,
+        servicio_inicio_periodo: data.servicio_inicio_periodo,
+        servicio_fin_anio: data.servicio_fin_anio,
+        servicio_fin_periodo: data.servicio_fin_periodo,
         password: data.password,
         confirmPassword: data.confirmPassword,
       })
@@ -172,14 +169,14 @@ export default function InternForm({
           nombre: data.nombre,
           apellidos: data.apellidos,
           correo: resolveEmail(data.correo),
-          fechaNacimiento: data.fechaNacimiento,
+          fecha_nacimiento: data.fecha_nacimiento,
           telefono: data.telefono,
           rol: 'pasante',
           matricula: data.matricula,
-          servicioInicioAnio: data.servicioInicioAnio,
-          servicioInicioPeriodo: data.servicioInicioPeriodo,
-          servicioFinAnio: data.servicioFinAnio,
-          servicioFinPeriodo: data.servicioFinPeriodo,
+          servicio_inicio_anio: data.servicio_inicio_anio,
+          servicio_inicio_periodo: data.servicio_inicio_periodo,
+          servicio_fin_anio: data.servicio_fin_anio,
+          servicio_fin_periodo: data.servicio_fin_periodo,
           password: data.password,
         },
         { onSuccess: () => close?.() }

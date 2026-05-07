@@ -26,6 +26,7 @@ const navRoutes = [
     name: 'Bitácora de emergencias',
     shortName: 'Emergencias',
     icon: HiOutlineBookOpen,
+    areas: ['MEDICINA'],
   },
   {
     path: '/estadisticas',

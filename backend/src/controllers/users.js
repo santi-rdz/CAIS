@@ -1,55 +1,42 @@
 import {
   validateUserUpdate,
-  validateAdminCreate,
-  validateSelfRegister,
+  validateUserCreate,
+  validateSignup,
 } from '@cais/shared/schemas/users'
-import { randomUUID } from 'node:crypto'
+import { ROLES } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
-import { uuidToBuffer } from '#lib/uuid.js'
 import { parsePagination } from '#lib/paginate.js'
 import { BCRYPT_ROUNDS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '#lib/formatErrors.js'
 
-async function getAreaIdFromCreator(creatorId) {
-  if (!creatorId) return null
-  try {
-    const creator = await prisma.usuarios.findUnique({
-      where: { id: uuidToBuffer(creatorId) },
-      select: { area_id: true },
-    })
-    return creator?.area_id ?? null
-  } catch {
-    return null
-  }
+function randomAvatar() {
+  const gender = Math.random() < 0.5 ? 'men' : 'women'
+  const n = Math.floor(Math.random() * 99) + 1
+  return `https://randomuser.me/api/portraits/${gender}/${n}.jpg`
 }
 
-function buildServicio(anio, periodo) {
-  return anio && periodo ? `${anio}-${periodo}` : null
-}
-
-async function buildUserPayload(data) {
-  return {
-    nombre: data.nombre,
-    apellidos: data.apellidos,
-    foto: `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 99) + 1}.jpg`,
-    passwordHash: await bcrypt.hash(data.password, BCRYPT_ROUNDS),
-    matricula: data.matricula || null,
-    cedula: data.cedula || null,
-    inicioServicio: buildServicio(
-      data.servicioInicioAnio,
-      data.servicioInicioPeriodo
-    ),
-    finServicio: buildServicio(data.servicioFinAnio, data.servicioFinPeriodo),
+function handlePrismaError(err, res) {
+  if (err.code === 'P2002') {
+    return res
+      .status(409)
+      .json({ error: 'Conflict', message: 'El correo ya está registrado' })
   }
+  throw err
 }
 
 export class UserController {
   static async getAll(req, res) {
     const { status, rol, sortBy, search } = req.query
     const { page, limit } = parsePagination(req.query)
+
+    if (req.session.role !== ROLES.ADMIN && !req.session.areaId) {
+      return res.status(403).json({ message: 'Usuario sin área asignada' })
+    }
+
+    const areaId = req.session.role === ROLES.ADMIN ? null : req.session.areaId
 
     const users = await UserModel.getAll({
       status,
@@ -58,20 +45,19 @@ export class UserController {
       search,
       page,
       limit,
+      areaId,
     })
     res.json(users)
   }
 
   static async getById(req, res) {
-    const { id } = req.params
-    const user = await UserModel.getById(id)
+    const user = await UserModel.getById(req.params.id)
     if (!user) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json(user)
   }
 
   static async delete(req, res) {
-    const { id } = req.params
-    const success = await UserModel.delete(id)
+    const success = await UserModel.delete(req.params.id)
     if (!success)
       return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json({ message: 'Usuario borrado exitosamente' })
@@ -86,45 +72,14 @@ export class UserController {
       })
     }
 
-    const { id } = req.params
-    try {
-      const d = result.data
-      const updatePayload = { ...d }
-
-      // nombre and apellidos are stored separately — no concatenation needed
-
-      if (d.servicioInicioAnio || d.servicioInicioPeriodo) {
-        updatePayload.inicioServicio = buildServicio(
-          d.servicioInicioAnio,
-          d.servicioInicioPeriodo
-        )
-      }
-      if (d.servicioFinAnio || d.servicioFinPeriodo) {
-        updatePayload.finServicio = buildServicio(
-          d.servicioFinAnio,
-          d.servicioFinPeriodo
-        )
-      }
-      delete updatePayload.servicioInicioAnio
-      delete updatePayload.servicioInicioPeriodo
-      delete updatePayload.servicioFinAnio
-      delete updatePayload.servicioFinPeriodo
-
-      const updatedUser = await UserModel.update(id, updatePayload)
-      if (!updatedUser)
-        return res.status(404).json({ message: 'Usuario no encontrado' })
-      res.json(updatedUser)
-    } catch (err) {
-      console.error('Error al actualizar usuario:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al actualizar usuario',
-      })
-    }
+    const updatedUser = await UserModel.update(req.params.id, result.data)
+    if (!updatedUser)
+      return res.status(404).json({ message: 'Usuario no encontrado' })
+    res.json(updatedUser)
   }
 
   static async create(req, res) {
-    const result = validateAdminCreate(req.body)
+    const result = validateUserCreate(req.body)
     if (result.error) {
       return res.status(422).json({
         error: 'ValidationError',
@@ -134,19 +89,16 @@ export class UserController {
     }
 
     try {
-      const payload = await buildUserPayload(result.data)
-      const areaId = await getAreaIdFromCreator(req.session.userId)
+      const area =
+        req.session.role === ROLES.ADMIN ? result.data.area : req.session.area
+      const password_hash = await bcrypt.hash(
+        result.data.password,
+        BCRYPT_ROUNDS
+      )
 
       const createdUser = await prisma.$transaction((tx) =>
         UserModel.create(
-          {
-            ...payload,
-            correo: result.data.correo,
-            fechaNacimiento: result.data.fechaNacimiento,
-            telefono: result.data.telefono,
-            rol: result.data.rol,
-            areaId,
-          },
+          { ...result.data, area, foto: randomAvatar(), password_hash },
           tx
         )
       )
@@ -155,75 +107,48 @@ export class UserController {
         .status(201)
         .json({ message: 'Usuario creado exitosamente', usuario: createdUser })
     } catch (err) {
-      if (err.code === 'P2002') {
-        return res
-          .status(409)
-          .json({ error: 'Conflict', message: 'El correo ya está registrado' })
-      }
-      console.error('Error al crear usuario:', err)
-      res
-        .status(500)
-        .json({ error: 'InternalError', message: 'Error al crear usuario' })
+      handlePrismaError(err, res)
     }
   }
 
   static async registro(req, res) {
-    const { token } = req.body
+    const invitacion = await InvitationModel.findByToken(req.body.token)
+    if (!invitacion) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'El token es inválido, ha expirado o ya fue utilizado',
+      })
+    }
+
+    const result = validateSignup(req.body, invitacion.rol)
+    if (result.error) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'Datos de registro inválidos',
+        fields: formatZodErrors(result.error),
+      })
+    }
 
     try {
-      const invitacion = await InvitationModel.findByToken(token)
-      if (!invitacion) {
-        return res.status(404).json({
-          error: 'NotFound',
-          message: 'El token es inválido, ha expirado o ya fue utilizado',
-        })
-      }
-
-      const result = validateSelfRegister(req.body, invitacion.rol)
-      if (result.error) {
-        return res.status(422).json({
-          error: 'ValidationError',
-          message: 'Datos de registro inválidos',
-          fields: formatZodErrors(result.error),
-        })
-      }
-
-      const data = result.data
-      const payload = await buildUserPayload(data)
-      const userId = randomUUID()
+      const password_hash = await bcrypt.hash(
+        result.data.password,
+        BCRYPT_ROUNDS
+      )
 
       const createdUser = await prisma.$transaction(async (tx) => {
-        const activeStatus = await tx.estados.findFirst({
-          where: { codigo: 'ACTIVO' },
-        })
-        const roleRow = await tx.roles.findFirst({
-          where: { codigo: invitacion.rol.toUpperCase() },
-        })
-
-        if (!activeStatus || !roleRow) throw new Error('Estado o rol inválido')
-
-        await tx.usuarios.create({
-          data: {
-            id: uuidToBuffer(userId),
-            nombre: payload.nombre,
-            apellidos: payload.apellidos ?? null,
+        const user = await UserModel.create(
+          {
+            ...result.data,
             correo: invitacion.correo,
-            fecha_nacimiento: new Date(data.fechaNacimiento),
-            telefono: data.telefono,
-            password_hash: payload.passwordHash,
-            estado_id: activeStatus.id,
-            rol_id: roleRow.id,
-            area_id: invitacion.area_id ?? null,
-            foto: payload.foto,
-            matricula: payload.matricula,
-            cedula: payload.cedula,
-            inicio_servicio: payload.inicioServicio,
-            fin_servicio: payload.finServicio,
+            rol: invitacion.rol,
+            area: invitacion.area ?? null,
+            foto: randomAvatar(),
+            password_hash,
           },
-        })
-
-        await InvitationModel.markAsUsed(token, tx)
-        return await UserModel.getById(userId, tx)
+          tx
+        )
+        await InvitationModel.markAsUsed(req.body.token, tx)
+        return user
       })
 
       res.status(201).json({
@@ -231,16 +156,7 @@ export class UserController {
         usuario: createdUser,
       })
     } catch (err) {
-      if (err.code === 'P2002') {
-        return res
-          .status(409)
-          .json({ error: 'Conflict', message: 'El correo ya está registrado' })
-      }
-      console.error('Error en registro:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al completar registro',
-      })
+      handlePrismaError(err, res)
     }
   }
 }

@@ -6,23 +6,23 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
 import {
-  coordCreateSchema,
-  coordSelfRegisterBaseSchema,
+  coordinadorSchema,
+  coordinadorSignupSchema,
 } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 
-const coordSignupFormSchema = coordSelfRegisterBaseSchema
+const coordSignupFormSchema = coordinadorSignupSchema
   .omit({ token: true })
-  .extend({ fechaNacimiento: dayjsDateSchema })
+  .extend({ fecha_nacimiento: dayjsDateSchema })
   .refine((d) => d.password === d.confirmPassword, {
     message: 'Las contraseñas no coinciden',
     path: ['confirmPassword'],
   })
 
-const coordEditSchema = coordCreateSchema
+const coordEditSchema = coordinadorSchema
   .omit({ rol: true, password: true })
-  .extend({ fechaNacimiento: dayjsDateSchema })
+  .extend({ fecha_nacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
@@ -31,7 +31,7 @@ function parseUserDefaults(user) {
   return {
     nombre,
     apellidos,
-    fechaNacimiento: user.fecha_nacimiento
+    fecha_nacimiento: user.fecha_nacimiento
       ? dayjs(user.fecha_nacimiento)
       : null,
     telefono: user.telefono ?? '',
@@ -72,9 +72,9 @@ export default function CoordForm({
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
     useEmailDomain()
 
-  const createFormSchema = coordCreateSchema
+  const createFormSchema = coordinadorSchema
     .omit({ rol: true })
-    .extend({ fechaNacimiento: dayjsDateSchema, correo: correoField })
+    .extend({ fecha_nacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = isEdit
     ? [
@@ -82,7 +82,7 @@ export default function CoordForm({
           'nombre',
           'apellidos',
           'correo',
-          'fechaNacimiento',
+          'fecha_nacimiento',
           'telefono',
           'cedula',
         ],
@@ -92,7 +92,7 @@ export default function CoordForm({
           'nombre',
           'apellidos',
           'correo',
-          'fechaNacimiento',
+          'fecha_nacimiento',
           'telefono',
           'cedula',
         ],
@@ -131,7 +131,7 @@ export default function CoordForm({
             nombre: data.nombre,
             apellidos: data.apellidos,
             correo: data.correo,
-            fechaNacimiento: data.fechaNacimiento,
+            fecha_nacimiento: data.fecha_nacimiento,
             telefono: data.telefono,
             cedula: data.cedula,
           },
@@ -145,7 +145,7 @@ export default function CoordForm({
       externalOnSubmit({
         nombre: data.nombre,
         apellidos: data.apellidos,
-        fechaNacimiento: data.fechaNacimiento,
+        fecha_nacimiento: data.fecha_nacimiento,
         telefono: data.telefono,
         cedula: data.cedula,
         password: data.password,
@@ -157,7 +157,7 @@ export default function CoordForm({
           nombre: data.nombre,
           apellidos: data.apellidos,
           correo: resolveEmail(data.correo),
-          fechaNacimiento: data.fechaNacimiento,
+          fecha_nacimiento: data.fecha_nacimiento,
           telefono: data.telefono,
           rol: 'coordinador',
           cedula: data.cedula,

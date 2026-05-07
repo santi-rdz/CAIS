@@ -1,33 +1,26 @@
 import { z } from 'zod'
+import {
+  ROLES,
+  AREAS,
+  ESTADOS,
+  PASSWORD_REQUIREMENTS,
+} from '../constants/users.js'
 
-// BE: acepta "YYYY-MM-DD" o ISO, outputs Date para Prisma.
-export const dateSchema = z.coerce.date()
-export const optionalDateSchema = z.preprocess(
-  (v) => (v === '' ? undefined : v),
-  z.coerce.date().nullable().optional()
-)
-
-// Convierte objetos dayjs (date pickers del FE) a string 'YYYY-MM-DD'
-export const dayjsDateSchema = z.preprocess(
-  (v) => {
-    if (!v || v === 'invalid') return ''
-    if (typeof v === 'object' && typeof v.format === 'function')
-      return v.isValid() ? v.format('YYYY-MM-DD') : ''
-    return v
-  },
-  z.string().min(1, 'La fecha es requerida')
-)
-
-export const telefonoSchema = z
-  .string()
-  .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
+// ── Validaciones de texto ─────────────────────────────────────────────
 
 const soloLetras = (v) => /^[\p{L}\s\-']+$/u.test(v)
 const soloLetrasMessage =
   'Solo puede contener letras, espacios, guiones y apóstrofes'
 
-// usuarios.nombre es VarChar(255) en DB
-export const personaBaseFields = {
+// ── Campos reutilizables ──────────────────────────────────────────────
+
+export const correoSchema = z.email('Correo electrónico inválido').max(255)
+
+export const telefonoSchema = z
+  .string()
+  .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
+
+export const personalFields = {
   nombre: z
     .string()
     .min(2, 'El nombre es requerido')
@@ -41,18 +34,69 @@ export const personaBaseFields = {
   telefono: telefonoSchema,
 }
 
-// usuarios.correo y pacientes.correo son VarChar(255) en DB
-export const correoSchema = z.email('Correo electrónico inválido').max(255)
+export const pasanteFields = {
+  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
+  servicio_inicio_anio: z.string().min(1, 'Selecciona el año de inicio'),
+  servicio_inicio_periodo: z.string().min(1, 'Selecciona el periodo de inicio'),
+  servicio_fin_anio: z.string().min(1, 'Selecciona el año de fin'),
+  servicio_fin_periodo: z.string().min(1, 'Selecciona el periodo de fin'),
+}
 
-export const PASSWORD_REQUIREMENTS = [
-  { label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },
-  { label: 'Una letra mayúscula', test: (v) => /[A-Z]/.test(v) },
-  { label: 'Una letra minúscula', test: (v) => /[a-z]/.test(v) },
-  {
-    label: 'Un carácter especial (!@#$%^&*)',
-    test: (v) => /[!@#$%^&*]/.test(v),
+export const coordinadorFields = {
+  cedula: z.string().min(1, 'La cédula es requerida').max(20),
+}
+
+// ── Fechas ────────────────────────────────────────────────────────────
+
+export const dateSchema = z.coerce.date()
+
+export const optionalDateSchema = z.preprocess(
+  (v) => (v === '' ? undefined : v),
+  z.coerce.date().nullable().optional()
+)
+
+export const dayjsDateSchema = z.preprocess(
+  (v) => {
+    if (!v || v === 'invalid') return ''
+    if (typeof v === 'object' && typeof v.format === 'function')
+      return v.isValid() ? v.format('YYYY-MM-DD') : ''
+    return v
   },
-]
+  z.string().min(1, 'La fecha es requerida')
+)
+
+export const isoDateTimeSchema = z.iso.datetime({
+  offset: true,
+  message: 'Fecha y hora inválidas',
+})
+
+export const fechaHoraFormFields = {
+  fecha: z
+    .any()
+    .refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
+  hora: z.any().refine((v) => v !== null && v !== undefined, {
+    message: 'Ingresa la hora',
+  }),
+}
+
+// ── Enums ─────────────────────────────────────────────────────────────
+
+const uppercaseEnum = (values, error) =>
+  z
+    .string()
+    .transform((v) => v.toUpperCase())
+    .pipe(z.enum(values, { error }))
+
+export const rolSchema = uppercaseEnum(Object.values(ROLES), 'Rol inválido')
+
+export const areaSchema = uppercaseEnum(Object.values(AREAS), 'Área inválida')
+
+export const estadoSchema = uppercaseEnum(
+  Object.values(ESTADOS),
+  'Estado inválido'
+)
+
+// ── Passwords ─────────────────────────────────────────────────────────
 
 export const passwordSchema = z
   .string()
@@ -73,22 +117,14 @@ export const passwordSchema = z
     PASSWORD_REQUIREMENTS[3].label
   )
 
-export const rolesSchema = z.enum(['pasante', 'coordinador'], {
-  error: 'El rol debe ser pasante o coordinador',
-})
+export const basicPasswordSchema = z
+  .string()
+  .min(6, 'La contraseña debe tener al menos 6 caracteres')
 
-// ISO datetime con offset para el API (ej. fecha_hora, creado_at)
-export const isoDateTimeSchema = z.iso.datetime({
-  offset: true,
-  message: 'Fecha y hora inválidas',
-})
+// ── Refinements ───────────────────────────────────────────────────────
 
-// Campos separados fecha + hora para formularios con date/time pickers
-export const fechaHoraFormFields = {
-  fecha: z
-    .any()
-    .refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
-  hora: z.any().refine((v) => v !== null && v !== undefined, {
-    message: 'Ingresa la hora',
-  }),
-}
+export const withPasswordConfirmation = (schema) =>
+  schema.refine((d) => d.password === d.confirmPassword, {
+    message: 'Las contraseñas no coinciden',
+    path: ['confirmPassword'],
+  })

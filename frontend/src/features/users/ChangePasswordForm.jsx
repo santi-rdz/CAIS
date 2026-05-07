@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HiCheck } from 'react-icons/hi2'
-import { changePasswordSchema } from '@cais/shared/schemas/users'
+import { changePasswordSchema } from '@cais/shared/schemas/password'
 import PasswordInput from '@components/PasswordInput'
 import Button from '@components/Button'
 import Heading from '@components/Heading'
@@ -19,7 +19,7 @@ export default function ChangePasswordForm() {
     formState: { errors },
   } = useForm({ resolver: zodResolver(changePasswordSchema), mode: 'onChange' })
 
-  const newPassword = watch('newPassword') ?? ''
+  const newPassword = watch('password') ?? ''
 
   function onSubmit(data) {
     changePassword(data, { onSuccess: reset })
@@ -40,19 +40,19 @@ export default function ChangePasswordForm() {
           variant="outline"
         />
         <PasswordInput
-          id="newPassword"
+          id="password"
           label="Nueva contraseña"
           placeholder="Ingresa una contraseña segura"
-          error={errors.newPassword?.message}
-          registration={register('newPassword')}
+          error={errors.password?.message}
+          registration={register('password')}
           variant="outline"
         />
         <PasswordInput
-          id="confirmNewPassword"
+          id="confirmPassword"
           label="Confirmar nueva contraseña"
           placeholder="Repite la nueva contraseña"
-          error={errors.confirmNewPassword?.message}
-          registration={register('confirmNewPassword')}
+          error={errors.confirmPassword?.message}
+          registration={register('confirmPassword')}
           variant="outline"
         />
         <PasswordRequirements password={newPassword} />

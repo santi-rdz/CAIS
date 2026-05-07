@@ -106,6 +106,18 @@ CAIS/
     └── migrations/         # Migraciones SQL
 ```
 
+## Usuarios de prueba
+
+Todos comparten la contraseña: `123`
+
+| Correo                      | Rol         | Área      |
+| --------------------------- | ----------- | --------- |
+| `carlos.herrera@cais.com`   | Pasante     | Medicina  |
+| `sofia.navarro@uabc.edu.mx` | Coordinador | Medicina  |
+| `maria.lopez@uabc.edu.mx`   | Coordinador | Nutrición |
+| `luis.mendoza@uabc.edu.mx`  | Pasante     | Nutrición |
+| `admin@cais.com`            | Admin       | —         |
+
 ## Variables de entorno
 
 El backend toma la conexión a la base de datos desde `DATABASE_URL`. En Docker Compose ya está configurada. Para desarrollo local, crea `backend/.env`:

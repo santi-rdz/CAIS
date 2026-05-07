@@ -9,6 +9,8 @@ export class AuthModel {
         correo: true,
         nombre: true,
         password_hash: true,
+        area_id: true,
+        areas: { select: { nombre: true } },
         roles: { select: { codigo: true } },
         estados: { select: { codigo: true } },
       },

@@ -6,8 +6,9 @@ import { prisma } from '#config/prisma.js'
 import {
   validatePasswordReset,
   validateChangePassword,
-} from '@cais/shared/schemas/users'
+} from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
+import { ESTADOS } from '@cais/shared/constants/users'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
@@ -50,7 +51,7 @@ export class AuthController {
         return res.status(401).json({ error: 'Contraseña inválida' })
       }
 
-      if (user.estados?.codigo !== 'ACTIVO') {
+      if (user.estados?.codigo !== ESTADOS.ACTIVO) {
         return res.status(403).json({ error: 'Cuenta desactivada' })
       }
 
@@ -58,6 +59,8 @@ export class AuthController {
         if (err) return res.status(500).json({ error: 'Server error' })
         req.session.userId = bufferToUUID(user.id)
         req.session.role = user.roles?.codigo
+        req.session.areaId = user.area_id ?? null
+        req.session.area = user.areas?.nombre ?? null
         prisma.usuarios
           .update({
             where: { id: user.id },
@@ -103,7 +106,7 @@ export class AuthController {
 
   // ─── Flujo: cambiar contraseña desde configuración ──────────────────────────
   // PATCH /auth/password  (requiere sesión activa)
-  // Body: { currentPassword, newPassword, confirmNewPassword }
+  // Body: { currentPassword, password, confirmPassword }
 
   static async changePassword(req, res) {
     try {
@@ -115,7 +118,7 @@ export class AuthController {
         })
       }
 
-      const { currentPassword, newPassword } = validation.data
+      const { currentPassword, password: newPassword } = validation.data
 
       const user = await prisma.usuarios.findUnique({
         where: { id: uuidToBuffer(req.session.userId) },
@@ -145,6 +148,8 @@ export class AuthController {
 
       const userId = bufferToUUID(user.id)
       const role = req.session.role
+      const areaId = req.session.areaId
+      const area = req.session.area
 
       req.session.regenerate((err) => {
         if (err) {
@@ -156,6 +161,8 @@ export class AuthController {
         }
         req.session.userId = userId
         req.session.role = role
+        req.session.areaId = areaId
+        req.session.area = area
         return res.json({ message: 'Contraseña actualizada exitosamente' })
       })
     } catch (err) {

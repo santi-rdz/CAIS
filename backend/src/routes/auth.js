@@ -36,7 +36,7 @@ authRouter.get('/me', requireAuth, AuthController.me)
 authRouter.post('/logout', AuthController.logout)
 
 // ─── Contraseña desde configuración (usuario autenticado) ──────────────────
-// PATCH /auth/password  { currentPassword, newPassword, confirmNewPassword }
+// PATCH /auth/password  { currentPassword, password, confirmPassword }
 authRouter.patch('/password', requireAuth, AuthController.changePassword)
 
 // ─── Flujo "olvidé mi contraseña" (sin sesión) ─────────────────────────────

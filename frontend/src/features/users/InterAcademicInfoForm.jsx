@@ -77,13 +77,13 @@ export default function InterAcademicInfoForm({
           <p className="text-5 mb-2">Inicio de Servicio</p>
           <div className="flex gap-2">
             <Controller
-              name="servicioInicioAnio"
+              name="servicio_inicio_anio"
               control={control}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
-                  hasError={!!errors?.servicioInicioAnio}
+                  hasError={!!errors?.servicio_inicio_anio}
                   className="flex-1"
                 >
                   <SelectTrigger>
@@ -100,13 +100,13 @@ export default function InterAcademicInfoForm({
               )}
             />
             <Controller
-              name="servicioInicioPeriodo"
+              name="servicio_inicio_periodo"
               control={control}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
-                  hasError={!!errors?.servicioInicioPeriodo}
+                  hasError={!!errors?.servicio_inicio_periodo}
                   className="flex-1"
                 >
                   <SelectTrigger>
@@ -123,7 +123,8 @@ export default function InterAcademicInfoForm({
               )}
             />
           </div>
-          {(errors?.servicioInicioAnio || errors?.servicioInicioPeriodo) && (
+          {(errors?.servicio_inicio_anio ||
+            errors?.servicio_inicio_periodo) && (
             <span className="text-5 mt-1.5 inline-block text-red-600">
               Selecciona año y periodo de inicio
             </span>
@@ -135,13 +136,13 @@ export default function InterAcademicInfoForm({
           <p className="text-5 mb-2">Fin de Servicio</p>
           <div className="flex gap-2">
             <Controller
-              name="servicioFinAnio"
+              name="servicio_fin_anio"
               control={control}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
-                  hasError={!!errors?.servicioFinAnio}
+                  hasError={!!errors?.servicio_fin_anio}
                   className="flex-1"
                 >
                   <SelectTrigger>
@@ -158,13 +159,13 @@ export default function InterAcademicInfoForm({
               )}
             />
             <Controller
-              name="servicioFinPeriodo"
+              name="servicio_fin_periodo"
               control={control}
               render={({ field }) => (
                 <Select
                   value={field.value ?? ''}
                   onValueChange={field.onChange}
-                  hasError={!!errors?.servicioFinPeriodo}
+                  hasError={!!errors?.servicio_fin_periodo}
                   className="flex-1"
                 >
                   <SelectTrigger>
@@ -181,7 +182,7 @@ export default function InterAcademicInfoForm({
               )}
             />
           </div>
-          {(errors?.servicioFinAnio || errors?.servicioFinPeriodo) && (
+          {(errors?.servicio_fin_anio || errors?.servicio_fin_periodo) && (
             <span className="text-5 mt-1.5 inline-block text-red-600">
               Selecciona año y periodo de fin
             </span>

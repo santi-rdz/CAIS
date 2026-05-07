@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
-import { USER_SORT_DEFS } from '@cais/shared/constants/users'
+import { USER_SORT_DEFS, ESTADOS } from '@cais/shared/constants/users'
 import { formatDefs } from '#lib/formatDef.js'
 
 const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
@@ -32,13 +32,13 @@ function formatPendingInvitation(inv) {
     correo: inv.correo,
     foto: null,
     ultimo_acceso: null,
-    estado: 'PENDIENTE',
+    estado: ESTADOS.PENDIENTE,
     rol: inv.roles?.codigo ?? null,
     area: null,
   }
 }
 
-function buildPendingWhere({ rol, search }) {
+function buildPendingWhere({ rol, search, areaId }) {
   const where = { usado: false, expira_at: { gt: new Date() } }
   if (rol) {
     where.roles = {
@@ -48,10 +48,13 @@ function buildPendingWhere({ rol, search }) {
   if (search) {
     where.correo = { contains: search }
   }
+  if (areaId != null) {
+    where.usuarios = { is: { area_id: areaId } }
+  }
   return where
 }
 
-function buildUserWhere({ statuses, rol, search }) {
+function buildUserWhere({ statuses, rol, search, areaId }) {
   const where = {}
   if (statuses?.length) {
     where.estados = { codigo: { in: statuses } }
@@ -67,6 +70,9 @@ function buildUserWhere({ statuses, rol, search }) {
       { apellidos: { contains: search } },
       { correo: { contains: search } },
     ]
+  }
+  if (areaId != null) {
+    where.area_id = areaId
   }
   return where
 }
@@ -101,18 +107,29 @@ async function queryUsers({ where, orderBy, skip, take }) {
   return { items, count }
 }
 
+function buildServicio(anio, periodo) {
+  return anio && periodo ? `${anio}-${periodo}` : null
+}
+
 export class UserModel {
-  static async getAll({ status, rol, sortBy, search, page, limit }) {
+  static async getAll({ status, rol, sortBy, search, page, limit, areaId }) {
     const statuses = status
       ? status.split(',').map((s) => s.trim().toUpperCase())
       : null
 
-    const includePending = !statuses || statuses.includes('PENDIENTE')
-    const onlyPending = statuses?.length === 1 && statuses[0] === 'PENDIENTE'
-    const userStatuses = statuses?.filter((s) => s !== 'PENDIENTE') ?? null
+    const includePending = !statuses || statuses.includes(ESTADOS.PENDIENTE)
+    const onlyPending =
+      statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
+    const userStatuses =
+      statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
 
-    const pendingWhere = buildPendingWhere({ rol, search })
-    const userWhere = buildUserWhere({ statuses: userStatuses, rol, search })
+    const pendingWhere = buildPendingWhere({ rol, search, areaId })
+    const userWhere = buildUserWhere({
+      statuses: userStatuses,
+      rol,
+      search,
+      areaId,
+    })
     const orderBy = SORT_OPTIONS[sortBy] ?? { creado_at: 'desc' }
     const globalOffset = (page - 1) * limit
 
@@ -126,7 +143,6 @@ export class UserModel {
       return { users: items.map(formatUser), count }
     }
 
-    // Pendientes primero — contar ambas fuentes en paralelo
     const [pendingCount, userCount] = await Promise.all([
       prisma.invitaciones_registro.count({ where: pendingWhere }),
       onlyPending
@@ -178,35 +194,34 @@ export class UserModel {
       return true
     } catch (err) {
       if (err.code === 'P2025') return false
-      console.error('Error en UserModel.delete:', err)
       throw err
     }
   }
 
   static async update(id, data) {
-    const fieldMap = {
-      nombre: 'nombre',
-      apellidos: 'apellidos',
-      correo: 'correo',
-      fechaNacimiento: 'fecha_nacimiento',
-      telefono: 'telefono',
-      matricula: 'matricula',
-      cedula: 'cedula',
-      inicioServicio: 'inicio_servicio',
-      finServicio: 'fin_servicio',
-    }
+    const {
+      servicio_inicio_anio,
+      servicio_inicio_periodo,
+      servicio_fin_anio,
+      servicio_fin_periodo,
+      estado,
+      ...rest
+    } = data
 
-    const prismaData = Object.fromEntries(
-      Object.entries(data)
-        .filter(([k]) => fieldMap[k])
-        .map(([k, v]) => [fieldMap[k], v])
-    )
-
-    if (data.estado) {
-      const estadoRow = await prisma.estados.findFirst({
-        where: { codigo: data.estado.toUpperCase() },
-      })
-      if (estadoRow) prismaData.estado_id = estadoRow.id
+    const prismaData = {
+      ...rest,
+      ...(servicio_inicio_anio &&
+        servicio_inicio_periodo && {
+          inicio_servicio: buildServicio(
+            servicio_inicio_anio,
+            servicio_inicio_periodo
+          ),
+        }),
+      ...(servicio_fin_anio &&
+        servicio_fin_periodo && {
+          fin_servicio: buildServicio(servicio_fin_anio, servicio_fin_periodo),
+        }),
+      ...(estado && { estados: { connect: { codigo: estado } } }),
     }
 
     try {
@@ -217,7 +232,6 @@ export class UserModel {
       return await this.getById(id)
     } catch (err) {
       if (err.code === 'P2025') return null
-      console.error('Error en UserModel.update:', err)
       throw err
     }
   }
@@ -225,32 +239,33 @@ export class UserModel {
   static async create(userData, tx = prisma) {
     const userId = randomUUID()
 
-    const activeStatus = await tx.estados.findFirst({
-      where: { codigo: 'ACTIVO' },
-    })
-    const roleRow = await tx.roles.findFirst({
-      where: { codigo: userData.rol.toUpperCase() },
-    })
-
-    if (!activeStatus || !roleRow) throw new Error('Estado o rol inválido')
-
     await tx.usuarios.create({
       data: {
         id: uuidToBuffer(userId),
         nombre: userData.nombre,
         apellidos: userData.apellidos ?? null,
         correo: userData.correo,
-        fecha_nacimiento: userData.fechaNacimiento,
+        fecha_nacimiento: userData.fecha_nacimiento,
         telefono: userData.telefono,
-        password_hash: userData.passwordHash,
-        estado_id: activeStatus.id,
-        rol_id: roleRow.id,
-        area_id: userData.areaId ?? null,
+        password_hash: userData.password_hash,
+        estados: { connect: { codigo: ESTADOS.ACTIVO } },
+        roles: { connect: { codigo: userData.rol } },
+        ...(userData.area
+          ? { areas: { connect: { nombre: userData.area } } }
+          : {}),
         foto: userData.foto ?? null,
         matricula: userData.matricula ?? null,
         cedula: userData.cedula ?? null,
-        inicio_servicio: userData.inicioServicio ?? null,
-        fin_servicio: userData.finServicio ?? null,
+        inicio_servicio:
+          buildServicio(
+            userData.servicio_inicio_anio,
+            userData.servicio_inicio_periodo
+          ) ?? null,
+        fin_servicio:
+          buildServicio(
+            userData.servicio_fin_anio,
+            userData.servicio_fin_periodo
+          ) ?? null,
       },
     })
 

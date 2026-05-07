@@ -1,3 +1,31 @@
+export const ROLES = {
+  PASANTE: 'PASANTE',
+  COORDINADOR: 'COORDINADOR',
+  ADMIN: 'ADMIN',
+}
+
+export const AREAS = {
+  MEDICINA: 'MEDICINA',
+  NUTRICION: 'NUTRICION',
+}
+
+export const ESTADOS = {
+  ACTIVO: 'ACTIVO',
+  INACTIVO: 'INACTIVO',
+  PENDIENTE: 'PENDIENTE',
+}
+
+// Requisitos de contraseña para auto-registro
+export const PASSWORD_REQUIREMENTS = [
+  { label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },
+  { label: 'Una letra mayúscula', test: (v) => /[A-Z]/.test(v) },
+  { label: 'Una letra minúscula', test: (v) => /[a-z]/.test(v) },
+  {
+    label: 'Un carácter especial (!@#$%^&*)',
+    test: (v) => /[!@#$%^&*]/.test(v),
+  },
+]
+
 // Claves de ordenamiento válidas para usuarios
 export const USER_SORT_KEYS = {
   NOMBRE_ASC: 'nombre-asc',

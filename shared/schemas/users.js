@@ -1,130 +1,86 @@
 import { z } from 'zod'
 import {
-  personaBaseFields,
+  personalFields,
+  pasanteFields,
+  coordinadorFields,
   correoSchema,
-  passwordSchema,
-  rolesSchema,
   dateSchema,
+  rolSchema,
+  areaSchema,
+  estadoSchema,
+  basicPasswordSchema,
+  passwordSchema,
+  withPasswordConfirmation,
 } from './fields.js'
+import { ROLES } from '../constants/users.js'
 
-const tempPasswordSchema = z
-  .string()
-  .min(6, 'La contraseña debe tener al menos 6 caracteres')
+// ── Creación de usuario (base para backend y frontend) ────────────────
 
-// usuarios.matricula y cedula son VarChar(20) en DB
-const internFields = {
-  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
-  servicioInicioAnio: z.string().min(1, 'Selecciona el año de inicio'),
-  servicioInicioPeriodo: z.string().min(1, 'Selecciona el periodo de inicio'),
-  servicioFinAnio: z.string().min(1, 'Selecciona el año de fin'),
-  servicioFinPeriodo: z.string().min(1, 'Selecciona el periodo de fin'),
-}
-
-const cedulaField = {
-  cedula: z.string().min(1, 'La cédula es requerida').max(20),
-}
-
-const confirmPasswordRefine = (schema) =>
-  schema.refine((d) => d.password === d.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmPassword'],
-  })
-
-export const internCreateSchema = z.object({
-  ...personaBaseFields,
-  fechaNacimiento: dateSchema,
-  ...internFields,
+export const pasanteSchema = z.object({
+  ...personalFields,
+  fecha_nacimiento: dateSchema,
+  ...pasanteFields,
   correo: correoSchema,
-  password: tempPasswordSchema,
-  rol: rolesSchema,
+  password: basicPasswordSchema,
+  rol: rolSchema,
+  area: areaSchema.optional(),
 })
 
-export const coordCreateSchema = z.object({
-  ...personaBaseFields,
-  fechaNacimiento: dateSchema,
-  ...cedulaField,
+export const coordinadorSchema = z.object({
+  ...personalFields,
+  fecha_nacimiento: dateSchema,
+  ...coordinadorFields,
   correo: correoSchema,
-  password: tempPasswordSchema,
-  rol: rolesSchema,
+  password: basicPasswordSchema,
+  rol: rolSchema,
+  area: areaSchema.optional(),
 })
 
-export function validateAdminCreate(input) {
-  const rol = input?.rol
-  if (rol === 'coordinador') return coordCreateSchema.safeParse(input)
-  return internCreateSchema.safeParse(input)
+export function validateUserCreate(input) {
+  const rol = input?.rol?.toUpperCase()
+  if (rol === ROLES.COORDINADOR) return coordinadorSchema.safeParse(input)
+  return pasanteSchema.safeParse(input)
 }
+
+// ── Registro de usuario por token (Registro propio) ─────────────────────
+
+const signupFields = {
+  password: passwordSchema,
+  confirmPassword: z.string(),
+  token: z.uuid('Token inválido'),
+}
+
+const omitForSignup = { correo: true, rol: true, area: true, password: true }
+
+export const pasanteSignupSchema = pasanteSchema
+  .omit(omitForSignup)
+  .extend(signupFields)
+
+export const coordinadorSignupSchema = coordinadorSchema
+  .omit(omitForSignup)
+  .extend(signupFields)
+
+export function validateSignup(input, rol) {
+  if (rol === ROLES.COORDINADOR)
+    return withPasswordConfirmation(coordinadorSignupSchema).safeParse(input)
+  return withPasswordConfirmation(pasanteSignupSchema).safeParse(input)
+}
+
+// ── Actualización parcial ─────────────────────────────────────────────
 
 export const userUpdateSchema = z
   .object({
-    ...personaBaseFields,
-    fechaNacimiento: dateSchema,
-    ...internFields,
-    ...cedulaField,
+    ...personalFields,
+    fecha_nacimiento: dateSchema,
+    ...pasanteFields,
+    ...coordinadorFields,
     correo: correoSchema,
-    rol: rolesSchema,
-    estado: z.enum(['ACTIVO', 'INACTIVO']),
+    rol: rolSchema,
+    area: areaSchema,
+    estado: estadoSchema,
   })
   .partial()
 
 export function validateUserUpdate(input) {
   return userUpdateSchema.safeParse(input)
-}
-
-export const internSelfRegisterBaseSchema = z.object({
-  ...personaBaseFields,
-  fechaNacimiento: dateSchema,
-  ...internFields,
-  password: passwordSchema,
-  confirmPassword: z.string(),
-  token: z.uuid('Token inválido'),
-})
-
-export const coordSelfRegisterBaseSchema = z.object({
-  ...personaBaseFields,
-  fechaNacimiento: dateSchema,
-  ...cedulaField,
-  password: passwordSchema,
-  confirmPassword: z.string(),
-  token: z.uuid('Token inválido'),
-})
-
-export function validateSelfRegister(input, rol) {
-  if (rol === 'COORDINADOR')
-    return confirmPasswordRefine(coordSelfRegisterBaseSchema).safeParse(input)
-  return confirmPasswordRefine(internSelfRegisterBaseSchema).safeParse(input)
-}
-
-// ─── Password Reset (flujo "olvidé mi contraseña") ─────────────────────────
-
-export const passwordResetSchema = confirmPasswordRefine(
-  z.object({
-    token: z.uuid('Token inválido'),
-    password: passwordSchema,
-    confirmPassword: z.string(),
-  })
-)
-
-export function validatePasswordReset(input) {
-  return passwordResetSchema.safeParse(input)
-}
-
-// ─── Change Password (flujo desde configuración del usuario) ────────────────
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Ingresa tu contraseña actual'),
-    newPassword: passwordSchema,
-    confirmNewPassword: z.string(),
-  })
-  .refine((d) => d.newPassword !== d.currentPassword, {
-    message: 'La nueva contraseña no puede ser igual a la actual',
-    path: ['newPassword'],
-  })
-  .refine((d) => d.newPassword === d.confirmNewPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmNewPassword'],
-  })
-
-export function validateChangePassword(input) {
-  return changePasswordSchema.safeParse(input)
 }

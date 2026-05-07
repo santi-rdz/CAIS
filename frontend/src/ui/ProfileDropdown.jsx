@@ -71,9 +71,11 @@ export default function ProfileDropdown({ user, onClose, logout }) {
           </p>
           <p className="truncate text-xs text-zinc-400">{correo}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <Tag rounded="full" size="xs" type="outline">
-              {area}
-            </Tag>
+            {area && (
+              <Tag rounded="full" size="xs" type="outline">
+                {area}
+              </Tag>
+            )}
             <Tag rounded="full" size="xs" type="activo">
               {rol}
             </Tag>
