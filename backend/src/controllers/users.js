@@ -32,7 +32,7 @@ export class UserController {
     const { status, rol, sortBy, search } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (req.session.role !== ADMIN && !req.session.areaId) {
+    if (req.session.role !== ROLES.ADMIN && !req.session.areaId) {
       return res.status(403).json({ message: 'Usuario sin área asignada' })
     }
 
