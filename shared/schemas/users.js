@@ -12,7 +12,7 @@ import {
   passwordSchema,
   withPasswordConfirmation,
 } from './fields.js'
-import { COORDINADOR } from '../constants/users.js'
+import { ROLES } from '../constants/users.js'
 
 // ── Creación de usuario (base para backend y frontend) ────────────────
 
@@ -38,7 +38,7 @@ export const coordinadorSchema = z.object({
 
 export function validateUserCreate(input) {
   const rol = input?.rol?.toUpperCase()
-  if (rol === COORDINADOR) return coordinadorSchema.safeParse(input)
+  if (rol === ROLES.COORDINADOR) return coordinadorSchema.safeParse(input)
   return pasanteSchema.safeParse(input)
 }
 
@@ -61,7 +61,7 @@ export const coordinadorSignupSchema = coordinadorSchema
   .extend(signupFields)
 
 export function validateSignup(input, rol) {
-  if (rol?.toUpperCase() === COORDINADOR)
+  if (rol === ROLES.COORDINADOR)
     return withPasswordConfirmation(coordinadorSignupSchema).safeParse(input)
   return withPasswordConfirmation(pasanteSignupSchema).safeParse(input)
 }
