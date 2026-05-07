@@ -216,6 +216,7 @@ describe('GET /usuarios/:id', () => {
   beforeAll(async () => {
     const res = await agent.get('/usuarios?page=1&limit=1&status=ACTIVO')
     userId = res.body.users[0]?.id
+    assert(userId, 'Se requiere al menos un usuario ACTIVO en la base de datos')
   })
 
   /**

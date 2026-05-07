@@ -1,6 +1,4 @@
-import { ROLES } from '@cais/shared/constants/users'
-
-const [, , ADMIN] = ROLES
+import { ADMIN } from '@cais/shared/constants/users'
 
 export function requireAuth(req, res, next) {
   if (!req.session?.userId) {

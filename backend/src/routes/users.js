@@ -1,9 +1,8 @@
 import { Router } from 'express'
 import { UserController } from '#controllers/users.js'
 import { requireAuth, requireRole } from '#middleware/auth.js'
-import { ROLES } from '@cais/shared/constants/users'
+import { COORDINADOR, ADMIN } from '@cais/shared/constants/users'
 
-const [, COORDINADOR, ADMIN] = ROLES
 const privileged = requireRole(COORDINADOR, ADMIN)
 
 export const userRouter = new Router()

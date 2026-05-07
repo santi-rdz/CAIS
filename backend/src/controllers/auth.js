@@ -8,9 +8,7 @@ import {
   validateChangePassword,
 } from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
-import { ESTADOS } from '@cais/shared/constants/users'
-
-const [ACTIVO] = ESTADOS
+import { ACTIVO } from '@cais/shared/constants/users'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'

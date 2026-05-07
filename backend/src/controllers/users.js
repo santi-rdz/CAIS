@@ -3,9 +3,7 @@ import {
   validateUserCreate,
   validateSignup,
 } from '@cais/shared/schemas/users'
-import { ROLES } from '@cais/shared/constants/users'
-
-const [, , ADMIN] = ROLES
+import { ADMIN } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'

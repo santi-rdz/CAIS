@@ -1,10 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
-import { USER_SORT_DEFS, ESTADOS } from '@cais/shared/constants/users'
+import { USER_SORT_DEFS, ACTIVO, PENDIENTE } from '@cais/shared/constants/users'
 import { formatDefs } from '#lib/formatDef.js'
-
-const [ACTIVO, , PENDIENTE] = ESTADOS
 
 const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
 
@@ -51,7 +49,7 @@ function buildPendingWhere({ rol, search, areaId }) {
     where.correo = { contains: search }
   }
   if (areaId != null) {
-    where.usuarios = { area_id: areaId }
+    where.usuarios = { is: { area_id: areaId } }
   }
   return where
 }
@@ -210,13 +208,10 @@ export class UserModel {
 
     const prismaData = {
       ...rest,
-      ...((servicio_inicio_anio || servicio_inicio_periodo) && {
-        inicio_servicio: buildServicio(
-          servicio_inicio_anio,
-          servicio_inicio_periodo
-        ),
+      ...(servicio_inicio_anio && servicio_inicio_periodo && {
+        inicio_servicio: buildServicio(servicio_inicio_anio, servicio_inicio_periodo),
       }),
-      ...((servicio_fin_anio || servicio_fin_periodo) && {
+      ...(servicio_fin_anio && servicio_fin_periodo && {
         fin_servicio: buildServicio(servicio_fin_anio, servicio_fin_periodo),
       }),
       ...(estado && { estados: { connect: { codigo: estado } } }),
