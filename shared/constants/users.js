@@ -1,16 +1,19 @@
-export const PASANTE = 'PASANTE'
-export const COORDINADOR = 'COORDINADOR'
-export const ADMIN = 'ADMIN'
-export const ROLES = [PASANTE, COORDINADOR, ADMIN]
+export const ROLES = {
+  PASANTE: 'PASANTE',
+  COORDINADOR: 'COORDINADOR',
+  ADMIN: 'ADMIN',
+}
 
-export const MEDICINA = 'MEDICINA'
-export const NUTRICION = 'NUTRICION'
-export const AREAS = [MEDICINA, NUTRICION]
+export const AREAS = {
+  MEDICINA: 'MEDICINA',
+  NUTRICION: 'NUTRICION',
+}
 
-export const ACTIVO = 'ACTIVO'
-export const INACTIVO = 'INACTIVO'
-export const PENDIENTE = 'PENDIENTE'
-export const ESTADOS = [ACTIVO, INACTIVO, PENDIENTE]
+export const ESTADOS = {
+  ACTIVO: 'ACTIVO',
+  INACTIVO: 'INACTIVO',
+  PENDIENTE: 'PENDIENTE',
+}
 
 // Requisitos de contraseña para auto-registro
 export const PASSWORD_REQUIREMENTS = [
