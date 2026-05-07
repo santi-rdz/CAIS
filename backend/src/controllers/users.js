@@ -3,7 +3,7 @@ import {
   validateUserCreate,
   validateSignup,
 } from '@cais/shared/schemas/users'
-import { ADMIN } from '@cais/shared/constants/users'
+import { ROLES } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
@@ -36,7 +36,7 @@ export class UserController {
       return res.status(403).json({ message: 'Usuario sin área asignada' })
     }
 
-    const areaId = req.session.role === ADMIN ? null : req.session.areaId
+    const areaId = req.session.role === ROLES.ADMIN ? null : req.session.areaId
 
     const users = await UserModel.getAll({
       status,
@@ -90,7 +90,7 @@ export class UserController {
 
     try {
       const area =
-        req.session.role === ADMIN ? result.data.area : req.session.area
+        req.session.role === ROLES.ADMIN ? result.data.area : req.session.area
       const password_hash = await bcrypt.hash(
         result.data.password,
         BCRYPT_ROUNDS

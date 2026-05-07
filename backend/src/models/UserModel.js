@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
-import { USER_SORT_DEFS, ACTIVO, PENDIENTE } from '@cais/shared/constants/users'
+import { USER_SORT_DEFS, ESTADOS } from '@cais/shared/constants/users'
 import { formatDefs } from '#lib/formatDef.js'
 
 const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
@@ -32,7 +32,7 @@ function formatPendingInvitation(inv) {
     correo: inv.correo,
     foto: null,
     ultimo_acceso: null,
-    estado: PENDIENTE,
+    estado: ESTADOS.PENDIENTE,
     rol: inv.roles?.codigo ?? null,
     area: null,
   }
@@ -117,9 +117,9 @@ export class UserModel {
       ? status.split(',').map((s) => s.trim().toUpperCase())
       : null
 
-    const includePending = !statuses || statuses.includes(PENDIENTE)
-    const onlyPending = statuses?.length === 1 && statuses[0] === PENDIENTE
-    const userStatuses = statuses?.filter((s) => s !== PENDIENTE) ?? null
+    const includePending = !statuses || statuses.includes(ESTADOS.PENDIENTE)
+    const onlyPending = statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
+    const userStatuses = statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
 
     const pendingWhere = buildPendingWhere({ rol, search, areaId })
     const userWhere = buildUserWhere({
@@ -241,7 +241,7 @@ export class UserModel {
         fecha_nacimiento: userData.fecha_nacimiento,
         telefono: userData.telefono,
         password_hash: userData.password_hash,
-        estados: { connect: { codigo: ACTIVO } },
+        estados: { connect: { codigo: ESTADOS.ACTIVO } },
         roles: { connect: { codigo: userData.rol } },
         ...(userData.area
           ? { areas: { connect: { nombre: userData.area } } }

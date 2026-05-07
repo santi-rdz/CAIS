@@ -8,7 +8,7 @@ import {
   validateChangePassword,
 } from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
-import { ACTIVO } from '@cais/shared/constants/users'
+import { ESTADOS } from '@cais/shared/constants/users'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
@@ -51,7 +51,7 @@ export class AuthController {
         return res.status(401).json({ error: 'Contraseña inválida' })
       }
 
-      if (user.estados?.codigo !== ACTIVO) {
+      if (user.estados?.codigo !== ESTADOS.ACTIVO) {
         return res.status(403).json({ error: 'Cuenta desactivada' })
       }
 
