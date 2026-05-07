@@ -118,8 +118,10 @@ export class UserModel {
       : null
 
     const includePending = !statuses || statuses.includes(ESTADOS.PENDIENTE)
-    const onlyPending = statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
-    const userStatuses = statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
+    const onlyPending =
+      statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
+    const userStatuses =
+      statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
 
     const pendingWhere = buildPendingWhere({ rol, search, areaId })
     const userWhere = buildUserWhere({
@@ -208,12 +210,17 @@ export class UserModel {
 
     const prismaData = {
       ...rest,
-      ...(servicio_inicio_anio && servicio_inicio_periodo && {
-        inicio_servicio: buildServicio(servicio_inicio_anio, servicio_inicio_periodo),
-      }),
-      ...(servicio_fin_anio && servicio_fin_periodo && {
-        fin_servicio: buildServicio(servicio_fin_anio, servicio_fin_periodo),
-      }),
+      ...(servicio_inicio_anio &&
+        servicio_inicio_periodo && {
+          inicio_servicio: buildServicio(
+            servicio_inicio_anio,
+            servicio_inicio_periodo
+          ),
+        }),
+      ...(servicio_fin_anio &&
+        servicio_fin_periodo && {
+          fin_servicio: buildServicio(servicio_fin_anio, servicio_fin_periodo),
+        }),
       ...(estado && { estados: { connect: { codigo: estado } } }),
     }
 

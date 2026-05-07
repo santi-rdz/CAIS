@@ -91,7 +91,10 @@ export const rolSchema = uppercaseEnum(Object.values(ROLES), 'Rol inválido')
 
 export const areaSchema = uppercaseEnum(Object.values(AREAS), 'Área inválida')
 
-export const estadoSchema = uppercaseEnum(Object.values(ESTADOS), 'Estado inválido')
+export const estadoSchema = uppercaseEnum(
+  Object.values(ESTADOS),
+  'Estado inválido'
+)
 
 // ── Passwords ─────────────────────────────────────────────────────────
 
