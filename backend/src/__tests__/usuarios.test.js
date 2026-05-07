@@ -16,10 +16,11 @@ let agent
 beforeAll(async () => {
   agent = request.agent(app)
 
-  await agent.post('/auth/login').send({
+  const login = await agent.post('/auth/login').send({
     email: 'admin@cais.com',
     password: '123',
   })
+  assert.equal(login.status, 200, 'Login de setup falló — verifica credenciales y seeds')
 })
 
 // ─── GET /usuarios ──────────────────────────────────────────────────
