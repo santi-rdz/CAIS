@@ -20,7 +20,11 @@ beforeAll(async () => {
     email: 'admin@cais.com',
     password: '123',
   })
-  assert.equal(login.status, 200, 'Login de setup falló — verifica credenciales y seeds')
+  assert.equal(
+    login.status,
+    200,
+    'Login de setup falló — verifica credenciales y seeds'
+  )
 })
 
 // ─── GET /usuarios ──────────────────────────────────────────────────
