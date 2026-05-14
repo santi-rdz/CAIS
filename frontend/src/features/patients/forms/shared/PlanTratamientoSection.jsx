@@ -39,7 +39,7 @@ function Diagnostico({ prefix = 'planes_estudio' }) {
   return (
     <div className="space-y-2">
       <Heading as="h4" showBar>
-        Diagnóstico — Código CIE-10
+        Diagnóstico — Código ICD-11
       </Heading>
       <CIE10Field name={`${prefix}.cie10_codes`} />
     </div>

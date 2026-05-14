@@ -10,6 +10,7 @@ import { patientRouter } from '#routes/patient.js'
 import { medicineRouter } from '#routes/medicine.js'
 import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
+import { icd11Router } from '#routes/icd11.js'
 
 const app = express()
 app.use(express.json())
@@ -45,6 +46,7 @@ app.use('/invitaciones', invitationRouter)
 app.use('/pacientes', patientRouter)
 app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
+app.use('/api/icd11', icd11Router)
 
 export default app
 
