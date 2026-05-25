@@ -38,7 +38,7 @@ export default function ModalActions({
 
   return (
     <div className={containerStyle}>
-      <Button type="button" variant="secondary" onClick={onClose}>
+      <Button type="button" variant="secondary" onClick={onClose} data-testid="modal-cancel-btn">
         {cancelLabel}
       </Button>
       <Row direction="row-end">
@@ -49,6 +49,7 @@ export default function ModalActions({
             onClick={secondaryAction.onClick}
             disabled={secondaryAction.disabled}
             className={secondaryAction?.className}
+            data-testid="modal-secondary-btn"
           >
             {secondaryAction?.iconPos !== 'right' && secondaryAction?.icon}
             {secondaryAction.label || 'Secondary Action'}
@@ -73,6 +74,7 @@ export default function ModalActions({
             onClick={primaryAction.onClick}
             disabled={primaryAction.disabled}
             type={primaryAction.type}
+            data-testid="modal-primary-btn"
           >
             {primaryAction.iconPos !== 'right' && primaryAction.icon}
             {primaryAction.label || 'Primary Action'}

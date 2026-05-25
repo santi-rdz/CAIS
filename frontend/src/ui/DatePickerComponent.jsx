@@ -119,6 +119,7 @@ export default function DatePickerComponent({
           variant="outline"
           hasError={hasError}
           onClick={toggle}
+          data-testid={`datepicker-${name}`}
         />
 
         {/* Calendario flotante */}

@@ -68,7 +68,7 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
                   hasError={!!errors?.servicio_inicio_anio}
                   className="flex-1"
                 >
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="select-inicio-anio">
                     <SelectValue placeholder="Año" />
                   </SelectTrigger>
                   <SelectContent>
@@ -91,7 +91,7 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
                   hasError={!!errors?.servicio_inicio_periodo}
                   className="flex-1"
                 >
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="select-inicio-periodo">
                     <SelectValue placeholder="Periodo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -126,7 +126,7 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
                   hasError={!!errors?.servicio_fin_anio}
                   className="flex-1"
                 >
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="select-fin-anio">
                     <SelectValue placeholder="Año" />
                   </SelectTrigger>
                   <SelectContent>
@@ -149,7 +149,7 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
                   hasError={!!errors?.servicio_fin_periodo}
                   className="flex-1"
                 >
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="select-fin-periodo">
                     <SelectValue placeholder="Periodo" />
                   </SelectTrigger>
                   <SelectContent>

@@ -93,6 +93,7 @@ export default function InvitationalLinksForm({ onClose }) {
       <ModalBody py={8}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <DomainEmailInput
+            id="invite-email"
             error={errors?.email?.message}
             register={register}
             isDomain={isUabcDomain}
@@ -104,6 +105,7 @@ export default function InvitationalLinksForm({ onClose }) {
             size="md"
             variant="outline"
             className="w-full border border-gray-300"
+            data-testid="add-to-list-btn"
           >
             {isEditMode ? (
               <>
