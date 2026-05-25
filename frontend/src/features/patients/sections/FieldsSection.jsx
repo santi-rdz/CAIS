@@ -8,13 +8,7 @@ export default function FieldsSection({ fields, cols = 2, mobileCols }) {
   return (
     <Grid cols={cols} mobileCols={mobileCols}>
       {fields.map((f) => (
-        <DataField
-          key={f.label}
-          label={f.label}
-          value={f.value}
-          multiline
-          block
-        />
+        <DataField key={f.label} label={f.label} value={f.value} multiline block />
       ))}
     </Grid>
   )

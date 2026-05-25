@@ -10,27 +10,27 @@ function Avatar({ children, className = '' }) {
   )
 }
 
-function Stacked({ children }) {
-  return <div className="flex flex-col gap-1">{children}</div>
-}
-
 export default function PersonCell({ name, secondary, avatar }) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex min-w-0 items-center gap-3">
       {avatar}
-      <Stacked>
-        <span>{name ?? '---'}</span>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="truncate font-medium text-zinc-800" title={name ?? ''}>
+          {name ?? '---'}
+        </span>
         {secondary && (
-          <span className="text-5 font-normal text-zinc-400">{secondary}</span>
+          <span className="truncate text-sm text-zinc-500" title={secondary}>
+            {secondary}
+          </span>
         )}
-      </Stacked>
+      </div>
     </div>
   )
 }
 
 PersonCell.UserAvatar = function UserAvatar({ picture, email }) {
   return (
-    <Avatar className="bg-gray-200 text-base uppercase">
+    <Avatar className="bg-gray-200 text-base uppercase font-medium text-zinc-600">
       {picture ? (
         <img src={picture} className="size-full object-cover" />
       ) : (
@@ -42,8 +42,8 @@ PersonCell.UserAvatar = function UserAvatar({ picture, email }) {
 
 PersonCell.PatientAvatar = function PatientAvatar() {
   return (
-    <Avatar className="bg-green-100 text-green-600">
-      <HiOutlineUser size={20} />
+    <Avatar className="bg-emerald-50 text-emerald-600">
+      <HiOutlineUser size={18} strokeWidth={1.5} />
     </Avatar>
   )
 }

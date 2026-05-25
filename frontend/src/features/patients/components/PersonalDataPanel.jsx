@@ -33,7 +33,7 @@ export default function PersonalDataPanel({ patient }) {
     contacto_emergencia || telefono_emergencia || parentesco_emergencia
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
       <Heading as="h3" showBar>
         Datos personales
       </Heading>

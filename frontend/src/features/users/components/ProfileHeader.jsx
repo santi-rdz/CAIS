@@ -57,7 +57,7 @@ export default function ProfileHeader({ user }) {
   const estadoLower = estado?.toLowerCase()
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
       <div className="flex items-start gap-5">
         <div className="relative shrink-0">
           {foto ? (

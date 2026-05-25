@@ -26,7 +26,7 @@ export default function NoteDetail({ note, onBack, onEdit }) {
   const doctorPhoto = usuarios?.foto
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div className="rounded-2xl border border-gray-100 bg-white shadow-card" data-testid="note-detail">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-zinc-50/60 px-5 py-4">
         <div className="flex min-w-0 items-center gap-2 text-zinc-500">

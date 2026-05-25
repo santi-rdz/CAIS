@@ -7,9 +7,9 @@ export default function PatientsTable() {
   return (
     <Table columns="27fr 15fr 15fr 10fr 2fr">
       <Table.Header>
-        <div>Nombre</div>
-        <div>Ultima actualización</div>
-        <div>Fecha de nacimiento</div>
+        <div>Paciente</div>
+        <div>Última actualización</div>
+        <div>Edad y Nacimiento</div>
         <div>Género</div>
         <div></div>
       </Table.Header>

@@ -20,12 +20,13 @@ export default function NoteCard({
   return (
     <article
       onClick={onClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+      data-testid={`note-card-${note.id}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
         !isList && 'h-[220px]'
       } ${
         isSelected
           ? 'border-teal-400 ring-2 ring-teal-100'
-          : 'border-gray-200 shadow-sm'
+          : 'border-gray-100 shadow-card'
       }`}
     >
       {/* Edit button */}

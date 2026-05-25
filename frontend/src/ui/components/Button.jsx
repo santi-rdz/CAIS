@@ -7,13 +7,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-green-800 text-white hover:bg-green-900',
+        primary: 'bg-green-800  text-white hover:bg-green-900',
         secondary: 'bg-white ring ring-green-800 hover:bg-green-100',
         outline: 'bg-white ring ring-gray-300 hover:ring-green-800',
         danger: 'bg-red-600 text-white hover:bg-red-700',
         ghost: 'text-gray-700 hover:bg-gray-100',
-        'danger-o':
-          'ring ring-red-700 text-red-700 hover:bg-red-600 hover:text-white',
+        'danger-o': 'ring ring-red-700 text-red-700 hover:bg-red-600 hover:text-white',
       },
       size: {
         sm: 'text-6 px-2 py-1 rounded-sm font-semibold',
@@ -44,10 +43,7 @@ export default function Button({
   ...props
 }) {
   const isButtonDisabled = disabled || isLoading
-  const baseStyle = cn(
-    buttonVariants({ variant, size, disabled: isButtonDisabled }),
-    className
-  )
+  const baseStyle = cn(buttonVariants({ variant, size, disabled: isButtonDisabled }), className)
 
   return (
     <button

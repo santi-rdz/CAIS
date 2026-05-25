@@ -9,7 +9,7 @@ import {
 export default function PatientCard({ emergency }) {
   const { nombre, matricula, telefono } = emergency
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
       <Heading as="h3" showBar>
         Paciente
       </Heading>

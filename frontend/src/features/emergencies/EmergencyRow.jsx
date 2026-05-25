@@ -5,7 +5,10 @@ import Button from '@components/Button'
 import Modal from '@components/Modal'
 import DangerConfirm from '@components/DangerConfirm'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
-import { HiOutlineEye, HiOutlineTrash } from 'react-icons/hi2'
+import {
+  HiOutlineEye,
+  HiOutlineTrash
+} from 'react-icons/hi2'
 import { useNavigate } from 'react-router'
 import { useDeleteEmergency } from './hooks/useDeleteEmergency'
 
@@ -31,26 +34,33 @@ export default function EmergencyRow({ emergency }) {
   }
 
   return (
-    <Table.Row>
-      <div className="text-zinc-500">{fecha}</div>
-      <div className="text-zinc-500">{hora}</div>
-      <div>{ubicacion}</div>
-      <div>
-        <Stacked>
-          <span>{nombre ?? '---'}</span>
-          {matricula && (
-            <span className="font-normal text-neutral-500">{matricula}</span>
-          )}
+    <Table.Row data-testid={`emergency-row-${id}`}>
+      <div className="truncate font-medium text-zinc-700">{fecha}</div>
+      <div className="text-sm text-zinc-500">{hora}</div>
+      <div className="truncate text-zinc-700">{ubicacion}</div>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <div className="flex items-center gap-1.5">
+          <span 
+            className="truncate max-w-[160px] font-medium text-zinc-800 xl:max-w-[220px]" 
+            title={nombre ?? 'Paciente Externo'}
+          >
+            {nombre ?? 'Paciente Externo'}
+          </span>
           {recurrente && (
-            <div className="w-fit">
-              <Tag type="pendiente" size="xs">
-                Recurrente
-              </Tag>
-            </div>
+            <Tag type="pendiente" size="xs" className="shrink-0">
+              Recurrente
+            </Tag>
           )}
-        </Stacked>
+        </div>
+        {matricula && (
+          <span className="text-sm text-zinc-500">
+            {matricula}
+          </span>
+        )}
       </div>
-      <div className="truncate pr-4">{diagnostico ?? '---'}</div>
+      <div className="pr-4 text-sm text-zinc-600 line-clamp-2 leading-relaxed" title={diagnostico}>
+        {diagnostico ?? <span className="italic text-zinc-400">Sin diagnóstico</span>}
+      </div>
 
       <Modal>
         <RowActionsMenu>
@@ -59,12 +69,13 @@ export default function EmergencyRow({ emergency }) {
             variant="ghost"
             size="md"
             className="w-full justify-start"
+            data-testid="emergency-view-btn"
           >
             <HiOutlineEye size={16} />
             Ver detalles
           </Button>
           <Modal.Open opens="delete-emergency">
-            <Button variant="ghost" size="md" className="">
+            <Button variant="ghost" size="md" className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700" data-testid="emergency-delete-btn">
               <HiOutlineTrash size={16} />
               Eliminar emergencia
             </Button>
@@ -88,8 +99,4 @@ export default function EmergencyRow({ emergency }) {
       </Modal>
     </Table.Row>
   )
-}
-
-function Stacked({ children }) {
-  return <div className="flex flex-col gap-1">{children}</div>
 }

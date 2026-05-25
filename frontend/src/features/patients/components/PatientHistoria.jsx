@@ -67,14 +67,14 @@ export default function PatientHistoria({ patient }) {
             <>
               {historia && (
                 <Modal.Open opens="edit-history">
-                  <Button variant="secondary" size="md" className="gap-1.5">
+                  <Button variant="secondary" size="md" className="gap-1.5" data-testid="edit-historia-btn">
                     <HiOutlinePencilSquare size={14} />
                     Editar historia
                   </Button>
                 </Modal.Open>
               )}
               <Modal.Open opens="new-history">
-                <Button variant="primary" size="md" className="gap-1.5">
+                <Button variant="primary" size="md" className="gap-1.5" data-testid="new-historia-btn">
                   <HiOutlinePlus size={14} />
                   Nueva historia
                 </Button>
@@ -84,7 +84,7 @@ export default function PatientHistoria({ patient }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="rounded-2xl border border-gray-100 bg-white shadow-card">
         <Modal.Content name="edit-history" size="xl" noPadding>
           {historia && patient && (
             <MedicalPatientForm
@@ -116,7 +116,7 @@ export default function PatientHistoria({ patient }) {
           </Tab.List>
 
           <div className="p-5">
-            {isLoadingList || isLoadingDetail ? (
+            {isLoadingList || (activeId != null && isLoadingDetail) ? (
               <div className="space-y-3 py-4">
                 {Array.from({ length: 4 }, (_, i) => (
                   <div

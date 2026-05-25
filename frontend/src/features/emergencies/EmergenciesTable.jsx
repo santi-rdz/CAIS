@@ -3,7 +3,7 @@ import Pagination from '@components/Pagination'
 import { useEmergencies } from './hooks/useEmergencies'
 import EmergencyRow from './EmergencyRow'
 
-const COLUMNS = '8fr 5fr 10fr 10fr 10fr 2fr'
+const COLUMNS = '7fr 4fr 11fr 10fr 10fr 2fr'
 
 export default function EmergenciesTable() {
   const { emergencies, count, isPending } = useEmergencies()
@@ -18,6 +18,7 @@ export default function EmergenciesTable() {
         <div>Ubicación</div>
         <div>Paciente</div>
         <div>Diagnóstico</div>
+        <div></div>
       </Table.Header>
       <Table.Body
         data={emergencies}
@@ -41,6 +42,7 @@ function EmergenciesTableSkeleton() {
         <div>Ubicación</div>
         <div>Paciente</div>
         <div>Diagnóstico</div>
+        <div></div>
       </Table.Header>
       <div className="divide-y divide-zinc-100 bg-white">
         {Array.from({ length: 8 }, (_, i) => (

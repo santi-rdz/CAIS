@@ -33,7 +33,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const historiaId = selectedId ?? mostRecentId
 
   const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
-  const [selectedNoteId, setSelectedNoteId] = useState(null)
+  const selectedNoteId = searchParams.get('nota') ?? null
   const openModalRef = useRef(null)
 
   const { note: selectedNote, isPending: isSelectedPending } =
@@ -42,9 +42,17 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
 
   const periodos = histories.map(formatHistoriaOption)
 
+  function setSelectedNoteId(id) {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      if (id) next.set('nota', id)
+      else next.delete('nota')
+      return next
+    }, { replace: true })
+  }
+
   function handleSelectHistory(id) {
     setSearchParams({ historia: id }, { replace: true })
-    setSelectedNoteId(null)
   }
 
   function handleOpenEdit(note, { showDetail = false } = {}) {
@@ -105,6 +113,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 className="gap-1.5"
                 onClick={() => setNoteToEditId(null)}
                 disabled={!historiaId}
+                data-testid="create-note-btn"
               >
                 <HiOutlinePlus size={14} />
                 Nueva nota

@@ -5,7 +5,7 @@ const TableContext = createContext()
 export default function Table({ columns = '', children }) {
   return (
     <TableContext.Provider value={{ columns }}>
-      <div className="text-5 text-dark-gray mt-4 overflow-x-auto rounded-xl border border-zinc-200/60 bg-white shadow-sm">
+      <div className="text-5 text-dark-gray mt-4 overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-card">
         <div className="min-w-4xl">{children}</div>
       </div>
     </TableContext.Provider>
@@ -43,7 +43,7 @@ Table.Body = function TableBody({ data, render }) {
   )
 }
 
-Table.Row = function TableRow({ children, isCurrentUser, onClick }) {
+Table.Row = function TableRow({ children, isCurrentUser, onClick, ...rest }) {
   const { columns } = useContext(TableContext)
 
   return (
@@ -51,6 +51,7 @@ Table.Row = function TableRow({ children, isCurrentUser, onClick }) {
       columns={columns}
       className={`border-l-[3px] border-l-transparent py-3.5 transition-colors duration-150 odd:bg-white even:bg-zinc-50/60 hover:border-l-green-800 hover:bg-green-50/50 ${isCurrentUser ? 'bg-green-50/40' : ''} ${onClick ? 'group relative cursor-pointer' : ''}`}
       onClick={onClick}
+      {...rest}
     >
       <>{children}</>
     </CommonRow>
@@ -65,12 +66,13 @@ Table.Footer = function TableFooter({ children }) {
   )
 }
 
-function CommonRow({ columns, children, className, onClick }) {
+function CommonRow({ columns, children, className, onClick, ...rest }) {
   return (
     <div
       className={`grid items-center gap-6 px-7 ${className}`}
       style={{ gridTemplateColumns: columns }}
       onClick={onClick}
+      {...rest}
     >
       {children}
     </div>

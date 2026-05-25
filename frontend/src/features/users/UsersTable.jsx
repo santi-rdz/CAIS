@@ -18,10 +18,10 @@ export default function UsersTable() {
       }
     >
       <Table.Header>
-        <div>Nombre</div>
+        <div>Usuario</div>
         <div>Rol</div>
         {isAdmin && <div>Área</div>}
-        <div>Ultimo login</div>
+        <div>Último login</div>
         <div>Estado</div>
         <div></div>
       </Table.Header>
@@ -43,9 +43,9 @@ function UsersTableSkeleton() {
     <Table columns="0.3fr 3.4fr 1.2fr 1.6fr 1.6fr 0.2fr">
       <Table.Header>
         <div></div>
-        <div>Nombre</div>
+        <div>Usuario</div>
         <div>Rol</div>
-        <div>Ultimo login</div>
+        <div>Último login</div>
         <div>Estado</div>
       </Table.Header>
       <div className="divide-y divide-zinc-100 bg-white">

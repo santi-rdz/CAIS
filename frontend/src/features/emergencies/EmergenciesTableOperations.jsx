@@ -72,6 +72,7 @@ export default function EmergenciesTableOperations() {
         size="sm"
         variant="outline"
         suffix={<HiMagnifyingGlass />}
+        data-testid="emergencies-search"
       />
 
       <Filter groups={FILTER_GROUPS} placeholder="Filtrar" />
@@ -79,7 +80,7 @@ export default function EmergenciesTableOperations() {
 
       <Modal>
         <Modal.Open opens="emergency">
-          <Button size="md">
+          <Button size="md" data-testid="add-emergency-btn">
             <HiOutlinePlus size="16" strokeWidth="2.5" /> Agregar Emergencia
           </Button>
         </Modal.Open>

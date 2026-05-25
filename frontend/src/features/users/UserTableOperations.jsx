@@ -73,6 +73,7 @@ export default function UserTableOperations() {
         size="sm"
         variant="outline"
         suffix={<HiMagnifyingGlass className="" />}
+        data-testid="users-search"
       />
 
       <Filter groups={FILTER_GROUPS} placeholder="Filtrar" />
@@ -80,7 +81,7 @@ export default function UserTableOperations() {
 
       <Modal>
         <Modal.Open opens="user-modal">
-          <Button size="md">
+          <Button size="md" data-testid="add-user-btn">
             <HiOutlinePlus size="16" strokeWidth="2.5" />
             Agregar usuario
           </Button>

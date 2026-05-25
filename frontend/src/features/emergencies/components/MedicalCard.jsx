@@ -4,7 +4,7 @@ import Heading from '@ui/components/Heading'
 export default function MedicalCard({ emergency }) {
   const { diagnostico, accion_realizada, tratamiento_admin } = emergency
   return (
-    <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
       <Heading as="h3" showBar>
         Información médica
       </Heading>

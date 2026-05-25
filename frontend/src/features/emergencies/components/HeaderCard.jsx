@@ -10,7 +10,7 @@ export default function HeaderCard({ emergency }) {
   const hora = formatHora(fecha_hora)
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="space-y-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
       <header className="flex items-start justify-between gap-4">
         <div>
           <p className="text-5 mb-1 text-neutral-400">Emergencia registrada</p>
