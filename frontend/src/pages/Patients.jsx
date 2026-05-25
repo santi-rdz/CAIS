@@ -5,7 +5,7 @@ import Heading from '@components/Heading'
 export default function Patients() {
   return (
     <>
-      <Heading className="mb-6">Pacientes</Heading>
+      <Heading className="mb-6" data-testid="page-title-patients">Pacientes</Heading>
       <PatientsTableOperations />
       <PatientsTable />
     </>
