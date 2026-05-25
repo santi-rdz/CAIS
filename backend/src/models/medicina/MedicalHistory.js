@@ -52,9 +52,10 @@ function formatMedicalHistory(n) {
           ...planes_estudio,
           historia_medica_id: undefined,
           cie10_codes:
-            planes_estudio.planes_estudio_cie10?.map(
-              ({ codigo, descripcion }) => ({ codigo, descripcion })
-            ) ?? [],
+            planes_estudio.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
+              codigo,
+              descripcion,
+            })) ?? [],
           planes_estudio_cie10: undefined,
         }
       : null,
@@ -125,9 +126,9 @@ export class MedicalHistoryModel {
     return this.getById(historyId, tx)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      const history = await prisma.historias_medicas.delete({
+      const history = await tx.historias_medicas.delete({
         where: { id: uuidToBuffer(id) },
         include: includeRelations,
       })

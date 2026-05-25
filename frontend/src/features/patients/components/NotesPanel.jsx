@@ -33,18 +33,28 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const historiaId = selectedId ?? mostRecentId
 
   const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
-  const [selectedNoteId, setSelectedNoteId] = useState(null)
+  const selectedNoteId = searchParams.get('nota') ?? null
   const openModalRef = useRef(null)
 
-  const { note: selectedNote, isPending: isSelectedPending } =
-    useEvolutionNote(selectedNoteId)
+  const { note: selectedNote, isPending: isSelectedPending } = useEvolutionNote(selectedNoteId)
   const { note: noteToEdit } = useEvolutionNote(noteToEditId)
 
   const periodos = histories.map(formatHistoriaOption)
 
+  function setSelectedNoteId(id) {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (id) next.set('nota', id)
+        else next.delete('nota')
+        return next
+      },
+      { replace: true }
+    )
+  }
+
   function handleSelectHistory(id) {
     setSearchParams({ historia: id }, { replace: true })
-    setSelectedNoteId(null)
   }
 
   function handleOpenEdit(note, { showDetail = false } = {}) {
@@ -76,9 +86,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
               <button
                 className={`rounded p-2 text-gray-500 transition-colors ${
-                  layout === 'grid'
-                    ? 'bg-gray-100 text-gray-700'
-                    : 'hover:bg-gray-50'
+                  layout === 'grid' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
                 }`}
                 aria-label="Vista en grid"
                 onClick={() => setLayout('grid')}
@@ -87,9 +95,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
               </button>
               <button
                 className={`rounded p-2 text-gray-500 transition-colors ${
-                  layout === 'list'
-                    ? 'bg-gray-100 text-gray-700'
-                    : 'hover:bg-gray-50'
+                  layout === 'list' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
                 }`}
                 aria-label="Vista en lista"
                 onClick={() => setLayout('list')}
@@ -105,6 +111,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 className="gap-1.5"
                 onClick={() => setNoteToEditId(null)}
                 disabled={!historiaId}
+                data-testid="create-note-btn"
               >
                 <HiOutlinePlus size={14} />
                 Nueva nota
@@ -112,12 +119,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             </Modal.Open>
           </div>
           <Modal.Open opens="create-note">
-            <button
-              ref={openModalRef}
-              type="button"
-              className="hidden"
-              aria-hidden="true"
-            />
+            <button ref={openModalRef} type="button" className="hidden" aria-hidden="true" />
           </Modal.Open>
         </div>
 
@@ -136,10 +138,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
       {isPending ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3">
           {Array.from({ length: 3 }, (_, i) => (
-            <div
-              key={i}
-              className="h-[220px] animate-pulse rounded-xl bg-zinc-100"
-            />
+            <div key={i} className="h-[220px] animate-pulse rounded-xl bg-zinc-100" />
           ))}
         </div>
       ) : !historiaId ? (
@@ -158,9 +157,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <NoteDetail
           note={selectedNote}
           onBack={() => setSelectedNoteId(null)}
-          onEdit={() =>
-            handleOpenEdit({ id: selectedNoteId }, { showDetail: true })
-          }
+          onEdit={() => handleOpenEdit({ id: selectedNoteId }, { showDetail: true })}
         />
       ) : selectedNoteId && isSelectedPending ? (
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />

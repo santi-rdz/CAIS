@@ -1,6 +1,7 @@
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
+import { parsePagination } from '#lib/paginate.js'
 
 const includeRelations = {
   usuarios: true,
@@ -16,6 +17,7 @@ function formatAudit(u) {
     id: bufferToUUID(u.id),
     usuario_id: bufferToUUID(u.usuario_id),
     objetivo_id: u.objetivo_id ? bufferToUUID(u.objetivo_id) : null,
+    paciente_id: u.paciente_id ? bufferToUUID(u.paciente_id) : null,
     accion: acciones?.codigo ?? null,
     entidad: entidades?.nombre ?? null,
     usuario: usuarios?.nombre ?? null,
@@ -23,20 +25,8 @@ function formatAudit(u) {
 }
 
 export class AuditModel {
-  static async getAll({
-    usuario_id,
-    accion,
-    entidad,
-    page = 1,
-    limit = 20,
-  } = {}) {
-    const MAX_LIMIT = 100
-    const parsedPage = Number.parseInt(page, 10)
-    const parsedLimit = Number.parseInt(limit, 10)
-    const safePage = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1
-    const safeLimit = Number.isFinite(parsedLimit)
-      ? Math.min(Math.max(1, parsedLimit), MAX_LIMIT)
-      : 20
+  static async getAll({ usuario_id, accion, entidad, paciente_id, page, limit } = {}) {
+    const { page: safePage, limit: safeLimit } = parsePagination({ page, limit })
 
     const where = {}
 
@@ -49,7 +39,18 @@ export class AuditModel {
     }
 
     if (entidad) {
-      where.entidades = { nombre: { contains: entidad } }
+      const entidades = String(entidad)
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+
+      if (entidades.length > 0) {
+        where.entidades = { nombre: { in: entidades } }
+      }
+    }
+
+    if (paciente_id) {
+      where.paciente_id = uuidToBuffer(paciente_id)
     }
 
     const offset = (safePage - 1) * safeLimit
@@ -68,16 +69,8 @@ export class AuditModel {
     return { records: records.map(formatAudit), count: total }
   }
 
-  static async getById(id) {
-    const record = await prisma.registro_auditoria.findUnique({
-      where: { id: uuidToBuffer(id) },
-      include: includeRelations,
-    })
-    return formatAudit(record)
-  }
-
   static async create(
-    { usuario_id, accion, entidad, objetivo_id = null },
+    { usuario_id, accion, entidad, objetivo_id = null, paciente_id = null },
     tx = prisma
   ) {
     const validation = validateAuditCreate({
@@ -85,30 +78,29 @@ export class AuditModel {
       accion,
       entidad,
       objetivo_id,
+      paciente_id,
     })
     if (!validation.success)
       throw new Error(validation.error.issues.map((i) => i.message).join(', '))
 
-    const accionRow = await tx.acciones.findFirst({
-      where: { codigo: accion.toUpperCase() },
-    })
-    if (!accionRow) throw new Error(`Acción inválida: ${accion}`)
-
-    const entidadRow = await tx.entidades.findFirst({
-      where: { nombre: entidad },
-    })
-    if (!entidadRow) throw new Error(`Entidad inválida: ${entidad}`)
-
     const record = await tx.registro_auditoria.create({
       data: {
-        usuario_id: uuidToBuffer(usuario_id),
-        accion_id: accionRow.id,
-        entidad_id: entidadRow.id,
+        usuarios: { connect: { id: uuidToBuffer(usuario_id) } },
+        acciones: { connect: { codigo: accion.toUpperCase() } },
+        entidades: { connect: { nombre: entidad } },
         objetivo_id: objetivo_id ? uuidToBuffer(objetivo_id) : null,
+        ...(paciente_id && { pacientes: { connect: { id: uuidToBuffer(paciente_id) } } }),
       },
       include: includeRelations,
     })
 
+    return formatAudit(record)
+  }
+  static async getById(id) {
+    const record = await prisma.registro_auditoria.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
     return formatAudit(record)
   }
 }

@@ -58,11 +58,7 @@ export default function ProfileDropdown({ user, onClose, logout }) {
       <div className="flex items-center gap-3 p-4">
         {foto && (
           <picture className="block w-9 shrink-0">
-            <img
-              src={foto}
-              className="w-full rounded-full object-cover"
-              alt={nombre}
-            />
+            <img src={foto} className="w-full rounded-full object-cover" alt={nombre} />
           </picture>
         )}
         <div className="min-w-0">

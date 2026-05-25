@@ -29,11 +29,10 @@ export default function PersonalDataPanel({ patient }) {
     parentesco_emergencia,
   } = patient
 
-  const hasContact =
-    contacto_emergencia || telefono_emergencia || parentesco_emergencia
+  const hasContact = contacto_emergencia || telefono_emergencia || parentesco_emergencia
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-6">
       <Heading as="h3" showBar>
         Datos personales
       </Heading>
@@ -49,16 +48,8 @@ export default function PersonalDataPanel({ patient }) {
           label="Lugar de nacimiento"
           value={lugar_nacimiento}
         />
-        <DataField
-          icon={<HiOutlineBriefcase size={14} />}
-          label="Ocupación"
-          value={ocupacion}
-        />
-        <DataField
-          icon={<HiOutlineHeart size={14} />}
-          label="Estado civil"
-          value={estado_civil}
-        />
+        <DataField icon={<HiOutlineBriefcase size={14} />} label="Ocupación" value={ocupacion} />
+        <DataField icon={<HiOutlineHeart size={14} />} label="Estado civil" value={estado_civil} />
         <DataField
           icon={<HiOutlineAcademicCap size={14} />}
           label="Nivel educativo"
@@ -70,11 +61,7 @@ export default function PersonalDataPanel({ patient }) {
           label="CURP / Matrícula"
           value={curp_matricula}
         />
-        <DataField
-          icon={<HiOutlineIdentification size={14} />}
-          label="NSS"
-          value={nss}
-        />
+        <DataField icon={<HiOutlineIdentification size={14} />} label="NSS" value={nss} />
         <DataField
           icon={<HiOutlineInformationCircle size={14} />}
           label="Fuente de información"

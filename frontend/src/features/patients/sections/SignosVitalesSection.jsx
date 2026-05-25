@@ -5,19 +5,13 @@ import DataField from '@components/DataField'
 function VitalStat({ label, value, unit, badge }) {
   return (
     <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
-      <p className="text-6 font-medium tracking-wide text-zinc-400 uppercase">
-        {label}
-      </p>
+      <p className="text-6 font-medium tracking-wide text-zinc-400 uppercase">{label}</p>
       <div className="mt-1 flex items-baseline gap-2">
         <p className="text-4 font-lato font-semibold text-zinc-800">
           {value != null ? (
             <>
               {value}
-              {unit && (
-                <span className="text-6 ml-1 font-normal text-zinc-400">
-                  {unit}
-                </span>
-              )}
+              {unit && <span className="text-6 ml-1 font-normal text-zinc-400">{unit}</span>}
             </>
           ) : (
             <span className="text-5 font-normal text-zinc-300">—</span>
@@ -68,14 +62,10 @@ export default function SignosVitalesSection({ info }) {
   info ??= {}
 
   const imc =
-    info.peso && info.altura
-      ? (info.peso / Math.pow(info.altura / 100, 2)).toFixed(1)
-      : null
+    info.peso && info.altura ? (info.peso / Math.pow(info.altura / 100, 2)).toFixed(1) : null
 
   const pa =
-    info.pa_sistolica && info.pa_diastolica
-      ? `${info.pa_sistolica}/${info.pa_diastolica}`
-      : null
+    info.pa_sistolica && info.pa_diastolica ? `${info.pa_sistolica}/${info.pa_diastolica}` : null
 
   return (
     <div className="space-y-6">
@@ -93,16 +83,8 @@ export default function SignosVitalesSection({ info }) {
             unit={imc ? 'kg/m²' : ''}
             badge={<ImcBadge imc={imc} />}
           />
-          <VitalStat
-            label="Glucosa"
-            value={info.glucosa_capilar}
-            unit="mg/dL"
-          />
-          <VitalStat
-            label="Circ. cintura"
-            value={info.circ_cintura}
-            unit="cm"
-          />
+          <VitalStat label="Glucosa" value={info.glucosa_capilar} unit="mg/dL" />
+          <VitalStat label="Circ. cintura" value={info.circ_cintura} unit="cm" />
           <VitalStat label="Circ. cadera" value={info.circ_cadera} unit="cm" />
         </div>
       </div>

@@ -10,10 +10,7 @@ const emailSchema = z
   .string()
   .min(1, 'Ingresa tu correo')
   .max(255)
-  .refine(
-    (val) => correoSchema.safeParse(val).success,
-    'Correo electrónico inválido'
-  )
+  .refine((val) => correoSchema.safeParse(val).success, 'Correo electrónico inválido')
 
 /**
  * Maneja el estado del dominio UABC y resuelve el correo completo al hacer submit.

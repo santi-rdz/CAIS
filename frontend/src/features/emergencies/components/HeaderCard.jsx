@@ -10,7 +10,7 @@ export default function HeaderCard({ emergency }) {
   const hora = formatHora(fecha_hora)
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="shadow-card space-y-4 rounded-2xl border border-gray-100 bg-white p-6">
       <header className="flex items-start justify-between gap-4">
         <div>
           <p className="text-5 mb-1 text-neutral-400">Emergencia registrada</p>
@@ -23,16 +23,8 @@ export default function HeaderCard({ emergency }) {
         )}
       </header>
       <div className="flex flex-wrap gap-x-2 gap-y-2">
-        <MetaChip
-          icon={<HiOutlineClock size={14} />}
-          label="Hora"
-          value={hora}
-        />
-        <MetaChip
-          icon={<HiOutlineMapPin size={14} />}
-          label="Ubicación"
-          value={ubicacion}
-        />
+        <MetaChip icon={<HiOutlineClock size={14} />} label="Hora" value={hora} />
+        <MetaChip icon={<HiOutlineMapPin size={14} />} label="Ubicación" value={ubicacion} />
         {registrado_por && (
           <MetaChip
             icon={<HiOutlineUser size={14} />}

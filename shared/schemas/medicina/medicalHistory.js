@@ -1,9 +1,5 @@
 import { z } from 'zod'
-import {
-  aparatosSistemasSchema,
-  informacionFisicaSchema,
-  planEstudioSchema,
-} from './shared.js'
+import { aparatosSistemasSchema, informacionFisicaSchema, planEstudioSchema } from './shared.js'
 import { optionalDateSchema } from '../fields.js'
 
 // antecedentes_familiares: todos VarChar(255) en DB

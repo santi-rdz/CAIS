@@ -34,7 +34,7 @@ export default function UserDetail() {
               <UserInfoPanel user={user} />
             </Tab.Panel>
             <Tab.Panel value="actividad" scrollable={false}>
-              <ActivityPanel />
+              <ActivityPanel userId={user.id} />
             </Tab.Panel>
           </div>
         </Tab>

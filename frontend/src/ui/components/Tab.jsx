@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useLayoutEffect,
-  useState,
-} from 'react'
+import { createContext, useCallback, useContext, useLayoutEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Heading from './Heading'
 
@@ -16,12 +10,7 @@ const TabContext = createContext()
  * @param {boolean} [syncUrl] - sincroniza el tab activo con ?tab= en la URL
  * @param {'primary'|'secondary'} variant - estilo de los botones
  */
-export default function Tab({
-  children,
-  defaultTab = '',
-  syncUrl = false,
-  variant = 'primary',
-}) {
+export default function Tab({ children, defaultTab = '', syncUrl = false, variant = 'primary' }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [localTab, setLocalTab] = useState(defaultTab)
   const [tabMeta, setTabMeta] = useState({})
@@ -49,8 +38,7 @@ export default function Tab({
 
   const registerTrigger = useCallback((value, meta) => {
     setTabMeta((prev) => {
-      if (prev[value]?.title === meta.title && prev[value]?.desc === meta.desc)
-        return prev
+      if (prev[value]?.title === meta.title && prev[value]?.desc === meta.desc) return prev
       return { ...prev, [value]: meta }
     })
   }, [])
@@ -113,9 +101,7 @@ Tab.List = function TabList({ children, className = '' }) {
   const navStyle = variant === 'primary' ? 'rounded-lg' : 'rounded-md'
   return (
     <div className={`overflow-x-auto ${outerStyle} ${className}`}>
-      <nav
-        className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}
-      >
+      <nav className={`flex min-w-max shrink-0 gap-0.5 bg-gray-100 p-1 ${navStyle}`}>
         {children}
       </nav>
     </div>
@@ -147,8 +133,7 @@ const TRIGGER_STYLES = {
  * @param {string} [desc] - descripción que Tab.Description mostrará cuando esté activo
  */
 Tab.Trigger = function TabTrigger({ value, title, desc, children }) {
-  const { activeTab, setActiveTab, variant, registerTrigger } =
-    useContext(TabContext)
+  const { activeTab, setActiveTab, variant, registerTrigger } = useContext(TabContext)
 
   useLayoutEffect(() => {
     if (title !== undefined || desc !== undefined) {
@@ -179,9 +164,7 @@ Tab.Panel = function TabPanel({ value, children, scrollable = true }) {
   const { activeTab } = useContext(TabContext)
   if (activeTab !== value) return null
   return (
-    <div
-      className={`flex min-h-0 flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}
-    >
+    <div className={`flex min-h-0 flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}>
       {children}
     </div>
   )

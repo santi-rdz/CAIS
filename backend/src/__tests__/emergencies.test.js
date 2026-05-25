@@ -43,15 +43,9 @@ describe('GET /medicina/emergencias', () => {
   test('200 — retorna lista paginada', async () => {
     const res = await agent.get('/medicina/emergencias')
     assert.equal(res.status, 200)
-    assert(
-      res.body['emergencies'] !== undefined,
-      'property emergencies should exist'
-    )
+    assert(res.body['emergencies'] !== undefined, 'property emergencies should exist')
     assert(res.body['count'] !== undefined, 'property count should exist')
-    assert(
-      Array.isArray(res.body.emergencies),
-      'emergencies should be an array'
-    )
+    assert(Array.isArray(res.body.emergencies), 'emergencies should be an array')
   })
 
   /**
@@ -60,10 +54,7 @@ describe('GET /medicina/emergencias', () => {
   test('200 — respeta parámetros de paginación', async () => {
     const res = await agent.get('/medicina/emergencias?page=1&limit=2')
     assert.equal(res.status, 200)
-    assert(
-      res.body.emergencies.length <= 2,
-      'emergencies.length should be <= 2'
-    )
+    assert(res.body.emergencies.length <= 2, 'emergencies.length should be <= 2')
   })
 
   /**
@@ -89,9 +80,7 @@ describe('GET /medicina/emergencias/:id', () => {
    * @test Sin sesión devuelve 401.
    */
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).get(
-      '/medicina/emergencias/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await request(app).get('/medicina/emergencias/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 401)
   })
 
@@ -99,9 +88,7 @@ describe('GET /medicina/emergencias/:id', () => {
    * @test UUID inexistente devuelve 404 con propiedad message.
    */
   test('404 — emergencia no existe', async () => {
-    const res = await agent.get(
-      '/medicina/emergencias/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.get('/medicina/emergencias/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -144,10 +131,7 @@ describe('POST /medicina/emergencias', () => {
       recurrente: false,
     })
     assert.equal(res.status, 201)
-    assert(
-      res.body['emergency'] !== undefined,
-      'property emergency should exist'
-    )
+    assert(res.body['emergency'] !== undefined, 'property emergency should exist')
     assert(res.body.emergency['id'] !== undefined, 'emergency.id should exist')
     assert.equal(res.body.emergency.ubicacion, 'Laboratorio de prueba')
     assert(
@@ -181,8 +165,7 @@ describe('PATCH /medicina/emergencias/:id', () => {
   })
 
   afterAll(async () => {
-    if (emergencyId)
-      await agent.delete(`/medicina/emergencias/${emergencyId}`).catch(() => {})
+    if (emergencyId) await agent.delete(`/medicina/emergencias/${emergencyId}`).catch(() => {})
   })
 
   /**
@@ -213,9 +196,7 @@ describe('PATCH /medicina/emergencias/:id', () => {
    */
   test('200 — actualiza recurrente', async () => {
     if (!emergencyId) return
-    const res = await agent
-      .patch(`/medicina/emergencias/${emergencyId}`)
-      .send({ recurrente: true })
+    const res = await agent.patch(`/medicina/emergencias/${emergencyId}`).send({ recurrente: true })
     assert.equal(res.status, 200)
     assert.equal(res.body.recurrente, true)
   })
@@ -254,9 +235,7 @@ describe('DELETE /medicina/emergencias/:id', () => {
    */
   test('401 — sin sesión devuelve 401', async () => {
     if (!emergencyId) return
-    const res = await request(app).delete(
-      `/medicina/emergencias/${emergencyId}`
-    )
+    const res = await request(app).delete(`/medicina/emergencias/${emergencyId}`)
     assert.equal(res.status, 401)
   })
 
@@ -264,9 +243,7 @@ describe('DELETE /medicina/emergencias/:id', () => {
    * @test UUID inexistente devuelve 404.
    */
   test('404 — emergencia no existe', async () => {
-    const res = await agent.delete(
-      '/medicina/emergencias/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.delete('/medicina/emergencias/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
   })
 

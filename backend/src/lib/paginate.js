@@ -1,8 +1,4 @@
-import {
-  PAGE_SIZE,
-  MAX_PAGE_SIZE,
-  DEFAULT_PAGE,
-} from '@cais/shared/constants/pagination'
+import { PAGE_SIZE, MAX_PAGE_SIZE, DEFAULT_PAGE } from '@cais/shared/constants/pagination'
 
 /**
  * Extrae y sanitiza page/limit de los query params.
@@ -12,9 +8,6 @@ import {
  */
 export function parsePagination(query) {
   const page = Math.max(1, parseInt(query.page) || DEFAULT_PAGE)
-  const limit = Math.min(
-    Math.max(1, parseInt(query.limit) || PAGE_SIZE),
-    MAX_PAGE_SIZE
-  )
+  const limit = Math.min(Math.max(1, parseInt(query.limit) || PAGE_SIZE), MAX_PAGE_SIZE)
   return { page, limit }
 }

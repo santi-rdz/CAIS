@@ -15,6 +15,21 @@ export const ESTADOS = {
   PENDIENTE: 'PENDIENTE',
 }
 
+export const ACCIONES = {
+  CREAR: 'CREAR',
+  ACTUALIZAR: 'ACTUALIZAR',
+  ELIMINAR: 'ELIMINAR',
+  INICIAR_SESION: 'INICIAR_SESION',
+}
+
+export const ENTIDADES = {
+  NOTA_EVOLUCION: 'NOTA_EVOLUCION',
+  HISTORIA_MEDICA: 'HISTORIA_MEDICA',
+  EMERGENCIA: 'EMERGENCIA',
+  PACIENTE: 'PACIENTE',
+  USUARIO: 'USUARIO',
+}
+
 // Requisitos de contraseña para auto-registro
 export const PASSWORD_REQUIREMENTS = [
   { label: 'Al menos 8 caracteres', test: (v) => v.length >= 8 },

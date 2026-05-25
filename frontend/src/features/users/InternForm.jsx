@@ -25,17 +25,13 @@ function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
   const apellidos = user.apellidos ?? ''
 
-  const [inicioAnio = '', inicioPeriodo = ''] = (
-    user.inicio_servicio ?? ''
-  ).split('-')
+  const [inicioAnio = '', inicioPeriodo = ''] = (user.inicio_servicio ?? '').split('-')
   const [finAnio = '', finPeriodo = ''] = (user.fin_servicio ?? '').split('-')
 
   return {
     nombre,
     apellidos,
-    fecha_nacimiento: user.fecha_nacimiento
-      ? dayjs(user.fecha_nacimiento)
-      : null,
+    fecha_nacimiento: user.fecha_nacimiento ? dayjs(user.fecha_nacimiento) : null,
     telefono: user.telefono ?? '',
     correo: user.correo ?? '',
     matricula: user.matricula ?? '',
@@ -76,8 +72,7 @@ export default function InternForm({
 
   const { createUser, isCreating } = useCreateUser()
   const { updateUser, isUpdating } = useUpdateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
-    useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
   const createFormSchema = pasanteSchema
     .omit({ rol: true })
@@ -98,16 +93,9 @@ export default function InternForm({
 
   const stepsFields = isEdit
     ? [allPersonalAndAcademicFields]
-    : [
-        allPersonalAndAcademicFields,
-        registration ? ['password', 'confirmPassword'] : ['password'],
-      ]
+    : [allPersonalAndAcademicFields, registration ? ['password', 'confirmPassword'] : ['password']]
 
-  const defaultValues = isEdit
-    ? parseUserDefaults(user)
-    : registration
-      ? { correo: email }
-      : {}
+  const defaultValues = isEdit ? parseUserDefaults(user) : registration ? { correo: email } : {}
 
   const resolver = isEdit
     ? zodResolver(internEditSchema)
@@ -184,9 +172,7 @@ export default function InternForm({
     }
   }
 
-  const PasswordComponent = registration
-    ? RegistrationPasswordForm
-    : PasswordForm
+  const PasswordComponent = registration ? RegistrationPasswordForm : PasswordForm
 
   const primaryLabel = isEdit
     ? isLast
@@ -228,11 +214,7 @@ export default function InternForm({
       onClose={close}
       primaryAction={{
         label: primaryLabel,
-        icon: isLast ? (
-          <HiCheck strokeWidth={1} />
-        ) : (
-          <HiChevronRight strokeWidth={1} />
-        ),
+        icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
         iconPos: isLast ? 'left' : 'right',
         onClick: isLast ? handleSubmit(onSubmit) : handleNext,
         isLoading: busy,
@@ -250,11 +232,7 @@ export default function InternForm({
   const content = (
     <>
       {steps.length > 1 && (
-        <Stepper
-          steps={steps}
-          current={currStep}
-          setCurrStep={handleStepClick}
-        />
+        <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
       )}
       <form className="mt-6" onKeyDown={getFormKeyDown(onSubmit, busy)}>
         {currStep === 0 && (
@@ -262,9 +240,7 @@ export default function InternForm({
             <InterPersonalInfoForm />
             <div className="mt-6">
               <InterAcademicInfoForm
-                disabledEmail={
-                  isEdit ? user.correo : registration ? email : undefined
-                }
+                disabledEmail={isEdit ? user.correo : registration ? email : undefined}
                 isUabcDomain={isUabcDomain}
                 setIsUabcDomain={setIsUabcDomain}
               />

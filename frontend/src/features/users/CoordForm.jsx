@@ -5,10 +5,7 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import {
-  coordinadorSchema,
-  coordinadorSignupSchema,
-} from '@cais/shared/schemas/users'
+import { coordinadorSchema, coordinadorSignupSchema } from '@cais/shared/schemas/users'
 import { dayjsDateSchema } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 
@@ -31,9 +28,7 @@ function parseUserDefaults(user) {
   return {
     nombre,
     apellidos,
-    fecha_nacimiento: user.fecha_nacimiento
-      ? dayjs(user.fecha_nacimiento)
-      : null,
+    fecha_nacimiento: user.fecha_nacimiento ? dayjs(user.fecha_nacimiento) : null,
     telefono: user.telefono ?? '',
     correo: user.correo ?? '',
     cedula: user.cedula ?? '',
@@ -69,41 +64,20 @@ export default function CoordForm({
 
   const { createUser, isCreating } = useCreateUser()
   const { updateUser, isUpdating } = useUpdateUser()
-  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
-    useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
   const createFormSchema = coordinadorSchema
     .omit({ rol: true })
     .extend({ fecha_nacimiento: dayjsDateSchema, correo: correoField })
 
   const stepsFields = isEdit
-    ? [
-        [
-          'nombre',
-          'apellidos',
-          'correo',
-          'fecha_nacimiento',
-          'telefono',
-          'cedula',
-        ],
-      ]
+    ? [['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula']]
     : [
-        [
-          'nombre',
-          'apellidos',
-          'correo',
-          'fecha_nacimiento',
-          'telefono',
-          'cedula',
-        ],
+        ['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula'],
         registration ? ['password', 'confirmPassword'] : ['password'],
       ]
 
-  const defaultValues = isEdit
-    ? parseUserDefaults(user)
-    : registration
-      ? { correo: email }
-      : {}
+  const defaultValues = isEdit ? parseUserDefaults(user) : registration ? { correo: email } : {}
 
   const resolver = isEdit
     ? zodResolver(coordEditSchema)
@@ -168,15 +142,9 @@ export default function CoordForm({
     }
   }
 
-  const PasswordComponent = registration
-    ? RegistrationPasswordForm
-    : PasswordForm
+  const PasswordComponent = registration ? RegistrationPasswordForm : PasswordForm
 
-  const primaryLabel = isEdit
-    ? 'Guardar cambios'
-    : isLast
-      ? 'Crear usuario'
-      : 'Siguiente'
+  const primaryLabel = isEdit ? 'Guardar cambios' : isLast ? 'Crear usuario' : 'Siguiente'
 
   const nav = registration ? (
     <div className="mt-8 flex gap-3">
@@ -210,11 +178,7 @@ export default function CoordForm({
       onClose={close}
       primaryAction={{
         label: primaryLabel,
-        icon: isLast ? (
-          <HiCheck strokeWidth={1} />
-        ) : (
-          <HiChevronRight strokeWidth={1} />
-        ),
+        icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
         iconPos: isLast ? 'left' : 'right',
         onClick: isLast ? handleSubmit(onSubmit) : handleNext,
         isLoading: busy,
@@ -232,11 +196,7 @@ export default function CoordForm({
   const content = (
     <>
       {steps.length > 1 && (
-        <Stepper
-          steps={steps}
-          current={currStep}
-          setCurrStep={handleStepClick}
-        />
+        <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
       )}
       <form
         className={registration ? 'mt-6 space-y-6' : 'mt-6'}
@@ -244,9 +204,7 @@ export default function CoordForm({
       >
         {currStep === 0 && (
           <CoordPersonalInfoForm
-            disabledEmail={
-              isEdit ? user.correo : registration ? email : undefined
-            }
+            disabledEmail={isEdit ? user.correo : registration ? email : undefined}
             isUabcDomain={isUabcDomain}
             setIsUabcDomain={setIsUabcDomain}
           />

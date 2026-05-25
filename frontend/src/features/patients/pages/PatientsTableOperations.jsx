@@ -74,6 +74,7 @@ export default function PatientsTableOperations() {
         placeholder="Buscar pacientes por nombre.."
         size="sm"
         className="mr-auto w-full max-w-[380px]"
+        data-testid="patients-search"
       />
       <Filter groups={FILTER_GROUPS} />
       <SortBy options={SORT_BY_OPTIONS} />

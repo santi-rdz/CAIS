@@ -11,11 +11,7 @@ export default function StatusChip({ active, children, size = 'sm' }) {
           : 'border-zinc-200 bg-zinc-100 text-zinc-400'
       }`}
     >
-      {active ? (
-        <HiOutlineCheckCircle size={iconSize} />
-      ) : (
-        <HiOutlineXCircle size={iconSize} />
-      )}
+      {active ? <HiOutlineCheckCircle size={iconSize} /> : <HiOutlineXCircle size={iconSize} />}
       {children}
     </span>
   )

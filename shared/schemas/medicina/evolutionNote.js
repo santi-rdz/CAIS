@@ -1,10 +1,6 @@
 import { z } from 'zod'
 import { isoDateTimeSchema } from '../fields.js'
-import {
-  aparatosSistemasSchema,
-  informacionFisicaSchema,
-  planEstudioSchema,
-} from './shared.js'
+import { aparatosSistemasSchema, informacionFisicaSchema, planEstudioSchema } from './shared.js'
 
 // Schema único para backend y form
 export const evolutionNoteSchema = z.object({

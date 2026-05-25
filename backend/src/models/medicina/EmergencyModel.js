@@ -17,20 +17,12 @@ function formatEmergency(u) {
     ...rest,
     id: bufferToUUID(u.id),
     usuario_id: bufferToUUID(u.usuario_id),
-    registrado_por: usuarios
-      ? { nombre: usuarios.nombre, correo: usuarios.correo }
-      : null,
+    registrado_por: usuarios ? { nombre: usuarios.nombre, correo: usuarios.correo } : null,
   }
 }
 
 export class EmergencyModel {
-  static async getAll({
-    sortBy,
-    search,
-    page,
-    limit,
-    recurrentBoolean: recurrent,
-  }) {
+  static async getAll({ sortBy, search, page, limit, recurrentBoolean: recurrent }) {
     const where = {}
 
     if (search) {
@@ -48,10 +40,7 @@ export class EmergencyModel {
       where.recurrente = recurrent
     }
 
-    const orderBy =
-      sortBy && SORT_OPTIONS[sortBy]
-        ? SORT_OPTIONS[sortBy]
-        : { fecha_hora: 'desc' }
+    const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { fecha_hora: 'desc' }
 
     const offset = (page - 1) * limit
 
@@ -100,9 +89,9 @@ export class EmergencyModel {
     return this.getById(emergencyId, tx)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      const emergency = await prisma.bitacora_emergencias.delete({
+      const emergency = await tx.bitacora_emergencias.delete({
         where: { id: uuidToBuffer(id) },
         include: includeRelations,
       })
@@ -113,13 +102,13 @@ export class EmergencyModel {
     }
   }
 
-  static async update(id, data) {
+  static async update(id, data, tx = prisma) {
     try {
-      await prisma.bitacora_emergencias.update({
+      await tx.bitacora_emergencias.update({
         where: { id: uuidToBuffer(id) },
         data,
       })
-      return await this.getById(id)
+      return await this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

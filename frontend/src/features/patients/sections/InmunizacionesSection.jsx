@@ -1,8 +1,4 @@
-import {
-  HiOutlineCheckCircle,
-  HiOutlineXCircle,
-  HiOutlineCalendarDays,
-} from 'react-icons/hi2'
+import { HiOutlineCheckCircle, HiOutlineXCircle, HiOutlineCalendarDays } from 'react-icons/hi2'
 import { formatFechaLong } from '@lib/dateHelpers'
 import DataField from '@components/DataField'
 
@@ -25,25 +21,15 @@ export default function InmunizacionesSection({ inm }) {
             <div
               key={key}
               className={`flex w-fit flex-1 flex-col gap-2 rounded-xl border p-4 ${
-                date
-                  ? 'border-green-100 bg-green-50'
-                  : 'border-zinc-100 bg-zinc-50'
+                date ? 'border-green-100 bg-green-50' : 'border-zinc-100 bg-zinc-50'
               }`}
             >
               <div className="flex items-center justify-between">
-                <p className="text-5 font-semibold text-nowrap text-zinc-700">
-                  {label}
-                </p>
+                <p className="text-5 font-semibold text-nowrap text-zinc-700">{label}</p>
                 {date ? (
-                  <HiOutlineCheckCircle
-                    size={18}
-                    className="shrink-0 text-green-500"
-                  />
+                  <HiOutlineCheckCircle size={18} className="shrink-0 text-green-500" />
                 ) : (
-                  <HiOutlineXCircle
-                    size={18}
-                    className="shrink-0 text-zinc-300"
-                  />
+                  <HiOutlineXCircle size={18} className="shrink-0 text-zinc-300" />
                 )}
               </div>
               {date ? (
@@ -58,14 +44,7 @@ export default function InmunizacionesSection({ inm }) {
           )
         })}
       </div>
-      {inm.otros && (
-        <DataField
-          label="Otras inmunizaciones"
-          value={inm.otros}
-          multiline
-          block
-        />
-      )}
+      {inm.otros && <DataField label="Otras inmunizaciones" value={inm.otros} multiline block />}
     </div>
   )
 }

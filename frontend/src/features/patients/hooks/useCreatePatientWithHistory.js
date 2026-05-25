@@ -17,11 +17,7 @@ export function useCreatePatientWithHistory() {
         try {
           await deletePatient(patient.id)
         } catch (rollbackError) {
-          console.error(
-            'Rollback failed, orphan patient:',
-            patient.id,
-            rollbackError
-          )
+          console.error('Rollback failed, orphan patient:', patient.id, rollbackError)
         }
         throw historyError
       }
@@ -31,6 +27,7 @@ export function useCreatePatientWithHistory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })
       queryClient.invalidateQueries({ queryKey: ['medical-histories'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       toast.success('Paciente registrado correctamente')
     },
   })

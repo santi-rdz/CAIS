@@ -20,11 +20,7 @@ beforeAll(async () => {
     email: 'admin@cais.com',
     password: '123',
   })
-  assert.equal(
-    login.status,
-    200,
-    'Login de setup falló — verifica credenciales y seeds'
-  )
+  assert.equal(login.status, 200, 'Login de setup falló — verifica credenciales y seeds')
 })
 
 // ─── GET /usuarios ──────────────────────────────────────────────────
@@ -104,10 +100,7 @@ describe('GET /usuarios', () => {
       const res = await agent.get('/usuarios')
       assert.equal(res.status, 200)
       const found = res.body.users.some((u) => u.correo === correo)
-      assert(
-        found,
-        'pending invitation should appear when no status filter is applied'
-      )
+      assert(found, 'pending invitation should appear when no status filter is applied')
     } finally {
       await prisma.invitaciones_registro.deleteMany({ where: { correo } })
     }
@@ -228,9 +221,7 @@ describe('GET /usuarios/:id', () => {
    * @test Sin sesión devuelve 401.
    */
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).get(
-      '/usuarios/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await request(app).get('/usuarios/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 401)
   })
 
@@ -250,9 +241,7 @@ describe('GET /usuarios/:id', () => {
    * @test UUID inexistente devuelve 404 con propiedad message.
    */
   test('404 — usuario no existe', async () => {
-    const res = await agent.get(
-      '/usuarios/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.get('/usuarios/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -339,9 +328,7 @@ describe('POST /usuarios — creación directa por admin', () => {
    * @test Password menor a 6 caracteres devuelve 422.
    */
   test('422 — rechaza password menor a 6 caracteres', async () => {
-    const res = await agent
-      .post('/usuarios')
-      .send({ ...pasanteValido, password: '12345' })
+    const res = await agent.post('/usuarios').send({ ...pasanteValido, password: '12345' })
     assert.equal(res.status, 422)
   })
 
@@ -424,9 +411,7 @@ describe('PATCH /usuarios/:id', () => {
    * @test Actualizar nombre devuelve 200 con el nuevo valor.
    */
   test('200 — actualiza nombre', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ nombre: 'Nombre Actualizado' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ nombre: 'Nombre Actualizado' })
     assert.equal(res.status, 200)
     assert.equal(res.body.nombre, 'Nombre Actualizado')
   })
@@ -435,9 +420,7 @@ describe('PATCH /usuarios/:id', () => {
    * @test Actualizar teléfono devuelve 200 con el nuevo valor.
    */
   test('200 — actualiza telefono', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ telefono: '6861234567' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ telefono: '6861234567' })
     assert.equal(res.status, 200)
     assert.equal(res.body.telefono, '6861234567')
   })
@@ -446,9 +429,7 @@ describe('PATCH /usuarios/:id', () => {
    * @test Actualizar matrícula devuelve 200 con el nuevo valor.
    */
   test('200 — actualiza matricula', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ matricula: 'MAT-UPDATED' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ matricula: 'MAT-UPDATED' })
     assert.equal(res.status, 200)
     assert.equal(res.body.matricula, 'MAT-UPDATED')
   })
@@ -521,9 +502,7 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
    * @test Cambiar estado a INACTIVO devuelve 200 con estado actualizado.
    */
   test('200 — desactiva usuario (ACTIVO → INACTIVO)', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ estado: 'INACTIVO' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'INACTIVO' })
     assert.equal(res.status, 200)
     assert.equal(res.body.estado, 'INACTIVO')
   })
@@ -532,9 +511,7 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
    * @test Cambiar estado a ACTIVO devuelve 200 con estado actualizado.
    */
   test('200 — activa usuario (INACTIVO → ACTIVO)', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ estado: 'ACTIVO' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'ACTIVO' })
     assert.equal(res.status, 200)
     assert.equal(res.body.estado, 'ACTIVO')
   })
@@ -543,9 +520,7 @@ describe('PATCH /usuarios/:id — actualizar estado', () => {
    * @test Estado inválido devuelve 422.
    */
   test('422 — estado inválido es rechazado', async () => {
-    const res = await agent
-      .patch(`/usuarios/${userId}`)
-      .send({ estado: 'BLOQUEADO' })
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'BLOQUEADO' })
     assert.equal(res.status, 422)
   })
 })
@@ -587,9 +562,7 @@ describe('DELETE /usuarios/:id', () => {
    * @test Sin sesión devuelve 401.
    */
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).delete(
-      '/usuarios/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await request(app).delete('/usuarios/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 401)
   })
 
@@ -597,9 +570,7 @@ describe('DELETE /usuarios/:id', () => {
    * @test UUID inexistente devuelve 404.
    */
   test('404 — usuario no existe', async () => {
-    const res = await agent.delete(
-      '/usuarios/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.delete('/usuarios/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
   })
 

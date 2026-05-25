@@ -16,8 +16,7 @@ function getGineAndroLabel(genero) {
 function getGineAndroPlaceholder(genero) {
   if (genero === 'Femenino')
     return 'FUM, ciclos menstruales, gestas, partos, abortos, cesáreas, método anticonceptivo...'
-  if (genero === 'Masculino')
-    return 'Función sexual, enfermedades prostáticas, fertilidad...'
+  if (genero === 'Masculino') return 'Función sexual, enfermedades prostáticas, fertilidad...'
   return 'Antecedentes ginecológicos u andrológicos relevantes...'
 }
 
@@ -52,9 +51,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
       <p className="text-sm text-zinc-500">
         Documenta la consulta siguiendo el formato{' '}
         <span className="font-semibold text-zinc-700">SOAP</span>:{' '}
-        <span className="text-zinc-600">
-          Subjetivo · Objetivo · Análisis · Plan
-        </span>
+        <span className="text-zinc-600">Subjetivo · Objetivo · Análisis · Plan</span>
       </p>
 
       {/* motivo_consulta */}
@@ -74,10 +71,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
       {patientGenero && (
         <>
           <Divider />
-          <FormRow
-            htmlFor="ant_gine_andro"
-            label={getGineAndroLabel(patientGenero)}
-          >
+          <FormRow htmlFor="ant_gine_andro" label={getGineAndroLabel(patientGenero)}>
             <Input
               {...register('ant_gine_andro')}
               id="ant_gine_andro"

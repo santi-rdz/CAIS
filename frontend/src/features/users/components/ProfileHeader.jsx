@@ -20,16 +20,7 @@ const ROL_LABELS = {
 }
 
 export default function ProfileHeader({ user }) {
-  const {
-    nombre,
-    apellidos,
-    fecha_nacimiento,
-    correo,
-    telefono,
-    rol,
-    estado,
-    foto,
-  } = user
+  const { nombre, apellidos, fecha_nacimiento, correo, telefono, rol, estado, foto } = user
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
@@ -57,7 +48,7 @@ export default function ProfileHeader({ user }) {
   const estadoLower = estado?.toLowerCase()
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-6">
       <div className="flex items-start gap-5">
         <div className="relative shrink-0">
           {foto ? (
@@ -90,18 +81,8 @@ export default function ProfileHeader({ user }) {
           {subtitle && <p className="text-5 mt-1 text-zinc-400">{subtitle}</p>}
           {(correo || telefono) && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {correo && (
-                <MetaChip
-                  icon={<HiOutlineEnvelope size={12} />}
-                  value={correo}
-                />
-              )}
-              {telefono && (
-                <MetaChip
-                  icon={<HiOutlinePhone size={12} />}
-                  value={telefono}
-                />
-              )}
+              {correo && <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />}
+              {telefono && <MetaChip icon={<HiOutlinePhone size={12} />} value={telefono} />}
             </div>
           )}
         </div>

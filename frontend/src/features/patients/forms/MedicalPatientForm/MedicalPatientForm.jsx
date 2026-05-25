@@ -237,9 +237,7 @@ function fillDefaults(defaults, source) {
 function buildEditDefaults(patient, historia) {
   const source = {
     ...patient,
-    fecha_nacimiento: patient.fecha_nacimiento
-      ? dayjs(patient.fecha_nacimiento)
-      : null,
+    fecha_nacimiento: patient.fecha_nacimiento ? dayjs(patient.fecha_nacimiento) : null,
     ...historia,
     creado_at: historia.creado_at ? dayjs(historia.creado_at) : dayjs(),
     inmunizaciones: {
@@ -247,15 +245,11 @@ function buildEditDefaults(patient, historia) {
       influenza: historia.inmunizaciones?.influenza
         ? dayjs(historia.inmunizaciones.influenza)
         : null,
-      tetanos: historia.inmunizaciones?.tetanos
-        ? dayjs(historia.inmunizaciones.tetanos)
-        : null,
+      tetanos: historia.inmunizaciones?.tetanos ? dayjs(historia.inmunizaciones.tetanos) : null,
       hepatitis_b: historia.inmunizaciones?.hepatitis_b
         ? dayjs(historia.inmunizaciones.hepatitis_b)
         : null,
-      covid_19: historia.inmunizaciones?.covid_19
-        ? dayjs(historia.inmunizaciones.covid_19)
-        : null,
+      covid_19: historia.inmunizaciones?.covid_19 ? dayjs(historia.inmunizaciones.covid_19) : null,
     },
     planes_estudio: {
       ...historia.planes_estudio,
@@ -278,8 +272,7 @@ export default function MedicalPatientForm({
   const isEdit = !!patient && (!!historia || patientOnly)
   const isClone = !isEdit && !!patient && !!cloneHistoria
 
-  const { register: registerPatient, isRegistering } =
-    useCreatePatientWithHistory()
+  const { register: registerPatient, isRegistering } = useCreatePatientWithHistory()
   const { createHistory, isCreating } = useCreateMedicalHistory()
   const { update: updatePatient, isUpdating } = useUpdatePatientWithHistory()
 
@@ -290,11 +283,7 @@ export default function MedicalPatientForm({
       : DEFAULT_VALUES
 
   const skipPatientStep = isClone || (isEdit && historiaOnly)
-  const activeSteps = patientOnly
-    ? [STEPS[0]]
-    : skipPatientStep
-      ? CLONE_STEPS
-      : STEPS
+  const activeSteps = patientOnly ? [STEPS[0]] : skipPatientStep ? CLONE_STEPS : STEPS
   const activeStepsFields = patientOnly
     ? [STEPS_FIELDS[0]]
     : skipPatientStep

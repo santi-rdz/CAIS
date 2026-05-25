@@ -25,9 +25,7 @@ export default function AparatosSistemasStep() {
       <Heading as="h3" showBar required>
         Interrogatorio por Aparatos y Sistemas
       </Heading>
-      <p className="text-5 text-zinc-500">
-        Deje en blanco si no hay alteraciones.
-      </p>
+      <p className="text-5 text-zinc-500">Deje en blanco si no hay alteraciones.</p>
 
       <Grid cols={3} gap={4} mobileCols={2}>
         {SISTEMAS.map(({ name, label }) => (

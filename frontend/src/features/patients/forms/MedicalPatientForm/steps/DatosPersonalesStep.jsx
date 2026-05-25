@@ -6,13 +6,7 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
 import Checkbox from '@components/Checkbox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@components/Select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/Select'
 import BirthdayField from '@ui/BirthdayField'
 import PhoneField from '@ui/PhoneField'
 
@@ -54,22 +48,14 @@ export default function DatosPersonalesStep() {
         </Grid>
 
         <Grid cols={3} gap={4} mobileCols={2}>
-          <BirthdayField
-            name="fecha_nacimiento"
-            control={control}
-            errors={errors}
-          />
+          <BirthdayField name="fecha_nacimiento" control={control} errors={errors} />
           <PhoneField />
           <FormRow label="Género" required>
             <Controller
               name="genero"
               control={control}
               render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  fullWidth
-                >
+                <Select value={field.value} onValueChange={field.onChange} fullWidth>
                   <SelectTrigger size="lg">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
@@ -112,11 +98,7 @@ export default function DatosPersonalesStep() {
               name="fuente_informacion"
               control={control}
               render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  fullWidth
-                >
+                <Select value={field.value} onValueChange={field.onChange} fullWidth>
                   <SelectTrigger size="lg">
                     <SelectValue placeholder="Directo" />
                   </SelectTrigger>
@@ -162,11 +144,7 @@ export default function DatosPersonalesStep() {
               name="estado_civil"
               control={control}
               render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  fullWidth
-                >
+                <Select value={field.value} onValueChange={field.onChange} fullWidth>
                   <SelectTrigger size="lg">
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
@@ -266,11 +244,7 @@ export default function DatosPersonalesStep() {
                 size="lg"
               />
             </FormRow>
-            <PhoneField
-              name="telefono_emergencia"
-              label="Teléfono"
-              required={false}
-            />
+            <PhoneField name="telefono_emergencia" label="Teléfono" required={false} />
           </Grid>
         </div>
       </div>

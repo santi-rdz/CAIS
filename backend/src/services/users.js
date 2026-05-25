@@ -23,9 +23,7 @@ export class UserService {
     if (uniqueEmails.length < emails.length) {
       const seen = new Set()
       const dupes = emails.filter((e) => (seen.has(e) ? true : !seen.add(e)))
-      throw new EmailConflictError('El payload contiene correos duplicados', [
-        ...new Set(dupes),
-      ])
+      throw new EmailConflictError('El payload contiene correos duplicados', [...new Set(dupes)])
     }
 
     const existing = await prisma.usuarios.findMany({

@@ -77,24 +77,16 @@ export default function StepFormShell({
         </Modal.Heading>
 
         <ModalBody>
-          <form onKeyDown={getFormKeyDown(onSubmit, isPending)}>
-            {children}
-          </form>
+          <form onKeyDown={getFormKeyDown(onSubmit, isPending)}>{children}</form>
         </ModalBody>
 
         <ModalActions
           onClose={onCloseModal}
           primaryAction={{
             label: isLast ? submitLabel : 'Siguiente',
-            icon: isLast ? (
-              <HiCheck strokeWidth={1} />
-            ) : (
-              <HiChevronRight strokeWidth={1} />
-            ),
+            icon: isLast ? <HiCheck strokeWidth={1} /> : <HiChevronRight strokeWidth={1} />,
             iconPos: isLast ? 'left' : 'right',
-            onClick: isLast
-              ? handleSubmit(onSubmit, toastFormErrors)
-              : handleNext,
+            onClick: isLast ? handleSubmit(onSubmit, toastFormErrors) : handleNext,
             disabled: primaryDisabled,
             isLoading: isPending && isLast,
           }}

@@ -35,8 +35,7 @@ export class InvitationController {
       console.error('Error en preRegister:', err)
       res.status(500).json({
         error: 'InternalError',
-        message:
-          'Ocurrió un error al enviar las invitaciones. Inténtalo de nuevo.',
+        message: 'Ocurrió un error al enviar las invitaciones. Inténtalo de nuevo.',
       })
     }
   }
@@ -45,9 +44,7 @@ export class InvitationController {
     const { correo } = req.body
 
     if (!correo) {
-      return res
-        .status(422)
-        .json({ error: 'ValidationError', message: 'correo es requerido' })
+      return res.status(422).json({ error: 'ValidationError', message: 'correo es requerido' })
     }
 
     try {
@@ -72,9 +69,7 @@ export class InvitationController {
     const { correo } = req.body
 
     if (!correo) {
-      return res
-        .status(422)
-        .json({ error: 'ValidationError', message: 'correo es requerido' })
+      return res.status(422).json({ error: 'ValidationError', message: 'correo es requerido' })
     }
 
     try {
@@ -114,9 +109,7 @@ export class InvitationController {
       })
     } catch (err) {
       console.error('Error validando token:', err)
-      res
-        .status(500)
-        .json({ error: 'InternalError', message: 'Error al validar token' })
+      res.status(500).json({ error: 'InternalError', message: 'Error al validar token' })
     }
   }
 }

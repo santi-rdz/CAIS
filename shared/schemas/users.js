@@ -52,13 +52,9 @@ const signupFields = {
 
 const omitForSignup = { correo: true, rol: true, area: true, password: true }
 
-export const pasanteSignupSchema = pasanteSchema
-  .omit(omitForSignup)
-  .extend(signupFields)
+export const pasanteSignupSchema = pasanteSchema.omit(omitForSignup).extend(signupFields)
 
-export const coordinadorSignupSchema = coordinadorSchema
-  .omit(omitForSignup)
-  .extend(signupFields)
+export const coordinadorSignupSchema = coordinadorSchema.omit(omitForSignup).extend(signupFields)
 
 export function validateSignup(input, rol) {
   if (rol === ROLES.COORDINADOR)

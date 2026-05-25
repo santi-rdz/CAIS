@@ -26,7 +26,10 @@ export default function NoteDetail({ note, onBack, onEdit }) {
   const doctorPhoto = usuarios?.foto
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div
+      className="shadow-card rounded-2xl border border-gray-100 bg-white"
+      data-testid="note-detail"
+    >
       {/* Header */}
       <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-zinc-50/60 px-5 py-4">
         <div className="flex min-w-0 items-center gap-2 text-zinc-500">
@@ -57,12 +60,7 @@ export default function NoteDetail({ note, onBack, onEdit }) {
             </>
           )}
         </div>
-        <Button
-          variant="secondary"
-          size="md"
-          className="gap-1.5"
-          onClick={onEdit}
-        >
+        <Button variant="secondary" size="md" className="gap-1.5" onClick={onEdit}>
           <HiOutlinePencilSquare size={14} />
           Editar nota
         </Button>
@@ -80,20 +78,12 @@ export default function NoteDetail({ note, onBack, onEdit }) {
         <div className="p-5">
           <Tab.Panel value="consulta" scrollable={false}>
             <MotivoConsultaSection motivo_consulta={motivo_consulta}>
-              <DataField
-                label="Antec. gin./androl."
-                value={ant_gine_andro}
-                multiline
-                block
-              />
+              <DataField label="Antec. gin./androl." value={ant_gine_andro} multiline block />
             </MotivoConsultaSection>
           </Tab.Panel>
 
           <Tab.Panel value="aparatos" scrollable={false}>
-            <FieldsSection
-              fields={buildAparSistFields(aparatos_sistemas)}
-              cols={3}
-            />
+            <FieldsSection fields={buildAparSistFields(aparatos_sistemas)} cols={3} />
           </Tab.Panel>
 
           <Tab.Panel value="exploracion" scrollable={false}>

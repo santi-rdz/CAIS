@@ -38,12 +38,7 @@ export default function PhoneField({
   const error = name.split('.').reduce((obj, key) => obj?.[key], fieldErrors)
 
   return (
-    <FormRow
-      htmlFor={name}
-      label={label}
-      className="w-full"
-      required={required}
-    >
+    <FormRow htmlFor={name} label={label} className="w-full" required={required}>
       <Input
         ref={ref}
         id={name}

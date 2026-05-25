@@ -19,7 +19,7 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} role="form">
+    <form onSubmit={handleSubmit(onSubmit)} role="form" data-testid="login-form">
       <DomainEmailInput
         id="email"
         register={register}
@@ -41,7 +41,12 @@ export default function LoginForm() {
 
       <Footer />
 
-      <Button isLoading={isPending} type="submit" className="mt-10 w-full">
+      <Button
+        isLoading={isPending}
+        type="submit"
+        className="mt-10 w-full"
+        data-testid="login-submit"
+      >
         Iniciar Sesión
       </Button>
     </form>

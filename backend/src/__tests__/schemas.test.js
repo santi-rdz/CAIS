@@ -5,13 +5,10 @@
  * validateSignup y validateInvitedUser.
  */
 
-import {
-  validateUserCreate,
-  validateUserUpdate,
-  validateSignup,
-} from '@cais/shared/schemas/users'
+import { validateUserCreate, validateUserUpdate, validateSignup } from '@cais/shared/schemas/users'
 import { validateInvitedUser } from '@cais/shared/schemas/invitations'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
+import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 import assert from 'assert'
 
 // ─── usuario.js (admin creation) ────────────────────────────────────
@@ -110,7 +107,8 @@ describe('validateUserCreate — creación de usuario', () => {
    * @test Pasante sin matrícula es rechazado.
    */
   test('rechaza pasante sin matrícula', () => {
-    const { matricula: _matricula, ...sinMatricula } = basePasante
+    const sinMatricula = { ...basePasante }
+    delete sinMatricula.matricula
     const result = validateUserCreate(sinMatricula)
     assert.equal(result.success, false)
   })
@@ -119,7 +117,8 @@ describe('validateUserCreate — creación de usuario', () => {
    * @test Coordinador sin cédula es rechazado.
    */
   test('rechaza coordinador sin cédula', () => {
-    const { cedula: _cedula, ...sinCedula } = baseCoord
+    const sinCedula = { ...baseCoord }
+    delete sinCedula.cedula
     const result = validateUserCreate(sinCedula)
     assert.equal(result.success, false)
   })
@@ -254,10 +253,7 @@ describe('validateSignup — auto-registro', () => {
    * @test confirmPassword diferente a password es rechazada.
    */
   test('rechaza confirmPassword que no coincide', () => {
-    const result = validateSignup(
-      { ...basePasante, confirmPassword: 'Diferente1!' },
-      'PASANTE'
-    )
+    const result = validateSignup({ ...basePasante, confirmPassword: 'Diferente1!' }, 'PASANTE')
     assert.equal(result.success, false)
   })
 
@@ -265,10 +261,7 @@ describe('validateSignup — auto-registro', () => {
    * @test Token con formato distinto a UUID es rechazado.
    */
   test('rechaza token no UUID', () => {
-    const result = validateSignup(
-      { ...basePasante, token: 'no-es-uuid' },
-      'PASANTE'
-    )
+    const result = validateSignup({ ...basePasante, token: 'no-es-uuid' }, 'PASANTE')
     assert.equal(result.success, false)
   })
 })
@@ -282,8 +275,8 @@ describe('validateSignup — auto-registro', () => {
 describe('validateAuditCreate — creación de auditoría', () => {
   const base = {
     usuario_id: '550e8400-e29b-41d4-a716-446655440000',
-    accion: 'CREATE',
-    entidad: 'pacientes',
+    accion: ACCIONES.CREAR,
+    entidad: ENTIDADES.PACIENTE,
   }
 
   /**
@@ -314,6 +307,17 @@ describe('validateAuditCreate — creación de auditoría', () => {
   })
 
   /**
+   * @test Datos con paciente_id UUID válido son aceptados.
+   */
+  test('acepta datos válidos con paciente_id', () => {
+    const result = validateAuditCreate({
+      ...base,
+      paciente_id: '770e8400-e29b-41d4-a716-446655440002',
+    })
+    assert.equal(result.success, true)
+  })
+
+  /**
    * @test usuario_id con formato distinto a UUID es rechazado.
    */
   test('rechaza usuario_id no UUID', () => {
@@ -326,6 +330,14 @@ describe('validateAuditCreate — creación de auditoría', () => {
    */
   test('rechaza objetivo_id no UUID', () => {
     const result = validateAuditCreate({ ...base, objetivo_id: 'no-es-uuid' })
+    assert.equal(result.success, false)
+  })
+
+  /**
+   * @test paciente_id con formato distinto a UUID es rechazado.
+   */
+  test('rechaza paciente_id no UUID', () => {
+    const result = validateAuditCreate({ ...base, paciente_id: 'no-es-uuid' })
     assert.equal(result.success, false)
   })
 
@@ -349,7 +361,8 @@ describe('validateAuditCreate — creación de auditoría', () => {
    * @test Ausencia de usuario_id es rechazada.
    */
   test('rechaza input sin usuario_id', () => {
-    const { usuario_id: _usuario_id, ...sinUsuario } = base
+    const sinUsuario = { ...base }
+    delete sinUsuario.usuario_id
     const result = validateAuditCreate(sinUsuario)
     assert.equal(result.success, false)
   })
@@ -393,9 +406,7 @@ describe('validateInvitedUser — invitaciones', () => {
    * @test Rol inexistente es rechazado.
    */
   test('rechaza rol inválido', () => {
-    const result = validateInvitedUser([
-      { email: 'a@uabc.edu.mx', role: 'superusuario' },
-    ])
+    const result = validateInvitedUser([{ email: 'a@uabc.edu.mx', role: 'superusuario' }])
     assert.equal(result.success, false)
   })
 

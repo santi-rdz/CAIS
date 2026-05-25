@@ -114,11 +114,7 @@ export default function EvolutionNoteForm({
 
   const StepComponent = STEP_COMPONENTS[currStep]
 
-  const NESTED_KEYS = [
-    'aparatos_sistemas',
-    'informacion_fisica',
-    'planes_estudio',
-  ]
+  const NESTED_KEYS = ['aparatos_sistemas', 'informacion_fisica', 'planes_estudio']
 
   async function onSubmit(data) {
     if (isEdit) {

@@ -9,8 +9,7 @@ export default function useToggleUserEstado() {
   const { mutate: toggleEstado, isPending } = useMutation({
     mutationFn: ({ id, estado }) => updateUserEstado(id, estado),
     onSuccess: (_, { estado }) => {
-      const msg =
-        estado === 'INACTIVO' ? 'Usuario desactivado' : 'Usuario activado'
+      const msg = estado === 'INACTIVO' ? 'Usuario desactivado' : 'Usuario activado'
       toast.success(msg)
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },

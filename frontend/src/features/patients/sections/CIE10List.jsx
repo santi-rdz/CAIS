@@ -10,9 +10,7 @@ export default function CIE10List({ codes }) {
               key={codigo}
               className="inline-flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-2.5"
             >
-              <span className="text-5 shrink-0 font-bold text-blue-700">
-                {codigo}
-              </span>
+              <span className="text-5 shrink-0 font-bold text-blue-700">{codigo}</span>
               {descripcion && (
                 <>
                   <div className="h-4 w-px shrink-0 bg-blue-200" />

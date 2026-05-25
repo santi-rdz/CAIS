@@ -44,8 +44,7 @@ export default function UserRow({ user, isAdmin }) {
   const isPending = status === 'pendiente'
 
   const { resendInvitation, isResending } = useResendInvitation()
-  const { deleteInvitation, isDeleting: isDeletingInvitation } =
-    useDeleteInvitation()
+  const { deleteInvitation, isDeleting: isDeletingInvitation } = useDeleteInvitation()
   const { toggleEstado, isPending: isTogglingEstado } = useToggleUserEstado()
 
   const isInactive = status === 'inactivo'
@@ -58,6 +57,7 @@ export default function UserRow({ user, isAdmin }) {
     <Table.Row
       isCurrentUser={isCurrentUser}
       onClick={!isPending ? () => navigate(`/usuarios/${id}`) : undefined}
+      data-testid={`user-row-${id}`}
     >
       {!isPending && (
         <>
@@ -77,10 +77,8 @@ export default function UserRow({ user, isAdmin }) {
         secondary={email}
         avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
       />
-      <div className="capitalize">{role}</div>
-      {isAdmin && (
-        <div className="capitalize">{area?.toLowerCase() ?? '—'}</div>
-      )}
+      <div className="font-medium text-zinc-700 capitalize">{role}</div>
+      {isAdmin && <div className="text-zinc-700 capitalize">{area?.toLowerCase() ?? '—'}</div>}
       <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>
@@ -92,20 +90,24 @@ export default function UserRow({ user, isAdmin }) {
             <Button
               variant="ghost"
               size="md"
-              className="flex items-center gap-1 text-nowrap"
-              onClick={() => resendInvitation(email)}
+              className="w-full justify-start text-nowrap"
+              onClick={(e) => {
+                e.stopPropagation()
+                resendInvitation(email)
+              }}
               disabled={isResending}
             >
-              <HiPaperAirplane />
+              <HiPaperAirplane size={16} />
               Reenviar invitación
             </Button>
             <Modal.Open opens="delete-invitation">
               <Button
                 variant="ghost"
                 size="md"
-                className="flex w-full items-center gap-1 text-nowrap text-red-600 hover:text-red-700"
+                className="w-full justify-start text-nowrap text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={(e) => e.stopPropagation()}
               >
-                <HiOutlineTrash />
+                <HiOutlineTrash size={16} />
                 Eliminar invitación
               </Button>
             </Modal.Open>
@@ -139,9 +141,12 @@ export default function UserRow({ user, isAdmin }) {
               <Button
                 variant="ghost"
                 size="md"
-                className="flex w-full items-center gap-1 text-nowrap"
+                className={`w-full justify-start text-nowrap ${
+                  !isInactive ? 'text-red-600 hover:bg-red-50 hover:text-red-700' : ''
+                }`}
+                onClick={(e) => e.stopPropagation()}
               >
-                {isInactive ? <HiLockOpen /> : <HiLockClosed />}
+                {isInactive ? <HiLockOpen size={16} /> : <HiLockClosed size={16} />}
                 {isInactive ? 'Activar usuario' : 'Desactivar usuario'}
               </Button>
             </Modal.Open>

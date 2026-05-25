@@ -21,10 +21,7 @@ export default function PlanDiagnosticoStep() {
 
         <Divider />
 
-        <FormRow
-          htmlFor="estudios_complementarios"
-          label="Estudios complementarios efectuados"
-        >
+        <FormRow htmlFor="estudios_complementarios" label="Estudios complementarios efectuados">
           <Input
             {...register('planes_estudio.estudios_complementarios')}
             id="estudios_complementarios"

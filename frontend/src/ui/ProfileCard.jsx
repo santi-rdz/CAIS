@@ -24,12 +24,7 @@ export default function ProfileCard({ isExpanded }) {
   const formattedName = `Dr. ${[nombre, apellidos].filter(Boolean).join(' ')}`
 
   return (
-    <div
-      ref={ref}
-      className="relative mt-auto"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
+    <div ref={ref} className="relative mt-auto" onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {isOpen && (
         <>
           <ProfileDropdown user={user} onClose={close} logout={logout} />
@@ -48,22 +43,14 @@ export default function ProfileCard({ isExpanded }) {
       >
         <div className="flex items-center">
           <picture className="block w-10 shrink-0">
-            <img
-              src={foto}
-              className="w-full rounded-full object-cover"
-              alt={nombre}
-            />
+            <img src={foto} className="w-full rounded-full object-cover" alt={nombre} />
           </picture>
 
           <div
             className={`flex flex-col transition-all duration-300 ease-in-out ${isExpanded ? 'ml-2 w-24' : 'w-0 max-lg:ml-2 max-lg:w-24'}`}
           >
-            <span className="text-5 truncate text-start font-medium">
-              {formattedName}
-            </span>
-            <span className="text-6 mt-0.5 max-w-[14ch] truncate text-neutral-400">
-              {correo}
-            </span>
+            <span className="text-5 truncate text-start font-medium">{formattedName}</span>
+            <span className="text-6 mt-0.5 max-w-[14ch] truncate text-neutral-400">{correo}</span>
           </div>
         </div>
 

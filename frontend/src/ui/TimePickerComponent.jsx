@@ -1,7 +1,4 @@
-import {
-  LocalizationProvider,
-  MultiSectionDigitalClock,
-} from '@mui/x-date-pickers'
+import { LocalizationProvider, MultiSectionDigitalClock } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import 'dayjs/locale/es'
 import dayjs from 'dayjs'
@@ -40,24 +37,17 @@ function parseDigits(raw) {
 
 // --- Componente ---
 
-export default function TimePickerComponent({
-  name,
-  control,
-  rules,
-  label,
-  hasError,
-}) {
+export default function TimePickerComponent({ name, control, rules, label, hasError }) {
   const {
     field: { value: time, onChange: setTime },
   } = useController({ name, control, rules, defaultValue: dayjs() })
 
   const [digits, setDigits] = useState('')
 
-  const { triggerRef, isOpen, positionStyle, toggle, close } =
-    useDropdownPosition(CLOCK_HEIGHT, {
-      ignoreSelector: '[data-timepicker-clock]',
-      dropdownWidth: 240,
-    })
+  const { triggerRef, isOpen, positionStyle, toggle, close } = useDropdownPosition(CLOCK_HEIGHT, {
+    ignoreSelector: '[data-timepicker-clock]',
+    dropdownWidth: 240,
+  })
 
   // -- Handlers --
 
@@ -115,9 +105,7 @@ export default function TimePickerComponent({
           placeholder={label ?? 'HH:MM'}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          suffix={
-            <HiOutlineClock className="cursor-pointer" onClick={toggle} />
-          }
+          suffix={<HiOutlineClock className="cursor-pointer" onClick={toggle} />}
           variant="outline"
           hasError={hasError}
           onClick={toggle}
@@ -127,9 +115,7 @@ export default function TimePickerComponent({
         <DropdownPanel
           data-timepicker-clock
           className={`fixed z-[9999] transition-opacity ${
-            isOpen
-              ? 'pointer-events-auto opacity-100'
-              : 'pointer-events-none opacity-0'
+            isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
           style={positionStyle}
           onWheel={(e) => e.stopPropagation()}

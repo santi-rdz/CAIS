@@ -236,16 +236,11 @@ describe('POST /invitaciones — correo ya registrado en usuarios', () => {
    * @test Invitar un correo que ya tiene cuenta registrada devuelve 409 con emails.
    */
   test('409 — rechaza correo ya registrado en usuarios', async () => {
-    const res = await agent
-      .post('/invitaciones')
-      .send([{ email: existingCorreo, role: 'pasante' }])
+    const res = await agent.post('/invitaciones').send([{ email: existingCorreo, role: 'pasante' }])
 
     assert.equal(res.status, 409)
     assert.equal(res.body['error'], 'Conflict')
-    assert(
-      Array.isArray(res.body['emails']),
-      'property emails should be an array'
-    )
+    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
     assert(res.body['emails'].includes(existingCorreo))
   })
 })
@@ -291,16 +286,11 @@ describe('POST /invitaciones — correo con invitación pendiente', () => {
    * @test Invitar un correo con invitación pendiente devuelve 409 con emails.
    */
   test('409 — rechaza correo con invitación pendiente', async () => {
-    const res = await agent
-      .post('/invitaciones')
-      .send([{ email: pendingCorreo, role: 'pasante' }])
+    const res = await agent.post('/invitaciones').send([{ email: pendingCorreo, role: 'pasante' }])
 
     assert.equal(res.status, 409)
     assert.equal(res.body['error'], 'Conflict')
-    assert(
-      Array.isArray(res.body['emails']),
-      'property emails should be an array'
-    )
+    assert(Array.isArray(res.body['emails']), 'property emails should be an array')
     assert(res.body['emails'].includes(pendingCorreo))
   })
 })
@@ -345,9 +335,7 @@ describe('POST /invitaciones/reenviar', () => {
    * @test Sin sesión devuelve 401.
    */
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app)
-      .post('/invitaciones/reenviar')
-      .send({ correo: testCorreo })
+    const res = await request(app).post('/invitaciones/reenviar').send({ correo: testCorreo })
     assert.equal(res.status, 401)
   })
 
@@ -364,9 +352,7 @@ describe('POST /invitaciones/reenviar', () => {
    * @test Correo sin invitación pendiente devuelve 404.
    */
   test('404 — correo sin invitación pendiente', async () => {
-    const res = await agent
-      .post('/invitaciones/reenviar')
-      .send({ correo: 'noexiste@test.com' })
+    const res = await agent.post('/invitaciones/reenviar').send({ correo: 'noexiste@test.com' })
     assert.equal(res.status, 404)
     assert.equal(res.body['error'], 'NotFound')
   })
@@ -375,9 +361,7 @@ describe('POST /invitaciones/reenviar', () => {
    * @test Correo con invitación pendiente válida devuelve 200 con message.
    */
   test('200 — reenvía invitación pendiente', async () => {
-    const res = await agent
-      .post('/invitaciones/reenviar')
-      .send({ correo: testCorreo })
+    const res = await agent.post('/invitaciones/reenviar').send({ correo: testCorreo })
     assert.equal(res.status, 200)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -442,9 +426,7 @@ describe('DELETE /invitaciones', () => {
    * @test Sin sesión devuelve 401.
    */
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app)
-      .delete('/invitaciones')
-      .send({ correo: deleteCorreo })
+    const res = await request(app).delete('/invitaciones').send({ correo: deleteCorreo })
     assert.equal(res.status, 401)
   })
 
@@ -461,9 +443,7 @@ describe('DELETE /invitaciones', () => {
    * @test Correo sin invitación pendiente devuelve 404.
    */
   test('404 — correo sin invitación pendiente', async () => {
-    const res = await agent
-      .delete('/invitaciones')
-      .send({ correo: 'noexiste@test.com' })
+    const res = await agent.delete('/invitaciones').send({ correo: 'noexiste@test.com' })
     assert.equal(res.status, 404)
     assert.equal(res.body['error'], 'NotFound')
   })
@@ -472,9 +452,7 @@ describe('DELETE /invitaciones', () => {
    * @test Invitación existente se elimina y devuelve 200 con message.
    */
   test('200 — elimina invitación pendiente', async () => {
-    const res = await agent
-      .delete('/invitaciones')
-      .send({ correo: deleteCorreo })
+    const res = await agent.delete('/invitaciones').send({ correo: deleteCorreo })
     assert.equal(res.status, 200)
     assert(res.body['message'] !== undefined, 'property message should exist')
 

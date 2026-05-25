@@ -6,11 +6,7 @@ import Modal from '@components/Modal'
 import { useMedicalHistories } from '../hooks/useMedicalHistories'
 import { useMedicalHistory } from '../hooks/useMedicalHistory'
 import { formatFecha } from '@lib/dateHelpers'
-import {
-  buildAntPatFields,
-  buildAntFamFields,
-  buildAparSistFields,
-} from '../constants'
+import { buildAntPatFields, buildAntFamFields, buildAparSistFields } from '../constants'
 import HistoriaPeriodSelect from './HistoriaPeriodSelect'
 import FieldsSection from '../sections/FieldsSection'
 import SignosVitalesSection from '../sections/SignosVitalesSection'
@@ -25,8 +21,7 @@ function formatHistoriaOption(h) {
 export default function PatientHistoria({ patient }) {
   const { id: pacienteId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { histories, isPending: isLoadingList } =
-    useMedicalHistories(pacienteId)
+  const { histories, isPending: isLoadingList } = useMedicalHistories(pacienteId)
 
   const selectedId = searchParams.get('historia')
   const mostRecentId = histories[0]?.id ?? null
@@ -67,14 +62,24 @@ export default function PatientHistoria({ patient }) {
             <>
               {historia && (
                 <Modal.Open opens="edit-history">
-                  <Button variant="secondary" size="md" className="gap-1.5">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="gap-1.5"
+                    data-testid="edit-historia-btn"
+                  >
                     <HiOutlinePencilSquare size={14} />
                     Editar historia
                   </Button>
                 </Modal.Open>
               )}
               <Modal.Open opens="new-history">
-                <Button variant="primary" size="md" className="gap-1.5">
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="gap-1.5"
+                  data-testid="new-historia-btn"
+                >
                   <HiOutlinePlus size={14} />
                   Nueva historia
                 </Button>
@@ -84,14 +89,10 @@ export default function PatientHistoria({ patient }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="shadow-card rounded-2xl border border-gray-100 bg-white">
         <Modal.Content name="edit-history" size="xl" noPadding>
           {historia && patient && (
-            <MedicalPatientForm
-              patient={patient}
-              historia={historia}
-              historiaOnly
-            />
+            <MedicalPatientForm patient={patient} historia={historia} historiaOnly />
           )}
         </Modal.Content>
 
@@ -116,13 +117,10 @@ export default function PatientHistoria({ patient }) {
           </Tab.List>
 
           <div className="p-5">
-            {isLoadingList || isLoadingDetail ? (
+            {isLoadingList || (activeId != null && isLoadingDetail) ? (
               <div className="space-y-3 py-4">
                 {Array.from({ length: 4 }, (_, i) => (
-                  <div
-                    key={i}
-                    className="h-5 animate-pulse rounded bg-zinc-100"
-                  />
+                  <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" />
                 ))}
               </div>
             ) : !historia ? (
@@ -132,18 +130,14 @@ export default function PatientHistoria({ patient }) {
             ) : (
               <>
                 <Tab.Panel value="heredofamiliares" scrollable={false}>
-                  <FieldsSection
-                    fields={buildAntFamFields(historia.antecedentes_familiares)}
-                  />
+                  <FieldsSection fields={buildAntFamFields(historia.antecedentes_familiares)} />
                 </Tab.Panel>
                 <Tab.Panel value="no-patologicos" scrollable={false}>
                   <NoPatologicosSection historia={historia} />
                 </Tab.Panel>
                 <Tab.Panel value="patologicos" scrollable={false}>
                   <FieldsSection
-                    fields={buildAntPatFields(
-                      historia.antecedentes_patologicos
-                    )}
+                    fields={buildAntPatFields(historia.antecedentes_patologicos)}
                     cols={3}
                   />
                 </Tab.Panel>

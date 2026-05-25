@@ -38,16 +38,12 @@ export default function UserInfoPanel({ user }) {
   const isCoord = rolLower === 'coordinador'
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-6">
       <Heading as="h3" showBar>
         Datos del usuario
       </Heading>
       <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <DataField
-          icon={<HiOutlineBriefcase size={14} />}
-          label="Área"
-          value={area}
-        />
+        <DataField icon={<HiOutlineBriefcase size={14} />} label="Área" value={area} />
         <DataField
           icon={<HiOutlineCalendarDays size={14} />}
           label="Fecha de nacimiento"

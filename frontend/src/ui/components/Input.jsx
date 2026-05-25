@@ -15,10 +15,8 @@ const inputVariants = cva(
       variant: {
         outline: 'border bg-white shadow-xs border-gray-200 ',
         fill: 'bg-black-50 ',
-        'outline-b':
-          'border-b border-b-gray-200  outline-none focus:border-b-green-800 pb-4',
-        muted:
-          'border border-gray-200 bg-gray-100 text-gray-400 cursor-default select-none',
+        'outline-b': 'border-b border-b-gray-200  outline-none focus:border-b-green-800 pb-4',
+        muted: 'border border-gray-200 bg-gray-100 text-gray-400 cursor-default select-none',
       },
     },
   }
@@ -36,9 +34,7 @@ export default function Input({
 }) {
   const fieldClass = cn(
     inputVariants({ size, variant }),
-    hasError
-      ? 'error'
-      : 'focus-visible:outline-[1.5px] focus-visible:outline-green-900'
+    hasError ? 'error' : 'focus-visible:outline-[1.5px] focus-visible:outline-green-900'
   )
 
   return (

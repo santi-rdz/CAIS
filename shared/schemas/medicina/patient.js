@@ -6,10 +6,7 @@ export const patientSchema = z.object({
   apellidos: z.string().trim().min(1, 'Los apellidos son requeridos').max(255),
   fecha_nacimiento: dateSchema,
   es_externo: z.boolean().optional(),
-  correo: z.preprocess(
-    (v) => (v === '' ? null : v),
-    correoSchema.nullable().optional()
-  ),
+  correo: z.preprocess((v) => (v === '' ? null : v), correoSchema.nullable().optional()),
   telefono: telefonoSchema,
   genero: z.string().min(1, 'El género es requerido').max(20),
   domicilio: z.string().max(255).nullish(),

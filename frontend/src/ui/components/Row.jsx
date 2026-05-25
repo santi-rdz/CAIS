@@ -6,9 +6,5 @@ const directions = {
 }
 
 export default function Row({ children, direction = 'row', className = '' }) {
-  return (
-    <div className={`flex ${directions[direction]} ${className}`}>
-      {children}
-    </div>
-  )
+  return <div className={`flex ${directions[direction]} ${className}`}>{children}</div>
 }

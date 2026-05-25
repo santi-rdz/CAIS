@@ -2,13 +2,7 @@ import { HiOutlinePencilSquare, HiOutlineUserCircle } from 'react-icons/hi2'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
 import Button from '@components/Button'
 
-export default function NoteCard({
-  note,
-  onClick,
-  onEdit,
-  isSelected = false,
-  layout = 'grid',
-}) {
+export default function NoteCard({ note, onClick, onEdit, isSelected = false, layout = 'grid' }) {
   const { motivo_consulta, planes_estudio, usuarios, creado_at } = note
 
   const date = formatFecha(creado_at)
@@ -20,13 +14,10 @@ export default function NoteCard({
   return (
     <article
       onClick={onClick}
-      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
+      data-testid={`note-card-${note.id}`}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
         !isList && 'h-[220px]'
-      } ${
-        isSelected
-          ? 'border-teal-400 ring-2 ring-teal-100'
-          : 'border-gray-200 shadow-sm'
-      }`}
+      } ${isSelected ? 'border-teal-400 ring-2 ring-teal-100' : 'shadow-card border-gray-100'}`}
     >
       {/* Edit button */}
       <div
@@ -79,18 +70,12 @@ export default function NoteCard({
       </div>
 
       {/* Body: motivo */}
-      <div
-        className={`flex-1 overflow-hidden px-4 ${isList ? 'py-2.5' : 'py-3'}`}
-      >
+      <div className={`flex-1 overflow-hidden px-4 ${isList ? 'py-2.5' : 'py-3'}`}>
         <p className="text-7 mb-1 font-medium tracking-wide text-zinc-400 uppercase">
           Motivo de consulta
         </p>
-        <p
-          className={`text-5 text-zinc-600 ${isList ? 'line-clamp-1' : 'line-clamp-3'}`}
-        >
-          {motivo_consulta || (
-            <span className="text-zinc-300 italic">Sin motivo de consulta</span>
-          )}
+        <p className={`text-5 text-zinc-600 ${isList ? 'line-clamp-1' : 'line-clamp-3'}`}>
+          {motivo_consulta || <span className="text-zinc-300 italic">Sin motivo de consulta</span>}
         </p>
       </div>
 

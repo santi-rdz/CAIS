@@ -11,11 +11,7 @@ const AREA_FORMS = {
   },
 }
 
-export default function NewPatientButton({
-  size = 'md',
-  variant = 'primary',
-  className,
-}) {
+export default function NewPatientButton({ size = 'md', variant = 'primary', className }) {
   const { user } = useMe()
   const area = user?.area?.toLowerCase()
   const config = AREA_FORMS[area]

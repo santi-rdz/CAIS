@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@components/Select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@components/Select'
 
 export default function HistoriaPeriodSelect({ value, onChange, periodos }) {
   return (

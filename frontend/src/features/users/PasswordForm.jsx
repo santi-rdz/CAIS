@@ -18,8 +18,7 @@ export default function PasswordForm() {
           <span>Contraseña temporal</span>
         </div>
         <p className="text-5 mt-1 text-blue-700">
-          El usuario deberá cambiar su contraseña en el primer inicio de sesión
-          por seguridad.
+          El usuario deberá cambiar su contraseña en el primer inicio de sesión por seguridad.
         </p>
       </div>
 

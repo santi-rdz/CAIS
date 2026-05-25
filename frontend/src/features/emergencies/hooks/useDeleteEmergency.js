@@ -10,6 +10,7 @@ export function useDeleteEmergency() {
     mutationFn: (id) => apiDeleteEmergency(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emergencies'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
     },
   })
 
@@ -17,8 +18,7 @@ export function useDeleteEmergency() {
     const promise = mutateAsync(id)
     toast.promise(promise, {
       loading: 'Eliminando emergencia...',
-      success: (data) =>
-        `Emergencia del ${formatFecha(data.fecha_hora)} eliminada`,
+      success: (data) => `Emergencia del ${formatFecha(data.fecha_hora)} eliminada`,
       error: toastApiError,
     })
     return promise

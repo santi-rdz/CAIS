@@ -800,11 +800,14 @@ CREATE TABLE IF NOT EXISTS registro_auditoria (
     accion_id INT NOT NULL,
     entidad_id INT NOT NULL,
     objetivo_id BINARY(16) NULL,
+    paciente_id BINARY(16) NULL,
     fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_audit_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
     CONSTRAINT fk_audit_accion FOREIGN KEY (accion_id) REFERENCES acciones(id),
     CONSTRAINT fk_audit_entidad FOREIGN KEY (entidad_id) REFERENCES entidades(id),
-    INDEX idx_audit_objetivo (objetivo_id)
+    CONSTRAINT fk_audit_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
+    INDEX idx_audit_objetivo (objetivo_id),
+    INDEX idx_audit_paciente (paciente_id)
 );
 
 CREATE TABLE IF NOT EXISTS bitacora_emergencias (

@@ -2,17 +2,8 @@ import { z } from 'zod'
 
 // Helpers internos de coerción para campos numéricos de formularios
 const emptyToUndefined = z.literal('').transform(() => undefined)
-export const coerceNum = z.coerce
-  .number()
-  .positive()
-  .optional()
-  .or(emptyToUndefined)
-export const coerceInt = z.coerce
-  .number()
-  .int()
-  .positive()
-  .optional()
-  .or(emptyToUndefined)
+export const coerceNum = z.coerce.number().positive().optional().or(emptyToUndefined)
+export const coerceInt = z.coerce.number().int().positive().optional().or(emptyToUndefined)
 
 // ─── Schemas compartidos entre evolutionNote y medicalHistory ────────
 

@@ -41,9 +41,7 @@ function formatEvolutionNote(n) {
     ...rest,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
-    historia_medica_id: n.historia_medica_id
-      ? toUUID(n.historia_medica_id)
-      : null,
+    historia_medica_id: n.historia_medica_id ? toUUID(n.historia_medica_id) : null,
     usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
 
     planes_estudio: plan
@@ -83,16 +81,10 @@ function formatListNote(n) {
 }
 
 export class EvolutionNoteModel {
-  static async getAll({
-    paciente_id,
-    historia_medica_id,
-    page = 1,
-    limit = 10,
-  } = {}) {
+  static async getAll({ paciente_id, historia_medica_id, page = 1, limit = 10 } = {}) {
     const where = {}
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
-    if (historia_medica_id)
-      where.historia_medica_id = uuidToBuffer(historia_medica_id)
+    if (historia_medica_id) where.historia_medica_id = uuidToBuffer(historia_medica_id)
 
     const offset = (page - 1) * limit
 
@@ -128,15 +120,12 @@ export class EvolutionNoteModel {
       data: {
         id: uuidToBuffer(noteId),
         paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-        historia_medica_id: data.historia_medica_id
-          ? uuidToBuffer(data.historia_medica_id)
-          : null,
+        historia_medica_id: data.historia_medica_id ? uuidToBuffer(data.historia_medica_id) : null,
         usuario_id: uuidToBuffer(userId),
         creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
         motivo_consulta: data.motivo_consulta ?? null,
         ant_gine_andro: data.ant_gine_andro ?? null,
-        estudios_complementarios_efectuados:
-          data.estudios_complementarios_efectuados ?? null,
+        estudios_complementarios_efectuados: data.estudios_complementarios_efectuados ?? null,
         ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
         ...(data.planes_estudio && {
           planes_estudio: planesEstudioCreate(data.planes_estudio),
@@ -147,9 +136,9 @@ export class EvolutionNoteModel {
     return this.getById(noteId, tx)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      const note = await prisma.notas_evolucion.delete({
+      const note = await tx.notas_evolucion.delete({
         where: { id: uuidToBuffer(id) },
         include: includeRelations,
       })
@@ -169,9 +158,7 @@ export class EvolutionNoteModel {
             creado_at: new Date(data.creado_at),
           }),
           ...(data.paciente_id !== undefined && {
-            paciente_id: data.paciente_id
-              ? uuidToBuffer(data.paciente_id)
-              : null,
+            paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
           }),
           ...(data.historia_medica_id !== undefined && {
             historia_medica_id: data.historia_medica_id
@@ -180,8 +167,7 @@ export class EvolutionNoteModel {
           }),
           motivo_consulta: data.motivo_consulta,
           ant_gine_andro: data.ant_gine_andro,
-          estudios_complementarios_efectuados:
-            data.estudios_complementarios_efectuados,
+          estudios_complementarios_efectuados: data.estudios_complementarios_efectuados,
           ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
           ...(data.planes_estudio && {
             planes_estudio: planesEstudioUpsert(data.planes_estudio),

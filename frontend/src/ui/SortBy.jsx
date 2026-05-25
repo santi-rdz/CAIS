@@ -54,11 +54,7 @@ export default function SortBy({ options }) {
       <SelectContent>
         {isGrouped
           ? options.map((group, i) => (
-              <SelectGroup
-                key={group.label}
-                label={group.label}
-                separator={i > 0}
-              >
+              <SelectGroup key={group.label} label={group.label} separator={i > 0}>
                 {group.options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} icon={opt.icon}>
                     {opt.label}

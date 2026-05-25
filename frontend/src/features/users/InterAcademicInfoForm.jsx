@@ -3,13 +3,7 @@ import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
 import Input from '@components/Input'
 import Row from '@components/Row'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@components/Select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineIdentification } from 'react-icons/hi2'
 
@@ -23,11 +17,7 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function InterAcademicInfoForm({
-  disabledEmail,
-  isUabcDomain,
-  setIsUabcDomain,
-}) {
+export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -38,13 +28,7 @@ export default function InterAcademicInfoForm({
       </Heading>
       {disabledEmail ? (
         <FormRow htmlFor="correo" label="Correo electrónico">
-          <Input
-            {...register('correo')}
-            id="correo"
-            type="email"
-            disabled
-            variant="outline"
-          />
+          <Input {...register('correo')} id="correo" type="email" disabled variant="outline" />
         </FormRow>
       ) : (
         <DomainEmailInput
@@ -65,9 +49,7 @@ export default function InterAcademicInfoForm({
           placeholder="e.g 1299332"
           hasError={errors?.matricula?.message}
           variant="outline"
-          suffix={
-            <HiOutlineIdentification size={20} className="text-gray-400" />
-          }
+          suffix={<HiOutlineIdentification size={20} className="text-gray-400" />}
         />
       </FormRow>
 
@@ -123,8 +105,7 @@ export default function InterAcademicInfoForm({
               )}
             />
           </div>
-          {(errors?.servicio_inicio_anio ||
-            errors?.servicio_inicio_periodo) && (
+          {(errors?.servicio_inicio_anio || errors?.servicio_inicio_periodo) && (
             <span className="text-5 mt-1.5 inline-block text-red-600">
               Selecciona año y periodo de inicio
             </span>

@@ -24,22 +24,12 @@ const GAPS = {
   8: 'gap-8',
 }
 
-export default function Grid({
-  children,
-  cols = 2,
-  mobileCols = 1,
-  gap = 5,
-  className = '',
-}) {
+export default function Grid({ children, cols = 2, mobileCols = 1, gap = 5, className = '' }) {
   const colClass = COLS[cols] ?? 'grid-cols-2'
   const mobileColClass = MAX_SM_COLS[mobileCols] ?? 'max-sm:grid-cols-1'
   const gapClass = GAPS[gap] ?? 'gap-5'
 
   return (
-    <div
-      className={`grid ${colClass} ${mobileColClass} ${gapClass} ${className}`}
-    >
-      {children}
-    </div>
+    <div className={`grid ${colClass} ${mobileColClass} ${gapClass} ${className}`}>{children}</div>
   )
 }

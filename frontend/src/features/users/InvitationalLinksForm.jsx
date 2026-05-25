@@ -27,8 +27,7 @@ export default function InvitationalLinksForm({ onClose }) {
   const [users, setUsers] = useState([])
   const [idEdit, setIdEdit] = useState('')
   const [role, setRole] = useState('pasante')
-  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } =
-    useEmailDomain()
+  const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
   const inviteSchema = z.object({ email: correoField })
 
@@ -46,10 +45,7 @@ export default function InvitationalLinksForm({ onClose }) {
     setIdEdit(user.email)
     setRole(user.role)
     setIsUabcDomain(isUabc)
-    setValue(
-      'email',
-      isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email
-    )
+    setValue('email', isUabc ? user.email.replace('@uabc.edu.mx', '') : user.email)
   }
 
   const handleDelete = (email) => {
@@ -62,11 +58,7 @@ export default function InvitationalLinksForm({ onClose }) {
 
     if (isEditMode) {
       setUsers(
-        users.map((u) =>
-          u.email === idEdit
-            ? { email: fullEmail, role, status: 'pendiente' }
-            : u
-        )
+        users.map((u) => (u.email === idEdit ? { email: fullEmail, role, status: 'pendiente' } : u))
       )
       setIdEdit('')
     } else {
@@ -207,9 +199,7 @@ function InvitationCard({ user }) {
   return (
     <li
       className={`group flex h-fit items-center gap-3 rounded-lg border px-4 py-3 shadow-xs transition-all duration-200 ${
-        isEditing
-          ? 'border-blue-200 bg-blue-50'
-          : 'border-gray-200 bg-white hover:shadow-sm'
+        isEditing ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-white hover:shadow-sm'
       }`}
     >
       <div
@@ -217,10 +207,7 @@ function InvitationCard({ user }) {
           isEditing ? 'bg-blue-100' : 'bg-green-50 ring-1 ring-green-800/15'
         }`}
       >
-        <HiOutlineEnvelope
-          size={16}
-          className={isEditing ? 'text-blue-600' : 'text-green-800'}
-        />
+        <HiOutlineEnvelope size={16} className={isEditing ? 'text-blue-600' : 'text-green-800'} />
       </div>
 
       <div className="flex-1 overflow-hidden">

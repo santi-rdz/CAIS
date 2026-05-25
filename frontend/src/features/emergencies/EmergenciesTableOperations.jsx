@@ -4,12 +4,7 @@ import Filter from '@ui/Filter'
 import Input from '@components/Input'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
-import {
-  HiArrowDown,
-  HiArrowUp,
-  HiMagnifyingGlass,
-  HiOutlinePlus,
-} from 'react-icons/hi2'
+import { HiArrowDown, HiArrowUp, HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
 import EmergencyForm from './EmergencyForm'
 import Modal from '@components/Modal'
 import { EMERGENCY_SORT_KEYS } from '@cais/shared/constants/emergencies'
@@ -72,6 +67,7 @@ export default function EmergenciesTableOperations() {
         size="sm"
         variant="outline"
         suffix={<HiMagnifyingGlass />}
+        data-testid="emergencies-search"
       />
 
       <Filter groups={FILTER_GROUPS} placeholder="Filtrar" />
@@ -79,7 +75,7 @@ export default function EmergenciesTableOperations() {
 
       <Modal>
         <Modal.Open opens="emergency">
-          <Button size="md">
+          <Button size="md" data-testid="add-emergency-btn">
             <HiOutlinePlus size="16" strokeWidth="2.5" /> Agregar Emergencia
           </Button>
         </Modal.Open>

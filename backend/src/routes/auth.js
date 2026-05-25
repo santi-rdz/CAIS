@@ -42,13 +42,5 @@ authRouter.patch('/password', requireAuth, AuthController.changePassword)
 // ─── Flujo "olvidé mi contraseña" (sin sesión) ─────────────────────────────
 // POST /auth/password/forgot   { correo }
 // POST /auth/password/reset    { token, password, confirmPassword }
-authRouter.post(
-  '/password/forgot',
-  forgotPasswordLimiter,
-  AuthController.requestPasswordReset
-)
-authRouter.post(
-  '/password/reset',
-  resetPasswordLimiter,
-  AuthController.confirmPasswordReset
-)
+authRouter.post('/password/forgot', forgotPasswordLimiter, AuthController.requestPasswordReset)
+authRouter.post('/password/reset', resetPasswordLimiter, AuthController.confirmPasswordReset)

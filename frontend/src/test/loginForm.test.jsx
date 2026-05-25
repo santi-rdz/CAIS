@@ -14,9 +14,7 @@ describe('Login form validation', () => {
     const form = screen.getByRole('form')
     fireEvent.submit(form)
 
-    expect(
-      screen.getByText(/ingresa tu usuario|Ingresa tu correo electronico/i)
-    )
+    expect(screen.getByText(/ingresa tu usuario|Ingresa tu correo electronico/i))
     expect(screen.getByText(/ingresa tu contraseña/i))
   })
 
@@ -53,9 +51,7 @@ describe('Login form validation', () => {
 
     expect(screen.queryByText(/Ingresa un correo valido/i)).toBeNull()
     expect(screen.queryByText(/Ingresa tu contraseña/i)).toBeNull()
-    expect(
-      screen.queryByText(/Ingresa tu usuario|Ingresa tu correo electronico/i)
-    ).toBeNull()
+    expect(screen.queryByText(/Ingresa tu usuario|Ingresa tu correo electronico/i)).toBeNull()
   })
 
   it('renders username/email and password inputs', () => {

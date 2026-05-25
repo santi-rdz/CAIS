@@ -17,11 +17,7 @@ export default function Logo({ children, isExpanded = true }) {
 }
 
 Logo.Heading = function Heading() {
-  return (
-    <h1 className="font-lato text-2 leading-none tracking-tight text-green-800">
-      CAIS
-    </h1>
-  )
+  return <h1 className="font-lato text-2 leading-none tracking-tight text-green-800">CAIS</h1>
 }
 
 Logo.Area = function Area() {

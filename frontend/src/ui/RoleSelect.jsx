@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@components/Select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/Select'
 
 const options = [
   { label: 'Pasante', value: 'pasante' },
@@ -13,11 +7,7 @@ const options = [
 
 export default function RoleSelect({ role, setRole, className }) {
   return (
-    <Select
-      value={role ?? ''}
-      onValueChange={setRole}
-      className={`w-fit ${className}`}
-    >
+    <Select value={role ?? ''} onValueChange={setRole} className={`w-fit ${className}`}>
       <SelectTrigger>
         <SelectValue placeholder="Rol" />
       </SelectTrigger>

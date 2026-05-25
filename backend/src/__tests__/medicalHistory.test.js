@@ -32,10 +32,7 @@ beforeAll(async () => {
     agent.get('/auth/me'),
   ])
 
-  const items =
-    pacientesRes.body.pacientes ??
-    pacientesRes.body.patients ??
-    pacientesRes.body
+  const items = pacientesRes.body.pacientes ?? pacientesRes.body.patients ?? pacientesRes.body
   pacienteId = Array.isArray(items) ? items[0]?.id : undefined
   usuarioId = meRes.body?.id
 })
@@ -100,10 +97,7 @@ describe('GET /medicina/historias-medicas', () => {
   test('200 — retorna lista paginada', async () => {
     const res = await agent.get('/medicina/historias-medicas')
     assert.equal(res.status, 200)
-    assert(
-      res.body['histories'] !== undefined,
-      'property histories should exist'
-    )
+    assert(res.body['histories'] !== undefined, 'property histories should exist')
     assert(res.body['count'] !== undefined, 'property count should exist')
     assert(Array.isArray(res.body.histories), 'histories should be an array')
   })
@@ -122,9 +116,7 @@ describe('GET /medicina/historias-medicas', () => {
    */
   test('200 — filtra por paciente_id', async () => {
     if (!pacienteId) return
-    const res = await agent.get(
-      `/medicina/historias-medicas?paciente_id=${pacienteId}`
-    )
+    const res = await agent.get(`/medicina/historias-medicas?paciente_id=${pacienteId}`)
     assert.equal(res.status, 200)
     assert(Array.isArray(res.body.histories), 'histories should be an array')
     for (const h of res.body.histories) {
@@ -154,9 +146,7 @@ describe('GET /medicina/historias-medicas/:id', () => {
    * @test UUID inexistente devuelve 404 con propiedad message.
    */
   test('404 — historia no existe', async () => {
-    const res = await agent.get(
-      '/medicina/historias-medicas/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.get('/medicina/historias-medicas/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -205,22 +195,14 @@ describe('POST /medicina/historias-medicas', () => {
    */
   test('201 — crea historia médica con relaciones de array', async () => {
     if (!pacienteId || !usuarioId) return
-    const res = await agent
-      .post('/medicina/historias-medicas')
-      .send(buildPayload())
+    const res = await agent.post('/medicina/historias-medicas').send(buildPayload())
     assert.equal(res.status, 201)
     assert(res.body['history'] !== undefined, 'property history should exist')
     const h = res.body.history
     assert(h['id'] !== undefined, 'history.id should exist')
     assert.equal(h.paciente_id, pacienteId)
-    assert(
-      Array.isArray(h.aparatos_sistemas),
-      'aparatos_sistemas should be an array'
-    )
-    assert(
-      Array.isArray(h.informacion_fisica),
-      'informacion_fisica should be an array'
-    )
+    assert(Array.isArray(h.aparatos_sistemas), 'aparatos_sistemas should be an array')
+    assert(Array.isArray(h.informacion_fisica), 'informacion_fisica should be an array')
     assert(Array.isArray(h.planes_estudio), 'planes_estudio should be an array')
 
     // cleanup
@@ -240,17 +222,12 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
 
   beforeAll(async () => {
     if (!pacienteId || !usuarioId) return
-    const res = await agent
-      .post('/medicina/historias-medicas')
-      .send(buildPayload())
+    const res = await agent.post('/medicina/historias-medicas').send(buildPayload())
     historyId = res.body.history?.id
   })
 
   afterAll(async () => {
-    if (historyId)
-      await agent
-        .delete(`/medicina/historias-medicas/${historyId}`)
-        .catch(() => {})
+    if (historyId) await agent.delete(`/medicina/historias-medicas/${historyId}`).catch(() => {})
   })
 
   /**
@@ -288,10 +265,7 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
       .patch(`/medicina/historias-medicas/${historyId}`)
       .send({ aparatos_sistemas: { cardiovascular: 'Normal' } })
     assert.equal(res.status, 200)
-    assert(
-      Array.isArray(res.body.aparatos_sistemas),
-      'aparatos_sistemas should be an array'
-    )
+    assert(Array.isArray(res.body.aparatos_sistemas), 'aparatos_sistemas should be an array')
     assert.equal(res.body.aparatos_sistemas.length, prevLen + 1)
   })
 
@@ -318,9 +292,7 @@ describe('DELETE /medicina/historias-medicas/:id', () => {
 
   beforeAll(async () => {
     if (!pacienteId || !usuarioId) return
-    const res = await agent
-      .post('/medicina/historias-medicas')
-      .send(buildPayload())
+    const res = await agent.post('/medicina/historias-medicas').send(buildPayload())
     historyId = res.body.history?.id
   })
 
@@ -329,9 +301,7 @@ describe('DELETE /medicina/historias-medicas/:id', () => {
    */
   test('401 — sin sesión devuelve 401', async () => {
     if (!historyId) return
-    const res = await request(app).delete(
-      `/medicina/historias-medicas/${historyId}`
-    )
+    const res = await request(app).delete(`/medicina/historias-medicas/${historyId}`)
     assert.equal(res.status, 401)
   })
 

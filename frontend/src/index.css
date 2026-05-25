@@ -19,6 +19,7 @@
   --color-white-mint: #d0ecdf;
   --color-dark-gray: #202224;
   --color-backdrop-color: rgba(255, 255, 255, 0.1);
+  --shadow-card: 0 2px 10px -4px rgba(0, 0, 0, 0.05);
   --animate-rotate: rotate 1.5s linear infinite;
   @keyframes rotate {
     to {
@@ -160,5 +161,29 @@
     border-radius: 3px;
     border: 2px solid transparent;
     background-clip: content-box;
+  }
+
+  /* Scrollbar que solo se muestra al hacer hover */
+  .scrollbar-hover {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.2s ease;
+  }
+  .scrollbar-hover::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-hover::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-hover::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 4px;
+  }
+  .scrollbar-hover:hover {
+    scrollbar-color: #d1d5db transparent; /* tailwind gray-300 */
+  }
+  .scrollbar-hover:hover::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
   }
 }
