@@ -136,7 +136,7 @@ export default function UserRow({ user, isAdmin }) {
         </Modal>
       ) : (
         <Modal>
-          <RowActionsMenu>
+          <RowActionsMenu data-testid={`row-menu-${email}`}>
             <Modal.Open opens="toggle-estado">
               <Button
                 variant="ghost"
@@ -145,6 +145,7 @@ export default function UserRow({ user, isAdmin }) {
                   !isInactive ? 'text-red-600 hover:bg-red-50 hover:text-red-700' : ''
                 }`}
                 onClick={(e) => e.stopPropagation()}
+                data-testid="toggle-estado-btn"
               >
                 {isInactive ? <HiLockOpen size={16} /> : <HiLockClosed size={16} />}
                 {isInactive ? 'Activar usuario' : 'Desactivar usuario'}
