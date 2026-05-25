@@ -51,7 +51,7 @@ export default function ProfilePage() {
               <UserInfoPanel user={user} />
             </Tab.Panel>
             <Tab.Panel value="actividad" scrollable={false}>
-              <ActivityPanel />
+              <ActivityPanel userId={user.id} />
             </Tab.Panel>
             <Tab.Panel value="configuracion" scrollable={false}>
               <ChangePasswordForm />

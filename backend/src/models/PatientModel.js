@@ -21,8 +21,12 @@ function formatPatient(u) {
 }
 
 export class PatientModel {
-  static async getAll({ sortBy, search, page, limit, genre }) {
+  static async getAll({ sortBy, search, page, limit, genre, areaId }) {
     const where = {}
+
+    if (areaId != null) {
+      where.usuarios = { area_id: areaId }
+    }
 
     if (search) {
       where.OR = [
@@ -64,9 +68,9 @@ export class PatientModel {
     return formatPatient(patient)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      await prisma.pacientes.delete({ where: { id: uuidToBuffer(id) } })
+      await tx.pacientes.delete({ where: { id: uuidToBuffer(id) } })
       return true
     } catch (err) {
       if (err.code === 'P2025') return false
@@ -75,18 +79,18 @@ export class PatientModel {
     }
   }
 
-  static async update(id, data) {
+  static async update(id, data, tx = prisma) {
     try {
       const updateData = {
         ...data,
         actualizado_at: new Date(),
       }
 
-      await prisma.pacientes.update({
+      await tx.pacientes.update({
         where: { id: uuidToBuffer(id) },
         data: updateData,
       })
-      return await this.getById(id)
+      return await this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       console.error('Error en PatientModel.update:', err)

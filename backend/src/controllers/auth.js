@@ -2,13 +2,14 @@ import { bufferToUUID, uuidToBuffer } from '#lib/uuid.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { passwordResetEmail } from '#lib/passwordResetEmail.js'
 import { AuthModel } from '#models/AuthModel.js'
+import { AuditModel } from '#models/AuditModel.js'
 import { prisma } from '#config/prisma.js'
 import {
   validatePasswordReset,
   validateChangePassword,
 } from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
-import { ESTADOS } from '@cais/shared/constants/users'
+import { ESTADOS, ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { BCRYPT_ROUNDS, PASSWORD_RESET_TTL_MS } from '#lib/constants.js'
 import bcrypt from 'bcryptjs'
@@ -67,6 +68,11 @@ export class AuthController {
             data: { ultimo_acceso: new Date() },
           })
           .catch((e) => console.error('Error actualizando ultimo_acceso:', e))
+        AuditModel.create({
+          usuario_id: req.session.userId,
+          accion: ACCIONES.INICIAR_SESION,
+          entidad: ENTIDADES.USUARIO,
+        }).catch((e) => console.error('Error registrando audit de login:', e))
         return res.json({ ok: true })
       })
     } catch (err) {

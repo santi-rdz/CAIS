@@ -1,10 +1,10 @@
 import { PatientModel } from '#models/PatientModel.js'
-import {
-  validatePatient,
-  validatePartialPatient,
-} from '@cais/shared/schemas/medicina/patient'
+import { AuditModel } from '#models/AuditModel.js'
+import { validatePatient, validatePartialPatient } from '@cais/shared/schemas/medicina/patient'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
+import { ACCIONES, ENTIDADES, ROLES } from '@cais/shared/constants/users'
+import { prisma } from '#config/prisma.js'
 
 export class PatientController {
   static async create(req, res) {
@@ -17,7 +17,20 @@ export class PatientController {
     }
 
     try {
-      const patient = await PatientModel.create(result.data, req.session.userId)
+      const patient = await prisma.$transaction(async (tx) => {
+        const p = await PatientModel.create(result.data, req.session.userId, tx)
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.CREAR,
+            entidad: ENTIDADES.PACIENTE,
+            objetivo_id: p.id,
+            paciente_id: p.id,
+          },
+          tx
+        )
+        return p
+      })
       return res.status(201).json({ message: 'Paciente registrado', patient })
     } catch (error) {
       console.error('Error creating patient:', error)
@@ -28,6 +41,7 @@ export class PatientController {
   static async getAll(req, res) {
     const { sortBy, search, genre } = req.query
     const { page, limit } = parsePagination(req.query)
+    const areaId = req.session.role === ROLES.ADMIN ? null : req.session.areaId
 
     const patients = await PatientModel.getAll({
       sortBy,
@@ -35,6 +49,7 @@ export class PatientController {
       genre,
       page,
       limit,
+      areaId,
     })
     res.json(patients)
   }
@@ -42,17 +57,33 @@ export class PatientController {
   static async getById(req, res) {
     const { id } = req.params
     const patient = await PatientModel.getById(id)
-    if (!patient)
-      return res.status(404).json({ message: 'Paciente no encontrado' })
+    if (!patient) return res.status(404).json({ message: 'Paciente no encontrado' })
     res.json(patient)
   }
 
   static async delete(req, res) {
     const { id } = req.params
-    const success = await PatientModel.delete(id)
-    if (!success)
-      return res.status(404).json({ message: 'Paciente no encontrado' })
-    res.json({ message: 'Paciente borrado exitosamente' })
+    try {
+      const success = await prisma.$transaction(async (tx) => {
+        const result = await PatientModel.delete(id, tx)
+        if (!result) return false
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.ELIMINAR,
+            entidad: ENTIDADES.PACIENTE,
+            objetivo_id: id,
+          },
+          tx
+        )
+        return true
+      })
+      if (!success) return res.status(404).json({ message: 'Paciente no encontrado' })
+      res.json({ message: 'Paciente borrado exitosamente' })
+    } catch (err) {
+      console.error('Error al eliminar paciente:', err)
+      res.status(500).json({ error: 'InternalError', message: 'Error al eliminar paciente' })
+    }
   }
 
   static async update(req, res) {
@@ -66,9 +97,22 @@ export class PatientController {
 
     const { id } = req.params
     try {
-      const updatedPatient = await PatientModel.update(id, result.data)
-      if (!updatedPatient)
-        return res.status(404).json({ message: 'Paciente no encontrado' })
+      const updatedPatient = await prisma.$transaction(async (tx) => {
+        const p = await PatientModel.update(id, result.data, tx)
+        if (!p) return null
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.ACTUALIZAR,
+            entidad: ENTIDADES.PACIENTE,
+            objetivo_id: p.id,
+            paciente_id: p.id,
+          },
+          tx
+        )
+        return p
+      })
+      if (!updatedPatient) return res.status(404).json({ message: 'Paciente no encontrado' })
       res.json(updatedPatient)
     } catch (err) {
       console.error('Error al actualizar al paciente:', err)

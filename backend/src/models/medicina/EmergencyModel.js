@@ -100,9 +100,9 @@ export class EmergencyModel {
     return this.getById(emergencyId, tx)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      const emergency = await prisma.bitacora_emergencias.delete({
+      const emergency = await tx.bitacora_emergencias.delete({
         where: { id: uuidToBuffer(id) },
         include: includeRelations,
       })
@@ -113,13 +113,13 @@ export class EmergencyModel {
     }
   }
 
-  static async update(id, data) {
+  static async update(id, data, tx = prisma) {
     try {
-      await prisma.bitacora_emergencias.update({
+      await tx.bitacora_emergencias.update({
         where: { id: uuidToBuffer(id) },
         data,
       })
-      return await this.getById(id)
+      return await this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

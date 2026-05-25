@@ -125,9 +125,9 @@ export class MedicalHistoryModel {
     return this.getById(historyId, tx)
   }
 
-  static async delete(id) {
+  static async delete(id, tx = prisma) {
     try {
-      const history = await prisma.historias_medicas.delete({
+      const history = await tx.historias_medicas.delete({
         where: { id: uuidToBuffer(id) },
         include: includeRelations,
       })

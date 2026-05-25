@@ -1,12 +1,14 @@
 import { prisma } from '#config/prisma.js'
 import { MedicalHistoryModel } from '#models/medicina/MedicalHistory.js'
 import { PatientModel } from '#models/PatientModel.js'
+import { AuditModel } from '#models/AuditModel.js'
 import {
   validateMedicalHistory,
   validatePartialMedicalHistory,
 } from '@cais/shared/schemas/medicina/medicalHistory'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
+import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 export class MedicalHistoryController {
   static async create(req, res) {
@@ -27,6 +29,13 @@ export class MedicalHistoryController {
           tx
         )
         await PatientModel.touch(result.data.paciente_id, tx)
+        await AuditModel.create({
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.HISTORIA_MEDICA,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        }, tx)
         return h
       })
       return res
@@ -71,11 +80,20 @@ export class MedicalHistoryController {
   static async delete(req, res) {
     const { id } = req.params
     try {
-      const history = await MedicalHistoryModel.delete(id)
+      const history = await prisma.$transaction(async (tx) => {
+        const h = await MedicalHistoryModel.delete(id, tx)
+        if (!h) return null
+        await AuditModel.create({
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.HISTORIA_MEDICA,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        }, tx)
+        return h
+      })
       if (!history)
-        return res
-          .status(404)
-          .json({ message: 'Historia médica no encontrada' })
+        return res.status(404).json({ message: 'Historia médica no encontrada' })
       res.json(history)
     } catch (err) {
       console.error('Error al eliminar historia médica:', err)
@@ -106,6 +124,13 @@ export class MedicalHistoryController {
         )
         if (!h) return null
         await PatientModel.touch(h.paciente_id, tx)
+        await AuditModel.create({
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.HISTORIA_MEDICA,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        }, tx)
         return h
       })
       if (!updatedHistory)

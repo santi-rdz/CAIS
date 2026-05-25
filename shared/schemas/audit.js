@@ -1,14 +1,16 @@
 import { z } from 'zod'
+import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 const uuidSchema = z.uuid('Debe ser un UUID válido')
 
-const auditCreateSchema = z.object({
+const auditSchema = z.object({
   usuario_id: uuidSchema,
-  accion: z.string().min(1, 'La acción es requerida'),
-  entidad: z.string().min(1, 'La entidad es requerida'),
-  objetivo_id: uuidSchema.nullable().optional(),
+  accion: z.enum(Object.values(ACCIONES)),
+  entidad: z.enum(Object.values(ENTIDADES)),
+  paciente_id: uuidSchema.nullish(),
+  objetivo_id: uuidSchema.nullish(),
 })
 
 export function validateAuditCreate(input) {
-  return auditCreateSchema.safeParse(input)
+  return auditSchema.safeParse(input)
 }
