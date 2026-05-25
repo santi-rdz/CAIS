@@ -15,7 +15,7 @@ export default function PatientActionBar({ patientName, isDeleting }) {
       </nav>
       <div className="flex gap-2">
         <Modal.Open opens="edit-patient">
-          <Button variant="secondary" size="md" className="gap-1.5">
+          <Button variant="secondary" size="md" className="gap-1.5" data-testid="edit-patient-btn">
             <HiOutlinePencilSquare size={14} />
             Editar paciente
           </Button>

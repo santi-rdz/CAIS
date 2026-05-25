@@ -132,7 +132,7 @@ const TRIGGER_STYLES = {
  * @param {string} [title] - título que Tab.Title mostrará cuando este tab esté activo
  * @param {string} [desc] - descripción que Tab.Description mostrará cuando esté activo
  */
-Tab.Trigger = function TabTrigger({ value, title, desc, children }) {
+Tab.Trigger = function TabTrigger({ value, title, desc, children, ...rest }) {
   const { activeTab, setActiveTab, variant, registerTrigger } = useContext(TabContext)
 
   useLayoutEffect(() => {
@@ -149,6 +149,8 @@ Tab.Trigger = function TabTrigger({ value, title, desc, children }) {
     <button
       onClick={() => setActiveTab(value)}
       className={`text-5 cursor-pointer ${styles.base} ${stateClass}`}
+      data-testid={`tab-${value}`}
+      {...rest}
     >
       {children}
     </button>

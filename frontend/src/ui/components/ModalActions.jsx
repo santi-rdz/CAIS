@@ -16,7 +16,7 @@ export default function ModalActions({
     return (
       <div className={containerStyle}>
         <Row direction="row-end">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose} data-testid="modal-cancel-btn">
             {cancelLabel}
           </Button>
           <Button
@@ -25,6 +25,7 @@ export default function ModalActions({
             onClick={primaryAction?.onClick}
             disabled={primaryAction?.disabled}
             type={primaryAction?.type}
+            data-testid="modal-primary-btn"
           >
             {primaryAction?.iconPos !== 'right' && primaryAction?.icon}
             {primaryAction?.label || 'Primary Action'}

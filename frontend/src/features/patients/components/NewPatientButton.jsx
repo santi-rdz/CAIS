@@ -21,7 +21,7 @@ export default function NewPatientButton({ size = 'md', variant = 'primary', cla
   return (
     <Modal>
       <Modal.Open opens="new-patient">
-        <Button size={size} variant={variant} className={className}>
+        <Button size={size} variant={variant} className={className} data-testid="new-patient-btn">
           <HiOutlinePlus size={16} strokeWidth={2.5} />
           Nuevo paciente
         </Button>
