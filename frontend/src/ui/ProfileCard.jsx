@@ -34,6 +34,7 @@ export default function ProfileCard({ isExpanded }) {
       )}
 
       <button
+        data-testid="profile-card-btn"
         onClick={() => setIsOpen((prev) => !prev)}
         className={`group flex w-full cursor-pointer items-center bg-gray-50 transition-all duration-200 ${
           isExpanded
