@@ -8,7 +8,7 @@ const GENDER_ITEMS = [
 const AGE_ITEMS = [
   { key: '< 18', label: '< 18 años', color: '#14b8a6' }, // Emerald-500
   { key: '18 - 59', label: '18 - 59 años', color: '#0ea5e9' }, // Teal-500
-  { key: '>= 60', label: '>= 59 años', color: '#f59e0b' }, // Amber-500
+  { key: '>= 60', label: '>= 60 años', color: '#f59e0b' }, // Amber-500
 ]
 
 function LegendItem({ color, label, count }) {

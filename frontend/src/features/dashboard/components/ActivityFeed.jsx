@@ -78,8 +78,8 @@ export default function ActivityFeed({ activity, loading }) {
 
   return (
     <div className="scrollbar-hover max-h-full min-h-0 flex-1 space-y-2 overflow-y-auto pr-2">
-      {activity.map((item, i) => (
-        <ActivityItem key={i} item={item} />
+      {activity.map((item) => (
+        <ActivityItem key={item.id} item={item} />
       ))}
     </div>
   )

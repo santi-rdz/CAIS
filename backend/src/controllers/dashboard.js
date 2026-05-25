@@ -5,14 +5,19 @@ export class DashboardController {
     try {
       const area = req.session.area
       if (!area) {
-        return res.status(403).json({ error: 'Área no definida para este usuario' })
+        return res
+          .status(403)
+          .json({ error: 'Forbidden', message: 'Área no definida para este usuario' })
       }
 
       const stats = await DashboardModel.getStats(area)
       res.json(stats)
     } catch (err) {
       console.error('Error al obtener estadísticas del dashboard:', err)
-      res.status(500).json({ error: 'Error al obtener estadísticas' })
+      res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al obtener estadísticas',
+      })
     }
   }
 }

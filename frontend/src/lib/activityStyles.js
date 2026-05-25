@@ -56,6 +56,7 @@ export function buildActivityTitle(accion, entidad) {
 }
 
 export function buildActivityNavPath(item) {
+  if (item.accion === 'ELIMINAR') return null
   if (!item.objetivo_id) return null
   switch (item.entidad) {
     case 'NOTA_EVOLUCION':

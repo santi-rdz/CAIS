@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import bcrypt from 'bcryptjs'
 
 // ── Prisma client (standalone, no depende de app) ──────────────────
 const url = new URL(process.env.DATABASE_URL)
@@ -18,8 +19,8 @@ const prisma = new PrismaClient({ adapter })
 const uuidToBuf = (uuid) => Buffer.from(uuid.replace(/-/g, ''), 'hex')
 const newId = () => uuidToBuf(randomUUID())
 
-// ── Password hash compartido (todos los usuarios de prueba) ───────
-const HASH = '$2a$12$RdBr9HQMuwcvp1.qcvbNUOiiD5JtZQVGJDtrgqUYgHSEZI0TbHapK'
+// ── Password compartido para usuarios de prueba ───────────────────
+const SEED_PASSWORD = '123'
 
 // ── UUIDs fijos para historias y notas (igual que en CAISchema.sql) ─
 const HM_IDS = {
@@ -38,6 +39,8 @@ const NE_IDS = {
 }
 
 async function main() {
+  const passwordHash = await bcrypt.hash(SEED_PASSWORD, 12)
+
   // ═══════════════════════════════════════════
   // 1. CATÁLOGOS BASE
   // ═══════════════════════════════════════════
@@ -95,7 +98,7 @@ async function main() {
       fecha_nacimiento: new Date('1980-04-12'),
       correo: 'carlos.herrera@cais.com',
       telefono: '6861000001',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 1,
       rol_id: 1,
       area_id: 1,
@@ -112,7 +115,7 @@ async function main() {
       fecha_nacimiento: new Date('1992-03-10'),
       correo: 'sofia.navarro@uabc.edu.mx',
       telefono: '6861000002',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 1,
       rol_id: 2,
       area_id: 1,
@@ -128,7 +131,7 @@ async function main() {
       fecha_nacimiento: new Date('1998-07-25'),
       correo: 'luis.mendoza@uabc.edu.mx',
       telefono: '6861000003',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 3,
       rol_id: 1,
       area_id: 2,
@@ -144,7 +147,7 @@ async function main() {
       fecha_nacimiento: new Date('1999-11-20'),
       correo: 'ana.torres@uabc.edu.mx',
       telefono: '6861000004',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 1,
       rol_id: 1,
       area_id: 2,
@@ -160,7 +163,7 @@ async function main() {
       fecha_nacimiento: new Date('1988-09-15'),
       correo: 'maria.lopez@uabc.edu.mx',
       telefono: '6861000005',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 1,
       rol_id: 2,
       area_id: 2,
@@ -177,7 +180,7 @@ async function main() {
       fecha_nacimiento: new Date('1975-01-20'),
       correo: 'admin@cais.com',
       telefono: '6861000006',
-      password_hash: HASH,
+      password_hash: passwordHash,
       estado_id: 1,
       rol_id: 3,
       area_id: null,

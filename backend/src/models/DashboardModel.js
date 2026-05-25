@@ -116,11 +116,12 @@ export class DashboardModel {
     })
 
     return records.map((r) => ({
+      id: bufferToUUID(r.id),
       accion: r.acciones?.codigo ?? null,
       entidad: r.entidades?.nombre ?? null,
       usuario: r.usuarios?.nombre ?? null,
       foto: r.usuarios?.foto ?? null,
-      email: r.usuarios?.email ?? null,
+      email: r.usuarios?.correo ?? null,
       paciente_id: r.paciente_id ? bufferToUUID(r.paciente_id) : null,
       objetivo_id: r.objetivo_id ? bufferToUUID(r.objetivo_id) : null,
       fecha_hora: r.fecha_hora,
