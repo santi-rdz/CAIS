@@ -20,7 +20,11 @@ export const ENTITY_STYLE = {
 export const ACCION_STYLE_OVERRIDE = {
   ACTUALIZAR: { icon: HiOutlinePencilSquare, bg: 'bg-blue-50', text: 'text-blue-500' },
   ELIMINAR: { icon: HiOutlineTrash, bg: 'bg-rose-50', text: 'text-rose-500' },
-  INICIAR_SESION: { icon: HiOutlineArrowRightOnRectangle, bg: 'bg-gray-100', text: 'text-gray-400' },
+  INICIAR_SESION: {
+    icon: HiOutlineArrowRightOnRectangle,
+    bg: 'bg-gray-100',
+    text: 'text-gray-400',
+  },
 }
 
 const FALLBACK = { icon: HiOutlineUser, bg: 'bg-gray-100', text: 'text-gray-400' }

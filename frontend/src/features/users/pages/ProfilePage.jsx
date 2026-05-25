@@ -37,8 +37,7 @@ export default function ProfilePage() {
   if (isPending) return <UserSkeleton />
   if (!user) return null
 
-  const EditForm =
-    me?.rol?.toLowerCase() === 'coordinador' ? CoordForm : InternForm
+  const EditForm = me?.rol?.toLowerCase() === 'coordinador' ? CoordForm : InternForm
 
   return (
     <Modal>

@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react'
+import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
@@ -44,8 +38,10 @@ export function Select({
   className = '',
   hasError,
 }) {
-  const { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle } =
-    useDropdownPosition(dropdownHeight, { align, fullWidth })
+  const { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle } = useDropdownPosition(
+    dropdownHeight,
+    { align, fullWidth }
+  )
 
   const labelsRef = useRef({})
   const [, forceUpdate] = useState(0)
@@ -63,9 +59,7 @@ export function Select({
 
   function handleValueChange(val) {
     if (multiple) {
-      const next = values.includes(val)
-        ? values.filter((v) => v !== val)
-        : [...values, val]
+      const next = values.includes(val) ? values.filter((v) => v !== val) : [...values, val]
       onValuesChange?.(next)
     } else {
       onValueChange?.(val)
@@ -108,11 +102,7 @@ export function Select({
     >
       <div
         ref={triggerRef}
-        className={cn(
-          'relative',
-          hasError && 'rounded-lg ring-1 ring-red-400',
-          className
-        )}
+        className={cn('relative', hasError && 'rounded-lg ring-1 ring-red-400', className)}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         onBlur={handleBlur}
@@ -120,10 +110,7 @@ export function Select({
         {children}
         {isOpen && (
           <div
-            className={cn(
-              'absolute left-0 h-2 w-full',
-              openAbove ? 'bottom-full' : 'top-full'
-            )}
+            className={cn('absolute left-0 h-2 w-full', openAbove ? 'bottom-full' : 'top-full')}
           />
         )}
       </div>
@@ -138,13 +125,7 @@ const triggerSizes = {
   lg: 'px-4 py-3.5 rounded-xl shadow-xs',
 }
 
-export function SelectTrigger({
-  children,
-  className = '',
-  icon: Icon,
-  size = 'md',
-  ...props
-}) {
+export function SelectTrigger({ children, className = '', icon: Icon, size = 'md', ...props }) {
   const { toggle, isOpen, hasError } = useSelect()
 
   return (
@@ -270,20 +251,12 @@ export function SelectItem({ children, value, icon: Icon }) {
       {multiple && <Checkbox checked={isActive} />}
 
       {!multiple && Icon && (
-        <Icon
-          size={12}
-          className={cn(
-            'shrink-0',
-            isActive ? 'text-green-700' : 'text-gray-400'
-          )}
-        />
+        <Icon size={12} className={cn('shrink-0', isActive ? 'text-green-700' : 'text-gray-400')} />
       )}
 
       <span>{children}</span>
 
-      {!multiple && isActive && (
-        <HiCheck size={12} className="ml-auto shrink-0 text-green-700" />
-      )}
+      {!multiple && isActive && <HiCheck size={12} className="ml-auto shrink-0 text-green-700" />}
     </button>
   )
 }

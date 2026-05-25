@@ -88,9 +88,7 @@ export default function NoPatologicosSection({ historia }) {
             ))}
           </div>
         ) : (
-          <p className="text-5 text-zinc-400">
-            Sin servicios del hogar registrados.
-          </p>
+          <p className="text-5 text-zinc-400">Sin servicios del hogar registrados.</p>
         )}
       </div>
 
@@ -118,12 +116,7 @@ export default function NoPatologicosSection({ historia }) {
             multiline
             block
           />
-          <DataField
-            label="Tipo de zoonosis"
-            value={antecedentes?.tipo_zoonosis}
-            multiline
-            block
-          />
+          <DataField label="Tipo de zoonosis" value={antecedentes?.tipo_zoonosis} multiline block />
         </div>
       </div>
     </div>

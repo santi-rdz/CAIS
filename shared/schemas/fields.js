@@ -1,24 +1,16 @@
 import { z } from 'zod'
-import {
-  ROLES,
-  AREAS,
-  ESTADOS,
-  PASSWORD_REQUIREMENTS,
-} from '../constants/users.js'
+import { ROLES, AREAS, ESTADOS, PASSWORD_REQUIREMENTS } from '../constants/users.js'
 
 // ── Validaciones de texto ─────────────────────────────────────────────
 
 const soloLetras = (v) => /^[\p{L}\s\-']+$/u.test(v)
-const soloLetrasMessage =
-  'Solo puede contener letras, espacios, guiones y apóstrofes'
+const soloLetrasMessage = 'Solo puede contener letras, espacios, guiones y apóstrofes'
 
 // ── Campos reutilizables ──────────────────────────────────────────────
 
 export const correoSchema = z.email('Correo electrónico inválido').max(255)
 
-export const telefonoSchema = z
-  .string()
-  .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
+export const telefonoSchema = z.string().regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
 export const personalFields = {
   nombre: z
@@ -71,9 +63,7 @@ export const isoDateTimeSchema = z.iso.datetime({
 })
 
 export const fechaHoraFormFields = {
-  fecha: z
-    .any()
-    .refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
+  fecha: z.any().refine((v) => v && v !== 'invalid', { message: 'Ingresa la fecha' }),
   hora: z.any().refine((v) => v !== null && v !== undefined, {
     message: 'Ingresa la hora',
   }),
@@ -91,31 +81,16 @@ export const rolSchema = uppercaseEnum(Object.values(ROLES), 'Rol inválido')
 
 export const areaSchema = uppercaseEnum(Object.values(AREAS), 'Área inválida')
 
-export const estadoSchema = uppercaseEnum(
-  Object.values(ESTADOS),
-  'Estado inválido'
-)
+export const estadoSchema = uppercaseEnum(Object.values(ESTADOS), 'Estado inválido')
 
 // ── Passwords ─────────────────────────────────────────────────────────
 
 export const passwordSchema = z
   .string()
-  .refine(
-    (v) => PASSWORD_REQUIREMENTS[0].test(v),
-    PASSWORD_REQUIREMENTS[0].label
-  )
-  .refine(
-    (v) => PASSWORD_REQUIREMENTS[1].test(v),
-    PASSWORD_REQUIREMENTS[1].label
-  )
-  .refine(
-    (v) => PASSWORD_REQUIREMENTS[2].test(v),
-    PASSWORD_REQUIREMENTS[2].label
-  )
-  .refine(
-    (v) => PASSWORD_REQUIREMENTS[3].test(v),
-    PASSWORD_REQUIREMENTS[3].label
-  )
+  .refine((v) => PASSWORD_REQUIREMENTS[0].test(v), PASSWORD_REQUIREMENTS[0].label)
+  .refine((v) => PASSWORD_REQUIREMENTS[1].test(v), PASSWORD_REQUIREMENTS[1].label)
+  .refine((v) => PASSWORD_REQUIREMENTS[2].test(v), PASSWORD_REQUIREMENTS[2].label)
+  .refine((v) => PASSWORD_REQUIREMENTS[3].test(v), PASSWORD_REQUIREMENTS[3].label)
 
 export const basicPasswordSchema = z
   .string()

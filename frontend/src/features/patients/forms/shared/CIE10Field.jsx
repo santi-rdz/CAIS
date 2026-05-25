@@ -9,8 +9,7 @@ import { CIE10_DATA } from './cie10Data'
 export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { control } = useFormContext()
   const [query, setQuery] = useState('')
-  const { triggerRef, isOpen, positionStyle, open, close } =
-    useDropdownPosition(320)
+  const { triggerRef, isOpen, positionStyle, open, close } = useDropdownPosition(320)
 
   function openPanel() {
     open()
@@ -34,8 +33,7 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
             : []
 
         function handleSelect(code) {
-          if (!selectedCodigos.includes(code.codigo))
-            onChange([...selected, code])
+          if (!selectedCodigos.includes(code.codigo)) onChange([...selected, code])
           setQuery('')
           close()
         }
@@ -96,15 +94,11 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
                       <span className="shrink-0 font-mono text-sm font-semibold text-green-800">
                         {code.codigo}
                       </span>
-                      <span className="text-sm text-zinc-600">
-                        {code.descripcion}
-                      </span>
+                      <span className="text-sm text-zinc-600">{code.descripcion}</span>
                     </button>
                   ))
                 ) : (
-                  <p className="px-3 py-2.5 text-sm text-zinc-400">
-                    Sin resultados para `{query}`
-                  </p>
+                  <p className="px-3 py-2.5 text-sm text-zinc-400">Sin resultados para `{query}`</p>
                 )}
               </DropdownPanel>
             )}
@@ -137,8 +131,7 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
 
             {selected.length === 0 && (
               <p className="text-xs text-zinc-400">
-                Código ICD-10 — selecciona todos los diagnósticos
-                correspondientes
+                Código ICD-10 — selecciona todos los diagnósticos correspondientes
               </p>
             )}
           </div>

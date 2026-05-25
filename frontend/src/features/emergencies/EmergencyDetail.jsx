@@ -23,10 +23,7 @@ export default function EmergencyDetail() {
   return (
     <Modal>
       <div className="space-y-6">
-        <ActionBar
-          emergencyDate={formatFechaLong(emergency.fecha_hora)}
-          isDeleting={isDeleting}
-        />
+        <ActionBar emergencyDate={formatFechaLong(emergency.fecha_hora)} isDeleting={isDeleting} />
         <HeaderCard emergency={emergency} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <PatientCard emergency={emergency} />
@@ -48,9 +45,7 @@ export default function EmergencyDetail() {
           title="Eliminar emergencia"
           description="¿Estás seguro? Esta acción no se puede deshacer."
           confirmLabel="Eliminar"
-          onConfirm={() =>
-            deleteEmergency(emergency.id).then(() => navigate('/emergencias'))
-          }
+          onConfirm={() => deleteEmergency(emergency.id).then(() => navigate('/emergencias'))}
           isPending={isDeleting}
         />
       </Modal.Content>

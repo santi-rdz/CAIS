@@ -1,9 +1,4 @@
-import {
-  HiArrowDown,
-  HiArrowUp,
-  HiMagnifyingGlass,
-  HiOutlinePlus,
-} from 'react-icons/hi2'
+import { HiArrowDown, HiArrowUp, HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
 import { USER_SORT_KEYS } from '@cais/shared/constants/users'
 import Button from '@components/Button'
 import SortBy from '@ui/SortBy'

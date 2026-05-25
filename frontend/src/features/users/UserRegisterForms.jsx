@@ -1,10 +1,7 @@
 import Tab from '@components/Tab'
 import InvitationalLinksForm from './InvitationalLinksForm'
 import UserForm from './UserForm'
-import {
-  HiOutlineClipboardDocumentList,
-  HiOutlineEnvelope,
-} from 'react-icons/hi2'
+import { HiOutlineClipboardDocumentList, HiOutlineEnvelope } from 'react-icons/hi2'
 
 export default function UserRegisterForms({ onCloseModal }) {
   return (

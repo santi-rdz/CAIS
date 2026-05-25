@@ -41,7 +41,12 @@ export default function LoginForm() {
 
       <Footer />
 
-      <Button isLoading={isPending} type="submit" className="mt-10 w-full" data-testid="login-submit">
+      <Button
+        isLoading={isPending}
+        type="submit"
+        className="mt-10 w-full"
+        data-testid="login-submit"
+      >
         Iniciar Sesión
       </Button>
     </form>

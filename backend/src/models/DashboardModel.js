@@ -129,10 +129,7 @@ export class DashboardModel {
 
   static async #getTendenciaSemanal(area) {
     const areaEntidades = AREA_CONFIG[area] ?? []
-    const allEntidades = [
-      ...areaEntidades,
-      { key: 'pacientes', entidad: 'PACIENTE' },
-    ]
+    const allEntidades = [...areaEntidades, { key: 'pacientes', entidad: 'PACIENTE' }]
 
     const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date()
@@ -162,9 +159,7 @@ export class DashboardModel {
     for (const { key, rows } of results) {
       for (const row of rows) {
         const fecha =
-          row.fecha instanceof Date
-            ? row.fecha.toISOString().slice(0, 10)
-            : String(row.fecha)
+          row.fecha instanceof Date ? row.fecha.toISOString().slice(0, 10) : String(row.fecha)
         if (map[fecha]) map[fecha][key] = Number(row.count)
       }
     }

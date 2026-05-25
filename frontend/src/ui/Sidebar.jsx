@@ -1,9 +1,5 @@
 import { useState } from 'react'
-import {
-  HiChevronDoubleLeft,
-  HiMagnifyingGlass,
-  HiOutlineXMark,
-} from 'react-icons/hi2'
+import { HiChevronDoubleLeft, HiMagnifyingGlass, HiOutlineXMark } from 'react-icons/hi2'
 import MainNav from './MainNav'
 import ProfileCard from './ProfileCard'
 import Logo from './Logo'

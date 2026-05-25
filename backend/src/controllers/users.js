@@ -1,8 +1,4 @@
-import {
-  validateUserUpdate,
-  validateUserCreate,
-  validateSignup,
-} from '@cais/shared/schemas/users'
+import { validateUserUpdate, validateUserCreate, validateSignup } from '@cais/shared/schemas/users'
 import { ROLES } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
@@ -20,9 +16,7 @@ function randomAvatar() {
 
 function handlePrismaError(err, res) {
   if (err.code === 'P2002') {
-    return res
-      .status(409)
-      .json({ error: 'Conflict', message: 'El correo ya está registrado' })
+    return res.status(409).json({ error: 'Conflict', message: 'El correo ya está registrado' })
   }
   throw err
 }
@@ -58,8 +52,7 @@ export class UserController {
 
   static async delete(req, res) {
     const success = await UserModel.delete(req.params.id)
-    if (!success)
-      return res.status(404).json({ message: 'Usuario no encontrado' })
+    if (!success) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
@@ -73,8 +66,7 @@ export class UserController {
     }
 
     const updatedUser = await UserModel.update(req.params.id, result.data)
-    if (!updatedUser)
-      return res.status(404).json({ message: 'Usuario no encontrado' })
+    if (!updatedUser) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json(updatedUser)
   }
 
@@ -89,23 +81,14 @@ export class UserController {
     }
 
     try {
-      const area =
-        req.session.role === ROLES.ADMIN ? result.data.area : req.session.area
-      const password_hash = await bcrypt.hash(
-        result.data.password,
-        BCRYPT_ROUNDS
-      )
+      const area = req.session.role === ROLES.ADMIN ? result.data.area : req.session.area
+      const password_hash = await bcrypt.hash(result.data.password, BCRYPT_ROUNDS)
 
       const createdUser = await prisma.$transaction((tx) =>
-        UserModel.create(
-          { ...result.data, area, foto: randomAvatar(), password_hash },
-          tx
-        )
+        UserModel.create({ ...result.data, area, foto: randomAvatar(), password_hash }, tx)
       )
 
-      res
-        .status(201)
-        .json({ message: 'Usuario creado exitosamente', usuario: createdUser })
+      res.status(201).json({ message: 'Usuario creado exitosamente', usuario: createdUser })
     } catch (err) {
       handlePrismaError(err, res)
     }
@@ -130,10 +113,7 @@ export class UserController {
     }
 
     try {
-      const password_hash = await bcrypt.hash(
-        result.data.password,
-        BCRYPT_ROUNDS
-      )
+      const password_hash = await bcrypt.hash(result.data.password, BCRYPT_ROUNDS)
 
       const createdUser = await prisma.$transaction(async (tx) => {
         const user = await UserModel.create(

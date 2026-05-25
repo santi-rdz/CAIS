@@ -17,9 +17,7 @@ export default function Heading({
   return (
     <Tag className={`flex items-center gap-2 ${headingStyle[as]} ${className}`}>
       {showBar && (
-        <div
-          className={`h-4 w-1 rounded-full ${required ? 'bg-green-800' : 'bg-gray-400'}`}
-        ></div>
+        <div className={`h-4 w-1 rounded-full ${required ? 'bg-green-800' : 'bg-gray-400'}`}></div>
       )}
       {children}
     </Tag>

@@ -27,18 +27,11 @@ export default function DomainEmailInput({
   )
 
   return (
-    <FormRow
-      htmlFor={id}
-      label={isDomain ? 'Usuario' : 'Correo electrónico'}
-      className={className}
-    >
+    <FormRow htmlFor={id} label={isDomain ? 'Usuario' : 'Correo electrónico'} className={className}>
       <Input
         {...register(fieldName, {
-          required: isDomain
-            ? 'Ingresa un usuario'
-            : 'Ingresa un correo electrónico ',
-          validate: (val) =>
-            isDomain || isValidEmail(val) || 'Ingresa un correo válido',
+          required: isDomain ? 'Ingresa un usuario' : 'Ingresa un correo electrónico ',
+          validate: (val) => isDomain || isValidEmail(val) || 'Ingresa un correo válido',
           onChange: (e) => {
             const val = e.target.value
             setIsDomain(!val.includes('@'))

@@ -20,9 +20,7 @@ const radius = {
 
 export default function Tag({ children, type, size = 'sm', rounded = 'full' }) {
   return (
-    <span
-      className={`tracking-wide ${variant[type]} ${radius[rounded]} ${sizes[size]} `}
-    >
+    <span className={`tracking-wide ${variant[type]} ${radius[rounded]} ${sizes[size]} `}>
       {children}
     </span>
   )

@@ -7,8 +7,5 @@ const invitationSchema = z.object({
 })
 
 export function validateInvitedUser(input) {
-  return z
-    .array(invitationSchema)
-    .min(1, 'Debe incluir al menos un correo')
-    .safeParse(input)
+  return z.array(invitationSchema).min(1, 'Debe incluir al menos un correo').safeParse(input)
 }

@@ -23,29 +23,24 @@ export class MedicalHistoryController {
 
     try {
       const history = await prisma.$transaction(async (tx) => {
-        const h = await MedicalHistoryModel.create(
-          result.data,
-          req.session.userId,
+        const h = await MedicalHistoryModel.create(result.data, req.session.userId, tx)
+        await PatientModel.touch(result.data.paciente_id, tx)
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.CREAR,
+            entidad: ENTIDADES.HISTORIA_MEDICA,
+            objetivo_id: h.id,
+            paciente_id: h.paciente_id,
+          },
           tx
         )
-        await PatientModel.touch(result.data.paciente_id, tx)
-        await AuditModel.create({
-          usuario_id: req.session.userId,
-          accion: ACCIONES.CREAR,
-          entidad: ENTIDADES.HISTORIA_MEDICA,
-          objetivo_id: h.id,
-          paciente_id: h.paciente_id,
-        }, tx)
         return h
       })
-      return res
-        .status(201)
-        .json({ message: 'Historia médica registrada', history })
+      return res.status(201).json({ message: 'Historia médica registrada', history })
     } catch (error) {
       console.error('Error al crear historia médica:', error)
-      return res
-        .status(500)
-        .json({ message: 'Error al registrar historia médica' })
+      return res.status(500).json({ message: 'Error al registrar historia médica' })
     }
   }
 
@@ -72,8 +67,7 @@ export class MedicalHistoryController {
   static async getById(req, res) {
     const { id } = req.params
     const history = await MedicalHistoryModel.getById(id)
-    if (!history)
-      return res.status(404).json({ message: 'Historia médica no encontrada' })
+    if (!history) return res.status(404).json({ message: 'Historia médica no encontrada' })
     res.json(history)
   }
 
@@ -83,17 +77,19 @@ export class MedicalHistoryController {
       const history = await prisma.$transaction(async (tx) => {
         const h = await MedicalHistoryModel.delete(id, tx)
         if (!h) return null
-        await AuditModel.create({
-          usuario_id: req.session.userId,
-          accion: ACCIONES.ELIMINAR,
-          entidad: ENTIDADES.HISTORIA_MEDICA,
-          objetivo_id: h.id,
-          paciente_id: h.paciente_id,
-        }, tx)
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.ELIMINAR,
+            entidad: ENTIDADES.HISTORIA_MEDICA,
+            objetivo_id: h.id,
+            paciente_id: h.paciente_id,
+          },
+          tx
+        )
         return h
       })
-      if (!history)
-        return res.status(404).json({ message: 'Historia médica no encontrada' })
+      if (!history) return res.status(404).json({ message: 'Historia médica no encontrada' })
       res.json(history)
     } catch (err) {
       console.error('Error al eliminar historia médica:', err)
@@ -116,27 +112,22 @@ export class MedicalHistoryController {
     const { id } = req.params
     try {
       const updatedHistory = await prisma.$transaction(async (tx) => {
-        const h = await MedicalHistoryModel.update(
-          id,
-          result.data,
-          req.session.userId,
-          tx
-        )
+        const h = await MedicalHistoryModel.update(id, result.data, req.session.userId, tx)
         if (!h) return null
         await PatientModel.touch(h.paciente_id, tx)
-        await AuditModel.create({
-          usuario_id: req.session.userId,
-          accion: ACCIONES.ACTUALIZAR,
-          entidad: ENTIDADES.HISTORIA_MEDICA,
-          objetivo_id: h.id,
-          paciente_id: h.paciente_id,
-        }, tx)
+        await AuditModel.create(
+          {
+            usuario_id: req.session.userId,
+            accion: ACCIONES.ACTUALIZAR,
+            entidad: ENTIDADES.HISTORIA_MEDICA,
+            objetivo_id: h.id,
+            paciente_id: h.paciente_id,
+          },
+          tx
+        )
         return h
       })
-      if (!updatedHistory)
-        return res
-          .status(404)
-          .json({ message: 'Historia médica no encontrada' })
+      if (!updatedHistory) return res.status(404).json({ message: 'Historia médica no encontrada' })
       res.json(updatedHistory)
     } catch (err) {
       console.error('Error al actualizar historia médica:', err)

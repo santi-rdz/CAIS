@@ -7,11 +7,7 @@ import Input from '@components/Input'
 import Row from '@components/Row'
 import { useFormContext } from 'react-hook-form'
 
-export default function CoordPersonalInfoForm({
-  disabledEmail,
-  isUabcDomain,
-  setIsUabcDomain,
-}) {
+export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -45,18 +41,8 @@ export default function CoordPersonalInfoForm({
 
       <Row className="gap-4">
         {disabledEmail ? (
-          <FormRow
-            htmlFor="correo"
-            label="Correo electrónico"
-            className="w-full"
-          >
-            <Input
-              {...register('correo')}
-              id="correo"
-              type="email"
-              disabled
-              variant="outline"
-            />
+          <FormRow htmlFor="correo" label="Correo electrónico" className="w-full">
+            <Input {...register('correo')} id="correo" type="email" disabled variant="outline" />
           </FormRow>
         ) : (
           <DomainEmailInput

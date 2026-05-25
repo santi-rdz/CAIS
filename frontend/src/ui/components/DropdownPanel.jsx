@@ -14,10 +14,7 @@ export default function DropdownPanel({
       ref={ref}
       style={style}
       data-dropdown-panel
-      className={cn(
-        'rounded-xl border border-gray-200 bg-white shadow-xl',
-        className
-      )}
+      className={cn('rounded-xl border border-gray-200 bg-white shadow-xl', className)}
       {...props}
     >
       {children}

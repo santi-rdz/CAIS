@@ -113,15 +113,11 @@ function buildServicio(anio, periodo) {
 
 export class UserModel {
   static async getAll({ status, rol, sortBy, search, page, limit, areaId }) {
-    const statuses = status
-      ? status.split(',').map((s) => s.trim().toUpperCase())
-      : null
+    const statuses = status ? status.split(',').map((s) => s.trim().toUpperCase()) : null
 
     const includePending = !statuses || statuses.includes(ESTADOS.PENDIENTE)
-    const onlyPending =
-      statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
-    const userStatuses =
-      statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
+    const onlyPending = statuses?.length === 1 && statuses[0] === ESTADOS.PENDIENTE
+    const userStatuses = statuses?.filter((s) => s !== ESTADOS.PENDIENTE) ?? null
 
     const pendingWhere = buildPendingWhere({ rol, search, areaId })
     const userWhere = buildUserWhere({
@@ -145,9 +141,7 @@ export class UserModel {
 
     const [pendingCount, userCount] = await Promise.all([
       prisma.invitaciones_registro.count({ where: pendingWhere }),
-      onlyPending
-        ? Promise.resolve(0)
-        : prisma.usuarios.count({ where: userWhere }),
+      onlyPending ? Promise.resolve(0) : prisma.usuarios.count({ where: userWhere }),
     ])
 
     const pendingSkip = Math.min(globalOffset, pendingCount)
@@ -172,10 +166,7 @@ export class UserModel {
     ])
 
     return {
-      users: [
-        ...pendingItems.map(formatPendingInvitation),
-        ...userItems.map(formatUser),
-      ],
+      users: [...pendingItems.map(formatPendingInvitation), ...userItems.map(formatUser)],
       count: pendingCount + userCount,
     }
   }
@@ -212,10 +203,7 @@ export class UserModel {
       ...rest,
       ...(servicio_inicio_anio &&
         servicio_inicio_periodo && {
-          inicio_servicio: buildServicio(
-            servicio_inicio_anio,
-            servicio_inicio_periodo
-          ),
+          inicio_servicio: buildServicio(servicio_inicio_anio, servicio_inicio_periodo),
         }),
       ...(servicio_fin_anio &&
         servicio_fin_periodo && {
@@ -250,22 +238,14 @@ export class UserModel {
         password_hash: userData.password_hash,
         estados: { connect: { codigo: ESTADOS.ACTIVO } },
         roles: { connect: { codigo: userData.rol } },
-        ...(userData.area
-          ? { areas: { connect: { nombre: userData.area } } }
-          : {}),
+        ...(userData.area ? { areas: { connect: { nombre: userData.area } } } : {}),
         foto: userData.foto ?? null,
         matricula: userData.matricula ?? null,
         cedula: userData.cedula ?? null,
         inicio_servicio:
-          buildServicio(
-            userData.servicio_inicio_anio,
-            userData.servicio_inicio_periodo
-          ) ?? null,
+          buildServicio(userData.servicio_inicio_anio, userData.servicio_inicio_periodo) ?? null,
         fin_servicio:
-          buildServicio(
-            userData.servicio_fin_anio,
-            userData.servicio_fin_periodo
-          ) ?? null,
+          buildServicio(userData.servicio_fin_anio, userData.servicio_fin_periodo) ?? null,
       },
     })
 

@@ -1,10 +1,4 @@
-import {
-  cloneElement,
-  createContext,
-  useContext,
-  useRef,
-  useState,
-} from 'react'
+import { cloneElement, createContext, useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HiXMark } from 'react-icons/hi2'
 import useClickOutside from '@hooks/useClickOutside'
@@ -33,11 +27,7 @@ Modal.Heading = function ModalHeadingComp({ children }) {
   if (variant === 'alert') {
     return (
       <div className="flex flex-col items-center gap-1.5 p-8 text-center">
-        {icon && (
-          <div className="mb-2 rounded-md bg-gray-200 p-2 text-red-600">
-            {icon}
-          </div>
-        )}
+        {icon && <div className="mb-2 rounded-md bg-gray-200 p-2 text-red-600">{icon}</div>}
         {children}
       </div>
     )

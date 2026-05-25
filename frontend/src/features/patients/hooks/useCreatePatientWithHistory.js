@@ -17,11 +17,7 @@ export function useCreatePatientWithHistory() {
         try {
           await deletePatient(patient.id)
         } catch (rollbackError) {
-          console.error(
-            'Rollback failed, orphan patient:',
-            patient.id,
-            rollbackError
-          )
+          console.error('Rollback failed, orphan patient:', patient.id, rollbackError)
         }
         throw historyError
       }

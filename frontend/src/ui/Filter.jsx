@@ -110,10 +110,7 @@ function MultiFilter({ groups, placeholder }) {
         {groups.map((group, i) => (
           <SelectGroup key={group.field} label={group.label} separator={i > 0}>
             {group.options.map((opt) => (
-              <SelectItem
-                key={`${group.field}:${opt.value}`}
-                value={`${group.field}:${opt.value}`}
-              >
+              <SelectItem key={`${group.field}:${opt.value}`} value={`${group.field}:${opt.value}`}>
                 {opt.label}
               </SelectItem>
             ))}
@@ -138,15 +135,9 @@ export default function Filter({ groups, placeholder = 'Filtrar' }) {
   return (
     <>
       {singleGroups.map((group) => (
-        <SingleFilter
-          key={group.field}
-          group={group}
-          placeholder={placeholder}
-        />
+        <SingleFilter key={group.field} group={group} placeholder={placeholder} />
       ))}
-      {multiGroups.length > 0 && (
-        <MultiFilter groups={multiGroups} placeholder={placeholder} />
-      )}
+      {multiGroups.length > 0 && <MultiFilter groups={multiGroups} placeholder={placeholder} />}
     </>
   )
 }

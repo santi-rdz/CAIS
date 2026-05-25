@@ -17,20 +17,12 @@ function formatEmergency(u) {
     ...rest,
     id: bufferToUUID(u.id),
     usuario_id: bufferToUUID(u.usuario_id),
-    registrado_por: usuarios
-      ? { nombre: usuarios.nombre, correo: usuarios.correo }
-      : null,
+    registrado_por: usuarios ? { nombre: usuarios.nombre, correo: usuarios.correo } : null,
   }
 }
 
 export class EmergencyModel {
-  static async getAll({
-    sortBy,
-    search,
-    page,
-    limit,
-    recurrentBoolean: recurrent,
-  }) {
+  static async getAll({ sortBy, search, page, limit, recurrentBoolean: recurrent }) {
     const where = {}
 
     if (search) {
@@ -48,10 +40,7 @@ export class EmergencyModel {
       where.recurrente = recurrent
     }
 
-    const orderBy =
-      sortBy && SORT_OPTIONS[sortBy]
-        ? SORT_OPTIONS[sortBy]
-        : { fecha_hora: 'desc' }
+    const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { fecha_hora: 'desc' }
 
     const offset = (page - 1) * limit
 

@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function useClickOutside(
-  handleClick,
-  propagation = true,
-  ignoreSelector = null
-) {
+export default function useClickOutside(handleClick, propagation = true, ignoreSelector = null) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -20,11 +16,7 @@ export default function useClickOutside(
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside, propagation)
-      document.removeEventListener(
-        'touchstart',
-        handleClickOutside,
-        propagation
-      )
+      document.removeEventListener('touchstart', handleClickOutside, propagation)
     }
   }, [ref, handleClick, propagation, ignoreSelector])
 

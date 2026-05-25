@@ -14,22 +14,11 @@ import { formatFechaLong } from '@lib/dateHelpers'
 import MetaChip from '@components/MetaChip'
 
 export default function PatientHeader({ patient }) {
-  const {
-    nombre,
-    apellidos,
-    fecha_nacimiento,
-    genero,
-    es_externo,
-    correo,
-    telefono,
-    nss,
-  } = patient
+  const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
-  const age = fecha_nacimiento
-    ? dayjs().diff(dayjs(fecha_nacimiento), 'year')
-    : null
+  const age = fecha_nacimiento ? dayjs().diff(dayjs(fecha_nacimiento), 'year') : null
 
   const initials =
     [nombre, apellidos]
@@ -47,7 +36,7 @@ export default function PatientHeader({ patient }) {
     .join(' · ')
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-card">
+    <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-6">
       <div className="flex items-start gap-5">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-semibold tracking-tight text-green-800 select-none">
           {initials ?? <HiOutlineUser size={24} />}
@@ -64,23 +53,10 @@ export default function PatientHeader({ patient }) {
           {subtitle && <p className="text-5 mt-1 text-zinc-400">{subtitle}</p>}
           {(correo || telefono || nss) && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {correo && (
-                <MetaChip
-                  icon={<HiOutlineEnvelope size={12} />}
-                  value={correo}
-                />
-              )}
-              {telefono && (
-                <MetaChip
-                  icon={<HiOutlinePhone size={12} />}
-                  value={telefono}
-                />
-              )}
+              {correo && <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />}
+              {telefono && <MetaChip icon={<HiOutlinePhone size={12} />} value={telefono} />}
               {nss && (
-                <MetaChip
-                  icon={<HiOutlineIdentification size={12} />}
-                  value={`NSS ${nss}`}
-                />
+                <MetaChip icon={<HiOutlineIdentification size={12} />} value={`NSS ${nss}`} />
               )}
             </div>
           )}

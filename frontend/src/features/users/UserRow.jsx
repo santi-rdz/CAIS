@@ -44,8 +44,7 @@ export default function UserRow({ user, isAdmin }) {
   const isPending = status === 'pendiente'
 
   const { resendInvitation, isResending } = useResendInvitation()
-  const { deleteInvitation, isDeleting: isDeletingInvitation } =
-    useDeleteInvitation()
+  const { deleteInvitation, isDeleting: isDeletingInvitation } = useDeleteInvitation()
   const { toggleEstado, isPending: isTogglingEstado } = useToggleUserEstado()
 
   const isInactive = status === 'inactivo'
@@ -78,10 +77,8 @@ export default function UserRow({ user, isAdmin }) {
         secondary={email}
         avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
       />
-      <div className="capitalize font-medium text-zinc-700">{role}</div>
-      {isAdmin && (
-        <div className="capitalize text-zinc-700">{area?.toLowerCase() ?? '—'}</div>
-      )}
+      <div className="font-medium text-zinc-700 capitalize">{role}</div>
+      {isAdmin && <div className="text-zinc-700 capitalize">{area?.toLowerCase() ?? '—'}</div>}
       <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>

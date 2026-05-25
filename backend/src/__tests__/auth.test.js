@@ -40,10 +40,7 @@ describe('POST /auth/login', () => {
 
   test('400 / 401 / 500 — body vacío', async () => {
     const res = await api.post('/auth/login').send({})
-    assert(
-      [400, 401, 500].includes(res.status),
-      `status inesperado: ${res.status}`
-    )
+    assert([400, 401, 500].includes(res.status), `status inesperado: ${res.status}`)
   })
 
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
@@ -72,9 +69,7 @@ describe('POST /auth/login', () => {
     })
 
     try {
-      const res = await api
-        .post('/auth/login')
-        .send({ email: correo, password: 'Test1234!' })
+      const res = await api.post('/auth/login').send({ email: correo, password: 'Test1234!' })
       assert.equal(res.status, 403)
       assert.equal(res.body.error, 'Cuenta desactivada')
     } finally {
@@ -103,9 +98,7 @@ describe('POST /auth/password/forgot', () => {
   })
 
   test('422 — correo inválido', async () => {
-    const res = await api
-      .post('/auth/password/forgot')
-      .send({ correo: 'noesuncorreo' })
+    const res = await api.post('/auth/password/forgot').send({ correo: 'noesuncorreo' })
     assert.equal(res.status, 422)
     assert(res.body.error !== undefined)
   })
@@ -228,20 +221,13 @@ describe('Flujo completo: forgot password → reset password', () => {
       where: { id: userRow.id },
       select: { password_hash: true },
     })
-    const passwordChanged = await bcrypt.compare(
-      'NewPass1!',
-      updated.password_hash
-    )
+    const passwordChanged = await bcrypt.compare('NewPass1!', updated.password_hash)
     assert(passwordChanged, 'La contraseña debe haberse actualizado')
 
     const usedToken = await prisma.password_reset_tokens.findFirst({
       where: { usuario_id: userRow.id },
     })
-    assert.equal(
-      usedToken.usado,
-      true,
-      'El token debe estar marcado como usado'
-    )
+    assert.equal(usedToken.usado, true, 'El token debe estar marcado como usado')
   })
 
   test('reset: token ya usado devuelve 400', async () => {

@@ -5,10 +5,7 @@ export default function Checkbox({ checked, onChange, id, label, className }) {
   return (
     <label
       htmlFor={id}
-      className={cn(
-        'text-5 flex cursor-pointer items-center gap-2 select-none',
-        className
-      )}
+      className={cn('text-5 flex cursor-pointer items-center gap-2 select-none', className)}
     >
       <input
         type="checkbox"

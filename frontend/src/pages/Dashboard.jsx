@@ -84,7 +84,7 @@ export default function Dashboard() {
       {/* Middle: activity + pie charts */}
       <div className="grid h-full grid-cols-3 grid-rows-[500px] gap-4">
         {/* Actividad reciente */}
-        <section className="col-span-2 flex min-h-0 flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
+        <section className="shadow-card col-span-2 flex min-h-0 flex-col rounded-2xl border border-gray-100 bg-white p-5">
           <Heading as="h4" className="mb-3 shrink-0">
             Actividad reciente
           </Heading>
@@ -93,17 +93,17 @@ export default function Dashboard() {
 
         {/* Distribuciones */}
         <div className="flex h-full min-h-0 flex-col gap-4">
-          <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
+          <div className="shadow-card flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5">
             <GenderPieChart data={stats?.distribucion_genero} loading={isPending} />
           </div>
-          <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
+          <div className="shadow-card flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5">
             <AgePieChart data={stats?.distribucion_edad} loading={isPending} />
           </div>
         </div>
       </div>
 
       {/* Tendencia semanal */}
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-card">
+      <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-5">
         <Heading as="h4" className="mb-4">
           Tendencia últimos 7 días
         </Heading>

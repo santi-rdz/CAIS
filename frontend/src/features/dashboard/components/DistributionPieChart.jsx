@@ -2,13 +2,13 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 
 const GENDER_ITEMS = [
   { key: 'Masculino', label: 'Hombres', color: '#3b82f6' }, // Blue-500
-  { key: 'Femenino',  label: 'Mujeres',  color: '#ec4899' }, // Pink-500
+  { key: 'Femenino', label: 'Mujeres', color: '#ec4899' }, // Pink-500
 ]
 
 const AGE_ITEMS = [
-  { key: '< 18',    label: '< 18 años',   color: '#14b8a6' }, // Emerald-500
+  { key: '< 18', label: '< 18 años', color: '#14b8a6' }, // Emerald-500
   { key: '18 - 59', label: '18 - 59 años', color: '#0ea5e9' }, // Teal-500
-  { key: '>= 60',   label: '>= 59 años',  color: '#f59e0b' }, // Amber-500
+  { key: '>= 60', label: '>= 59 años', color: '#f59e0b' }, // Amber-500
 ]
 
 function LegendItem({ color, label, count }) {
@@ -21,7 +21,7 @@ function LegendItem({ color, label, count }) {
         />
         <span className="text-sm font-medium text-gray-600">{label}</span>
       </div>
-      <span className="text-sm font-bold tabular-nums text-gray-900">{count}</span>
+      <span className="text-sm font-bold text-gray-900 tabular-nums">{count}</span>
     </div>
   )
 }
@@ -62,7 +62,7 @@ function DistributionCard({ title, items, loading }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-4">
-      <h3 className="shrink-0 text-sm font-semibold uppercase tracking-wider text-gray-500">
+      <h3 className="shrink-0 text-sm font-semibold tracking-wider text-gray-500 uppercase">
         {title.replace('\n', ' ')}
       </h3>
 
@@ -102,12 +102,7 @@ function DistributionCard({ title, items, loading }) {
         {/* Legend Container */}
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {items.map((item) => (
-            <LegendItem
-              key={item.key}
-              color={item.color}
-              label={item.label}
-              count={item.count}
-            />
+            <LegendItem key={item.key} color={item.color} label={item.label} count={item.count} />
           ))}
         </div>
       </div>

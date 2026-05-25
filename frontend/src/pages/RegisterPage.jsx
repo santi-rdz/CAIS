@@ -49,20 +49,6 @@ export default function RegisterPage() {
   const { correo, rol } = invitedUser
 
   if (rol === 'COORDINADOR')
-    return (
-      <CoordForm
-        registration
-        email={correo}
-        onSubmit={onSubmit}
-        isPending={isPending}
-      />
-    )
-  return (
-    <InternForm
-      registration
-      email={correo}
-      onSubmit={onSubmit}
-      isPending={isPending}
-    />
-  )
+    return <CoordForm registration email={correo} onSubmit={onSubmit} isPending={isPending} />
+  return <InternForm registration email={correo} onSubmit={onSubmit} isPending={isPending} />
 }

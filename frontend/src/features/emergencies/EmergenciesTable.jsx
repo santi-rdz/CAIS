@@ -22,9 +22,7 @@ export default function EmergenciesTable() {
       </Table.Header>
       <Table.Body
         data={emergencies}
-        render={(emergency) => (
-          <EmergencyRow key={emergency.id} emergency={emergency} />
-        )}
+        render={(emergency) => <EmergencyRow key={emergency.id} emergency={emergency} />}
       />
       <Table.Footer>
         <Pagination count={count} />

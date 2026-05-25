@@ -11,16 +11,8 @@ import BirthDate from '@components/BirthDate'
 import PersonCell from '@components/PersonCell'
 
 export default function PatientRow({ patient }) {
-  const {
-    id,
-    nombre,
-    apellidos,
-    actualizado_at,
-    fecha_nacimiento,
-    genero,
-    telefono,
-    correo,
-  } = patient
+  const { id, nombre, apellidos, actualizado_at, fecha_nacimiento, genero, telefono, correo } =
+    patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
   const { deletePatient, isDeleting } = useDeletePatient()
@@ -37,7 +29,7 @@ export default function PatientRow({ patient }) {
           </span>
         </span>
       </span>
-      
+
       <PersonCell
         name={fullName}
         secondary={telefono ?? correo}
@@ -46,7 +38,7 @@ export default function PatientRow({ patient }) {
       <DateTime value={actualizado_at} />
       <BirthDate value={fecha_nacimiento} />
       <div className="font-medium text-zinc-700 capitalize">{genero ?? '---'}</div>
-      
+
       <Modal>
         <RowActionsMenu>
           <Modal.Open opens="delete-patient">
@@ -61,11 +53,7 @@ export default function PatientRow({ patient }) {
             </Button>
           </Modal.Open>
         </RowActionsMenu>
-        <Modal.Content
-          name="delete-patient"
-          variant="alert"
-          icon={<HiOutlineTrash size={24} />}
-        >
+        <Modal.Content name="delete-patient" variant="alert" icon={<HiOutlineTrash size={24} />}>
           <DangerConfirm
             title="Eliminar paciente"
             description="¿Estás seguro de borrar a este paciente?"

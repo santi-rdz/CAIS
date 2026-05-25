@@ -8,11 +8,7 @@ function formatActivityDate(fechaHora) {
   return dayjs(fechaHora).locale(es).format('DD MMM YYYY [•] HH:mm')
 }
 
-export default function ActivityCard({
-  activity,
-  layout = 'list',
-  isLast = false,
-}) {
+export default function ActivityCard({ activity, layout = 'list', isLast = false }) {
   const navigate = useNavigate()
   const { accion, entidad, fecha_hora } = activity
 
@@ -42,7 +38,7 @@ export default function ActivityCard({
           <div
             onClick={clickable ? () => navigate(navPath) : undefined}
             className={[
-              'rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-card',
+              'shadow-card rounded-2xl border border-gray-100 bg-white px-5 py-4',
               clickable ? 'cursor-pointer transition-colors hover:bg-gray-50' : '',
             ].join(' ')}
           >
@@ -59,7 +55,7 @@ export default function ActivityCard({
     <article
       onClick={clickable ? () => navigate(navPath) : undefined}
       className={[
-        'flex h-[160px] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card',
+        'shadow-card flex h-[160px] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white',
         clickable ? 'cursor-pointer transition-colors hover:bg-gray-50' : '',
       ].join(' ')}
     >

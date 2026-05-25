@@ -36,10 +36,7 @@ export class PatientModel {
       ]
     }
 
-    const orderBy =
-      sortBy && SORT_OPTIONS[sortBy]
-        ? SORT_OPTIONS[sortBy]
-        : { creado_at: 'desc' }
+    const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { creado_at: 'desc' }
 
     if (genre) {
       where.genero = genre

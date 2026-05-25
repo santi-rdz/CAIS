@@ -63,10 +63,12 @@ export default function DatePickerComponent({
   const [digits, setDigits] = useState('')
   const [calendarView, setCalendarView] = useState('day')
 
-  const { triggerRef, isOpen, positionStyle, toggle, close } =
-    useDropdownPosition(CALENDAR_HEIGHT, {
+  const { triggerRef, isOpen, positionStyle, toggle, close } = useDropdownPosition(
+    CALENDAR_HEIGHT,
+    {
       ignoreSelector: '[data-datepicker-calendar]',
-    })
+    }
+  )
 
   // -- Handlers --
 
@@ -123,9 +125,7 @@ export default function DatePickerComponent({
         <DropdownPanel
           data-datepicker-calendar
           className={`fixed z-[9999] w-[288px] overflow-hidden transition-opacity ${
-            isOpen
-              ? 'pointer-events-auto opacity-100'
-              : 'pointer-events-none opacity-0'
+            isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
           }`}
           style={positionStyle}
           onWheel={(e) => e.stopPropagation()}

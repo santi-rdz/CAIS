@@ -3,12 +3,7 @@ import DataField from '@components/DataField'
 import CIE10List from './CIE10List'
 
 export default function PlanEstudioSection({ plan }) {
-  const {
-    cie10_codes,
-    plan_tratamiento,
-    tratamiento,
-    estudios_complementarios,
-  } = plan ?? {}
+  const { cie10_codes, plan_tratamiento, tratamiento, estudios_complementarios } = plan ?? {}
   return (
     <div className="space-y-6">
       <div className="space-y-3">
@@ -16,12 +11,7 @@ export default function PlanEstudioSection({ plan }) {
           Plan y Tratamiento
         </Heading>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <DataField
-            label="Plan de tratamiento"
-            value={plan_tratamiento}
-            multiline
-            block
-          />
+          <DataField label="Plan de tratamiento" value={plan_tratamiento} multiline block />
           <DataField label="Tratamiento" value={tratamiento} multiline block />
         </div>
         <DataField

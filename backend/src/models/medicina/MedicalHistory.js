@@ -52,9 +52,10 @@ function formatMedicalHistory(n) {
           ...planes_estudio,
           historia_medica_id: undefined,
           cie10_codes:
-            planes_estudio.planes_estudio_cie10?.map(
-              ({ codigo, descripcion }) => ({ codigo, descripcion })
-            ) ?? [],
+            planes_estudio.planes_estudio_cie10?.map(({ codigo, descripcion }) => ({
+              codigo,
+              descripcion,
+            })) ?? [],
           planes_estudio_cie10: undefined,
         }
       : null,

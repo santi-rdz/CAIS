@@ -1,16 +1,16 @@
 const ACCENT_COLORS = [
   { bg: 'bg-emerald-50', text: 'text-emerald-600' },
-  { bg: 'bg-blue-50',    text: 'text-blue-600' },
-  { bg: 'bg-amber-50',   text: 'text-amber-600' },
-  { bg: 'bg-rose-50',    text: 'text-rose-600' },
-  { bg: 'bg-violet-50',  text: 'text-violet-600' },
+  { bg: 'bg-blue-50', text: 'text-blue-600' },
+  { bg: 'bg-amber-50', text: 'text-amber-600' },
+  { bg: 'bg-rose-50', text: 'text-rose-600' },
+  { bg: 'bg-violet-50', text: 'text-violet-600' },
 ]
 
 export default function StatCard({ icon, label, value, loading, colorIndex = 0 }) {
   const accent = ACCENT_COLORS[colorIndex % ACCENT_COLORS.length]
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-card transition-shadow hover:shadow-md">
+    <div className="shadow-card relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <div
@@ -24,7 +24,7 @@ export default function StatCard({ icon, label, value, loading, colorIndex = 0 }
         {loading ? (
           <div className="h-9 w-24 animate-pulse rounded-md bg-gray-100" />
         ) : (
-          <p className="text-3xl font-bold tabular-nums tracking-tight text-gray-900">
+          <p className="text-3xl font-bold tracking-tight text-gray-900 tabular-nums">
             {value ?? 0}
           </p>
         )}

@@ -49,10 +49,7 @@ const IMC_LEVELS = [
 ]
 
 function ImcDisplay({ peso, altura }) {
-  const imc =
-    peso > 0 && altura > 0
-      ? (peso / Math.pow(altura / 100, 2)).toFixed(1)
-      : null
+  const imc = peso > 0 && altura > 0 ? (peso / Math.pow(altura / 100, 2)).toFixed(1) : null
 
   const level = imc ? IMC_LEVELS.find((l) => parseFloat(imc) <= l.max) : null
 
@@ -63,9 +60,7 @@ function ImcDisplay({ peso, altura }) {
           <div className="flex items-baseline gap-2">
             <span className="font-lato text-4 font-semibold text-zinc-800">
               {imc}
-              <span className="text-6 ml-1 font-normal text-zinc-400">
-                kg/m²
-              </span>
+              <span className="text-6 ml-1 font-normal text-zinc-400">kg/m²</span>
             </span>
             <span
               className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}

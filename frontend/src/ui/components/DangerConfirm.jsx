@@ -17,7 +17,12 @@ export default function DangerConfirm({
         <Modal.Description>{description}</Modal.Description>
       </Modal.Heading>
       <div className="flex justify-center gap-2 p-8 pt-0">
-        <Button variant="secondary" onClick={onCloseModal} disabled={isPending} data-testid="confirm-cancel-btn">
+        <Button
+          variant="secondary"
+          onClick={onCloseModal}
+          disabled={isPending}
+          data-testid="confirm-cancel-btn"
+        >
           Cancelar
         </Button>
         <Button

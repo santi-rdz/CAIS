@@ -5,11 +5,7 @@
  * validateSignup y validateInvitedUser.
  */
 
-import {
-  validateUserCreate,
-  validateUserUpdate,
-  validateSignup,
-} from '@cais/shared/schemas/users'
+import { validateUserCreate, validateUserUpdate, validateSignup } from '@cais/shared/schemas/users'
 import { validateInvitedUser } from '@cais/shared/schemas/invitations'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
 import assert from 'assert'
@@ -254,10 +250,7 @@ describe('validateSignup — auto-registro', () => {
    * @test confirmPassword diferente a password es rechazada.
    */
   test('rechaza confirmPassword que no coincide', () => {
-    const result = validateSignup(
-      { ...basePasante, confirmPassword: 'Diferente1!' },
-      'PASANTE'
-    )
+    const result = validateSignup({ ...basePasante, confirmPassword: 'Diferente1!' }, 'PASANTE')
     assert.equal(result.success, false)
   })
 
@@ -265,10 +258,7 @@ describe('validateSignup — auto-registro', () => {
    * @test Token con formato distinto a UUID es rechazado.
    */
   test('rechaza token no UUID', () => {
-    const result = validateSignup(
-      { ...basePasante, token: 'no-es-uuid' },
-      'PASANTE'
-    )
+    const result = validateSignup({ ...basePasante, token: 'no-es-uuid' }, 'PASANTE')
     assert.equal(result.success, false)
   })
 })
@@ -393,9 +383,7 @@ describe('validateInvitedUser — invitaciones', () => {
    * @test Rol inexistente es rechazado.
    */
   test('rechaza rol inválido', () => {
-    const result = validateInvitedUser([
-      { email: 'a@uabc.edu.mx', role: 'superusuario' },
-    ])
+    const result = validateInvitedUser([{ email: 'a@uabc.edu.mx', role: 'superusuario' }])
     assert.equal(result.success, false)
   })
 

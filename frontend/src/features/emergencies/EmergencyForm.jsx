@@ -20,9 +20,7 @@ import { fechaHoraFormFields } from '@cais/shared/schemas/fields'
 import dayjs from 'dayjs'
 import Modal from '@components/Modal'
 
-const emergencyFormSchema = emergencySchema
-  .omit({ fecha_hora: true })
-  .extend(fechaHoraFormFields)
+const emergencyFormSchema = emergencySchema.omit({ fecha_hora: true }).extend(fechaHoraFormFields)
 
 export default function EmergencyForm({ onCloseModal, emergency }) {
   const isEditing = Boolean(emergency)
@@ -57,8 +55,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
   const getFormKeyDown = useFormKeyDown(handleSubmit)
 
   function onSubmit(data) {
-    const toNullable = (v) =>
-      typeof v === 'string' ? v.trim() || null : (v ?? null)
+    const toNullable = (v) => (typeof v === 'string' ? v.trim() || null : (v ?? null))
 
     const payload = {
       fecha_hora: mergeFechaHora(data.fecha, data.hora),
@@ -81,9 +78,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
   return (
     <FormProvider {...methods}>
       <Modal.Heading>
-        <Modal.Title>
-          {isEditing ? 'Editar Emergencia' : 'Registrar Emergencia'}
-        </Modal.Title>
+        <Modal.Title>{isEditing ? 'Editar Emergencia' : 'Registrar Emergencia'}</Modal.Title>
         <Modal.Description>
           {isEditing
             ? 'Modifica la información de la emergencia médica'
@@ -93,17 +88,9 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
 
       <ModalBody>
         <form onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}>
-          <RequiredSection
-            register={register}
-            control={control}
-            errors={errors}
-          />
+          <RequiredSection register={register} control={control} errors={errors} />
           <Divider className="my-6" />
-          <PatientSection
-            register={register}
-            control={control}
-            errors={errors}
-          />
+          <PatientSection register={register} control={control} errors={errors} />
           <Divider className="my-6" />
           <MedicalSection register={register} errors={errors} />
         </form>

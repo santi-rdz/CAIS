@@ -27,8 +27,7 @@ export default function Pagination({ count }) {
     <div className="flex w-full items-center justify-between">
       <p className="ml-2 text-sm">
         Pagina <span className="font-semibold">{currPage}</span> <span>de</span>{' '}
-        <span>{pageCount}</span> - Resultados:{' '}
-        <span className="font-semibold">{count}</span>
+        <span>{pageCount}</span> - Resultados: <span className="font-semibold">{count}</span>
       </p>
 
       <div className="flex gap-1.5">

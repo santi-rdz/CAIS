@@ -11,13 +11,7 @@ import { useQueryClient } from '@tanstack/react-query'
  * @param {number} opts.pageCount - Total number of pages
  * @param {number} opts.count - Total record count (skips prefetch when 0)
  */
-export function usePrefetchPages({
-  queryKey,
-  queryFn,
-  page,
-  pageCount,
-  count,
-}) {
+export function usePrefetchPages({ queryKey, queryFn, page, pageCount, count }) {
   const queryClient = useQueryClient()
 
   useEffect(() => {

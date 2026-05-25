@@ -90,9 +90,7 @@ const passwordSchema = z
   .regex(/[0-9]/, 'Debe contener al menos un número')
   .regex(/[!@#$%^&*]/, 'Debe contener al menos un carácter especial (!@#$%^&*)')
 
-const telefonoSchema = z
-  .string()
-  .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
+const telefonoSchema = z.string().regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 ```
 
 ---

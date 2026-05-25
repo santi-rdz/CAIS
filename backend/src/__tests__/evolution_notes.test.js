@@ -70,9 +70,7 @@ describe('GET /medicina/notas-evolucion', () => {
    */
   test('200 — filtra por paciente_id', async () => {
     if (!pacienteId) return
-    const res = await agent.get(
-      `/medicina/notas-evolucion?paciente_id=${pacienteId}`
-    )
+    const res = await agent.get(`/medicina/notas-evolucion?paciente_id=${pacienteId}`)
     assert.equal(res.status, 200)
     assert(Array.isArray(res.body.notes), 'notes should be an array')
     for (const note of res.body.notes) {
@@ -102,9 +100,7 @@ describe('GET /medicina/notas-evolucion/:id', () => {
    * @test UUID inexistente devuelve 404 con propiedad message.
    */
   test('404 — nota no existe', async () => {
-    const res = await agent.get(
-      '/medicina/notas-evolucion/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.get('/medicina/notas-evolucion/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
     assert(res.body['message'] !== undefined, 'property message should exist')
   })
@@ -140,9 +136,7 @@ describe('POST /medicina/notas-evolucion', () => {
    * @test paciente_id que no es UUID devuelve 422.
    */
   test('422 — rechaza paciente_id inválido', async () => {
-    const res = await agent
-      .post('/medicina/notas-evolucion')
-      .send({ paciente_id: 'no-es-uuid' })
+    const res = await agent.post('/medicina/notas-evolucion').send({ paciente_id: 'no-es-uuid' })
     assert.equal(res.status, 422)
   })
 
@@ -189,8 +183,7 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
   })
 
   afterAll(async () => {
-    if (noteId)
-      await agent.delete(`/medicina/notas-evolucion/${noteId}`).catch(() => {})
+    if (noteId) await agent.delete(`/medicina/notas-evolucion/${noteId}`).catch(() => {})
   })
 
   /**
@@ -260,9 +253,7 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
    * @test UUID inexistente devuelve 404.
    */
   test('404 — nota no existe', async () => {
-    const res = await agent.delete(
-      '/medicina/notas-evolucion/00000000-0000-0000-0000-000000000000'
-    )
+    const res = await agent.delete('/medicina/notas-evolucion/00000000-0000-0000-0000-000000000000')
     assert.equal(res.status, 404)
   })
 

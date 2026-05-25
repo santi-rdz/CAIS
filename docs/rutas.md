@@ -25,8 +25,7 @@ const reporteSchema = z.object({
 })
 
 export const validateReporte = (input) => reporteSchema.safeParse(input)
-export const validatePartialReporte = (input) =>
-  reporteSchema.partial().safeParse(input)
+export const validatePartialReporte = (input) => reporteSchema.partial().safeParse(input)
 ```
 
 Ver `docs/zod.md` para la referencia completa de validaciones.
@@ -55,9 +54,7 @@ export class ReporteModel {
 
   static async update(id, data, tx = prisma) {
     try {
-      return format(
-        await tx.reportes.update({ where: { id: uuidToBuffer(id) }, data })
-      )
+      return format(await tx.reportes.update({ where: { id: uuidToBuffer(id) }, data }))
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err
@@ -113,8 +110,7 @@ export class ReporteController {
     try {
       res.status(201).json(await ReporteModel.create(result.data))
     } catch (err) {
-      if (err.code === 'P2002')
-        return res.status(409).json({ error: 'Conflict' })
+      if (err.code === 'P2002') return res.status(409).json({ error: 'Conflict' })
       res.status(500).json({ error: 'InternalError' })
     }
   }

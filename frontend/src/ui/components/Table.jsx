@@ -5,7 +5,7 @@ const TableContext = createContext()
 export default function Table({ columns = '', children }) {
   return (
     <TableContext.Provider value={{ columns }}>
-      <div className="text-5 text-dark-gray mt-4 overflow-x-auto rounded-2xl border border-gray-100 bg-white shadow-card">
+      <div className="text-5 text-dark-gray shadow-card mt-4 overflow-x-auto rounded-2xl border border-gray-100 bg-white">
         <div className="min-w-4xl">{children}</div>
       </div>
     </TableContext.Provider>
@@ -31,16 +31,10 @@ Table.Body = function TableBody({ data, render }) {
     return (
       <div className="flex flex-col items-center justify-center gap-1.5 py-14">
         <span className="text-2 text-zinc-200 select-none">—</span>
-        <span className="text-5 font-medium text-zinc-400">
-          No hay datos que mostrar
-        </span>
+        <span className="text-5 font-medium text-zinc-400">No hay datos que mostrar</span>
       </div>
     )
-  return (
-    <div className="divide-y divide-zinc-100 bg-white font-medium">
-      {data.map(render)}
-    </div>
-  )
+  return <div className="divide-y divide-zinc-100 bg-white font-medium">{data.map(render)}</div>
 }
 
 Table.Row = function TableRow({ children, isCurrentUser, onClick, ...rest }) {
@@ -59,11 +53,7 @@ Table.Row = function TableRow({ children, isCurrentUser, onClick, ...rest }) {
 }
 
 Table.Footer = function TableFooter({ children }) {
-  return (
-    <div className="border-t border-zinc-100 bg-zinc-50/50 px-7 py-3">
-      {children}
-    </div>
-  )
+  return <div className="border-t border-zinc-100 bg-zinc-50/50 px-7 py-3">{children}</div>
 }
 
 function CommonRow({ columns, children, className, onClick, ...rest }) {

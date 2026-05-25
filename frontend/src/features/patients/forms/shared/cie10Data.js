@@ -37,8 +37,7 @@ export const CIE10_DATA = [
   { codigo: 'E66', descripcion: 'Obesidad' },
   {
     codigo: 'E78',
-    descripcion:
-      'Trastornos del metabolismo de las lipoproteínas (dislipidemia)',
+    descripcion: 'Trastornos del metabolismo de las lipoproteínas (dislipidemia)',
   },
   {
     codigo: 'F10',

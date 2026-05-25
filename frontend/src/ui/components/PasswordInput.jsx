@@ -24,14 +24,7 @@ function ToggleShowPassword({ show, setShow, className, style }) {
   )
 }
 
-export default function PasswordInput({
-  id,
-  label,
-  placeholder,
-  error,
-  registration,
-  variant,
-}) {
+export default function PasswordInput({ id, label, placeholder, error, registration, variant }) {
   const [show, setShow] = useState(false)
   return (
     <FormRow htmlFor={id} label={label}>

@@ -12,10 +12,7 @@ export default function useCreateInvitations() {
       const plural = data.created > 1 ? 's' : ''
       const intro = `${data.created} invitación${plural === 's' ? 'es' : ''} enviada${plural}`
       data.emailErrors.length > 0
-        ? toast.success(
-            `${intro} pero ${data.emailErrors.length} correos fallaron`,
-            { icon: '⚠️' }
-          )
+        ? toast.success(`${intro} pero ${data.emailErrors.length} correos fallaron`, { icon: '⚠️' })
         : toast.success(`${intro}`)
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },

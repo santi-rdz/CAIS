@@ -1,20 +1,13 @@
 import Button from '@ui/components/Button'
 import Modal from '@ui/components/Modal'
-import {
-  HiChevronRight,
-  HiOutlinePencilSquare,
-  HiOutlineTrash,
-} from 'react-icons/hi2'
+import { HiChevronRight, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2'
 import { Link } from 'react-router'
 
 export default function ActionBar({ emergencyDate, isDeleting }) {
   return (
     <div className="flex items-center justify-between">
       <nav className="text-5 flex items-center gap-1.5 text-zinc-400">
-        <Link
-          to="/emergencias"
-          className="transition-colors hover:text-zinc-700"
-        >
+        <Link to="/emergencias" className="transition-colors hover:text-zinc-700">
           Bitácora
         </Link>
         <HiChevronRight size={14} />

@@ -6,8 +6,7 @@ export default function Spinner() {
         style={{
           background:
             'radial-gradient(farthest-side, #065f46 94%, #0000) top/10px 10px no-repeat, conic-gradient(#0000 30%, #065f46)',
-          WebkitMask:
-            'radial-gradient(farthest-side, #0000 calc(100% - 10px), #000 0)',
+          WebkitMask: 'radial-gradient(farthest-side, #0000 calc(100% - 10px), #000 0)',
         }}
       ></div>
     </div>

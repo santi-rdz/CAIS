@@ -8,8 +8,7 @@ import {
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
 
 function isValidUUID(val) {
@@ -29,22 +28,14 @@ export class BiochemicalEvalController {
 
     try {
       const evaluation = await prisma.$transaction(async (tx) => {
-        const h = await BiochemicalEvalModel.create(
-          result.data,
-          req.session.userId,
-          tx
-        )
+        const h = await BiochemicalEvalModel.create(result.data, req.session.userId, tx)
         await PatientModel.touch(result.data.paciente_id, tx)
         return h
       })
-      return res
-        .status(201)
-        .json({ message: 'Evaluación bioquímica registrada', evaluation })
+      return res.status(201).json({ message: 'Evaluación bioquímica registrada', evaluation })
     } catch (error) {
       console.error('Error al crear evaluación bioquímica:', error)
-      return res
-        .status(500)
-        .json({ message: 'Error al registrar evaluación bioquímica' })
+      return res.status(500).json({ message: 'Error al registrar evaluación bioquímica' })
     }
   }
 
@@ -89,31 +80,22 @@ export class BiochemicalEvalController {
   static async getById(req, res) {
     const { id } = req.params
     if (!isValidUUID(id)) {
-      return res
-        .status(400)
-        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+      return res.status(400).json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
     }
     const evaluation = await BiochemicalEvalModel.getById(id)
-    if (!evaluation)
-      return res
-        .status(404)
-        .json({ message: 'Evaluación bioquímica no encontrada' })
+    if (!evaluation) return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
     res.json(evaluation)
   }
 
   static async delete(req, res) {
     const { id } = req.params
     if (!isValidUUID(id)) {
-      return res
-        .status(400)
-        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+      return res.status(400).json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
     }
     try {
       const evaluation = await BiochemicalEvalModel.delete(id)
       if (!evaluation)
-        return res
-          .status(404)
-          .json({ message: 'Evaluación bioquímica no encontrada' })
+        return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
       res.json(evaluation)
     } catch (err) {
       console.error('Error al eliminar evaluación bioquímica:', err)
@@ -135,26 +117,17 @@ export class BiochemicalEvalController {
 
     const { id } = req.params
     if (!isValidUUID(id)) {
-      return res
-        .status(400)
-        .json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
+      return res.status(400).json({ error: 'BadRequest', message: 'id debe ser un UUID válido' })
     }
     try {
       const updatedEval = await prisma.$transaction(async (tx) => {
-        const h = await BiochemicalEvalModel.update(
-          id,
-          result.data,
-          req.session.userId,
-          tx
-        )
+        const h = await BiochemicalEvalModel.update(id, result.data, req.session.userId, tx)
         if (!h) return null
         await PatientModel.touch(h.paciente_id, tx)
         return h
       })
       if (!updatedEval)
-        return res
-          .status(404)
-          .json({ message: 'Evaluación bioquímica no encontrada' })
+        return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
       res.json(updatedEval)
     } catch (err) {
       console.error('Error al actualizar evaluación bioquímica:', err)

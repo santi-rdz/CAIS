@@ -4,10 +4,7 @@ import { passwordResetEmail } from '#lib/passwordResetEmail.js'
 import { AuthModel } from '#models/AuthModel.js'
 import { AuditModel } from '#models/AuditModel.js'
 import { prisma } from '#config/prisma.js'
-import {
-  validatePasswordReset,
-  validateChangePassword,
-} from '@cais/shared/schemas/password'
+import { validatePasswordReset, validateChangePassword } from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
 import { ESTADOS, ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 import { formatZodErrors } from '#lib/formatErrors.js'
@@ -32,15 +29,12 @@ export class AuthController {
 
     try {
       if (!email) return res.status(400).json({ error: 'Correo requerido' })
-      if (!password)
-        return res.status(400).json({ error: 'Contraseña requerida' })
+      if (!password) return res.status(400).json({ error: 'Contraseña requerida' })
 
       const user = await AuthModel.findByEmail(email)
 
       if (!user) {
-        return res
-          .status(401)
-          .json({ error: 'Correo electronico no encontrado' })
+        return res.status(401).json({ error: 'Correo electronico no encontrado' })
       }
 
       if (!user.password_hash) {
@@ -136,16 +130,12 @@ export class AuthController {
       }
 
       if (!user.password_hash) {
-        return res
-          .status(400)
-          .json({ error: 'La contraseña actual es incorrecta' })
+        return res.status(400).json({ error: 'La contraseña actual es incorrecta' })
       }
 
       const isMatch = await bcrypt.compare(currentPassword, user.password_hash)
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ error: 'La contraseña actual es incorrecta' })
+        return res.status(400).json({ error: 'La contraseña actual es incorrecta' })
       }
 
       const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
@@ -159,10 +149,7 @@ export class AuthController {
 
       req.session.regenerate((err) => {
         if (err) {
-          console.error(
-            'Error regenerando sesión tras cambio de contraseña:',
-            err
-          )
+          console.error('Error regenerando sesión tras cambio de contraseña:', err)
           return res.status(500).json({ error: 'Error del servidor' })
         }
         req.session.userId = userId
@@ -195,8 +182,7 @@ export class AuthController {
 
       // Siempre responder igual para evitar enumeración de correos
       const okResponse = {
-        message:
-          'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña',
+        message: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña',
       }
 
       if (!user) return res.json(okResponse)
@@ -255,24 +241,14 @@ export class AuthController {
       const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
 
       try {
-        await AuthModel.consumeResetToken(
-          resetToken.token,
-          resetToken.usuario_id,
-          passwordHash
-        )
+        await AuthModel.consumeResetToken(resetToken.token, resetToken.usuario_id, passwordHash)
       } catch {
-        return res
-          .status(400)
-          .json({ error: 'Token inválido, expirado o ya utilizado' })
+        return res.status(400).json({ error: 'Token inválido, expirado o ya utilizado' })
       }
 
       if (req.session?.userId) {
         req.session.destroy((err) => {
-          if (err)
-            console.error(
-              'Error destruyendo sesión tras reset de contraseña:',
-              err
-            )
+          if (err) console.error('Error destruyendo sesión tras reset de contraseña:', err)
           return res.json({ message: 'Contraseña actualizada exitosamente' })
         })
       } else {
