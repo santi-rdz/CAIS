@@ -3,7 +3,7 @@ import useClickOutside from '@hooks/useClickOutside'
 import DropdownPanel from './DropdownPanel'
 import { useRef, useEffect, useState } from 'react'
 
-export default function RowActionsMenu({ children }) {
+export default function RowActionsMenu({ children, 'data-testid': testId }) {
   const [isOpen, setIsOpen] = useState(false)
   const triggerRef = useRef()
   const ref = useClickOutside(() => setIsOpen(false), true)
@@ -24,6 +24,7 @@ export default function RowActionsMenu({ children }) {
           setIsOpen((v) => !v)
         }}
         className="cursor-pointer rounded-sm p-1 text-gray-700 duration-200 hover:bg-gray-100"
+        data-testid={testId}
       >
         <HiEllipsisVertical size={24} />
       </button>
