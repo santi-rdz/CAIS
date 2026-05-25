@@ -7,16 +7,19 @@ export default function MainNav({ isExpanded }) {
   const { user } = useMe()
   const isAdmin = user?.rol === 'ADMIN'
   const userArea = user?.area?.toUpperCase() ?? null
+  const userRole = user?.rol?.toUpperCase() ?? null
 
-  const visibleRoutes = navRoutes.filter(
-    (r) => !r.areas || isAdmin || r.areas.includes(userArea)
-  )
+  const visibleRoutes = navRoutes.filter((r) => {
+    if (r.hiddenForRoles?.includes(userRole)) return false
+    if (isAdmin) return true
+    if (r.areas && !r.areas.includes(userArea)) return false
+    if (r.roles && !r.roles.includes(userRole)) return false
+    return true
+  })
 
   return (
     <nav className="flex flex-col gap-4">
-      <ul
-        className={`flex flex-col gap-1 ${isExpanded ? '' : 'lg:items-center'}`}
-      >
+      <ul className={`flex flex-col gap-1 ${isExpanded ? '' : 'lg:items-center'}`}>
         {visibleRoutes.map((r) => (
           <NavLi route={r} key={r.path} isExpanded={isExpanded} />
         ))}

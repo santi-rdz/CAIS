@@ -7,7 +7,10 @@ export function useDeletePatient() {
 
   const { mutateAsync, isPending: isDeleting } = useMutation({
     mutationFn: (id) => apiDeletePatient(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['patients'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+    },
   })
 
   function deletePatient(id) {

@@ -12,6 +12,7 @@ export function useCreateMedicalHistory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medical-histories'] })
       queryClient.invalidateQueries({ queryKey: ['medical-history'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
       toast.success('Historia médica creada correctamente')
     },
   })

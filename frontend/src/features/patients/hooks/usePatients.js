@@ -13,7 +13,6 @@ export function usePatients() {
   const { data: { patients, count } = {}, isPending } = useQuery({
     queryKey: ['patients', sortBy, search, page, genre],
     queryFn: () => getPatients({ sortBy, search, page, genre }),
-    staleTime: 1000 * 60 * 5,
   })
 
   const pageCount = count ? Math.ceil(count / PAGE_SIZE) : 0

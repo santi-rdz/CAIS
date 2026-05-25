@@ -1,3 +1,4 @@
+import { AREAS, ROLES } from '@cais/shared/constants/users'
 import {
   HiOutlineSquares2X2,
   HiOutlineUserGroup,
@@ -15,6 +16,7 @@ const navRoutes = [
     path: '/dashboard',
     name: 'Dashboard',
     icon: HiOutlineSquares2X2,
+    hiddenForRoles: [ROLES.ADMIN],
   },
   {
     path: '/pacientes',
@@ -26,17 +28,19 @@ const navRoutes = [
     name: 'Bitácora de emergencias',
     shortName: 'Emergencias',
     icon: HiOutlineBookOpen,
-    areas: ['MEDICINA'],
+    areas: [AREAS.MEDICINA],
   },
   {
     path: '/estadisticas',
     name: 'Estadísticas',
     icon: HiOutlineChartBar,
+    roles: [ROLES.COORDINADOR, ROLES.ADMIN],
   },
   {
     path: '/usuarios',
     name: 'Usuarios',
     icon: HiOutlineIdentification,
+    roles: [ROLES.COORDINADOR, ROLES.ADMIN],
   },
 ]
 

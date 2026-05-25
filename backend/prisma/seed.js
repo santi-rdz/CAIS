@@ -43,15 +43,9 @@ async function main() {
   // ═══════════════════════════════════════════
   const estadosData = ['ACTIVO', 'PENDIENTE', 'INACTIVO']
   const rolesData = ['PASANTE', 'COORDINADOR', 'ADMIN']
-  const areasData = ['MEDICINA', 'NUTRICION', 'PSICOLOGIA', 'PSIQUIATRIA']
-  const accionesData = ['CREAR', 'EDITAR', 'ELIMINAR', 'INICIAR_SESION']
-  const entidadesData = [
-    'NOTA_MEDICA',
-    'EXPEDIENTE_MEDICO',
-    'PACIENTE',
-    'USUARIO',
-    'EMERGENCIA',
-  ]
+  const areasData = ['MEDICINA', 'NUTRICION']
+  const accionesData = ['CREAR', 'ACTUALIZAR', 'ELIMINAR', 'INICIAR_SESION']
+  const entidadesData = ['NOTA_EVOLUCION', 'HISTORIA_MEDICA', 'PACIENTE', 'USUARIO', 'EMERGENCIA']
 
   for (const codigo of estadosData) {
     await prisma.estados.upsert({
@@ -456,8 +450,7 @@ async function main() {
       tipo_sangre: 'O+',
       vacunas_infancia_completas: true,
       motivo_consulta: 'Revisión anual',
-      historia_enfermedad_actual:
-        'Paciente acude a revisión de rutina sin síntomas agudos',
+      historia_enfermedad_actual: 'Paciente acude a revisión de rutina sin síntomas agudos',
     },
     {
       id: uuidToBuf(HM_IDS.ana),
@@ -476,8 +469,7 @@ async function main() {
       tipo_sangre: 'O-',
       vacunas_infancia_completas: true,
       motivo_consulta: 'Evaluación general',
-      historia_enfermedad_actual:
-        'Médico externo, acude a evaluación anual de salud',
+      historia_enfermedad_actual: 'Médico externo, acude a evaluación anual de salud',
     },
     {
       id: uuidToBuf(HM_IDS.lucia),
@@ -521,8 +513,7 @@ async function main() {
       paciente_id: pacAnaId,
       historia_medica_id: uuidToBuf(HM_IDS.ana),
       usuario_id: primerUsuarioId,
-      motivo_consulta:
-        'Control de diabetes. Refiere mejora parcial con medicamento.',
+      motivo_consulta: 'Control de diabetes. Refiere mejora parcial con medicamento.',
       ant_gine_andro: 'G2 P2 A0, ciclos regulares',
       estudios_complementarios_efectuados: 'Glucosa en ayuno, HbA1c',
       creado_at: new Date('2026-02-14T14:30:00'),
@@ -532,8 +523,7 @@ async function main() {
       paciente_id: pacCarlosId,
       historia_medica_id: uuidToBuf(HM_IDS.carlos),
       usuario_id: primerUsuarioId,
-      motivo_consulta:
-        'Seguimiento post-revisión. Resultados de laboratorio normales.',
+      motivo_consulta: 'Seguimiento post-revisión. Resultados de laboratorio normales.',
       ant_gine_andro: 'Sin cambios',
       estudios_complementarios_efectuados: 'Resultados de laboratorio normales',
       creado_at: new Date('2026-03-22T09:15:00'),
@@ -543,11 +533,9 @@ async function main() {
       paciente_id: pacJorgeId,
       historia_medica_id: uuidToBuf(HM_IDS.jorge),
       usuario_id: primerUsuarioId,
-      motivo_consulta:
-        'Evaluación integral. Profesional médico en buen estado de salud.',
+      motivo_consulta: 'Evaluación integral. Profesional médico en buen estado de salud.',
       ant_gine_andro: 'Sin antecedentes relevantes',
-      estudios_complementarios_efectuados:
-        'Examen clínico completo, signos vitales normales',
+      estudios_complementarios_efectuados: 'Examen clínico completo, signos vitales normales',
       creado_at: new Date('2026-03-01T11:45:00'),
     },
     {
@@ -555,11 +543,9 @@ async function main() {
       paciente_id: pacLuciaId,
       historia_medica_id: uuidToBuf(HM_IDS.lucia),
       usuario_id: primerUsuarioId,
-      motivo_consulta:
-        'Examen preventivo anual. Estudiante sin síntomas. Vida sana.',
+      motivo_consulta: 'Examen preventivo anual. Estudiante sin síntomas. Vida sana.',
       ant_gine_andro: 'Ginecología normal, ciclos regulares',
-      estudios_complementarios_efectuados:
-        'Laboratorio rutinario, ecografía pélvica',
+      estudios_complementarios_efectuados: 'Laboratorio rutinario, ecografía pélvica',
       creado_at: new Date('2026-02-20T15:30:00'),
     },
   ]
@@ -684,8 +670,7 @@ async function main() {
     {
       historia_medica_id: uuidToBuf(HM_IDS.ana),
       nota_evolucion_id: uuidToBuf(NE_IDS.ne2),
-      plan_tratamiento:
-        'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
+      plan_tratamiento: 'Diabetes mellitus tipo 2 sin complicaciones. Glucosa en ayuno, HbA1c.',
       tratamiento: 'Metformina 850mg c/12h + dieta hipocalórica',
     },
   ]
@@ -739,6 +724,401 @@ async function main() {
   }
 
   console.log('✓ Códigos CIE-10 insertados')
+
+  // ═══════════════════════════════════════════
+  // 12. PACIENTES DE NUTRICIÓN
+  // ═══════════════════════════════════════════
+  const anaToTorresId = await getUsuarioId('ana.torres@uabc.edu.mx')
+  const mariaLopezId = await getUsuarioId('maria.lopez@uabc.edu.mx')
+
+  const pacientesNutricion = [
+    {
+      doctor_id: anaToTorresId,
+      nombre: 'Pedro',
+      apellidos: 'Gómez Soto',
+      fecha_nacimiento: new Date('1990-06-15'),
+      es_externo: false,
+      correo: 'pedro.gomez@gmail.com',
+      telefono: '6646001001',
+      genero: 'Masculino',
+      domicilio: 'Calle Hidalgo 10, Tijuana, BC',
+      ocupacion: 'Ingeniero',
+      estado_civil: 'Casado',
+      nivel_educativo: 'Licenciatura',
+      religion: 'Católica',
+      nss: '11223344501',
+      actualizado_at: new Date('2026-04-10T10:00:00'),
+    },
+    {
+      doctor_id: anaToTorresId,
+      nombre: 'Valentina',
+      apellidos: 'Cruz Medina',
+      fecha_nacimiento: new Date('2005-03-22'),
+      es_externo: false,
+      correo: 'valentina.cruz@gmail.com',
+      telefono: '6646001002',
+      genero: 'Femenino',
+      domicilio: 'Blvd. Insurgentes 200, Tijuana, BC',
+      ocupacion: 'Estudiante',
+      estado_civil: 'Soltera',
+      nivel_educativo: 'Bachillerato',
+      religion: 'Ninguna',
+      nss: '22334455602',
+      actualizado_at: new Date('2026-04-12T11:00:00'),
+    },
+    {
+      doctor_id: mariaLopezId,
+      nombre: 'Roberto',
+      apellidos: 'Sánchez Vega',
+      fecha_nacimiento: new Date('1975-11-08'),
+      es_externo: true,
+      correo: 'roberto.sanchez@hotmail.com',
+      telefono: '6646001003',
+      genero: 'Masculino',
+      domicilio: 'Av. Constitución 45, Tijuana, BC',
+      ocupacion: 'Médico',
+      estado_civil: 'Divorciado',
+      nivel_educativo: 'Doctorado',
+      religion: 'Ninguna',
+      nss: '33445566703',
+      actualizado_at: new Date('2026-03-20T09:30:00'),
+    },
+    {
+      doctor_id: mariaLopezId,
+      nombre: 'Sofía',
+      apellidos: 'Herrera Ponce',
+      fecha_nacimiento: new Date('1998-07-14'),
+      es_externo: false,
+      correo: 'sofia.herrera@gmail.com',
+      telefono: '6646001004',
+      genero: 'Femenino',
+      domicilio: 'Calle Juárez 78, Tijuana, BC',
+      ocupacion: 'Enfermera',
+      estado_civil: 'Soltera',
+      nivel_educativo: 'Licenciatura',
+      religion: 'Católica',
+      nss: '44556677804',
+      actualizado_at: new Date('2026-04-18T14:00:00'),
+    },
+    {
+      doctor_id: sofiaId,
+      nombre: 'Miguel',
+      apellidos: 'Flores Ramos',
+      fecha_nacimiento: new Date('2010-01-30'),
+      es_externo: false,
+      correo: 'miguel.flores@gmail.com',
+      telefono: '6646001005',
+      genero: 'Masculino',
+      domicilio: 'Calle Morelos 33, Tijuana, BC',
+      ocupacion: 'Estudiante',
+      estado_civil: 'Soltero',
+      nivel_educativo: 'Primaria',
+      religion: 'Cristiana',
+      nss: '55667788905',
+      actualizado_at: new Date('2026-04-20T10:00:00'),
+    },
+  ]
+
+  for (const p of pacientesNutricion) {
+    const existing = await prisma.pacientes.findFirst({ where: { correo: p.correo } })
+    if (!existing) {
+      await prisma.pacientes.create({ data: { id: newId(), ...p } })
+    }
+  }
+
+  console.log('✓ Pacientes de nutrición insertados')
+
+  // ═══════════════════════════════════════════
+  // 13. REGISTRO DE AUDITORÍA
+  // ═══════════════════════════════════════════
+  const auditCount = await prisma.registro_auditoria.count()
+  if (auditCount === 0) {
+    const getAccionId = async (codigo) => {
+      const a = await prisma.acciones.findFirst({ where: { codigo } })
+      return a.id
+    }
+    const getEntidadId = async (nombre) => {
+      const e = await prisma.entidades.findFirst({ where: { nombre } })
+      return e.id
+    }
+
+    const [crearId, actualizarId, iniciarSesionId] = await Promise.all([
+      getAccionId('CREAR'),
+      getAccionId('ACTUALIZAR'),
+      getAccionId('INICIAR_SESION'),
+    ])
+
+    const [notaId, historiaId, emergenciaId, pacienteId, usuarioId] = await Promise.all([
+      getEntidadId('NOTA_EVOLUCION'),
+      getEntidadId('HISTORIA_MEDICA'),
+      getEntidadId('EMERGENCIA'),
+      getEntidadId('PACIENTE'),
+      getEntidadId('USUARIO'),
+    ])
+
+    const pacCarlosId2 = await getPacienteId('carlos.mendoza@gmail.com')
+    const pacAnaId2 = await getPacienteId('ana.fernandez@hotmail.com')
+    const pacJorgeId2 = await getPacienteId('jorge.reyes@yahoo.com')
+    const pacLuciaId2 = await getPacienteId('lucia.ramirez@gmail.com')
+
+    // Helper para fecha relativa (días + horas atrás desde ahora)
+    const daysAgo = (n, hoursOffset = 2) => {
+      return new Date(Date.now() - (n * 24 + hoursOffset) * 60 * 60 * 1000)
+    }
+
+    const auditoriaData = [
+      // Logins
+      {
+        usuario_id: carlosId,
+        accion_id: iniciarSesionId,
+        entidad_id: usuarioId,
+        fecha_hora: daysAgo(0, 8),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: iniciarSesionId,
+        entidad_id: usuarioId,
+        fecha_hora: daysAgo(0, 9),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: iniciarSesionId,
+        entidad_id: usuarioId,
+        fecha_hora: daysAgo(1, 8),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: iniciarSesionId,
+        entidad_id: usuarioId,
+        fecha_hora: daysAgo(2, 9),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: iniciarSesionId,
+        entidad_id: usuarioId,
+        fecha_hora: daysAgo(3, 8),
+      },
+
+      // Crear notas de evolución — últimos 7 días
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne1),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(0, 10),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne2),
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(0, 11),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne3),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(1, 9),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne4),
+        paciente_id: pacJorgeId2,
+        fecha_hora: daysAgo(2, 10),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne5),
+        paciente_id: pacLuciaId2,
+        fecha_hora: daysAgo(3, 14),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne1),
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(4, 10),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne2),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(5, 9),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: notaId,
+        objetivo_id: uuidToBuf(NE_IDS.ne3),
+        paciente_id: pacJorgeId2,
+        fecha_hora: daysAgo(6, 11),
+      },
+
+      // Crear historias médicas — últimos 30 días
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.carlos),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(0, 9),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.ana),
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(3, 10),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.jorge),
+        paciente_id: pacJorgeId2,
+        fecha_hora: daysAgo(7, 9),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.lucia),
+        paciente_id: pacLuciaId2,
+        fecha_hora: daysAgo(10, 11),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.carlos),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(15, 10),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.ana),
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(20, 9),
+      },
+
+      // Actualizar historias
+      {
+        usuario_id: carlosId,
+        accion_id: actualizarId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.carlos),
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(1, 11),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: actualizarId,
+        entidad_id: historiaId,
+        objetivo_id: uuidToBuf(HM_IDS.ana),
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(4, 13),
+      },
+
+      // Emergencias — últimos 30 días
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: emergenciaId,
+        fecha_hora: daysAgo(0, 10),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: emergenciaId,
+        fecha_hora: daysAgo(1, 14),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: emergenciaId,
+        fecha_hora: daysAgo(4, 22),
+      },
+      {
+        usuario_id: carlosId,
+        accion_id: crearId,
+        entidad_id: emergenciaId,
+        fecha_hora: daysAgo(8, 10),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: emergenciaId,
+        fecha_hora: daysAgo(12, 16),
+      },
+
+      // Crear pacientes de medicina
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: pacienteId,
+        objetivo_id: pacCarlosId2,
+        paciente_id: pacCarlosId2,
+        fecha_hora: daysAgo(2, 9),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: pacienteId,
+        objetivo_id: pacAnaId2,
+        paciente_id: pacAnaId2,
+        fecha_hora: daysAgo(5, 10),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: pacienteId,
+        objetivo_id: pacJorgeId2,
+        paciente_id: pacJorgeId2,
+        fecha_hora: daysAgo(9, 11),
+      },
+      {
+        usuario_id: sofiaId,
+        accion_id: crearId,
+        entidad_id: pacienteId,
+        objetivo_id: pacLuciaId2,
+        paciente_id: pacLuciaId2,
+        fecha_hora: daysAgo(14, 9),
+      },
+    ]
+
+    for (const a of auditoriaData) {
+      await prisma.registro_auditoria.create({
+        data: {
+          id: newId(),
+          usuario_id: a.usuario_id,
+          accion_id: a.accion_id,
+          entidad_id: a.entidad_id,
+          objetivo_id: a.objetivo_id ?? null,
+          paciente_id: a.paciente_id ?? null,
+          fecha_hora: a.fecha_hora,
+        },
+      })
+    }
+
+    console.log('✓ Registro de auditoría insertado')
+  } else {
+    console.log('↷ Registro de auditoría ya existe, omitiendo')
+  }
+
   console.log('\n✓ Seed completado exitosamente')
 }
 

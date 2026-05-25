@@ -6,7 +6,10 @@ export function useCreatePatient() {
   const queryClient = useQueryClient()
   const { mutateAsync, isPending: isCreating } = useMutation({
     mutationFn: (data) => apiCreatePatient(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['patients'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+    },
   })
 
   function createPatient(data) {
