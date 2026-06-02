@@ -62,7 +62,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 p-6">
-      <Heading as="h2" data-testid="page-title-dashboard">Dashboard</Heading>
+      <Heading as="h2" data-testid="page-title-dashboard">
+        Dashboard
+      </Heading>
 
       {/* Stat cards */}
       <div

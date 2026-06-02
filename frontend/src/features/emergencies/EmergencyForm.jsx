@@ -87,7 +87,10 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
       </Modal.Heading>
 
       <ModalBody>
-        <form data-testid="emergency-form" onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}>
+        <form
+          data-testid="emergency-form"
+          onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}
+        >
           <RequiredSection register={register} control={control} errors={errors} />
           <Divider className="my-6" />
           <PatientSection register={register} control={control} errors={errors} />

@@ -16,7 +16,12 @@ export default function ModalActions({
     return (
       <div className={containerStyle}>
         <Row direction="row-end">
-          <Button type="button" variant="secondary" onClick={onClose} data-testid="modal-cancel-btn">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            data-testid="modal-cancel-btn"
+          >
             {cancelLabel}
           </Button>
           <Button
