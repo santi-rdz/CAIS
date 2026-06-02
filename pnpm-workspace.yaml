@@ -1,0 +1,11 @@
+packages:
+  - frontend
+  - backend
+  - shared
+autoInstallPeers: true
+strictPeerDependencies: false
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  unrs-resolver: true
