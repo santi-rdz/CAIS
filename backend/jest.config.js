@@ -1,6 +1,7 @@
 export default {
   testEnvironment: 'node',
   setupFiles: ['dotenv/config'],
+  globalTeardown: '<rootDir>/jest.teardown.js',
   testMatch: ['<rootDir>/src/**/*.test.js'],
   // Tests son aislados (cada uno crea sus propias fixtures con uniqueEmail
   // + cleanup tracker). 50% de cores en local; CI runner con 4 vCPUs → 2.

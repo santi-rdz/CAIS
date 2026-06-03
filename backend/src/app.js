@@ -1,4 +1,5 @@
 import { SESSION_MAX_AGE_MS } from '#lib/constants.js'
+import { prisma } from '#config/prisma.js'
 import { userRouter } from '#routes/users.js'
 import { authRouter } from '#routes/auth.js'
 import { invitationRouter } from '#routes/invitations.js'
@@ -54,6 +55,29 @@ app.use('/dashboard', dashboardRouter)
 
 export default app
 
-app.listen(8000, () => {
-  console.log('Server is running on http://localhost:8000')
-})
+// No levantar el server durante tests (jest setea NODE_ENV='test' por
+// default) — supertest llama al app directamente sin necesidad de listen.
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(8000, () => {
+    console.log('Server is running on http://localhost:8000')
+  })
+
+  // Graceful shutdown: cerrar Prisma para que MySQL libere las conexiones.
+  // Sin esto, cada restart de node --watch deja conexiones zombies que
+  // eventualmente saturan max_connections.
+  async function gracefulShutdown(signal) {
+    console.log(`Received ${signal}, shutting down gracefully...`)
+    server.close(async () => {
+      await prisma.$disconnect()
+      process.exit(0)
+    })
+    // Failsafe: si server.close() tarda, fuerza exit a los 5s.
+    setTimeout(() => {
+      console.warn('Forced exit after timeout')
+      process.exit(1)
+    }, 5000).unref()
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+}
