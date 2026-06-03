@@ -77,5 +77,11 @@ jobs:
       - name: Generate Prisma client
         run: pnpm --filter backend run prisma:generate
 
+      # Los tests usan getAnyUserBufferId() (helpers/fixtures.js) que requiere
+      # al menos un usuario en la DB. CAISchema.sql solo crea tablas, así que
+      # corremos el seed para tener catálogos + usuarios base.
+      - name: Seed test data
+        run: pnpm --filter backend run prisma:seed
+
       - name: Run backend tests
         run: pnpm --filter backend run test
