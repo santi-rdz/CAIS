@@ -35,7 +35,7 @@ const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
 
 function formatNested(obj) {
   if (!obj) return null
-  const { id_eval_bioq, ...rest } = obj
+  const { _id_eval_bioq, ...rest } = obj
   return rest
 }
 

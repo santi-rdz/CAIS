@@ -24,14 +24,10 @@ export class NutritionalEvalController {
         const h = await NutritionalEvalModel.create(result.data, tx)
         return h
       })
-      return res
-        .status(201)
-        .json({ message: 'Evaluación nutricional registrada', evaluation })
+      return res.status(201).json({ message: 'Evaluación nutricional registrada', evaluation })
     } catch (error) {
       console.error('Error al crear evaluación nutricional:', error)
-      return res
-        .status(500)
-        .json({ message: 'Error al registrar evaluación nutricional' })
+      return res.status(500).json({ message: 'Error al registrar evaluación nutricional' })
     }
   }
 
@@ -59,9 +55,7 @@ export class NutritionalEvalController {
     const { id } = req.params
     const evaluation = await NutritionalEvalModel.getById(id)
     if (!evaluation)
-      return res
-        .status(404)
-        .json({ message: 'Evaluación nutricional no encontrada' })
+      return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
     res.json(evaluation)
   }
 
@@ -70,9 +64,7 @@ export class NutritionalEvalController {
     try {
       const evaluation = await NutritionalEvalModel.delete(id)
       if (!evaluation)
-        return res
-          .status(404)
-          .json({ message: 'Evaluación nutricional no encontrada' })
+        return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
       res.json(evaluation)
     } catch (err) {
       console.error('Error al eliminar evaluación nutricional:', err)
@@ -100,9 +92,7 @@ export class NutritionalEvalController {
         return h
       })
       if (!updatedEvaluation)
-        return res
-          .status(404)
-          .json({ message: 'Evaluación nutricional no encontrada' })
+        return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
       res.json(updatedEvaluation)
     } catch (err) {
       console.error('Error al actualizar evaluación nutricional:', err)

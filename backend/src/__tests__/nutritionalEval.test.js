@@ -26,10 +26,7 @@ beforeAll(async () => {
 
   const pacientesRes = await agent.get('/pacientes?page=1&limit=1')
 
-  const items =
-    pacientesRes.body.pacientes ??
-    pacientesRes.body.patients ??
-    pacientesRes.body
+  const items = pacientesRes.body.pacientes ?? pacientesRes.body.patients ?? pacientesRes.body
   pacienteId = Array.isArray(items) ? items[0]?.id : undefined
 })
 
@@ -152,9 +149,7 @@ describe('GET /nutricion/evaluacion-nutricional', () => {
    * @test Con limit=2 devuelve como máximo 2 registros.
    */
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await agent.get(
-      '/nutricion/evaluacion-nutricional?page=1&limit=2'
-    )
+    const res = await agent.get('/nutricion/evaluacion-nutricional?page=1&limit=2')
     assert.equal(res.status, 200)
     assert(res.body.evals.length <= 2, 'evals.length should be <= 2')
   })
@@ -164,9 +159,7 @@ describe('GET /nutricion/evaluacion-nutricional', () => {
    */
   test('200 — filtra por paciente_id', async () => {
     if (!pacienteId) return
-    const res = await agent.get(
-      `/nutricion/evaluacion-nutricional?paciente_id=${pacienteId}`
-    )
+    const res = await agent.get(`/nutricion/evaluacion-nutricional?paciente_id=${pacienteId}`)
     assert.equal(res.status, 200)
     assert(Array.isArray(res.body.evals), 'evals should be an array')
     for (const e of res.body.evals) {
@@ -246,9 +239,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
    */
   test('201 — crea evaluación sin relaciones', async () => {
     if (!pacienteId) return
-    const res = await agent
-      .post('/nutricion/evaluacion-nutricional')
-      .send(buildPayloadMinimal())
+    const res = await agent.post('/nutricion/evaluacion-nutricional').send(buildPayloadMinimal())
     assert.equal(res.status, 201)
     assert(res.body['evaluation'] !== undefined, 'property eval should exist')
     const e = res.body.evaluation
@@ -259,9 +250,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
     assert.equal(e.horarios_comida_nutricion, null)
 
     // cleanup
-    await agent
-      .delete(`/nutricion/evaluacion-nutricional/${e.id}`)
-      .catch(() => {})
+    await agent.delete(`/nutricion/evaluacion-nutricional/${e.id}`).catch(() => {})
   })
 
   /**
@@ -270,9 +259,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
    */
   test('201 — crea evaluación con todas las relaciones', async () => {
     if (!pacienteId) return
-    const res = await agent
-      .post('/nutricion/evaluacion-nutricional')
-      .send(buildPayloadCompleto())
+    const res = await agent.post('/nutricion/evaluacion-nutricional').send(buildPayloadCompleto())
     assert.equal(res.status, 201)
     assert(res.body['evaluation'] !== undefined, 'property eval should exist')
     const e = res.body.evaluation
@@ -281,8 +268,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
 
     // eval_apetito_nutricion
     assert(
-      e.eval_apetito_nutricion !== null &&
-        typeof e.eval_apetito_nutricion === 'object',
+      e.eval_apetito_nutricion !== null && typeof e.eval_apetito_nutricion === 'object',
       'eval_apetito_nutricion should be an object'
     )
     assert(
@@ -303,8 +289,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
 
     // horarios_comida_nutricion
     assert(
-      e.horarios_comida_nutricion !== null &&
-        typeof e.horarios_comida_nutricion === 'object',
+      e.horarios_comida_nutricion !== null && typeof e.horarios_comida_nutricion === 'object',
       'horarios_comida_nutricion should be an object'
     )
     assert(
@@ -313,9 +298,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
     )
 
     // cleanup
-    await agent
-      .delete(`/nutricion/evaluacion-nutricional/${e.id}`)
-      .catch(() => {})
+    await agent.delete(`/nutricion/evaluacion-nutricional/${e.id}`).catch(() => {})
   })
 })
 
@@ -331,17 +314,12 @@ describe('PATCH /nutricion/evaluacion-nutricional/:id', () => {
 
   beforeAll(async () => {
     if (!pacienteId) return
-    const res = await agent
-      .post('/nutricion/evaluacion-nutricional')
-      .send(buildPayloadCompleto())
+    const res = await agent.post('/nutricion/evaluacion-nutricional').send(buildPayloadCompleto())
     evalId = res.body.evaluation?.id
   })
 
   afterAll(async () => {
-    if (evalId)
-      await agent
-        .delete(`/nutricion/evaluacion-nutricional/${evalId}`)
-        .catch(() => {})
+    if (evalId) await agent.delete(`/nutricion/evaluacion-nutricional/${evalId}`).catch(() => {})
   })
 
   /**
@@ -396,9 +374,7 @@ describe('PATCH /nutricion/evaluacion-nutricional/:id', () => {
    */
   test('404 — evaluación no existe', async () => {
     const res = await agent
-      .patch(
-        '/nutricion/evaluacion-nutricional/00000000-0000-0000-0000-000000000000'
-      )
+      .patch('/nutricion/evaluacion-nutricional/00000000-0000-0000-0000-000000000000')
       .send({ sigue_dieta: true })
     assert.equal(res.status, 404)
   })
@@ -416,9 +392,7 @@ describe('DELETE /nutricion/evaluacion-nutricional/:id', () => {
 
   beforeAll(async () => {
     if (!pacienteId) return
-    const res = await agent
-      .post('/nutricion/evaluacion-nutricional')
-      .send(buildPayloadCompleto())
+    const res = await agent.post('/nutricion/evaluacion-nutricional').send(buildPayloadCompleto())
     evalId = res.body.evaluation?.id
   })
 
@@ -427,9 +401,7 @@ describe('DELETE /nutricion/evaluacion-nutricional/:id', () => {
    */
   test('401 — sin sesión devuelve 401', async () => {
     if (!evalId) return
-    const res = await request(app).delete(
-      `/nutricion/evaluacion-nutricional/${evalId}`
-    )
+    const res = await request(app).delete(`/nutricion/evaluacion-nutricional/${evalId}`)
     assert.equal(res.status, 401)
   })
 
@@ -448,9 +420,7 @@ describe('DELETE /nutricion/evaluacion-nutricional/:id', () => {
    */
   test('200 — elimina la evaluación nutricional', async () => {
     if (!evalId) return
-    const res = await agent.delete(
-      `/nutricion/evaluacion-nutricional/${evalId}`
-    )
+    const res = await agent.delete(`/nutricion/evaluacion-nutricional/${evalId}`)
     assert.equal(res.status, 200)
     assert(res.body['id'] !== undefined, 'property id should exist')
     evalId = null
