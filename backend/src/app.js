@@ -23,7 +23,7 @@ if (!sessionSecret && isProd) {
 
 const app = express()
 
-// Sin trust proxy el rate limiter ve la IP del proxy, no del cliente.
+// Sin esto el rate limiter ve la IP del proxy, no la del cliente.
 if (isProd) app.set('trust proxy', 1)
 
 app.disable('x-powered-by')
@@ -61,7 +61,7 @@ app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
 app.use('/dashboard', dashboardRouter)
 
-// Sin esto, un throw no manejado responde HTML con stack trace en lugar de JSON.
+// Sin esto un throw async responde HTML con stack trace en vez de JSON.
 app.use((err, _req, res, _next) => {
   console.error('Unhandled error:', err)
   if (res.headersSent) return
@@ -70,23 +70,19 @@ app.use((err, _req, res, _next) => {
 
 export default app
 
-// No levantar el server durante tests (jest setea NODE_ENV='test' por
-// default) — supertest llama al app directamente sin necesidad de listen.
+// En tests supertest llama al app sin abrir el puerto.
 if (process.env.NODE_ENV !== 'test') {
   const server = app.listen(8000, () => {
     console.log('Server is running on http://localhost:8000')
   })
 
-  // Graceful shutdown: cerrar Prisma para que MySQL libere las conexiones.
-  // Sin esto, cada restart de node --watch deja conexiones zombies que
-  // eventualmente saturan max_connections.
+  // Sin $disconnect, cada restart deja conexiones zombies hasta saturar MySQL.
   async function gracefulShutdown(signal) {
     console.log(`Received ${signal}, shutting down gracefully...`)
     server.close(async () => {
       await prisma.$disconnect()
       process.exit(0)
     })
-    // Failsafe: si server.close() tarda, fuerza exit a los 5s.
     setTimeout(() => {
       console.warn('Forced exit after timeout')
       process.exit(1)
