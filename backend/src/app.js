@@ -13,34 +13,28 @@ import { nutritionRouter } from '#routes/nutrition.js'
 import { dashboardRouter } from '#routes/dashboard.js'
 import express from 'express'
 import { apiRateLimiter, corsOptions, securityHeaders } from '#lib/security.js'
-
-const isProd = process.env.NODE_ENV === 'production'
-
-const sessionSecret = process.env.SESSION_SECRET
-if (!sessionSecret && isProd) {
-  throw new Error('SESSION_SECRET es requerido en producción')
-}
+import { isProduction, serverConfig } from '#config/env.js'
 
 const app = express()
 
 // Sin esto el rate limiter ve la IP del proxy, no la del cliente.
-if (isProd) app.set('trust proxy', 1)
+if (serverConfig.trustProxy) app.set('trust proxy', 1)
 
 app.disable('x-powered-by')
 app.use(securityHeaders)
 app.use(cors(corsOptions))
 app.use(apiRateLimiter)
-app.use(express.json({ limit: '100kb' }))
+app.use(express.json({ limit: serverConfig.jsonBodyLimit }))
 
 app.use(
   session({
-    secret: sessionSecret || 'dev-secret-change-in-prod',
+    secret: serverConfig.sessionSecret,
     resave: false,
     saveUninitialized: false,
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: isProd,
+      secure: isProduction,
       maxAge: SESSION_MAX_AGE_MS,
       sameSite: 'lax',
     },
@@ -71,9 +65,9 @@ app.use((err, _req, res, next) => {
 export default app
 
 // En tests supertest llama al app sin abrir el puerto.
-if (process.env.NODE_ENV !== 'test') {
-  const server = app.listen(8000, () => {
-    console.log('Server is running on http://localhost:8000')
+if (!serverConfig.isTest) {
+  const server = app.listen(serverConfig.port, () => {
+    console.log(`Server is running on http://localhost:${serverConfig.port}`)
   })
 
   // Sin $disconnect, cada restart deja conexiones zombies hasta saturar MySQL.

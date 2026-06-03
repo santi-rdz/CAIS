@@ -8,8 +8,7 @@ import {
   RATE_LIMIT_FORGOT_PASSWORD,
   RATE_LIMIT_RESET_PASSWORD,
 } from '#lib/constants.js'
-
-const isProduction = process.env.NODE_ENV === 'production'
+import { isProduction, serverConfig } from '#config/env.js'
 
 const RATE_LIMIT_MESSAGE = {
   error: 'Demasiadas solicitudes, espera un momento',
@@ -25,16 +24,7 @@ function normalizeOrigin(value) {
   }
 }
 
-// Lista separada por coma para soportar staging + prod en el mismo deploy.
-const corsOrigins = (
-  process.env.CORS_ORIGINS ||
-  process.env.FRONTEND_URL ||
-  'http://localhost:5173'
-)
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
-  .map(normalizeOrigin)
+const corsOrigins = serverConfig.corsOrigins.map(normalizeOrigin)
 
 export const corsOptions = {
   origin(origin, callback) {
