@@ -1,23 +1,31 @@
 import request from 'supertest'
 import app from '#app'
 import { prisma } from '#config/prisma.js'
-import { loginAs } from './helpers/auth.js'
-import { createInvitation } from './helpers/fixtures.js'
+import { authenticatedCoordinador } from './helpers/agents.js'
+import { createTestCoordinador, createTestInvitation } from './helpers/db.js'
+import { createCleanupTracker } from './helpers/cleanup.js'
 
 const api = request(app)
+const tracker = createCleanupTracker()
+
 let agent
+let inviter // el coordinador del agent (firma las invitaciones)
 
 beforeAll(async () => {
-  agent = await loginAs('coordAlt')
+  const auth = await authenticatedCoordinador({ tracker })
+  agent = auth.agent
+  inviter = auth.user
 })
+
+afterAll(() => tracker.cleanup())
 
 describe('POST /invitaciones — correo ya registrado', () => {
   let existingCorreo
 
   beforeAll(async () => {
-    const row = await prisma.usuarios.findFirst({ select: { correo: true } })
-    if (!row) throw new Error('Se requiere al menos un usuario en la DB para este test')
-    existingCorreo = row.correo
+    // En vez de fetchear el primer user del seed, creamos uno propio.
+    const existing = await createTestCoordinador({ tracker })
+    existingCorreo = existing.correo
   })
 
   test('409 — rechaza correo ya registrado en usuarios', async () => {
@@ -34,11 +42,7 @@ describe('POST /invitaciones — invitación pendiente', () => {
   let pending
 
   beforeAll(async () => {
-    pending = await createInvitation()
-  })
-
-  afterAll(async () => {
-    await pending.cleanup()
+    pending = await createTestInvitation({ invitedBy: inviter, tracker })
   })
 
   test('409 — rechaza correo con invitación pendiente', async () => {
@@ -55,11 +59,7 @@ describe('POST /invitaciones/reenviar', () => {
   let inv
 
   beforeAll(async () => {
-    inv = await createInvitation()
-  })
-
-  afterAll(async () => {
-    await inv.cleanup()
+    inv = await createTestInvitation({ invitedBy: inviter, tracker })
   })
 
   test('401 — sin sesión', async () => {
@@ -106,11 +106,7 @@ describe('DELETE /invitaciones', () => {
   let inv
 
   beforeEach(async () => {
-    inv = await createInvitation()
-  })
-
-  afterEach(async () => {
-    await inv.cleanup()
+    inv = await createTestInvitation({ invitedBy: inviter, tracker })
   })
 
   test('401 — sin sesión', async () => {
@@ -139,5 +135,6 @@ describe('DELETE /invitaciones', () => {
       where: { correo: inv.correo },
     })
     expect(found).toBeNull()
+    // Trackeada en el helper; tracker.cleanup() en afterAll será idempotente.
   })
 })
