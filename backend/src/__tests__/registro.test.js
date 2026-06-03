@@ -1,215 +1,68 @@
-/**
- * @file Tests de integración para el auto-registro de usuarios con token.
- * @description Verifica el flujo completo de registro en /usuarios/registro:
- * token válido (pasante y coordinador), token ya usado, token inexistente
- * y password débil. Es una ruta pública que no requiere sesión.
- */
-
 import request from 'supertest'
 import app from '#app'
-import { prisma } from '#config/prisma.js'
-import { uuidToBuffer } from '#lib/uuid.js'
 import { randomUUID } from 'node:crypto'
-import assert from 'assert'
+import {
+  createInvitation,
+  deleteInvitationsByEmails,
+  deleteUsersByEmails,
+} from './helpers/fixtures.js'
+import { buildPasanteSignup, buildCoordSignup } from './helpers/factories.js'
 
 const api = request(app)
 
-// ─── POST /usuarios/registro ────────────────────────────────────────
-
-/**
- * @description Suite para POST /usuarios/registro.
- * Crea tokens de invitación en beforeAll y limpia usuarios e invitaciones en afterAll.
- */
 describe('POST /usuarios/registro — auto-registro con token', () => {
-  /** @type {string} Token UUID para el registro de pasante */
-  let pasanteToken
-
-  /** @type {string} Token UUID para el registro de coordinador */
-  let coordToken
-
-  /** @type {string} Correo del pasante de prueba */
-  let pasanteCorreo
-
-  /** @type {string} Correo del coordinador de prueba */
-  let coordCorreo
+  let pasanteInv
+  let coordInv
 
   beforeAll(async () => {
-    const rolPasante = await prisma.roles.findFirst({
-      where: { codigo: 'PASANTE' },
-      select: { id: true },
-    })
-    const rolCoord = await prisma.roles.findFirst({
-      where: { codigo: 'COORDINADOR' },
-      select: { id: true },
-    })
-    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
-
-    pasanteToken = randomUUID()
-    coordToken = randomUUID()
-    pasanteCorreo = `reg.pasante.${Date.now()}@test.com`
-    coordCorreo = `reg.coord.${Date.now()}@test.com`
-
-    const expiraAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
-
-    await prisma.invitaciones_registro.createMany({
-      data: [
-        {
-          correo: pasanteCorreo,
-          rol_id: rolPasante.id,
-          token: uuidToBuffer(pasanteToken),
-          expira_at: expiraAt,
-          creado_por: userRow.id,
-        },
-        {
-          correo: coordCorreo,
-          rol_id: rolCoord.id,
-          token: uuidToBuffer(coordToken),
-          expira_at: expiraAt,
-          creado_por: userRow.id,
-        },
-      ],
-    })
+    pasanteInv = await createInvitation({ role: 'PASANTE' })
+    coordInv = await createInvitation({ role: 'COORDINADOR' })
   })
 
   afterAll(async () => {
-    await prisma.invitaciones_registro.deleteMany({
-      where: { correo: { in: [pasanteCorreo, coordCorreo] } },
-    })
-    await prisma.usuarios.deleteMany({
-      where: { correo: { in: [pasanteCorreo, coordCorreo] } },
-    })
+    const correos = [pasanteInv.correo, coordInv.correo]
+    await deleteInvitationsByEmails(correos)
+    await deleteUsersByEmails(correos)
   })
 
-  /**
-   * @test Token válido de pasante completa el registro y devuelve 201 con id y correo.
-   */
   test('201 — registra pasante con token válido', async () => {
-    const res = await api.post('/usuarios/registro').send({
-      token: pasanteToken,
-      nombre: 'Reg',
-      apellidos: 'Pasante',
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6861111111',
-      password: 'Abc12345!',
-      confirmPassword: 'Abc12345!',
-      matricula: 'RMAT01',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-    })
+    const res = await api.post('/usuarios/registro').send(buildPasanteSignup(pasanteInv))
 
-    assert.equal(res.status, 201)
-    assert.equal(res.body.message, 'Registro completado exitosamente')
-    assert(res.body.usuario['id'] !== undefined, 'property id should exist')
-    assert.equal(res.body.usuario.correo, pasanteCorreo)
+    expect(res.status).toBe(201)
+    expect(res.body.message).toBe('Registro completado exitosamente')
+    expect(res.body.usuario.id).toBeDefined()
+    expect(res.body.usuario.correo).toBe(pasanteInv.correo)
   })
 
-  /**
-   * @test Token válido de coordinador completa el registro y devuelve 201 con id.
-   */
   test('201 — registra coordinador con token válido', async () => {
-    const res = await api.post('/usuarios/registro').send({
-      token: coordToken,
-      nombre: 'Reg',
-      apellidos: 'Coord',
-      fecha_nacimiento: '1990-01-01',
-      telefono: '6862222222',
-      password: 'Abc12345!',
-      confirmPassword: 'Abc12345!',
-      cedula: 'RCED01',
-    })
+    const res = await api.post('/usuarios/registro').send(buildCoordSignup(coordInv))
 
-    assert.equal(res.status, 201)
-    assert(res.body.usuario['id'] !== undefined, 'property id should exist')
+    expect(res.status).toBe(201)
+    expect(res.body.usuario.id).toBeDefined()
   })
 
-  /**
-   * @test Reutilizar un token ya consumido devuelve 404 NotFound.
-   */
   test('404 — token ya usado', async () => {
-    const res = await api.post('/usuarios/registro').send({
-      token: pasanteToken,
-      nombre: 'X',
-      apellidos: 'Y',
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6863333333',
-      password: 'Abc12345!',
-      confirmPassword: 'Abc12345!',
-      matricula: 'M1',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-    })
-
-    assert.equal(res.status, 404)
-    assert.equal(res.body['error'], 'NotFound')
+    const res = await api.post('/usuarios/registro').send(buildPasanteSignup(pasanteInv))
+    expect(res.status).toBe(404)
+    expect(res.body.error).toBe('NotFound')
   })
 
-  /**
-   * @test Token UUID no registrado en la base de datos devuelve 404.
-   */
   test('404 — token inexistente', async () => {
-    const res = await api.post('/usuarios/registro').send({
-      token: randomUUID(),
-      nombre: 'X',
-      apellidos: 'Y',
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6864444444',
-      password: 'Abc12345!',
-      confirmPassword: 'Abc12345!',
-      matricula: 'M2',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-    })
-
-    assert.equal(res.status, 404)
+    const res = await api
+      .post('/usuarios/registro')
+      .send(buildPasanteSignup({ token: randomUUID() }))
+    expect(res.status).toBe(404)
   })
 
-  /**
-   * @test Password que no cumple los requisitos de seguridad devuelve 422.
-   */
   test('422 — password débil rechazada', async () => {
-    const weakToken = randomUUID()
-    const weakCorreo = `weak.${Date.now()}@test.com`
-    const rolRow = await prisma.roles.findFirst({
-      where: { codigo: 'PASANTE' },
-      select: { id: true },
-    })
-    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
-
-    await prisma.invitaciones_registro.create({
-      data: {
-        correo: weakCorreo,
-        rol_id: rolRow.id,
-        token: uuidToBuffer(weakToken),
-        expira_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        creado_por: userRow.id,
-      },
-    })
-
-    const res = await api.post('/usuarios/registro').send({
-      token: weakToken,
-      nombre: 'Weak',
-      apellidos: 'Pass',
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6865555555',
-      password: 'simple',
-      confirmPassword: 'simple',
-      matricula: 'M3',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-    })
-
-    assert.equal(res.status, 422)
-
-    await prisma.invitaciones_registro.deleteMany({
-      where: { correo: weakCorreo },
-    })
+    const weakInv = await createInvitation({ role: 'PASANTE' })
+    try {
+      const res = await api
+        .post('/usuarios/registro')
+        .send(buildPasanteSignup(weakInv, { password: 'simple', confirmPassword: 'simple' }))
+      expect(res.status).toBe(422)
+    } finally {
+      await weakInv.cleanup()
+    }
   })
 })
