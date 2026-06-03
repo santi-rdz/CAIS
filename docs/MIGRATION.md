@@ -1,40 +1,21 @@
-# Migración a pnpm — actualizar tu rama de trabajo
+# Migración a pnpm
 
-La rama `main` migró de npm a pnpm + Docker mejorado. Si tienes commits propios
-en tu rama, sigue estos pasos para rebasar sobre `main` sin perder tu trabajo.
+`main` ahora usa **pnpm + Docker**. Si tu rama tiene commits propios, sigue estos pasos.
 
-> Si **no tienes** commits propios, simplemente borra tu rama, haz `git checkout
-main && git pull` y salta al paso 4.
+> Si no tienes commits propios: `git checkout main && git pull` y salta al paso 3.
 
-## Antes de empezar
+## 1. Rebasar sobre `main`
 
 ```bash
-git status                  # ¿tienes cambios sin commitear?
-git log --oneline -5        # confirma tus commits propios
-```
-
-## 1. Guarda lo no commiteado (si hay)
-
-```bash
-git stash push -u -m "WIP pre-pnpm"
-```
-
-## 2. Limpia artefactos de npm
-
-```bash
+git stash push -u -m "wip"        # solo si tienes cambios sin commitear
 rm -rf node_modules **/node_modules package-lock.json
-```
-
-## 3. Trae main y rebasa tu rama encima
-
-```bash
 git fetch origin
 git rebase origin/main
 ```
 
-### Si el rebase para con conflicto en `pnpm-lock.yaml`
+### Si para con conflicto en `pnpm-lock.yaml`
 
-Quédate siempre con la versión de `main`, luego regenera:
+Quédate con la versión de `main` y continúa:
 
 ```bash
 git checkout --theirs pnpm-lock.yaml
@@ -42,63 +23,60 @@ git add pnpm-lock.yaml
 git rebase --continue
 ```
 
-Si hay conflicto también en `package.json`, resuelve manual y al final:
+Si hay conflicto en `package.json`, resuelve a mano y luego:
 
 ```bash
 corepack enable
-pnpm install                 # regenera lockfile con tus deps
+pnpm install
 git add pnpm-lock.yaml package.json
-git rebase --continue        # solo si quedaba algún paso
+git rebase --continue
 ```
 
-## 4. Después del rebase
+## 2. Recuperar lo guardado
 
 ```bash
-git stash pop                # solo si hiciste stash en el paso 1
-corepack enable              # activa pnpm vía Corepack
-pnpm install                 # install LOCAL: necesario para tu editor (ESLint, autocomplete, types)
-pnpm run fresh               # reset total de Docker: rebuild + up + seed
+git stash pop                     # solo si hiciste stash
 ```
 
-## 5. Validar que todo quedó bien
+## 3. Instalar y levantar
 
 ```bash
-docker compose ps                           # los 3 servicios en "(healthy)"
-curl http://localhost:8000/health           # debe responder {"status":"ok"}
+corepack enable                   # una vez por máquina
+pnpm install                      # local (tu editor lo necesita)
+pnpm run fresh                    # rebuild + up + seed
 ```
 
-Y abrir [http://localhost:5173](http://localhost:5173) en el navegador.
+## 4. Validar
 
-Para verificar el seed:
+```bash
+docker compose ps                 # los 3 servicios en "(healthy)"
+curl http://localhost:8000/health # {"status":"ok"}
+```
+
+Frontend: <http://localhost:5173>
+
+Verificar seed:
 
 ```bash
 pnpm sql
-# password: user
-mysql> USE cais;
-mysql> SELECT COUNT(*) FROM usuarios;   # debe regresar 6
+# > USE cais;
+# > SELECT COUNT(*) FROM usuarios;   -- esperado: 6
 ```
 
-## Notas importantes
+---
 
-- `pnpm run fresh` **borra la DB**. Si tienes datos locales que te importan,
-  respáldalos primero.
-- **NO uses `npm install` ni `yarn`** en este repo — el `preinstall` está
-  configurado para bloquearlos.
-- `corepack enable` se corre una sola vez por máquina. No se deshace al cambiar
-  de rama.
-- El primer `pnpm run fresh` tarda varios minutos porque rebuildea las imágenes
-  desde cero (descarga pnpm dentro de cada imagen).
-- Si VSCode no resuelve imports después del install: `Cmd+Shift+P` → "TypeScript:
-  Restart TS Server".
+**Notas**
 
-## Si el rebase está siendo una pesadilla
+- `pnpm run fresh` borra la DB. Respalda si tienes datos.
+- No uses `npm` ni `yarn` aquí — están bloqueados.
+- Primera vez tarda varios minutos (rebuild de imágenes).
+- VSCode no resuelve imports: `Cmd+Shift+P` → "Restart TS Server".
 
-Si tienes demasiados conflictos y prefieres rendirte limpiamente:
+**Si el rebase explota**
 
 ```bash
 git rebase --abort
-git branch backup-mi-rama        # backup por si acaso
+git branch backup-mi-rama
 git reset --hard origin/main
-# Vuelve a aplicar tu trabajo a mano, o cherry-pick los commits buenos:
-git cherry-pick <hash>
+git cherry-pick <hash>            # tus commits buenos uno por uno
 ```
