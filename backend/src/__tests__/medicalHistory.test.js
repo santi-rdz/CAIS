@@ -1,19 +1,29 @@
 import request from 'supertest'
 import app from '#app'
-import { loginAs } from './helpers/auth.js'
+import { uuidToBuffer } from '#lib/uuid.js'
 import { NIL_UUID } from './helpers/constants.js'
-import { getAnyPatientId, getCurrentUserId } from './helpers/fixtures.js'
+import { authenticatedCoordinador } from './helpers/agents.js'
+import { createTestPaciente } from './helpers/db.js'
+import { createCleanupTracker } from './helpers/cleanup.js'
 import { buildMedicalHistory } from './helpers/factories.js'
 
 const api = request(app)
+const tracker = createCleanupTracker()
+
 let agent
-let pacienteId
-let usuarioId
+let pacienteId // string UUID que ve la app
+let usuarioId // string UUID del coordinador autenticado
 
 beforeAll(async () => {
-  agent = await loginAs('coordMedicina')
-  ;[pacienteId, usuarioId] = await Promise.all([getAnyPatientId(agent), getCurrentUserId(agent)])
+  const auth = await authenticatedCoordinador({ area: 'MEDICINA', tracker })
+  agent = auth.agent
+  usuarioId = auth.user.id
+
+  const paciente = await createTestPaciente({ doctor: auth.user, tracker })
+  pacienteId = paciente.id
 })
+
+afterAll(() => tracker.cleanup())
 
 function payload(overrides = {}) {
   return buildMedicalHistory({ pacienteId, usuarioId }, overrides)
@@ -91,7 +101,8 @@ describe('POST /medicina/historias-medicas', () => {
     expect(h.informacion_fisica).toMatchObject({ peso: 70 })
     expect(h.planes_estudio).toMatchObject({ cie10_codes: expect.any(Array) })
 
-    await agent.delete(`/medicina/historias-medicas/${h.id}`).catch(() => {})
+    // FK children cascade onDelete; solo necesitamos trackear la historia.
+    tracker.track('historias_medicas', uuidToBuffer(h.id))
   })
 })
 
@@ -102,10 +113,7 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
     const res = await agent.post('/medicina/historias-medicas').send(payload())
     historyId = res.body.history?.id
     if (!historyId) throw new Error(`No se pudo crear historia para PATCH. status=${res.status}`)
-  })
-
-  afterAll(async () => {
-    if (historyId) await agent.delete(`/medicina/historias-medicas/${historyId}`).catch(() => {})
+    tracker.track('historias_medicas', uuidToBuffer(historyId))
   })
 
   test('401 — sin sesión', async () => {
@@ -147,6 +155,7 @@ describe('DELETE /medicina/historias-medicas/:id', () => {
     const res = await agent.post('/medicina/historias-medicas').send({ paciente_id: pacienteId })
     historyId = res.body.history?.id
     if (!historyId) throw new Error(`No se pudo crear historia para DELETE. status=${res.status}`)
+    tracker.track('historias_medicas', uuidToBuffer(historyId))
   })
 
   test('401 — sin sesión', async () => {
@@ -163,6 +172,6 @@ describe('DELETE /medicina/historias-medicas/:id', () => {
     const res = await agent.delete(`/medicina/historias-medicas/${historyId}`)
     expect(res.status).toBe(200)
     expect(res.body.id).toBeDefined()
-    historyId = null
+    // Borrada via API; tracker.cleanup() en afterAll será no-op.
   })
 })
