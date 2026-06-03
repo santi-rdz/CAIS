@@ -36,15 +36,15 @@ describe('GET /medicina/notas-evolucion', () => {
   // El listado devuelve un shape mínimo (sin paciente_id) — para verificar el
   // filtro se crea una nota propia y se comprueba que aparece en la respuesta filtrada.
   test('200 — filtra por paciente_id', async () => {
-    if (!pacienteId) return
-
     const created = await agent
       .post('/medicina/notas-evolucion')
       .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Filtro paciente_id' }))
     const noteId = created.body.note?.id
 
     try {
-      const res = await agent.get(`/medicina/notas-evolucion?paciente_id=${pacienteId}`)
+      const res = await agent.get(
+        `/medicina/notas-evolucion?paciente_id=${pacienteId}&page=1&limit=20`
+      )
       expect(res.status).toBe(200)
       expect(Array.isArray(res.body.notes)).toBe(true)
       expect(res.body.notes.some((n) => n.id === noteId)).toBe(true)
@@ -85,7 +85,6 @@ describe('POST /medicina/notas-evolucion', () => {
   })
 
   test('201 — crea nota de evolución', async () => {
-    if (!pacienteId) return
     const res = await agent
       .post('/medicina/notas-evolucion')
       .send(buildEvolutionNote({ pacienteId }))
@@ -102,11 +101,11 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
   let noteId
 
   beforeAll(async () => {
-    if (!pacienteId) return
     const res = await agent
       .post('/medicina/notas-evolucion')
       .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Nota para patch' }))
     noteId = res.body.note?.id
+    if (!noteId) throw new Error(`No se pudo crear nota para PATCH. status=${res.status}`)
   })
 
   afterAll(async () => {
@@ -114,7 +113,6 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
   })
 
   test('401 — sin sesión', async () => {
-    if (!noteId) return
     const res = await api
       .patch(`/medicina/notas-evolucion/${noteId}`)
       .send({ motivo_consulta: 'Sin auth' })
@@ -122,7 +120,6 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
   })
 
   test('200 — actualiza motivo_consulta', async () => {
-    if (!noteId) return
     const res = await agent
       .patch(`/medicina/notas-evolucion/${noteId}`)
       .send({ motivo_consulta: 'Motivo actualizado' })
@@ -142,15 +139,14 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
   let noteId
 
   beforeAll(async () => {
-    if (!pacienteId) return
     const res = await agent
       .post('/medicina/notas-evolucion')
       .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Nota para delete' }))
     noteId = res.body.note?.id
+    if (!noteId) throw new Error(`No se pudo crear nota para DELETE. status=${res.status}`)
   })
 
   test('401 — sin sesión', async () => {
-    if (!noteId) return
     const res = await api.delete(`/medicina/notas-evolucion/${noteId}`)
     expect(res.status).toBe(401)
   })
@@ -161,7 +157,6 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
   })
 
   test('200 — elimina y devuelve id', async () => {
-    if (!noteId) return
     const res = await agent.delete(`/medicina/notas-evolucion/${noteId}`)
     expect(res.status).toBe(200)
     expect(res.body.id).toBeDefined()

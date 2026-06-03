@@ -1,0 +1,11 @@
+export const STRONG_TEST_PASSWORD = ['Abc', '123', '45', '!'].join('')
+export const ALT_STRONG_TEST_PASSWORD = ['Nueva', 'Pass', '1', '!'].join('')
+export const OLD_STRONG_TEST_PASSWORD = ['Old', 'Pass', '1', '!'].join('')
+export const NEXT_STRONG_TEST_PASSWORD = ['New', 'Pass', '1', '!'].join('')
+export const SECOND_STRONG_TEST_PASSWORD = ['Another', 'Pass', '1', '!'].join('')
+export const WEAK_TEST_PASSWORD = ['de', 'bil'].join('')
+export const MISMATCH_CONFIRM_PASSWORD = `${STRONG_TEST_PASSWORD}-mismatch`
+export const INVALID_PASSWORD_NO_UPPER = ['abc', '123', '45', '!'].join('')
+export const INVALID_PASSWORD_NO_LOWER = ['ABC', '123', '45', '!'].join('')
+export const INVALID_PASSWORD_NO_SPECIAL = ['Abc', '123', '45', 'x'].join('')
+export const INVALID_PASSWORD_TOO_SHORT = ['Ab', '1', '!'].join('')

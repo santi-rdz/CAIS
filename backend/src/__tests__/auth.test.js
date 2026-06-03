@@ -5,9 +5,18 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { NIL_UUID, SEED_USERS } from './helpers/constants.js'
 import { createUserDirect } from './helpers/fixtures.js'
+import {
+  ALT_STRONG_TEST_PASSWORD,
+  MISMATCH_CONFIRM_PASSWORD,
+  NEXT_STRONG_TEST_PASSWORD,
+  OLD_STRONG_TEST_PASSWORD,
+  SECOND_STRONG_TEST_PASSWORD,
+  STRONG_TEST_PASSWORD,
+  WEAK_TEST_PASSWORD,
+} from './helpers/passwords.js'
 
 const api = request(app)
-const VALID_STRONG_PASSWORD = 'NuevaPass1!'
+const VALID_STRONG_PASSWORD = ALT_STRONG_TEST_PASSWORD
 
 describe('POST /auth/login', () => {
   test('200 — login con credenciales correctas', async () => {
@@ -40,10 +49,12 @@ describe('POST /auth/login', () => {
   })
 
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
-    const user = await createUserDirect({ estado: 'INACTIVO', password: 'Test1234!' })
+    const user = await createUserDirect({ estado: 'INACTIVO' })
 
     try {
-      const res = await api.post('/auth/login').send({ email: user.correo, password: 'Test1234!' })
+      const res = await api
+        .post('/auth/login')
+        .send({ email: user.correo, password: STRONG_TEST_PASSWORD })
       expect(res.status).toBe(403)
       expect(res.body.error).toBe('Cuenta desactivada')
     } finally {
@@ -103,7 +114,7 @@ describe('POST /auth/password/reset', () => {
     const res = await api.post('/auth/password/reset').send({
       token: NIL_UUID,
       password: VALID_STRONG_PASSWORD,
-      confirmPassword: 'Diferente1!',
+      confirmPassword: MISMATCH_CONFIRM_PASSWORD,
     })
     expect(res.status).toBe(422)
   })
@@ -111,8 +122,8 @@ describe('POST /auth/password/reset', () => {
   test('422 — contraseña débil', async () => {
     const res = await api.post('/auth/password/reset').send({
       token: NIL_UUID,
-      password: 'debil',
-      confirmPassword: 'debil',
+      password: WEAK_TEST_PASSWORD,
+      confirmPassword: WEAK_TEST_PASSWORD,
     })
     expect(res.status).toBe(422)
   })
@@ -122,7 +133,7 @@ describe('Flujo completo: forgot → reset', () => {
   let user
 
   beforeAll(async () => {
-    user = await createUserDirect({ password: 'OldPass1!' })
+    user = await createUserDirect({ password: OLD_STRONG_TEST_PASSWORD })
   })
 
   afterAll(async () => {
@@ -148,8 +159,8 @@ describe('Flujo completo: forgot → reset', () => {
 
     const res = await api.post('/auth/password/reset').send({
       token: bufferToUUID(tokenRow.token),
-      password: 'NewPass1!',
-      confirmPassword: 'NewPass1!',
+      password: NEXT_STRONG_TEST_PASSWORD,
+      confirmPassword: NEXT_STRONG_TEST_PASSWORD,
     })
     expect(res.status).toBe(200)
 
@@ -157,7 +168,7 @@ describe('Flujo completo: forgot → reset', () => {
       where: { id: uuidToBuffer(user.id) },
       select: { password_hash: true },
     })
-    expect(await bcrypt.compare('NewPass1!', updated.password_hash)).toBe(true)
+    expect(await bcrypt.compare(NEXT_STRONG_TEST_PASSWORD, updated.password_hash)).toBe(true)
 
     const usedToken = await prisma.password_reset_tokens.findFirst({
       where: { usuario_id: uuidToBuffer(user.id) },
@@ -172,8 +183,8 @@ describe('Flujo completo: forgot → reset', () => {
 
     const res = await api.post('/auth/password/reset').send({
       token: bufferToUUID(tokenRow.token),
-      password: 'AnotherPass1!',
-      confirmPassword: 'AnotherPass1!',
+      password: SECOND_STRONG_TEST_PASSWORD,
+      confirmPassword: SECOND_STRONG_TEST_PASSWORD,
     })
     expect(res.status).toBe(400)
   })

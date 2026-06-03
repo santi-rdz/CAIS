@@ -1,6 +1,5 @@
-function uniqueEmail(prefix) {
-  return `${prefix}.${Date.now()}.${Math.floor(Math.random() * 1e6)}@test.com`
-}
+import { uniqueEmail } from './ids.js'
+import { STRONG_TEST_PASSWORD } from './passwords.js'
 
 export function buildPasanteCreate(overrides = {}) {
   return {
@@ -10,7 +9,7 @@ export function buildPasanteCreate(overrides = {}) {
     fecha_nacimiento: '2000-01-01',
     telefono: '6861111111',
     rol: 'pasante',
-    password: 'Abc12345!',
+    password: STRONG_TEST_PASSWORD,
     matricula: 'TMAT01',
     servicio_inicio_anio: '2026',
     servicio_inicio_periodo: '1',
@@ -29,7 +28,7 @@ export function buildCoordCreate(overrides = {}) {
     fecha_nacimiento: '1990-01-01',
     telefono: '6862222222',
     rol: 'coordinador',
-    password: 'Abc12345!',
+    password: STRONG_TEST_PASSWORD,
     cedula: 'TCED01',
     area: 'MEDICINA',
     ...overrides,
@@ -43,8 +42,8 @@ export function buildPasanteSignup({ token }, overrides = {}) {
     apellidos: 'Pasante',
     fecha_nacimiento: '2000-01-01',
     telefono: '6861111111',
-    password: 'Abc12345!',
-    confirmPassword: 'Abc12345!',
+    password: STRONG_TEST_PASSWORD,
+    confirmPassword: STRONG_TEST_PASSWORD,
     matricula: 'RMAT01',
     servicio_inicio_anio: '2026',
     servicio_inicio_periodo: '1',
@@ -61,8 +60,8 @@ export function buildCoordSignup({ token }, overrides = {}) {
     apellidos: 'Coord',
     fecha_nacimiento: '1990-01-01',
     telefono: '6862222222',
-    password: 'Abc12345!',
-    confirmPassword: 'Abc12345!',
+    password: STRONG_TEST_PASSWORD,
+    confirmPassword: STRONG_TEST_PASSWORD,
     cedula: 'RCED01',
     ...overrides,
   }

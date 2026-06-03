@@ -2,6 +2,14 @@ import { validateUserCreate, validateUserUpdate, validateSignup } from '@cais/sh
 import { validateInvitedUser } from '@cais/shared/schemas/invitations'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
+import {
+  INVALID_PASSWORD_NO_LOWER,
+  INVALID_PASSWORD_NO_SPECIAL,
+  INVALID_PASSWORD_NO_UPPER,
+  INVALID_PASSWORD_TOO_SHORT,
+  MISMATCH_CONFIRM_PASSWORD,
+  STRONG_TEST_PASSWORD,
+} from './helpers/passwords.js'
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000'
 
@@ -12,7 +20,7 @@ const basePasanteCreate = {
   fecha_nacimiento: '2000-01-15',
   telefono: '6861234567',
   rol: 'pasante',
-  password: 'Abc12345!',
+  password: STRONG_TEST_PASSWORD,
   matricula: 'MAT001',
   servicio_inicio_anio: '2026',
   servicio_inicio_periodo: '1',
@@ -27,7 +35,7 @@ const baseCoordCreate = {
   fecha_nacimiento: '1990-05-20',
   telefono: '6869876543',
   rol: 'coordinador',
-  password: 'Abc12345!',
+  password: STRONG_TEST_PASSWORD,
   cedula: 'CED001',
 }
 
@@ -37,8 +45,8 @@ const basePasanteSignup = {
   apellidos: 'Pérez',
   fecha_nacimiento: '2000-01-15',
   telefono: '6861234567',
-  password: 'Abc12345!',
-  confirmPassword: 'Abc12345!',
+  password: STRONG_TEST_PASSWORD,
+  confirmPassword: STRONG_TEST_PASSWORD,
   matricula: 'MAT001',
   servicio_inicio_anio: '2026',
   servicio_inicio_periodo: '1',
@@ -52,8 +60,8 @@ const baseCoordSignup = {
   apellidos: 'López',
   fecha_nacimiento: '1990-05-20',
   telefono: '6869876543',
-  password: 'Abc12345!',
-  confirmPassword: 'Abc12345!',
+  password: STRONG_TEST_PASSWORD,
+  confirmPassword: STRONG_TEST_PASSWORD,
   cedula: 'CED001',
 }
 
@@ -124,9 +132,10 @@ describe('validateSignup', () => {
   })
 
   test.each([
-    ['sin mayúscula', 'abc12345!'],
-    ['sin carácter especial', 'Abc12345x'],
-    ['menor a 8 caracteres', 'Ab1!'],
+    ['sin mayúscula', INVALID_PASSWORD_NO_UPPER],
+    ['sin minúscula', INVALID_PASSWORD_NO_LOWER],
+    ['sin carácter especial', INVALID_PASSWORD_NO_SPECIAL],
+    ['menor a 8 caracteres', INVALID_PASSWORD_TOO_SHORT],
   ])('rechaza password %s', (_label, password) => {
     const result = validateSignup(
       { ...basePasanteSignup, password, confirmPassword: password },
@@ -137,7 +146,7 @@ describe('validateSignup', () => {
 
   test('rechaza confirmPassword que no coincide', () => {
     const result = validateSignup(
-      { ...basePasanteSignup, confirmPassword: 'Diferente1!' },
+      { ...basePasanteSignup, confirmPassword: MISMATCH_CONFIRM_PASSWORD },
       'PASANTE'
     )
     expect(result.success).toBe(false)

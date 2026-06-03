@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { INVITATION_TTL_MS } from './constants.js'
-
-function uniqueEmail(prefix) {
-  return `${prefix}.${Date.now()}.${Math.floor(Math.random() * 1e6)}@test.com`
-}
+import { uniqueEmail } from './ids.js'
+import { STRONG_TEST_PASSWORD } from './passwords.js'
 
 async function getRoleId(codigo) {
   const row = await prisma.roles.findFirst({ where: { codigo }, select: { id: true } })
@@ -55,7 +53,7 @@ export async function createUserDirect({
   correo = uniqueEmail('user'),
   estado = 'ACTIVO',
   role = 'PASANTE',
-  password = 'Test1234!',
+  password = STRONG_TEST_PASSWORD,
   nombre = 'Test',
   apellidos = 'User',
 } = {}) {
@@ -95,10 +93,17 @@ export async function deleteUsersByEmails(correos) {
 export async function getAnyPatientId(agent) {
   const res = await agent.get('/pacientes?page=1&limit=1')
   const items = res.body.pacientes ?? res.body.patients ?? res.body
-  return Array.isArray(items) ? items[0]?.id : undefined
+  const patientId = Array.isArray(items) ? items[0]?.id : undefined
+  if (!patientId) {
+    throw new Error(`Se requiere al menos un paciente de prueba. status=${res.status}`)
+  }
+  return patientId
 }
 
 export async function getCurrentUserId(agent) {
   const res = await agent.get('/auth/me')
-  return res.body?.id
+  if (!res.body?.id) {
+    throw new Error(`No se pudo resolver el usuario autenticado. status=${res.status}`)
+  }
+  return res.body.id
 }

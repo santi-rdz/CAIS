@@ -32,7 +32,7 @@ services:
       - .:/app
       - root_node_modules_backend:/app/node_modules
       - backend_node_modules:/app/backend/node_modules
-    command: sh -c "pnpm install --frozen-lockfile && pnpm --filter backend run prisma:generate && pnpm --filter backend run prisma:seed && pnpm --filter backend run start"
+    command: sh -c "pnpm install --frozen-lockfile && pnpm --filter backend run prisma:generate && pnpm --filter backend run start"
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:8000/health']
       interval: 30s

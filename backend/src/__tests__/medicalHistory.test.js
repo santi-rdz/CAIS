@@ -39,7 +39,6 @@ describe('GET /medicina/historias-medicas', () => {
   })
 
   test('200 — filtra por paciente_id', async () => {
-    if (!pacienteId) return
     const res = await agent.get(`/medicina/historias-medicas?paciente_id=${pacienteId}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.histories)).toBe(true)
@@ -82,7 +81,6 @@ describe('POST /medicina/historias-medicas', () => {
   })
 
   test('201 — crea historia con relaciones 1:1 anidadas', async () => {
-    if (!pacienteId || !usuarioId) return
     const res = await agent.post('/medicina/historias-medicas').send(payload())
     expect(res.status).toBe(201)
 
@@ -101,9 +99,9 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
   let historyId
 
   beforeAll(async () => {
-    if (!pacienteId || !usuarioId) return
     const res = await agent.post('/medicina/historias-medicas').send(payload())
     historyId = res.body.history?.id
+    if (!historyId) throw new Error(`No se pudo crear historia para PATCH. status=${res.status}`)
   })
 
   afterAll(async () => {
@@ -111,7 +109,6 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
   })
 
   test('401 — sin sesión', async () => {
-    if (!historyId) return
     const res = await api
       .patch(`/medicina/historias-medicas/${historyId}`)
       .send({ motivo_consulta: 'Sin auth' })
@@ -119,7 +116,6 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
   })
 
   test('200 — actualiza motivo_consulta', async () => {
-    if (!historyId) return
     const res = await agent
       .patch(`/medicina/historias-medicas/${historyId}`)
       .send({ motivo_consulta: 'Motivo actualizado' })
@@ -128,7 +124,6 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
   })
 
   test('200 — PATCH actualiza aparatos_sistemas (relación 1:1, upsert)', async () => {
-    if (!historyId) return
     const res = await agent
       .patch(`/medicina/historias-medicas/${historyId}`)
       .send({ aparatos_sistemas: { cardiovascular: 'Normal' } })
@@ -147,16 +142,14 @@ describe('PATCH /medicina/historias-medicas/:id', () => {
 describe('DELETE /medicina/historias-medicas/:id', () => {
   let historyId
 
-  // Usa payload mínimo (solo paciente_id) para evitar FKs con relaciones 1:1
-  // que el delete del modelo no cascadea (onDelete: NoAction en el schema).
+  // Usa payload mínimo para mantener este caso enfocado en la eliminación de la historia.
   beforeAll(async () => {
-    if (!pacienteId || !usuarioId) return
     const res = await agent.post('/medicina/historias-medicas').send({ paciente_id: pacienteId })
     historyId = res.body.history?.id
+    if (!historyId) throw new Error(`No se pudo crear historia para DELETE. status=${res.status}`)
   })
 
   test('401 — sin sesión', async () => {
-    if (!historyId) return
     const res = await api.delete(`/medicina/historias-medicas/${historyId}`)
     expect(res.status).toBe(401)
   })
@@ -167,7 +160,6 @@ describe('DELETE /medicina/historias-medicas/:id', () => {
   })
 
   test('200 — elimina y devuelve id', async () => {
-    if (!historyId) return
     const res = await agent.delete(`/medicina/historias-medicas/${historyId}`)
     expect(res.status).toBe(200)
     expect(res.body.id).toBeDefined()
