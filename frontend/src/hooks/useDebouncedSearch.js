@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 export function useDebouncedSearch(delay = 500) {

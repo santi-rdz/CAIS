@@ -1,7 +1,7 @@
 import { toastApiError } from '@lib/ApiError'
 import { updatePatient as apiUpdatePatient } from '@services/apiPatient'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 export function useUpdatePatient() {

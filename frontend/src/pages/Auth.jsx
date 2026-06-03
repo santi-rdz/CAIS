@@ -1,5 +1,5 @@
 import Logo from '@ui/Logo'
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation } from 'react-router-dom'
 
 export default function Auth() {
   return (
@@ -31,7 +31,9 @@ function Main() {
   return (
     <main className="space-y-10">
       <header>
-        <h1 className="text-1" data-testid="page-title-auth">{title}</h1>
+        <h1 className="text-1" data-testid="page-title-auth">
+          {title}
+        </h1>
         <p className="text-5 text-neutral-400">{subtitle}</p>
       </header>
       <Outlet />

@@ -17,7 +17,7 @@ import useToggleUserEstado from './hooks/useToggleUserEstado'
 import useMe from './hooks/useMe'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { HiArrowRight } from 'react-icons/hi2'
 
 export default function UserRow({ user, isAdmin }) {

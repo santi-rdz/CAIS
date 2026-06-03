@@ -6,7 +6,9 @@ export default function Users() {
   return (
     <>
       <header className="mb-6">
-        <Heading as="h1" data-testid="page-title-users">Usuarios</Heading>
+        <Heading as="h1" data-testid="page-title-users">
+          Usuarios
+        </Heading>
       </header>
 
       <UserTableOperations />

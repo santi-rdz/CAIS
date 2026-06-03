@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { getActivityStyle, buildActivityTitle, buildActivityNavPath } from '@lib/activityStyles'
 
 // ── Sub-components ────────────────────────────────────────────────────────────

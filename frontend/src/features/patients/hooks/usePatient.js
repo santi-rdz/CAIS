@@ -1,6 +1,6 @@
 import { getPatient } from '@services/apiPatient'
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 export function usePatient() {
   const { id } = useParams()

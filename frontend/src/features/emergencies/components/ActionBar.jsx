@@ -1,7 +1,7 @@
 import Button from '@ui/components/Button'
 import Modal from '@ui/components/Modal'
 import { HiChevronRight, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 
 export default function ActionBar({ emergencyDate, isDeleting }) {
   return (

@@ -1,6 +1,6 @@
 import { getEmergency } from '@services/ApiEmergencies'
 import { useQuery } from '@tanstack/react-query'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 export function useEmergency() {
   const { id } = useParams()

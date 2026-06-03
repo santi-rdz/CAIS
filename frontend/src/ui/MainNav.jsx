@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import navRoutes from './navRoutes'
 import NewPatientButton from '@features/patients/components/NewPatientButton'
 import useMe from '@features/users/hooks/useMe'

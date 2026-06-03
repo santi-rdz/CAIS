@@ -16,8 +16,8 @@ Nunca instancies `new PrismaClient()` directamente — genera conexiones extra y
 warnings de múltiples instancias.
 
 El schema en `prisma/schema.prisma` describe el datasource y el generator. Prisma lo
-lee para generar el cliente (`npx prisma generate`). Cuando la DB cambia, se
-resincroniza con `npm run prisma:pull` (introspección).
+lee para generar el cliente (`pnpm exec prisma generate`). Cuando la DB cambia, se
+resincroniza con `pnpm run prisma:pull` (introspección).
 
 ---
 
@@ -264,7 +264,7 @@ Evita bloques `catch {}` vacíos — ocultan errores reales. Como mínimo loguea
 Ejecutar desde `backend/`:
 
 ```bash
-npx prisma generate    # Regenera el cliente tras cambiar el schema
-npm run prisma:pull    # Sincroniza el schema con la DB actual (introspección)
-npm run prisma:studio  # Abre UI visual de la DB en el navegador
+pnpm exec prisma generate    # Regenera el cliente tras cambiar el schema
+pnpm run prisma:pull         # Sincroniza el schema con la DB actual (introspección)
+pnpm run prisma:studio       # Abre UI visual de la DB en el navegador
 ```

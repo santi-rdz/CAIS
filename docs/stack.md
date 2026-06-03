@@ -20,7 +20,7 @@ La alternativa más común sería escribir SQL directamente con `mysql2`, o usar
 
 Prisma genera un cliente tipado a partir del schema, lo que significa que los campos de cada tabla están disponibles como autocompletado y los errores de acceso a campos inexistentes se detectan temprano. También centraliza la definición del modelo en un solo archivo (`prisma/schema.prisma`), que sirve como fuente de verdad de la estructura de la DB.
 
-El flujo que usamos es **introspección**: la DB ya existía, así que en lugar de definir el schema manualmente corremos `npx prisma db pull` para generarlo desde las tablas existentes. Esto es menos común que el flujo "schema-first" pero es el correcto cuando se hereda una DB existente.
+El flujo que usamos es **introspección**: la DB ya existía, así que en lugar de definir el schema manualmente corremos `pnpm exec prisma db pull` para generarlo desde las tablas existentes. Esto es menos común que el flujo "schema-first" pero es el correcto cuando se hereda una DB existente.
 
 Más detalles en [`docs/prisma.md`](./prisma.md).
 
@@ -94,7 +94,7 @@ El proyecto tiene tres servicios (frontend, backend, DB) que deben arrancar en o
 
 Con Docker, la DB siempre arranca en las mismas condiciones, con el mismo usuario y contraseña, y el schema inicial se aplica automáticamente desde `database/`. El volumen `db_data` persiste los datos entre reinicios del container.
 
-Los volúmenes `frontend_node_modules` y `backend_node_modules` evitan que el `npm install` dentro del container sobreescriba la carpeta local del host — un problema clásico en setups de Docker con Node.js en Mac/Windows.
+Los volúmenes `frontend_node_modules` y `backend_node_modules` evitan que el `pnpm install` dentro del container sobreescriba la carpeta local del host — un problema clásico en setups de Docker con Node.js en Mac/Windows.
 
 ### MySQL 8
 

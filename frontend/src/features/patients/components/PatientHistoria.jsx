@@ -1,4 +1,4 @@
-import { useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { HiOutlinePlus, HiOutlinePencilSquare } from 'react-icons/hi2'
 import Tab from '@components/Tab'
 import Button from '@components/Button'

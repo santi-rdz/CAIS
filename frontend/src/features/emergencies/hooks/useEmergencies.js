@@ -1,7 +1,7 @@
 import { PAGE_SIZE } from '@lib/constants'
 import { getEmergencies } from '@services/ApiEmergencies'
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router-dom'
 import { usePrefetchPages } from '@hooks/usePrefetchPages'
 
 export function useEmergencies() {

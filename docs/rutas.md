@@ -184,7 +184,7 @@ describe('GET /reportes', () => {
 ```
 
 ```bash
-npm run file reportes   # correr solo este archivo
+pnpm run file reportes   # correr solo este archivo
 ```
 
 ---

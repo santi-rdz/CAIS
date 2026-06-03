@@ -869,5 +869,5 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 -- ===============================
 -- Los datos seed se insertan via Prisma (backend/prisma/seed.js)
--- Ejecutar: npm run prisma:seed -w backend
+-- Ejecutar: pnpm --filter backend run prisma:seed
 -- ===============================

@@ -15,8 +15,9 @@ Sistema de administración interna para el Centro de Atención Integral para la 
 
 ## Requisitos
 
-- Docker y Docker Compose instalados
-- Node.js 20+ (solo para desarrollo local sin Docker)
+- Docker y Docker Compose instalados (las imágenes usan **Node 24**)
+- Node.js 24+ requerido si vas a correr scripts o tests **fuera** de Docker
+- pnpm 11.5.1 (Corepack recomendado: `corepack enable`)
 
 ## Inicio rápido
 
@@ -25,7 +26,7 @@ git clone https://github.com/santi-rdz/CAIS.git
 cd CAIS
 
 # Primer arranque (construye imágenes y levanta todo)
-npm run restart
+pnpm run restart
 ```
 
 Los servicios quedan expuestos en:
@@ -37,44 +38,45 @@ Los servicios quedan expuestos en:
 ## Comandos disponibles
 
 ```bash
-npm run up        # Levanta los containers (sin rebuild)
-npm run stop      # Detiene los containers
-npm run down      # Baja los containers (conserva la DB)
-npm run restart   # Rebuild + up (usar al cambiar Dockerfile o dependencias)
-npm run fresh     # Reset total: borra volúmenes y reconstruye desde cero
-npm run rb        # Reinicia solo el backend
-npm run logs      # Logs en tiempo real de todos los servicios
-npm run ps        # Estado de los containers
+pnpm run up        # Levanta los containers (sin rebuild)
+pnpm run stop      # Detiene los containers
+pnpm run down      # Baja los containers (conserva la DB)
+pnpm run restart   # Rebuild + up (usar al cambiar Dockerfile o dependencias)
+pnpm run fresh     # Reset total: borra volúmenes, reconstruye y siembra la DB
+pnpm run seed      # Corre el seed de Prisma (backend debe estar healthy)
+pnpm run rb        # Reinicia solo el backend
+pnpm run logs      # Logs en tiempo real de todos los servicios
+pnpm run ps        # Estado de los containers
 
 # Calidad de código
-npm run check     # Lint + formateo (sin modificar archivos)
-npm run format    # Formatea el código con Prettier
+pnpm run check     # Lint + formateo (sin modificar archivos)
+pnpm run format    # Formatea el código con Prettier
 
 # Acceso a shells
-npm run fe        # Shell en el container del frontend
-npm run be        # Shell en el container del backend
-npm run sql       # Consola MySQL interactiva
+pnpm run fe        # Shell en el container del frontend
+pnpm run be        # Shell en el container del backend
+pnpm run sql       # Consola MySQL interactiva
 ```
 
 ## Desarrollo
 
-El proyecto usa npm workspaces con tres paquetes: `frontend/`, `backend/` y `shared/`.
+El proyecto usa pnpm workspaces con tres paquetes: `frontend/`, `backend/` y `shared/`.
 
 ### Frontend
 
 ```bash
 cd frontend
-npm run dev     # Servidor de desarrollo (puerto 5173)
-npm run test    # Tests con Vitest
+pnpm run dev     # Servidor de desarrollo (puerto 5173)
+pnpm run test    # Tests con Vitest
 ```
 
 ### Backend
 
 ```bash
 cd backend
-npm run start           # Node con --watch (puerto 8000)
-npm test                # Jest + supertest
-npm run prisma:studio   # Prisma Studio (explorador visual de la DB)
+pnpm run start           # Node con --watch (puerto 8000)
+pnpm test                # Jest + supertest
+pnpm run prisma:studio   # Prisma Studio (explorador visual de la DB)
 ```
 
 ## Estructura
