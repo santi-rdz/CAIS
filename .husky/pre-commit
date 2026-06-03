@@ -1,2 +1,24 @@
 #!/usr/bin/env sh
+
+# Gitleaks scan — protege contra commitear secrets accidentalmente.
+# Solo escanea cambios staged (rápido). Para escaneo completo del histórico:
+#   gitleaks git . --redact
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  cat <<'EOF'
+⚠️  gitleaks no está instalado — el pre-commit hook no puede verificar secretos.
+
+Instálalo con:
+  macOS:    brew install gitleaks
+  Linux:    https://github.com/gitleaks/gitleaks/releases
+  Docker:   docker pull zricethezav/gitleaks
+
+Si manejas secretos, ABORTA el commit (Ctrl+C) e instala antes de seguir.
+El CI (security.yml) corre gitleaks de todas formas en cada PR.
+EOF
+else
+  gitleaks git . --staged --redact --no-banner --config .gitleaks.toml || exit 1
+fi
+
+# Lint + format de archivos staged.
 pnpm exec lint-staged
