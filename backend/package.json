@@ -9,6 +9,7 @@
     "start": "node --watch src/app.js",
     "prisma:pull": "prisma db pull",
     "prisma:generate": "prisma generate",
+    "prisma:sync": "pnpm run prisma:pull && pnpm run prisma:generate",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed"
   },

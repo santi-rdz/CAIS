@@ -1,395 +1,181 @@
-/**
- * @file Tests de integración para el CRUD de usuarios.
- * @description Verifica listado, paginación, filtros, creación, actualización
- * y eliminación de usuarios. Todas las rutas requieren sesión activa.
- */
-
 import request from 'supertest'
 import app from '#app'
-import assert from 'assert'
+import { loginAs } from './helpers/auth.js'
+import { NIL_UUID } from './helpers/constants.js'
+import { createInvitation } from './helpers/fixtures.js'
+import { buildPasanteCreate, buildCoordCreate } from './helpers/factories.js'
 
-// ─── Setup ──────────────────────────────────────────────────────────
-
-/** @type {import('supertest').Agent} Agente con sesión autenticada */
+const api = request(app)
 let agent
 
 beforeAll(async () => {
-  agent = request.agent(app)
-
-  const login = await agent.post('/auth/login').send({
-    email: 'admin@cais.com',
-    password: '123',
-  })
-  assert.equal(login.status, 200, 'Login de setup falló — verifica credenciales y seeds')
+  agent = await loginAs('admin')
 })
 
-// ─── GET /usuarios ──────────────────────────────────────────────────
-
-/**
- * @description Suite para GET /usuarios.
- * Verifica listado paginado, filtros y ordenamiento.
- */
 describe('GET /usuarios', () => {
-  /**
-   * @test Sin sesión devuelve 401.
-   */
-  test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).get('/usuarios')
-    assert.equal(res.status, 401)
+  test('401 — sin sesión', async () => {
+    const res = await api.get('/usuarios')
+    expect(res.status).toBe(401)
   })
 
-  /**
-   * @test Devuelve 200 con estructura { users, count }.
-   */
-  test('200 — retorna lista paginada', async () => {
+  test('200 — retorna lista paginada con shape { users, count }', async () => {
     const res = await agent.get('/usuarios')
-    assert.equal(res.status, 200)
-    assert(res.body['users'] !== undefined, 'property users should exist')
-    assert(res.body['count'] !== undefined, 'property count should exist')
-    assert(Array.isArray(res.body.users), 'users should be an array')
+    expect(res.status).toBe(200)
+    expect(Array.isArray(res.body.users)).toBe(true)
+    expect(typeof res.body.count).toBe('number')
   })
 
-  /**
-   * @test Con limit=2 devuelve como máximo 2 usuarios.
-   */
-  test('200 — respeta parámetros de paginación', async () => {
+  test('200 — respeta limit', async () => {
     const res = await agent.get('/usuarios?page=1&limit=2')
-    assert.equal(res.status, 200)
-    assert(res.body.users.length <= 2, 'users.length should be <= 2')
+    expect(res.status).toBe(200)
+    expect(res.body.users.length).toBeLessThanOrEqual(2)
   })
 
-  /**
-   * @test Filtrando por status=ACTIVO todos los resultados tienen estado ACTIVO.
-   */
-  test('200 — filtra por status', async () => {
+  test('200 — filtra por status=ACTIVO', async () => {
     const res = await agent.get('/usuarios?status=ACTIVO')
-    assert.equal(res.status, 200)
+    expect(res.status).toBe(200)
     for (const user of res.body.users) {
-      assert.equal(user.estado, 'ACTIVO')
+      expect(user.estado).toBe('ACTIVO')
     }
   })
 
-  /**
-   * @test Sin filtro de status incluye invitaciones pendientes vigentes en el resultado.
-   */
-  test('200 — sin filtro incluye pendientes', async () => {
-    const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer } = await import('#lib/uuid.js')
-    const { randomUUID } = await import('node:crypto')
-
-    const token = randomUUID()
-    const correo = `no.filter.pending.${Date.now()}@test.com`
-
-    const rolRow = await prisma.roles.findFirst({
-      where: { codigo: 'PASANTE' },
-      select: { id: true },
-    })
-    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
-
-    await prisma.invitaciones_registro.create({
-      data: {
-        correo,
-        rol_id: rolRow.id,
-        token: uuidToBuffer(token),
-        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
-        creado_por: userRow.id,
-      },
-    })
-
+  test('200 — sin filtro de status incluye invitaciones pendientes vigentes', async () => {
+    const inv = await createInvitation()
     try {
       const res = await agent.get('/usuarios')
-      assert.equal(res.status, 200)
-      const found = res.body.users.some((u) => u.correo === correo)
-      assert(found, 'pending invitation should appear when no status filter is applied')
+      expect(res.status).toBe(200)
+      expect(res.body.users.some((u) => u.correo === inv.correo)).toBe(true)
     } finally {
-      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+      await inv.cleanup()
     }
   })
 
-  /**
-   * @test Búsqueda por nombre o correo devuelve 200.
-   */
-  test('200 — busca por nombre o correo', async () => {
+  test('200 — búsqueda libre por texto', async () => {
     const res = await agent.get('/usuarios?search=carlos')
-    assert.equal(res.status, 200)
+    expect(res.status).toBe(200)
   })
 
-  /**
-   * @test Ordenamiento por nombre ascendente devuelve 200.
-   */
-  test('200 — ordena por nombre ascendente', async () => {
+  test('200 — sortBy=nombre-asc', async () => {
     const res = await agent.get('/usuarios?sortBy=nombre-asc')
-    assert.equal(res.status, 200)
+    expect(res.status).toBe(200)
   })
 
-  /**
-   * @test Filtrando por status=PENDIENTE devuelve invitaciones no usadas con estado PENDIENTE.
-   */
-  test('200 — filtra invitaciones pendientes con status=PENDIENTE', async () => {
-    const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer } = await import('#lib/uuid.js')
-    const { randomUUID } = await import('node:crypto')
-
-    const token = randomUUID()
-    const correo = `pending.filter.${Date.now()}@test.com`
-
-    const rolRow = await prisma.roles.findFirst({
-      where: { codigo: 'PASANTE' },
-      select: { id: true },
-    })
-    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
-
-    await prisma.invitaciones_registro.create({
-      data: {
-        correo,
-        rol_id: rolRow.id,
-        token: uuidToBuffer(token),
-        expira_at: new Date(Date.now() + 48 * 60 * 60 * 1000),
-        creado_por: userRow.id,
-      },
-    })
-
+  test('200 — status=PENDIENTE devuelve invitaciones no expiradas', async () => {
+    const inv = await createInvitation()
     try {
       const res = await agent.get('/usuarios?status=PENDIENTE')
-      assert.equal(res.status, 200)
-      assert(Array.isArray(res.body.users), 'users should be an array')
-      assert(res.body.count >= 1, 'count should be at least 1')
+      expect(res.status).toBe(200)
+      expect(res.body.count).toBeGreaterThanOrEqual(1)
       for (const user of res.body.users) {
-        assert.equal(user.estado, 'PENDIENTE')
-        assert(user.correo !== undefined, 'pendiente user should have correo')
+        expect(user.estado).toBe('PENDIENTE')
+        expect(user.correo).toBeDefined()
       }
     } finally {
-      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+      await inv.cleanup()
     }
   })
 
-  /**
-   * @test Invitaciones expiradas no aparecen en el listado de pendientes.
-   */
-  test('200 — excluye invitaciones expiradas del listado de pendientes', async () => {
-    const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer } = await import('#lib/uuid.js')
-    const { randomUUID } = await import('node:crypto')
-
-    const token = randomUUID()
-    const correo = `expired.filter.${Date.now()}@test.com`
-
-    const rolRow = await prisma.roles.findFirst({
-      where: { codigo: 'PASANTE' },
-      select: { id: true },
-    })
-    const userRow = await prisma.usuarios.findFirst({ select: { id: true } })
-
-    await prisma.invitaciones_registro.create({
-      data: {
-        correo,
-        rol_id: rolRow.id,
-        token: uuidToBuffer(token),
-        expira_at: new Date(Date.now() - 1000), // ya expiró
-        creado_por: userRow.id,
-      },
-    })
-
+  test('200 — invitaciones expiradas no aparecen en pendientes', async () => {
+    const expired = await createInvitation({ expiresInMs: -1000 })
     try {
       const res = await agent.get('/usuarios?status=PENDIENTE')
-      assert.equal(res.status, 200)
-      const found = res.body.users.some((u) => u.correo === correo)
-      assert(!found, 'expired invitation should not appear in pending list')
+      expect(res.status).toBe(200)
+      expect(res.body.users.some((u) => u.correo === expired.correo)).toBe(false)
     } finally {
-      await prisma.invitaciones_registro.deleteMany({ where: { correo } })
+      await expired.cleanup()
     }
   })
 })
 
-// ─── GET /usuarios/:id ─────────────────────────────────────────────
-
-/**
- * @description Suite para GET /usuarios/:id.
- * Verifica obtención de usuario por ID, 404 y protección con auth.
- */
 describe('GET /usuarios/:id', () => {
-  /** @type {string} ID del primer usuario de la base de datos */
   let userId
 
   beforeAll(async () => {
     const res = await agent.get('/usuarios?page=1&limit=1&status=ACTIVO')
     userId = res.body.users[0]?.id
-    assert(userId, 'Se requiere al menos un usuario ACTIVO en la base de datos')
+    if (!userId) throw new Error('Se requiere al menos un usuario ACTIVO en la DB')
   })
 
-  /**
-   * @test Sin sesión devuelve 401.
-   */
-  test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).get('/usuarios/00000000-0000-0000-0000-000000000000')
-    assert.equal(res.status, 401)
+  test('401 — sin sesión', async () => {
+    const res = await api.get(`/usuarios/${NIL_UUID}`)
+    expect(res.status).toBe(401)
   })
 
-  /**
-   * @test ID existente devuelve 200 con id, correo y rol.
-   */
   test('200 — retorna usuario existente', async () => {
-    if (!userId) return
     const res = await agent.get(`/usuarios/${userId}`)
-    assert.equal(res.status, 200)
-    assert.equal(res.body['id'], userId)
-    assert(res.body['correo'] !== undefined, 'property correo should exist')
-    assert(res.body['rol'] !== undefined, 'property rol should exist')
+    expect(res.status).toBe(200)
+    expect(res.body.id).toBe(userId)
+    expect(res.body.correo).toBeDefined()
+    expect(res.body.rol).toBeDefined()
   })
 
-  /**
-   * @test UUID inexistente devuelve 404 con propiedad message.
-   */
-  test('404 — usuario no existe', async () => {
-    const res = await agent.get('/usuarios/00000000-0000-0000-0000-000000000000')
-    assert.equal(res.status, 404)
-    assert(res.body['message'] !== undefined, 'property message should exist')
+  test('404 — usuario inexistente', async () => {
+    const res = await agent.get(`/usuarios/${NIL_UUID}`)
+    expect(res.status).toBe(404)
+    expect(res.body.message).toBeDefined()
   })
 })
 
-// ─── POST /usuarios ─────────────────────────────────────────────────
-
-/**
- * @description Suite para POST /usuarios (creación directa por admin).
- * Verifica creación de pasante y coordinador, validaciones y conflictos.
- */
 describe('POST /usuarios — creación directa por admin', () => {
-  const pasanteValido = {
-    nombre: 'Test',
-    apellidos: 'Pasante',
-    correo: `test.pasante.${Date.now()}@test.com`,
-    fecha_nacimiento: '2000-01-01',
-    telefono: '6861111111',
-    rol: 'pasante',
-    password: 'Abc12345!',
-    matricula: 'TMAT01',
-    servicio_inicio_anio: '2026',
-    servicio_inicio_periodo: '1',
-    servicio_fin_anio: '2026',
-    servicio_fin_periodo: '2',
-    area: 'MEDICINA',
-  }
-
-  const coordValido = {
-    nombre: 'Test',
-    apellidos: 'Coord',
-    correo: `test.coord.${Date.now()}@test.com`,
-    fecha_nacimiento: '1990-01-01',
-    telefono: '6862222222',
-    rol: 'coordinador',
-    password: 'Abc12345!',
-    cedula: 'TCED01',
-    area: 'MEDICINA',
-  }
-
-  /**
-   * @test Sin sesión devuelve 401.
-   */
-  test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).post('/usuarios').send(pasanteValido)
-    assert.equal(res.status, 401)
+  test('401 — sin sesión', async () => {
+    const res = await api.post('/usuarios').send(buildPasanteCreate())
+    expect(res.status).toBe(401)
   })
 
-  /**
-   * @test Pasante con datos válidos se crea y devuelve 201 con id y correo.
-   */
   test('201 — crea pasante', async () => {
-    const res = await agent.post('/usuarios').send(pasanteValido)
-    assert.equal(res.status, 201)
-    assert.equal(res.body['message'], 'Usuario creado exitosamente')
-    assert(res.body.usuario['id'] !== undefined, 'property should exist')
-    assert.equal(res.body.usuario.correo, pasanteValido.correo)
+    const payload = buildPasanteCreate()
+    const res = await agent.post('/usuarios').send(payload)
+    expect(res.status).toBe(201)
+    expect(res.body.message).toBe('Usuario creado exitosamente')
+    expect(res.body.usuario.id).toBeDefined()
+    expect(res.body.usuario.correo).toBe(payload.correo)
 
-    // limpiar
     await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
-  /**
-   * @test Coordinador con datos válidos se crea y devuelve 201 con id.
-   */
   test('201 — crea coordinador', async () => {
-    const res = await agent.post('/usuarios').send(coordValido)
-    assert.equal(res.status, 201)
-    assert(res.body.usuario['id'] !== undefined, 'property should exist')
+    const res = await agent.post('/usuarios').send(buildCoordCreate())
+    expect(res.status).toBe(201)
+    expect(res.body.usuario.id).toBeDefined()
 
     await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
-  /**
-   * @test Body con solo nombre (sin campos requeridos) devuelve 422 ValidationError.
-   */
-  test('422 — rechaza datos inválidos', async () => {
+  test('422 — body sin campos requeridos', async () => {
     const res = await agent.post('/usuarios').send({ nombre: 'Solo nombre' })
-    assert.equal(res.status, 422)
-    assert.equal(res.body['error'], 'ValidationError')
+    expect(res.status).toBe(422)
+    expect(res.body.error).toBe('ValidationError')
   })
 
-  /**
-   * @test Password menor a 6 caracteres devuelve 422.
-   */
-  test('422 — rechaza password menor a 6 caracteres', async () => {
-    const res = await agent.post('/usuarios').send({ ...pasanteValido, password: '12345' })
-    assert.equal(res.status, 422)
+  test('422 — password menor a 6 caracteres', async () => {
+    const res = await agent.post('/usuarios').send(buildPasanteCreate({ password: '12345' }))
+    expect(res.status).toBe(422)
   })
 
-  /**
-   * @test Password simple de 6+ caracteres es aceptada (admin no requiere complejidad).
-   */
-  test('201 — acepta password simple de 6+ caracteres', async () => {
-    const res = await agent.post('/usuarios').send({
-      ...pasanteValido,
-      password: '123456',
-      correo: `simple.pass.${Date.now()}@uabc.edu.mx`,
-    })
-    assert.equal(res.status, 201)
-
+  test('201 — acepta password simple de 6+ caracteres (admin no exige complejidad)', async () => {
+    const res = await agent.post('/usuarios').send(buildPasanteCreate({ password: '123456' }))
+    expect(res.status).toBe(201)
     await agent.delete(`/usuarios/${res.body.usuario.id}`)
   })
 
-  /**
-   * @test Crear dos usuarios con el mismo correo devuelve 409 Conflict en el segundo.
-   */
-  test('409 — rechaza correo duplicado', async () => {
-    const correo = `dup.${Date.now()}@test.com`
-    const data = { ...pasanteValido, correo }
+  test('409 — correo duplicado', async () => {
+    const payload = buildPasanteCreate()
+    const first = await agent.post('/usuarios').send(payload)
+    expect(first.status).toBe(201)
 
-    const first = await agent.post('/usuarios').send(data)
-    assert.equal(first.status, 201)
-
-    const second = await agent.post('/usuarios').send(data)
-    assert.equal(second.status, 409)
-    assert.equal(second.body['error'], 'Conflict')
+    const second = await agent.post('/usuarios').send(payload)
+    expect(second.status).toBe(409)
+    expect(second.body.error).toBe('Conflict')
 
     await agent.delete(`/usuarios/${first.body.usuario.id}`)
   })
 })
 
-// ─── PATCH /usuarios/:id ────────────────────────────────────────────
-
-/**
- * @description Suite para PATCH /usuarios/:id.
- * Verifica actualización parcial y protección con auth.
- */
 describe('PATCH /usuarios/:id', () => {
-  /** @type {string} ID del usuario de prueba creado en beforeAll */
   let userId
 
   beforeAll(async () => {
-    const res = await agent.post('/usuarios').send({
-      nombre: 'Patch',
-      apellidos: 'Test',
-      correo: `patch.${Date.now()}@test.com`,
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6863333333',
-      rol: 'pasante',
-      password: 'Abc12345!',
-      matricula: 'PMAT01',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-      area: 'MEDICINA',
-    })
+    const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'PMAT01' }))
     userId = res.body.usuario.id
   })
 
@@ -397,191 +183,92 @@ describe('PATCH /usuarios/:id', () => {
     if (userId) await agent.delete(`/usuarios/${userId}`)
   })
 
-  /**
-   * @test Sin sesión devuelve 401.
-   */
-  test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app)
-      .patch('/usuarios/00000000-0000-0000-0000-000000000000')
-      .send({ nombre: 'Sin auth' })
-    assert.equal(res.status, 401)
+  test('401 — sin sesión', async () => {
+    const res = await api.patch(`/usuarios/${NIL_UUID}`).send({ nombre: 'Sin auth' })
+    expect(res.status).toBe(401)
   })
 
-  /**
-   * @test Actualizar nombre devuelve 200 con el nuevo valor.
-   */
-  test('200 — actualiza nombre', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ nombre: 'Nombre Actualizado' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.nombre, 'Nombre Actualizado')
+  test.each([
+    ['nombre', { nombre: 'Nombre Actualizado' }],
+    ['telefono', { telefono: '6861234567' }],
+    ['matricula', { matricula: 'MAT-UPDATED' }],
+  ])('200 — actualiza %s', async (field, payload) => {
+    const res = await agent.patch(`/usuarios/${userId}`).send(payload)
+    expect(res.status).toBe(200)
+    expect(res.body[field]).toBe(payload[field])
   })
 
-  /**
-   * @test Actualizar teléfono devuelve 200 con el nuevo valor.
-   */
-  test('200 — actualiza telefono', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ telefono: '6861234567' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.telefono, '6861234567')
-  })
-
-  /**
-   * @test Actualizar matrícula devuelve 200 con el nuevo valor.
-   */
-  test('200 — actualiza matricula', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ matricula: 'MAT-UPDATED' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.matricula, 'MAT-UPDATED')
-  })
-
-  /**
-   * @test Actualizar nombre y apellidos devuelve ambos campos actualizados.
-   */
-  test('200 — actualiza nombre y apellidos', async () => {
+  test('200 — actualiza nombre y apellidos juntos', async () => {
     const res = await agent
       .patch(`/usuarios/${userId}`)
       .send({ nombre: 'Nuevo', apellidos: 'Apellido' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.nombre, 'Nuevo')
-    assert.equal(res.body.apellidos, 'Apellido')
+    expect(res.status).toBe(200)
+    expect(res.body.nombre).toBe('Nuevo')
+    expect(res.body.apellidos).toBe('Apellido')
   })
 
-  /**
-   * @test UUID inexistente devuelve 404.
-   */
-  test('404 — usuario no existe', async () => {
-    const res = await agent
-      .patch('/usuarios/00000000-0000-0000-0000-000000000000')
-      .send({ nombre: 'No existe' })
-    assert.equal(res.status, 404)
+  test('404 — usuario inexistente', async () => {
+    const res = await agent.patch(`/usuarios/${NIL_UUID}`).send({ nombre: 'No existe' })
+    expect(res.status).toBe(404)
   })
 })
 
-// ─── PATCH /usuarios/:id — estado ──────────────────────────────────
-
-/**
- * @description Suite para PATCH /usuarios/:id actualizando el campo estado.
- */
-describe('PATCH /usuarios/:id — actualizar estado', () => {
+describe('PATCH /usuarios/:id — estado', () => {
   let userId
 
   beforeAll(async () => {
-    const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer } = await import('#lib/uuid.js')
-    const { randomUUID } = await import('node:crypto')
-    const bcrypt = await import('bcryptjs')
-
-    const [estadoRow, rolRow] = await Promise.all([
-      prisma.estados.findFirst({ where: { codigo: 'ACTIVO' } }),
-      prisma.roles.findFirst({ where: { codigo: 'PASANTE' } }),
-    ])
-
-    const id = randomUUID()
-    await prisma.usuarios.create({
-      data: {
-        id: uuidToBuffer(id),
-        nombre: 'Test',
-        apellidos: 'Estado',
-        correo: `test.estado.${Date.now()}@test.com`,
-        password_hash: await bcrypt.hash('Test1234!', 10),
-        estado_id: estadoRow.id,
-        rol_id: rolRow.id,
-      },
-    })
-    userId = id
-  })
-
-  afterAll(async () => {
-    if (!userId) return
-    const { prisma } = await import('#config/prisma.js')
-    const { uuidToBuffer } = await import('#lib/uuid.js')
-    await prisma.usuarios.delete({ where: { id: uuidToBuffer(userId) } })
-  })
-
-  /**
-   * @test Cambiar estado a INACTIVO devuelve 200 con estado actualizado.
-   */
-  test('200 — desactiva usuario (ACTIVO → INACTIVO)', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'INACTIVO' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.estado, 'INACTIVO')
-  })
-
-  /**
-   * @test Cambiar estado a ACTIVO devuelve 200 con estado actualizado.
-   */
-  test('200 — activa usuario (INACTIVO → ACTIVO)', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'ACTIVO' })
-    assert.equal(res.status, 200)
-    assert.equal(res.body.estado, 'ACTIVO')
-  })
-
-  /**
-   * @test Estado inválido devuelve 422.
-   */
-  test('422 — estado inválido es rechazado', async () => {
-    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'BLOQUEADO' })
-    assert.equal(res.status, 422)
-  })
-})
-
-// ─── DELETE /usuarios/:id ───────────────────────────────────────────
-
-/**
- * @description Suite para DELETE /usuarios/:id.
- * Verifica eliminación exitosa, 404 y protección con auth.
- */
-describe('DELETE /usuarios/:id', () => {
-  /** @type {string} ID del usuario de prueba creado en beforeAll */
-  let userId
-
-  beforeAll(async () => {
-    const res = await agent.post('/usuarios').send({
-      nombre: 'Delete',
-      apellidos: 'Test',
-      correo: `delete.${Date.now()}@test.com`,
-      fecha_nacimiento: '2000-01-01',
-      telefono: '6864444444',
-      rol: 'pasante',
-      password: 'Abc12345!',
-      matricula: 'DMAT01',
-      servicio_inicio_anio: '2026',
-      servicio_inicio_periodo: '1',
-      servicio_fin_anio: '2026',
-      servicio_fin_periodo: '2',
-      area: 'MEDICINA',
-    })
-    userId = res.body.usuario?.id
+    const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'EMAT01' }))
+    userId = res.body.usuario.id
   })
 
   afterAll(async () => {
     if (userId) await agent.delete(`/usuarios/${userId}`)
   })
 
-  /**
-   * @test Sin sesión devuelve 401.
-   */
-  test('401 — sin sesión devuelve 401', async () => {
-    const res = await request(app).delete('/usuarios/00000000-0000-0000-0000-000000000000')
-    assert.equal(res.status, 401)
+  test('200 — desactiva (ACTIVO → INACTIVO)', async () => {
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'INACTIVO' })
+    expect(res.status).toBe(200)
+    expect(res.body.estado).toBe('INACTIVO')
   })
 
-  /**
-   * @test UUID inexistente devuelve 404.
-   */
-  test('404 — usuario no existe', async () => {
-    const res = await agent.delete('/usuarios/00000000-0000-0000-0000-000000000000')
-    assert.equal(res.status, 404)
+  test('200 — reactiva (INACTIVO → ACTIVO)', async () => {
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'ACTIVO' })
+    expect(res.status).toBe(200)
+    expect(res.body.estado).toBe('ACTIVO')
   })
 
-  /**
-   * @test Usuario existente se elimina y devuelve 200 con propiedad message.
-   */
+  test('422 — estado inválido', async () => {
+    const res = await agent.patch(`/usuarios/${userId}`).send({ estado: 'BLOQUEADO' })
+    expect(res.status).toBe(422)
+  })
+})
+
+describe('DELETE /usuarios/:id', () => {
+  let userId
+
+  beforeAll(async () => {
+    const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'DMAT01' }))
+    userId = res.body.usuario.id
+  })
+
+  afterAll(async () => {
+    if (userId) await agent.delete(`/usuarios/${userId}`)
+  })
+
+  test('401 — sin sesión', async () => {
+    const res = await api.delete(`/usuarios/${NIL_UUID}`)
+    expect(res.status).toBe(401)
+  })
+
+  test('404 — usuario inexistente', async () => {
+    const res = await agent.delete(`/usuarios/${NIL_UUID}`)
+    expect(res.status).toBe(404)
+  })
+
   test('200 — elimina usuario existente', async () => {
-    if (!userId) return
     const res = await agent.delete(`/usuarios/${userId}`)
-    assert.equal(res.status, 200)
-    assert(res.body['message'] !== undefined, 'property message should exist')
+    expect(res.status).toBe(200)
+    expect(res.body.message).toBeDefined()
     userId = null
   })
 })

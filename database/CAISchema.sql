@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS antecedentes_familiares (
     abuela_paterna VARCHAR(255),
     abuela_materna VARCHAR(255),
     otros VARCHAR(255),
-    CONSTRAINT fk_af_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_af_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS antecedentes_patologicos (
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS antecedentes_patologicos (
     gyo TEXT,
     enfermedades_congenitas TEXT,
     enfermedades_infancia TEXT,
-    CONSTRAINT fk_ap_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_ap_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
@@ -250,7 +250,7 @@ CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
     inmunizaciones_completas BOOLEAN,
     zoonosis BOOLEAN,
     tipo_zoonosis TEXT DEFAULT NULL,
-    CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_antecedentes_np_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS notas_evolucion (
@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS notas_evolucion (
     estudios_complementarios_efectuados TEXT,
     creado_at DATETIME DEFAULT NOW(),
     CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
+    CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE,
     CONSTRAINT fk_nota_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
@@ -281,8 +281,8 @@ CREATE TABLE IF NOT EXISTS aparatos_sistemas (
     endocrinologico TEXT,
     metabolico TEXT,
     nutricional TEXT,
-    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
-    CONSTRAINT fk_as_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
+    CONSTRAINT fk_as_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_as_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS servicios (
@@ -294,7 +294,7 @@ CREATE TABLE IF NOT EXISTS servicios (
     drenaje BOOLEAN,
     cable_tel BOOLEAN,
     internet BOOLEAN,
-    CONSTRAINT fk_servicios_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_servicios_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS inmunizaciones (
@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS inmunizaciones (
     hepatitis_b TIMESTAMP NULL,
     covid_19 TIMESTAMP NULL,
     otros TEXT,
-    CONSTRAINT fk_inmu_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id)
+    CONSTRAINT fk_inmu_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS informacion_fisica (
@@ -325,8 +325,8 @@ CREATE TABLE IF NOT EXISTS informacion_fisica (
     temperatura FLOAT,
     exploracion_fisica TEXT,
     habito_exterior TEXT,
-    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
-    CONSTRAINT fk_infoF_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
+    CONSTRAINT fk_infoF_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_infoF_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio (
@@ -336,8 +336,8 @@ CREATE TABLE IF NOT EXISTS planes_estudio (
     plan_tratamiento TEXT,
     tratamiento TEXT,
     estudios_complementarios TEXT,
-    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id),
-    CONSTRAINT fk_plan_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id)
+    CONSTRAINT fk_plan_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE,
+    CONSTRAINT fk_plan_nota FOREIGN KEY (nota_evolucion_id) REFERENCES notas_evolucion(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
@@ -345,7 +345,7 @@ CREATE TABLE IF NOT EXISTS planes_estudio_cie10 (
     plan_estudio_id INT NOT NULL,
     codigo VARCHAR(10) NOT NULL,
     descripcion TEXT,
-    CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id)
+    CONSTRAINT fk_cie10_plan FOREIGN KEY (plan_estudio_id) REFERENCES planes_estudio(id) ON DELETE CASCADE
 );
 
 -- ===============================

@@ -53,7 +53,9 @@
     "sql": "docker compose exec db mysql -u user -p",
     "//rb": "Reinicia e inicia el servicio del backend",
     "rb": "docker compose restart backend && docker compose up -d backend",
-    "preinstall": "node scripts/ensure-pnpm.js"
+    "preinstall": "node scripts/ensure-pnpm.js",
+    "//test": "ejecuta los test del backend",
+    "test": "corepack pnpm -F backend test"
   },
   "dependencies": {
     "zod": "4.3.6"
