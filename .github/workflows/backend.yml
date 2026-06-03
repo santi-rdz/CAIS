@@ -1,0 +1,87 @@
+name: Backend
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - 'database/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/backend.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'shared/**'
+      - 'database/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/backend.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: cais
+          MYSQL_USER: user
+          MYSQL_PASSWORD: user
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u user -puser"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+          --health-start-period=15s
+
+    env:
+      DATABASE_URL: 'mysql://user:user@127.0.0.1:3306/cais'
+      SESSION_SECRET: ci-test-secret
+      FRONTEND_URL: 'http://localhost:5173'
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.0
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
+        with:
+          version: 11.5.1
+          run_install: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Load DB schema
+        run: mysql -h 127.0.0.1 -P 3306 -uuser -puser cais < database/CAISchema.sql
+
+      - name: Generate Prisma client
+        run: pnpm --filter backend run prisma:generate
+
+      # Los tests usan getAnyUserBufferId() (helpers/fixtures.js) que requiere
+      # al menos un usuario en la DB. CAISchema.sql solo crea tablas, así que
+      # corremos el seed para tener catálogos + usuarios base.
+      - name: Seed test data
+        run: pnpm --filter backend run prisma:seed
+
+      - name: Run backend tests
+        run: pnpm --filter backend run test

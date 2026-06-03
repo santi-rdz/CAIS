@@ -54,8 +54,21 @@
     "//rb": "Reinicia e inicia el servicio del backend",
     "rb": "docker compose restart backend && docker compose up -d backend",
     "preinstall": "node scripts/ensure-pnpm.js",
+    "//prepare": "Instala los git hooks de husky (corre automático tras pnpm install)",
+    "prepare": "husky",
     "//test": "ejecuta los test del backend",
-    "test": "corepack pnpm -F backend test"
+    "test": "corepack pnpm -F backend test",
+    "//test:debug": "ejecuta los test del backend con logs de open handlers",
+    "test:debug": "corepack pnpm -F backend test:debug"
+  },
+  "lint-staged": {
+    "*.{js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "zod": "4.3.6"
@@ -69,6 +82,8 @@
     "eslint-plugin-react-refresh": "0.4.26",
     "eslint-plugin-unused-imports": "4.4.1",
     "globals": "14.0.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.7",
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "0.7.2"
   }

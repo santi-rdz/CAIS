@@ -3,8 +3,9 @@ import app from '#app'
 import bcrypt from 'bcryptjs'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
-import { NIL_UUID, SEED_USERS } from './helpers/constants.js'
-import { createUserDirect } from './helpers/fixtures.js'
+import { NIL_UUID } from './helpers/constants.js'
+import { createTestCoordinador } from './helpers/db.js'
+import { createCleanupTracker } from './helpers/cleanup.js'
 import {
   ALT_STRONG_TEST_PASSWORD,
   MISMATCH_CONFIRM_PASSWORD,
@@ -18,9 +19,21 @@ import {
 const api = request(app)
 const VALID_STRONG_PASSWORD = ALT_STRONG_TEST_PASSWORD
 
+// ── Tracker compartido por todos los describes ───────────────────
+const tracker = createCleanupTracker()
+afterAll(() => tracker.cleanup())
+
 describe('POST /auth/login', () => {
+  let activeUser
+
+  beforeAll(async () => {
+    activeUser = await createTestCoordinador({ tracker })
+  })
+
   test('200 — login con credenciales correctas', async () => {
-    const res = await api.post('/auth/login').send(SEED_USERS.coordMedicina)
+    const res = await api
+      .post('/auth/login')
+      .send({ email: activeUser.correo, password: activeUser.password })
     expect(res.status).toBe(200)
     expect(res.body.ok).toBe(true)
   })
@@ -36,7 +49,7 @@ describe('POST /auth/login', () => {
 
   test('401 — contraseña incorrecta', async () => {
     const res = await api.post('/auth/login').send({
-      email: SEED_USERS.coordMedicina.email,
+      email: activeUser.correo,
       password: 'incorrecta',
     })
     expect(res.status).toBe(401)
@@ -49,25 +62,24 @@ describe('POST /auth/login', () => {
   })
 
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
-    const user = await createUserDirect({ estado: 'INACTIVO' })
-
-    try {
-      const res = await api
-        .post('/auth/login')
-        .send({ email: user.correo, password: STRONG_TEST_PASSWORD })
-      expect(res.status).toBe(403)
-      expect(res.body.error).toBe('Cuenta desactivada')
-    } finally {
-      await user.cleanup()
-    }
+    const inactiveUser = await createTestCoordinador({ tracker, estado: 'INACTIVO' })
+    const res = await api
+      .post('/auth/login')
+      .send({ email: inactiveUser.correo, password: STRONG_TEST_PASSWORD })
+    expect(res.status).toBe(403)
+    expect(res.body.error).toBe('Cuenta desactivada')
   })
 })
 
 describe('POST /auth/password/forgot', () => {
+  let user
+
+  beforeAll(async () => {
+    user = await createTestCoordinador({ tracker })
+  })
+
   test('200 — correo existente devuelve mensaje genérico', async () => {
-    const res = await api
-      .post('/auth/password/forgot')
-      .send({ correo: SEED_USERS.coordMedicina.email })
+    const res = await api.post('/auth/password/forgot').send({ correo: user.correo })
     expect(res.status).toBe(200)
     expect(typeof res.body.message).toBe('string')
   })
@@ -133,11 +145,7 @@ describe('Flujo completo: forgot → reset', () => {
   let user
 
   beforeAll(async () => {
-    user = await createUserDirect({ password: OLD_STRONG_TEST_PASSWORD })
-  })
-
-  afterAll(async () => {
-    await user.cleanup()
+    user = await createTestCoordinador({ tracker, password: OLD_STRONG_TEST_PASSWORD })
   })
 
   test('forgot: crea token activo en DB', async () => {
@@ -145,7 +153,7 @@ describe('Flujo completo: forgot → reset', () => {
     expect(res.status).toBe(200)
 
     const token = await prisma.password_reset_tokens.findFirst({
-      where: { usuario_id: uuidToBuffer(user.id) },
+      where: { usuario_id: user.idBuffer },
     })
     expect(token).not.toBeNull()
     expect(token.usado).toBe(false)
@@ -154,7 +162,7 @@ describe('Flujo completo: forgot → reset', () => {
 
   test('reset: actualiza password_hash e invalida el token', async () => {
     const tokenRow = await prisma.password_reset_tokens.findFirst({
-      where: { usuario_id: uuidToBuffer(user.id) },
+      where: { usuario_id: user.idBuffer },
     })
 
     const res = await api.post('/auth/password/reset').send({
@@ -165,20 +173,20 @@ describe('Flujo completo: forgot → reset', () => {
     expect(res.status).toBe(200)
 
     const updated = await prisma.usuarios.findUnique({
-      where: { id: uuidToBuffer(user.id) },
+      where: { id: user.idBuffer },
       select: { password_hash: true },
     })
     expect(await bcrypt.compare(NEXT_STRONG_TEST_PASSWORD, updated.password_hash)).toBe(true)
 
     const usedToken = await prisma.password_reset_tokens.findFirst({
-      where: { usuario_id: uuidToBuffer(user.id) },
+      where: { usuario_id: user.idBuffer },
     })
     expect(usedToken.usado).toBe(true)
   })
 
   test('reset: token ya usado devuelve 400', async () => {
     const tokenRow = await prisma.password_reset_tokens.findFirst({
-      where: { usuario_id: uuidToBuffer(user.id) },
+      where: { usuario_id: user.idBuffer },
     })
 
     const res = await api.post('/auth/password/reset').send({

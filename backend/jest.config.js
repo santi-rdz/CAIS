@@ -1,7 +1,14 @@
 export default {
   testEnvironment: 'node',
   setupFiles: ['dotenv/config'],
+  globalTeardown: '<rootDir>/jest.teardown.js',
   testMatch: ['<rootDir>/src/**/*.test.js'],
+  // Tests son aislados (cada uno crea sus propias fixtures con uniqueEmail
+  // + cleanup tracker). En CI (ubuntu-latest tiene 2 vCPUs) forzamos 2
+  // workers porque '50%' se redondearía a 1 = serial. Local usa 50% de
+  // cores (4-5 en M-series) con margen para no saturar MySQL.
+  maxWorkers: process.env.CI ? 2 : '50%',
+  testTimeout: 10000,
   moduleNameMapper: {
     '^#app$': '<rootDir>/src/app.js',
     '^#config/(.*)$': '<rootDir>/src/config/$1',

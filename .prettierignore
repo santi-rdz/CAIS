@@ -2,4 +2,21 @@ node_modules
 dist
 build
 coverage
-database/** 
+database/**
+
+# Lockfiles (auto-generated, no formatear)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Schema generado por Prisma (tiene su propio formatter: prisma format)
+backend/prisma/schema.prisma
+
+# Build artifacts y caches
+.next
+.nuxt
+.vite
+.turbo
+
+# Husky runtime (auto-generated)
+.husky/_

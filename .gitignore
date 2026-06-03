@@ -42,3 +42,6 @@ bruno/
 frontend/package-lock.json
 backend/package-lock.json
 shared/package-lock.json
+
+# Husky runtime (auto-generated por prepare; los hooks user-facing sí se trackean)
+.husky/_/

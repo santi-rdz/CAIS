@@ -1,0 +1,35 @@
+# Gitleaks config — extiende las reglas por defecto de gitleaks 8.x.
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+#
+# Para escaneo manual completo del histórico:
+#   gitleaks git . --redact --config .gitleaks.toml
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Falsos positivos conocidos en CAIS"
+
+paths = [
+  # Placeholders versionados — el contenido es intencional, no son secretos
+  '''(^|/)\.env\.example$''',
+  # Schema SQL con seed users (passwords bcrypt-hasheados, sample data)
+  '''database/CAISchema\.sql$''',
+  # Lockfiles tienen URLs con tokens-like substrings, pero no son secretos
+  '''pnpm-lock\.yaml$''',
+  # REST Client (.http) — tokens de prueba contra entornos locales
+  '''backend/http/.*\.http$''',
+  '''backend/src/api\.http$''',
+  # docker-compose: credenciales literales de DB local (rootpassword, user/user)
+  '''docker-compose\.yml$''',
+  # CI workflow con creds del MySQL service ephemeral
+  '''\.github/workflows/backend\.yml$''',
+]
+
+regexes = [
+  # Placeholders explícitos en docs / templates
+  '''<set-strong-password>''',
+  '''<random-32-char-secret>''',
+  '''<password>''',
+  '''placeholder''',
+]

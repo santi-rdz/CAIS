@@ -1,0 +1,41 @@
+# Auto-detectar tipo de archivo y normalizar EOL.
+# Sin esto, Windows checkearía con CRLF y rompería los hooks de husky
+# (Git Bash no puede ejecutar #!/usr/bin/env sh con CRLF).
+* text=auto
+
+# Force LF — críticos para Windows compat
+.husky/* text eol=lf
+*.sh text eol=lf
+
+# Source code
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.prisma text eol=lf
+
+# Force CRLF — solo donde Windows lo espera (no usamos aquí pero por completitud)
+# *.bat text eol=crlf
+# *.cmd text eol=crlf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.pdf binary
