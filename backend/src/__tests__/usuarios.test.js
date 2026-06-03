@@ -1,16 +1,24 @@
 import request from 'supertest'
 import app from '#app'
-import { loginAs } from './helpers/auth.js'
+import { uuidToBuffer } from '#lib/uuid.js'
 import { NIL_UUID } from './helpers/constants.js'
-import { createInvitation } from './helpers/fixtures.js'
+import { authenticatedAdmin } from './helpers/agents.js'
+import { createTestCoordinador, createTestInvitation } from './helpers/db.js'
+import { createCleanupTracker } from './helpers/cleanup.js'
 import { buildPasanteCreate, buildCoordCreate } from './helpers/factories.js'
 
 const api = request(app)
+const tracker = createCleanupTracker()
+
 let agent
+let inviter // coordinador usado para crear invitaciones de prueba
 
 beforeAll(async () => {
-  agent = await loginAs('admin')
+  ;({ agent } = await authenticatedAdmin({ tracker }))
+  inviter = await createTestCoordinador({ tracker })
 })
+
+afterAll(() => tracker.cleanup())
 
 describe('GET /usuarios', () => {
   test('401 — sin sesión', async () => {
@@ -40,18 +48,14 @@ describe('GET /usuarios', () => {
   })
 
   test('200 — sin filtro de status incluye invitaciones pendientes vigentes', async () => {
-    const inv = await createInvitation()
-    try {
-      const res = await agent.get('/usuarios')
-      expect(res.status).toBe(200)
-      expect(res.body.users.some((u) => u.correo === inv.correo)).toBe(true)
-    } finally {
-      await inv.cleanup()
-    }
+    const inv = await createTestInvitation({ invitedBy: inviter, tracker })
+    const res = await agent.get('/usuarios')
+    expect(res.status).toBe(200)
+    expect(res.body.users.some((u) => u.correo === inv.correo)).toBe(true)
   })
 
   test('200 — búsqueda libre por texto', async () => {
-    const res = await agent.get('/usuarios?search=carlos')
+    const res = await agent.get('/usuarios?search=test')
     expect(res.status).toBe(200)
   })
 
@@ -61,39 +65,33 @@ describe('GET /usuarios', () => {
   })
 
   test('200 — status=PENDIENTE devuelve invitaciones no expiradas', async () => {
-    const inv = await createInvitation()
-    try {
-      const res = await agent.get('/usuarios?status=PENDIENTE')
-      expect(res.status).toBe(200)
-      expect(res.body.count).toBeGreaterThanOrEqual(1)
-      for (const user of res.body.users) {
-        expect(user.estado).toBe('PENDIENTE')
-        expect(user.correo).toBeDefined()
-      }
-    } finally {
-      await inv.cleanup()
+    await createTestInvitation({ invitedBy: inviter, tracker })
+    const res = await agent.get('/usuarios?status=PENDIENTE')
+    expect(res.status).toBe(200)
+    expect(res.body.count).toBeGreaterThanOrEqual(1)
+    for (const user of res.body.users) {
+      expect(user.estado).toBe('PENDIENTE')
+      expect(user.correo).toBeDefined()
     }
   })
 
   test('200 — invitaciones expiradas no aparecen en pendientes', async () => {
-    const expired = await createInvitation({ expiresInMs: -1000 })
-    try {
-      const res = await agent.get('/usuarios?status=PENDIENTE')
-      expect(res.status).toBe(200)
-      expect(res.body.users.some((u) => u.correo === expired.correo)).toBe(false)
-    } finally {
-      await expired.cleanup()
-    }
+    const expired = await createTestInvitation({
+      invitedBy: inviter,
+      expiresInMs: -1000,
+      tracker,
+    })
+    const res = await agent.get('/usuarios?status=PENDIENTE')
+    expect(res.status).toBe(200)
+    expect(res.body.users.some((u) => u.correo === expired.correo)).toBe(false)
   })
 })
 
 describe('GET /usuarios/:id', () => {
-  let userId
+  let targetUser
 
   beforeAll(async () => {
-    const res = await agent.get('/usuarios?page=1&limit=1&status=ACTIVO')
-    userId = res.body.users[0]?.id
-    if (!userId) throw new Error('Se requiere al menos un usuario ACTIVO en la DB')
+    targetUser = await createTestCoordinador({ tracker })
   })
 
   test('401 — sin sesión', async () => {
@@ -102,10 +100,10 @@ describe('GET /usuarios/:id', () => {
   })
 
   test('200 — retorna usuario existente', async () => {
-    const res = await agent.get(`/usuarios/${userId}`)
+    const res = await agent.get(`/usuarios/${targetUser.id}`)
     expect(res.status).toBe(200)
-    expect(res.body.id).toBe(userId)
-    expect(res.body.correo).toBeDefined()
+    expect(res.body.id).toBe(targetUser.id)
+    expect(res.body.correo).toBe(targetUser.correo)
     expect(res.body.rol).toBeDefined()
   })
 
@@ -129,16 +127,14 @@ describe('POST /usuarios — creación directa por admin', () => {
     expect(res.body.message).toBe('Usuario creado exitosamente')
     expect(res.body.usuario.id).toBeDefined()
     expect(res.body.usuario.correo).toBe(payload.correo)
-
-    await agent.delete(`/usuarios/${res.body.usuario.id}`)
+    tracker.track('usuarios', uuidToBuffer(res.body.usuario.id))
   })
 
   test('201 — crea coordinador', async () => {
     const res = await agent.post('/usuarios').send(buildCoordCreate())
     expect(res.status).toBe(201)
     expect(res.body.usuario.id).toBeDefined()
-
-    await agent.delete(`/usuarios/${res.body.usuario.id}`)
+    tracker.track('usuarios', uuidToBuffer(res.body.usuario.id))
   })
 
   test('422 — body sin campos requeridos', async () => {
@@ -155,19 +151,18 @@ describe('POST /usuarios — creación directa por admin', () => {
   test('201 — acepta password simple de 6+ caracteres (admin no exige complejidad)', async () => {
     const res = await agent.post('/usuarios').send(buildPasanteCreate({ password: '123456' }))
     expect(res.status).toBe(201)
-    await agent.delete(`/usuarios/${res.body.usuario.id}`)
+    tracker.track('usuarios', uuidToBuffer(res.body.usuario.id))
   })
 
   test('409 — correo duplicado', async () => {
     const payload = buildPasanteCreate()
     const first = await agent.post('/usuarios').send(payload)
     expect(first.status).toBe(201)
+    tracker.track('usuarios', uuidToBuffer(first.body.usuario.id))
 
     const second = await agent.post('/usuarios').send(payload)
     expect(second.status).toBe(409)
     expect(second.body.error).toBe('Conflict')
-
-    await agent.delete(`/usuarios/${first.body.usuario.id}`)
   })
 })
 
@@ -177,10 +172,7 @@ describe('PATCH /usuarios/:id', () => {
   beforeAll(async () => {
     const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'PMAT01' }))
     userId = res.body.usuario.id
-  })
-
-  afterAll(async () => {
-    if (userId) await agent.delete(`/usuarios/${userId}`)
+    tracker.track('usuarios', uuidToBuffer(userId))
   })
 
   test('401 — sin sesión', async () => {
@@ -219,10 +211,7 @@ describe('PATCH /usuarios/:id — estado', () => {
   beforeAll(async () => {
     const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'EMAT01' }))
     userId = res.body.usuario.id
-  })
-
-  afterAll(async () => {
-    if (userId) await agent.delete(`/usuarios/${userId}`)
+    tracker.track('usuarios', uuidToBuffer(userId))
   })
 
   test('200 — desactiva (ACTIVO → INACTIVO)', async () => {
@@ -249,10 +238,7 @@ describe('DELETE /usuarios/:id', () => {
   beforeAll(async () => {
     const res = await agent.post('/usuarios').send(buildPasanteCreate({ matricula: 'DMAT01' }))
     userId = res.body.usuario.id
-  })
-
-  afterAll(async () => {
-    if (userId) await agent.delete(`/usuarios/${userId}`)
+    tracker.track('usuarios', uuidToBuffer(userId))
   })
 
   test('401 — sin sesión', async () => {
@@ -269,6 +255,6 @@ describe('DELETE /usuarios/:id', () => {
     const res = await agent.delete(`/usuarios/${userId}`)
     expect(res.status).toBe(200)
     expect(res.body.message).toBeDefined()
-    userId = null
+    // El usuario ya está borrado; tracker.cleanup() para él será no-op (idempotente).
   })
 })
