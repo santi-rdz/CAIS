@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest --forceExit --detectOpenHandles",
-    "file": "NODE_OPTIONS=--experimental-vm-modules jest --forceExit --detectOpenHandles --testPathPatterns",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --forceExit --detectOpenHandles",
+    "file": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --forceExit --detectOpenHandles --testPathPatterns",
     "start": "node --watch src/app.js",
     "prisma:pull": "prisma db pull",
     "prisma:generate": "prisma generate",
