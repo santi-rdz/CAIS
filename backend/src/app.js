@@ -62,9 +62,9 @@ app.use('/nutricion', nutritionRouter)
 app.use('/dashboard', dashboardRouter)
 
 // Sin esto un throw async responde HTML con stack trace en vez de JSON.
-app.use((err, _req, res, _next) => {
+app.use((err, _req, res, next) => {
   console.error('Unhandled error:', err)
-  if (res.headersSent) return
+  if (res.headersSent) return next(err)
   res.status(500).json({ error: 'InternalError', message: 'Error inesperado' })
 })
 

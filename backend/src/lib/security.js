@@ -13,7 +13,16 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 const RATE_LIMIT_MESSAGE = {
   error: 'Demasiadas solicitudes, espera un momento',
+  message: 'Demasiadas solicitudes, espera un momento',
   code: 'RATE_LIMITED',
+}
+
+function normalizeOrigin(value) {
+  try {
+    return new URL(value).origin
+  } catch {
+    return value.replace(/\/+$/, '')
+  }
 }
 
 // Lista separada por coma para soportar staging + prod en el mismo deploy.
@@ -25,11 +34,12 @@ const corsOrigins = (
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean)
+  .map(normalizeOrigin)
 
 export const corsOptions = {
   origin(origin, callback) {
     // Sin Origin (curl, health checks) lo dejamos pasar.
-    if (!origin || corsOrigins.includes(origin)) {
+    if (!origin || corsOrigins.includes(normalizeOrigin(origin))) {
       callback(null, true)
       return
     }
