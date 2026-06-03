@@ -57,7 +57,9 @@
     "//prepare": "Instala los git hooks de husky (corre automático tras pnpm install)",
     "prepare": "husky",
     "//test": "ejecuta los test del backend",
-    "test": "corepack pnpm -F backend test"
+    "test": "corepack pnpm -F backend test",
+    "//test:debug": "ejecuta los test del backend con logs de open handlers",
+    "test:debug": "corepack pnpm -F backend test:debug"
   },
   "lint-staged": {
     "*.{js,jsx,mjs,cjs}": [
