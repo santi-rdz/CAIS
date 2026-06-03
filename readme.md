@@ -15,9 +15,9 @@ Sistema de administración interna para el Centro de Atención Integral para la 
 
 ## Requisitos
 
-- Docker y Docker Compose instalados
-- Node.js 22.13+ (solo para desarrollo local sin Docker; Node 24 recomendado)
-- pnpm 11.5.1 (Corepack recomendado)
+- Docker y Docker Compose instalados (las imágenes usan **Node 24**)
+- Node.js 24+ requerido si vas a correr scripts o tests **fuera** de Docker
+- pnpm 11.5.1 (Corepack recomendado: `corepack enable`)
 
 ## Inicio rápido
 
@@ -42,7 +42,8 @@ pnpm run up        # Levanta los containers (sin rebuild)
 pnpm run stop      # Detiene los containers
 pnpm run down      # Baja los containers (conserva la DB)
 pnpm run restart   # Rebuild + up (usar al cambiar Dockerfile o dependencias)
-pnpm run fresh     # Reset total: borra volúmenes y reconstruye desde cero
+pnpm run fresh     # Reset total: borra volúmenes, reconstruye y siembra la DB
+pnpm run seed      # Corre el seed de Prisma (backend debe estar healthy)
 pnpm run rb        # Reinicia solo el backend
 pnpm run logs      # Logs en tiempo real de todos los servicios
 pnpm run ps        # Estado de los containers
