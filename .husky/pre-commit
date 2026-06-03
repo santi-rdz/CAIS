@@ -10,6 +10,7 @@ if ! command -v gitleaks >/dev/null 2>&1; then
 
 Instálalo con:
   macOS:    brew install gitleaks
+  Windows:  winget install gitleaks   (o: scoop install gitleaks)
   Linux:    https://github.com/gitleaks/gitleaks/releases
   Docker:   docker pull zricethezav/gitleaks
 
