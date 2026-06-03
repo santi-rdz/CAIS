@@ -4,6 +4,7 @@ packages:
   - shared
 autoInstallPeers: true
 strictPeerDependencies: false
+saveExact: true
 allowBuilds:
   '@prisma/engines': true
   esbuild: true
