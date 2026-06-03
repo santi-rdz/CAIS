@@ -5,8 +5,13 @@
  *
  * No corre si jest es interrumpido con Ctrl-C; para ese caso queda como
  * fallback restart del backend container.
+ *
+ * NOTA: globalTeardown corre como módulo separado y NO aplica el
+ * setupFiles: ['dotenv/config'] del jest.config. Cargamos dotenv aquí
+ * para que prisma.js encuentre DATABASE_URL.
  */
 
+import 'dotenv/config'
 import { prisma } from '#config/prisma.js'
 
 export default async function teardown() {
