@@ -4,8 +4,7 @@ import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { registerEmail } from '#lib/registerEmail.js'
-
-const FRONTEND_URL = process.env.FRONTEND_URL ?? 'http://localhost:5173'
+import { serverConfig } from '#config/env.js'
 
 export class EmailConflictError extends Error {
   constructor(message, emails) {
@@ -73,7 +72,7 @@ export class UserService {
 
     const emailErrors = []
     for (const inv of invitations) {
-      const url = `${FRONTEND_URL}/registro?token=${inv.token}`
+      const url = `${serverConfig.frontendUrl}/registro?token=${inv.token}`
       try {
         await sendEmail({
           to: inv.correo,
@@ -95,7 +94,7 @@ export class UserService {
     const updated = await InvitationModel.refreshToken(correo)
     if (!updated) return null
 
-    const url = `${FRONTEND_URL}/registro?token=${updated.token}`
+    const url = `${serverConfig.frontendUrl}/registro?token=${updated.token}`
     await sendEmail({
       to: correo,
       subject: 'Completa tu registro — CAIS',

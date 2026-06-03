@@ -12,27 +12,29 @@ import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { dashboardRouter } from '#routes/dashboard.js'
 import express from 'express'
+import { apiRateLimiter, corsOptions, securityHeaders } from '#lib/security.js'
+import { isProduction, serverConfig } from '#config/env.js'
 
 const app = express()
-app.use(express.json())
 
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  })
-)
+// Sin esto el rate limiter ve la IP del proxy, no la del cliente.
+if (serverConfig.trustProxy) app.set('trust proxy', 1)
+
+app.disable('x-powered-by')
+app.use(securityHeaders)
+app.use(cors(corsOptions))
+app.use(apiRateLimiter)
+app.use(express.json({ limit: serverConfig.jsonBodyLimit }))
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-in-prod',
+    secret: serverConfig.sessionSecret,
     resave: false,
     saveUninitialized: false,
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       maxAge: SESSION_MAX_AGE_MS,
       sameSite: 'lax',
     },
@@ -53,25 +55,28 @@ app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
 app.use('/dashboard', dashboardRouter)
 
+// Sin esto un throw async responde HTML con stack trace en vez de JSON.
+app.use((err, _req, res, next) => {
+  console.error('Unhandled error:', err)
+  if (res.headersSent) return next(err)
+  res.status(500).json({ error: 'InternalError', message: 'Error inesperado' })
+})
+
 export default app
 
-// No levantar el server durante tests (jest setea NODE_ENV='test' por
-// default) — supertest llama al app directamente sin necesidad de listen.
-if (process.env.NODE_ENV !== 'test') {
-  const server = app.listen(8000, () => {
-    console.log('Server is running on http://localhost:8000')
+// En tests supertest llama al app sin abrir el puerto.
+if (!serverConfig.isTest) {
+  const server = app.listen(serverConfig.port, () => {
+    console.log(`Server is running on http://localhost:${serverConfig.port}`)
   })
 
-  // Graceful shutdown: cerrar Prisma para que MySQL libere las conexiones.
-  // Sin esto, cada restart de node --watch deja conexiones zombies que
-  // eventualmente saturan max_connections.
+  // Sin $disconnect, cada restart deja conexiones zombies hasta saturar MySQL.
   async function gracefulShutdown(signal) {
     console.log(`Received ${signal}, shutting down gracefully...`)
     server.close(async () => {
       await prisma.$disconnect()
       process.exit(0)
     })
-    // Failsafe: si server.close() tarda, fuerza exit a los 5s.
     setTimeout(() => {
       console.warn('Forced exit after timeout')
       process.exit(1)

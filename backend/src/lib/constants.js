@@ -14,3 +14,6 @@ export const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000 // 1 hora
 export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000 // 15 minutos
 export const RATE_LIMIT_FORGOT_PASSWORD = 5
 export const RATE_LIMIT_RESET_PASSWORD = 10
+export const RATE_LIMIT_LOGIN = 10
+export const RATE_LIMIT_API_WINDOW_MS = 60 * 1000 // 1 minuto
+export const RATE_LIMIT_API_MAX = 300

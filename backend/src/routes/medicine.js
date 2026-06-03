@@ -8,7 +8,8 @@ import { AREAS } from '@cais/shared/constants/users'
 export const medicineRouter = Router()
 
 medicineRouter.use(requireAuth)
+medicineRouter.use(requireArea(AREAS.MEDICINA))
 
-medicineRouter.use('/emergencias', requireArea(AREAS.MEDICINA), emergencyRouter)
+medicineRouter.use('/emergencias', emergencyRouter)
 medicineRouter.use('/notas-evolucion', evolutionNotesRouter)
 medicineRouter.use('/historias-medicas', medicalHistoryRouter)

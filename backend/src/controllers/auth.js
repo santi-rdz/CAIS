@@ -4,6 +4,7 @@ import { passwordResetEmail } from '#lib/passwordResetEmail.js'
 import { AuthModel } from '#models/AuthModel.js'
 import { AuditModel } from '#models/AuditModel.js'
 import { prisma } from '#config/prisma.js'
+import { serverConfig } from '#config/env.js'
 import { validatePasswordReset, validateChangePassword } from '@cais/shared/schemas/password'
 import { correoSchema } from '@cais/shared/schemas/fields'
 import { ESTADOS, ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
@@ -33,17 +34,16 @@ export class AuthController {
 
       const user = await AuthModel.findByEmail(email)
 
-      if (!user) {
-        return res.status(401).json({ error: 'Correo electronico no encontrado' })
-      }
+      // Mensaje único para no permitir enumeración de cuentas.
+      const invalidCredentials = { error: 'Correo o contraseña inválidos' }
 
-      if (!user.password_hash) {
-        return res.status(401).json({ error: 'Contraseña inválida' })
+      if (!user || !user.password_hash) {
+        return res.status(401).json(invalidCredentials)
       }
 
       const isMatch = await bcrypt.compare(password, user.password_hash)
       if (!isMatch) {
-        return res.status(401).json({ error: 'Contraseña inválida' })
+        return res.status(401).json(invalidCredentials)
       }
 
       if (user.estados?.codigo !== ESTADOS.ACTIVO) {
@@ -192,7 +192,7 @@ export class AuthController {
 
       await AuthModel.createResetToken(user.id, token, expiresAt)
 
-      const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/restablecer-contrasena/${token}`
+      const resetUrl = `${serverConfig.frontendUrl}/restablecer-contrasena/${token}`
       sendEmail({
         to: user.correo,
         subject: 'Restablecer contraseña - CAIS',
