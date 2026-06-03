@@ -20,7 +20,7 @@
   "author": "",
   "type": "module",
   "engines": {
-    "node": ">=22.13.0",
+    "node": ">=24.0.0",
     "pnpm": "11.5.1"
   },
   "main": "index.js",
@@ -37,8 +37,10 @@
     "down": "docker compose down",
     "//restart": "Rebuild de imágenes + up. Usar al cambiar Dockerfile o deps",
     "restart": "docker compose up -d --build && pnpm run up",
-    "//fresh": "Borra volúmenes + rebuild + up. Usar para reset total de la DB",
-    "fresh": "docker compose down -v && docker compose up -d --build && pnpm run up",
+    "//fresh": "Borra volúmenes + rebuild + up + seed. Usar para reset total de la DB",
+    "fresh": "docker compose down -v && docker compose up -d --build --wait && pnpm run seed",
+    "//seed": "Corre el seed de Prisma dentro del backend (requiere backend healthy)",
+    "seed": "docker compose exec backend pnpm --filter backend run prisma:seed",
     "//logs": "Sigue los logs de todos los containers en tiempo real",
     "logs": "docker compose logs -f",
     "//ps": "Ver estado de los containers",

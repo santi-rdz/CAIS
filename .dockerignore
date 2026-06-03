@@ -1,9 +1,37 @@
 node_modules
-npm-debug.log
-Dockerfile
-docker-compose.yml
+**/node_modules
+.pnpm-store
 .git
 .gitignore
+.github
 .vscode
+.idea
+.DS_Store
+
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+
+# Builds / artifacts
 dist
+**/dist
 build
+**/build
+coverage
+**/coverage
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env files (no se filtran al image)
+.env
+.env.*
+!.env.example
+
+# Tests
+**/__tests__/__snapshots__
