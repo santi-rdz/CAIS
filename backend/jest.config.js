@@ -1,6 +1,7 @@
 export default {
   testEnvironment: 'node',
   setupFiles: ['dotenv/config'],
+  testMatch: ['<rootDir>/src/**/*.test.js'],
   moduleNameMapper: {
     '^#app$': '<rootDir>/src/app.js',
     '^#config/(.*)$': '<rootDir>/src/config/$1',

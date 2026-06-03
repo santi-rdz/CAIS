@@ -37,9 +37,9 @@
     "down": "docker compose down",
     "//restart": "Rebuild de imágenes + up. Usar al cambiar Dockerfile o deps",
     "restart": "docker compose up -d --build && pnpm run up",
-    "//fresh": "Borra volúmenes + rebuild + up + seed. Usar para reset total de la DB",
-    "fresh": "docker compose down -v && docker compose up -d --build --wait && pnpm run seed",
-    "//seed": "Corre el seed de Prisma dentro del backend (requiere backend healthy)",
+    "//fresh": "Borra volúmenes + rebuild + up. El backend seedea automático al arrancar (ver docker-compose.yml). Usar para reset total de la DB",
+    "fresh": "docker compose down -v && docker compose up -d --build",
+    "//seed": "Re-seedea manualmente (idempotente). El arranque normal ya seedea solo",
     "seed": "docker compose exec backend pnpm --filter backend run prisma:seed",
     "//logs": "Sigue los logs de todos los containers en tiempo real",
     "logs": "docker compose logs -f",
@@ -53,7 +53,9 @@
     "sql": "docker compose exec db mysql -u user -p",
     "//rb": "Reinicia e inicia el servicio del backend",
     "rb": "docker compose restart backend && docker compose up -d backend",
-    "preinstall": "node scripts/ensure-pnpm.js"
+    "preinstall": "node scripts/ensure-pnpm.js",
+    "//test": "ejecuta los test del backend",
+    "test": "corepack pnpm -F backend test"
   },
   "dependencies": {
     "zod": "4.3.6"
