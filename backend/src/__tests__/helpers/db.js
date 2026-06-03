@@ -16,6 +16,7 @@ import { randomUUID } from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
+import { INVITATION_TTL_MS } from './constants.js'
 import { uniqueEmail } from './ids.js'
 import { STRONG_TEST_PASSWORD } from './passwords.js'
 
@@ -122,4 +123,44 @@ export async function createTestPaciente({ doctor, tracker, overrides = {} } = {
   tracker?.track('pacientes', idBuffer)
 
   return { id: uuid, idBuffer }
+}
+
+// ── Invitaciones ─────────────────────────────────────────────────
+
+/**
+ * Crea una invitación firmada por un coordinador (invitedBy).
+ *
+ * @returns {{ id: number, correo: string, token: string }}
+ *   token es el UUID string (lo que el app espera en el body de signup).
+ */
+export async function createTestInvitation({
+  invitedBy,
+  role = 'PASANTE',
+  correo,
+  token = randomUUID(),
+  expiresInMs = INVITATION_TTL_MS,
+  tracker,
+} = {}) {
+  if (!invitedBy?.idBuffer) {
+    throw new Error(
+      'createTestInvitation requires { invitedBy: <user from createTestCoordinador> }'
+    )
+  }
+
+  const rolId = await getRoleId(role)
+  const correoFinal = correo ?? uniqueEmail('invite')
+
+  const inv = await prisma.invitaciones_registro.create({
+    data: {
+      correo: correoFinal,
+      rol_id: rolId,
+      token: uuidToBuffer(token),
+      expira_at: new Date(Date.now() + expiresInMs),
+      creado_por: invitedBy.idBuffer,
+    },
+  })
+
+  tracker?.track('invitaciones_registro', inv.id)
+
+  return { id: inv.id, correo: correoFinal, token }
 }
