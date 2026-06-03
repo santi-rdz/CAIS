@@ -1,5 +1,7 @@
+import pkg from '@prisma/client'
+const { PrismaClient } = pkg
+
 import { randomUUID } from 'node:crypto'
-import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import bcrypt from 'bcryptjs'
 

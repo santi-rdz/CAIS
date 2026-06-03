@@ -178,14 +178,15 @@ model eval_antro_ad_kid_nutricion {
 }
 
 model eval_apetito_nutricion {
-  id                        Int            @id @default(autoincrement())
-  apetito                   String?        @db.VarChar(20)
-  lleno                     String?        @db.VarChar(20)
-  sabor_comida              String?        @db.VarChar(20)
-  comidas_al_dia            String?        @db.VarChar(20)
-  puntaje_total             Int?           @db.TinyInt
-  clasif_alteracion_apetito String?        @db.VarChar(20)
-  eval_nutr_fh              eval_nutr_fh[]
+  id                        Int          @id @default(autoincrement())
+  id_eval_nutr              Bytes        @unique(map: "id_eval_nutr") @db.Binary(16)
+  apetito                   String?      @db.VarChar(20)
+  lleno                     String?      @db.VarChar(20)
+  sabor_comida              String?      @db.VarChar(20)
+  comidas_al_dia            String?      @db.VarChar(20)
+  puntaje_total             Int?         @db.TinyInt
+  clasif_alteracion_apetito String?      @db.VarChar(20)
+  eval_nutr_fh              eval_nutr_fh @relation(fields: [id_eval_nutr], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_apetito_eval_nutr")
 }
 
 model eval_cal_sueno {
@@ -231,49 +232,50 @@ model eval_semiologia_nutricional {
 }
 
 model frec_consumo_alimentos_nutricion {
-  id                         Int            @id @default(autoincrement())
-  frutas                     String?        @db.VarChar(20)
-  verduras_cocidas           String?        @db.VarChar(20)
-  verduras_crudas            String?        @db.VarChar(20)
-  pescado                    String?        @db.VarChar(20)
-  mariscos                   String?        @db.VarChar(20)
-  pollo                      String?        @db.VarChar(20)
-  carne_roja                 String?        @db.VarChar(20)
-  quesos                     String?        @db.VarChar(20)
-  huevo_entero               String?        @db.VarChar(20)
-  clara_huevo                String?        @db.VarChar(20)
-  embutidos                  String?        @db.VarChar(20)
-  leguminosas                String?        @db.VarChar(20)
-  tortilla_maiz              String?        @db.VarChar(20)
-  cant_tortilla_maiz         String?        @db.VarChar(20)
-  tortilla_harina            String?        @db.VarChar(20)
-  cant_tortilla_harina       String?        @db.VarChar(20)
-  pan_de_caja                String?        @db.VarChar(20)
-  galletas_industr           String?        @db.VarChar(20)
-  pan_dulce                  String?        @db.VarChar(20)
-  cereal_de_caja             String?        @db.VarChar(20)
-  frituras_papas             String?        @db.VarChar(20)
-  birote_bolillo             String?        @db.VarChar(20)
-  pastas_arroz               String?        @db.VarChar(20)
-  aderezos_capsu             String?        @db.VarChar(20)
-  comida_rapida              String?        @db.VarChar(20)
-  grasa_animal               String?        @db.VarChar(20)
-  grasa_vegetal              String?        @db.VarChar(20)
-  cafe_te                    String?        @db.VarChar(20)
-  litros_al_dia_cafe_te      String?        @db.VarChar(20)
-  bebida_az                  String?        @db.VarChar(20)
-  litros_al_dia_beb_az       String?        @db.VarChar(20)
-  bebida_endul_art           String?        @db.VarChar(20)
-  litros_al_dia_beb_endul    String?        @db.VarChar(20)
-  leche_sin_az               String?        @db.VarChar(20)
-  litros_al_dia_leche_sin_az String?        @db.VarChar(20)
-  agua_simple                String?        @db.VarChar(20)
-  litros_al_dia_agua_simple  String?        @db.VarChar(20)
-  agrega_sal_extra           String?        @db.VarChar(20)
-  cdas_al_dia_sal_extra      Int?           @db.TinyInt
-  agrega_azucar              String?        @db.VarChar(20)
-  cdas_sobres_al_dia_azucar  Int?           @db.TinyInt
-  eval_nutr_fh               eval_nutr_fh[]
+  id                         Int          @id @default(autoincrement())
+  id_eval_nutr               Bytes        @unique(map: "id_eval_nutr") @db.Binary(16)
+  frutas                     String?      @db.VarChar(20)
+  verduras_cocidas           String?      @db.VarChar(20)
+  verduras_crudas            String?      @db.VarChar(20)
+  pescado                    String?      @db.VarChar(20)
+  mariscos                   String?      @db.VarChar(20)
+  pollo                      String?      @db.VarChar(20)
+  carne_roja                 String?      @db.VarChar(20)
+  quesos                     String?      @db.VarChar(20)
+  huevo_entero               String?      @db.VarChar(20)
+  clara_huevo                String?      @db.VarChar(20)
+  embutidos                  String?      @db.VarChar(20)
+  leguminosas                String?      @db.VarChar(20)
+  tortilla_maiz              String?      @db.VarChar(20)
+  cant_tortilla_maiz         String?      @db.VarChar(20)
+  tortilla_harina            String?      @db.VarChar(20)
+  cant_tortilla_harina       String?      @db.VarChar(20)
+  pan_de_caja                String?      @db.VarChar(20)
+  galletas_industr           String?      @db.VarChar(20)
+  pan_dulce                  String?      @db.VarChar(20)
+  cereal_de_caja             String?      @db.VarChar(20)
+  frituras_papas             String?      @db.VarChar(20)
+  birote_bolillo             String?      @db.VarChar(20)
+  pastas_arroz               String?      @db.VarChar(20)
+  aderezos_capsu             String?      @db.VarChar(20)
+  comida_rapida              String?      @db.VarChar(20)
+  grasa_animal               String?      @db.VarChar(20)
+  grasa_vegetal              String?      @db.VarChar(20)
+  cafe_te                    String?      @db.VarChar(20)
+  litros_al_dia_cafe_te      String?      @db.VarChar(20)
+  bebida_az                  String?      @db.VarChar(20)
+  litros_al_dia_beb_az       String?      @db.VarChar(20)
+  bebida_endul_art           String?      @db.VarChar(20)
+  litros_al_dia_beb_endul    String?      @db.VarChar(20)
+  leche_sin_az               String?      @db.VarChar(20)
+  litros_al_dia_leche_sin_az String?      @db.VarChar(20)
+  agua_simple                String?      @db.VarChar(20)
+  litros_al_dia_agua_simple  String?      @db.VarChar(20)
+  agrega_sal_extra           String?      @db.VarChar(20)
+  cdas_al_dia_sal_extra      Int?         @db.TinyInt
+  agrega_azucar              String?      @db.VarChar(20)
+  cdas_sobres_al_dia_azucar  Int?         @db.TinyInt
+  eval_nutr_fh               eval_nutr_fh @relation(fields: [id_eval_nutr], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_consumo_eval_nutr")
 }
 
 model historias_medicas {
@@ -331,20 +333,21 @@ model historias_pacientes_nutricion {
 }
 
 model horarios_comida_nutricion {
-  id                       Int            @id @default(autoincrement())
-  hora_desayuno            String?        @db.VarChar(20)
-  hora_comida              String?        @db.VarChar(20)
-  hora_cena                String?        @db.VarChar(20)
-  hora_colac_1             String?        @db.VarChar(20)
-  hora_colac_2             String?        @db.VarChar(20)
-  hora_colac_3             String?        @db.VarChar(20)
-  hora_despierto           String?        @db.VarChar(20)
-  tipo_alimentacion        String?        @db.VarChar(10)
+  id                       Int          @id @default(autoincrement())
+  id_eval_nutr             Bytes        @unique(map: "id_eval_nutr") @db.Binary(16)
+  hora_desayuno            String?      @db.VarChar(20)
+  hora_comida              String?      @db.VarChar(20)
+  hora_cena                String?      @db.VarChar(20)
+  hora_colac_1             String?      @db.VarChar(20)
+  hora_colac_2             String?      @db.VarChar(20)
+  hora_colac_3             String?      @db.VarChar(20)
+  hora_despierto           String?      @db.VarChar(20)
+  tipo_alimentacion        String?      @db.VarChar(10)
   problemas_masticar       Boolean?
   problemas_pasar_alimento Boolean?
   perdida_dientes          Boolean?
-  pensamientos_sobre_dieta String?        @db.VarChar(255)
-  eval_nutr_fh             eval_nutr_fh[]
+  pensamientos_sobre_dieta String?      @db.VarChar(255)
+  eval_nutr_fh             eval_nutr_fh @relation(fields: [id_eval_nutr], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
 }
 
 model informacion_fisica {
@@ -638,7 +641,7 @@ model eval_bioq_nutricion {
   id                        Bytes                      @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id               Bytes                      @db.Binary(16)
   fecha                     DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
-  creado_at                 DateTime?                  @default(dbgenerated("(curdate())")) @db.Date
+  creado_at                 DateTime?                  @default(now()) @db.DateTime(0)
   balance_acido_base        balance_acido_base?
   pacientes                 pacientes                  @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_bioq")
   eval_estado_nutricion     eval_estado_nutricion?
@@ -665,20 +668,19 @@ model eval_estado_nutricion {
 }
 
 model eval_nutr_fh {
-  id                               Int                               @id @default(autoincrement())
+  id                               Bytes                             @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id                      Bytes                             @db.Binary(16)
   fecha                            DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
-  id_horarios_comida               Int?
-  id_eval_apetito                  Int?
-  id_frec_consumo                  Int?
-  eval_apetito_nutricion           eval_apetito_nutricion?           @relation(fields: [id_eval_apetito], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_apetito_eval_nutr")
-  frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion? @relation(fields: [id_frec_consumo], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_frec_consumo_eval_nutr")
-  horarios_comida_nutricion        horarios_comida_nutricion?        @relation(fields: [id_horarios_comida], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
+  sigue_dieta                      Boolean?
+  tiene_alergia                    Boolean?
+  cual_alergia                     String?                           @db.Text
+  alimentos_disgusta               String?                           @db.Text
+  creado_at                        DateTime?                         @default(now()) @db.DateTime(0)
+  eval_apetito_nutricion           eval_apetito_nutricion?
   pacientes                        pacientes                         @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_nutr")
+  frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion?
+  horarios_comida_nutricion        horarios_comida_nutricion?
 
-  @@index([id_eval_apetito], map: "fk_apetito_eval_nutr")
-  @@index([id_frec_consumo], map: "fk_frec_consumo_eval_nutr")
-  @@index([id_horarios_comida], map: "fk_horarios_eval_nutr")
   @@index([paciente_id], map: "fk_paciente_eval_nutr")
 }
 
