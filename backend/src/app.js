@@ -12,27 +12,35 @@ import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { dashboardRouter } from '#routes/dashboard.js'
 import express from 'express'
+import { apiRateLimiter, corsOptions, securityHeaders } from '#lib/security.js'
+
+const isProd = process.env.NODE_ENV === 'production'
+
+const sessionSecret = process.env.SESSION_SECRET
+if (!sessionSecret && isProd) {
+  throw new Error('SESSION_SECRET es requerido en producción')
+}
 
 const app = express()
-app.use(express.json())
 
-app.use(
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  })
-)
+// Sin trust proxy el rate limiter ve la IP del proxy, no del cliente.
+if (isProd) app.set('trust proxy', 1)
+
+app.disable('x-powered-by')
+app.use(securityHeaders)
+app.use(cors(corsOptions))
+app.use(apiRateLimiter)
+app.use(express.json({ limit: '100kb' }))
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-in-prod',
+    secret: sessionSecret || 'dev-secret-change-in-prod',
     resave: false,
     saveUninitialized: false,
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProd,
       maxAge: SESSION_MAX_AGE_MS,
       sameSite: 'lax',
     },
@@ -52,6 +60,13 @@ app.use('/pacientes', patientRouter)
 app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
 app.use('/dashboard', dashboardRouter)
+
+// Sin esto, un throw no manejado responde HTML con stack trace en lugar de JSON.
+app.use((err, _req, res, _next) => {
+  console.error('Unhandled error:', err)
+  if (res.headersSent) return
+  res.status(500).json({ error: 'InternalError', message: 'Error inesperado' })
+})
 
 export default app
 
