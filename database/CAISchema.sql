@@ -548,7 +548,7 @@ CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
     problemas_pasar_alimento BOOLEAN,
     perdida_dientes BOOLEAN,
     pensamientos_sobre_dieta VARCHAR(255),
-    CONSTRAINT fk_horarios_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+    CONSTRAINT fk_horarios_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
@@ -560,7 +560,7 @@ CREATE TABLE IF NOT EXISTS eval_apetito_nutricion(
     comidas_al_dia VARCHAR(20),
     puntaje_total TINYINT,
     clasif_alteracion_apetito VARCHAR(20),
-    CONSTRAINT fk_apetito_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+    CONSTRAINT fk_apetito_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
@@ -607,7 +607,7 @@ CREATE TABLE IF NOT EXISTS frec_consumo_alimentos_nutricion(
     cdas_al_dia_sal_extra TINYINT,
     agrega_azucar VARCHAR(20),
     cdas_sobres_al_dia_azucar TINYINT,
-    CONSTRAINT fk_consumo_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id)
+    CONSTRAINT fk_consumo_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id) ON DELETE CASCADE
 );
 
 -- QUITAR
