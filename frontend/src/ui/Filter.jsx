@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router-dom'
 import { HiOutlineFunnel, HiXMark } from 'react-icons/hi2'
 import {
   Select,

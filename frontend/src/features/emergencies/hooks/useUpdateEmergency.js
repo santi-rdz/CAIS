@@ -2,7 +2,7 @@ import { toastApiError } from '@lib/ApiError'
 import { updateEmergency as apiUpdateEmergency } from '@services/ApiEmergencies'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 export function useUpdateEmergency() {
   const { id } = useParams()

@@ -2,7 +2,7 @@ import { PAGE_SIZE } from '@lib/constants'
 import { usePrefetchPages } from '@hooks/usePrefetchPages'
 import { getPatients } from '@services/apiPatient'
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router-dom'
 
 export function usePatients() {
   const [params] = useSearchParams()

@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import { HiChevronRight, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'

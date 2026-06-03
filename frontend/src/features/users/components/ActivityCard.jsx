@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import es from 'dayjs/locale/es'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { getActivityStyle, buildActivityTitle, buildActivityNavPath } from '@lib/activityStyles'
 
 function formatActivityDate(fechaHora) {

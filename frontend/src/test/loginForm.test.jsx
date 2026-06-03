@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom' // ✅ enables toBeInTheDocument and other matchers
 import { render, fireEvent, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import { BrowserRouter } from 'react-router'
+import { BrowserRouter } from 'react-router-dom'
 import Login from '../pages/Auth'
 
 function renderWithRouter(ui) {

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { HiOutlineTrash } from 'react-icons/hi2'
 
 import Modal from '@components/Modal'

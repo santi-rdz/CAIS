@@ -1,5 +1,5 @@
 import Logo from '@ui/Logo'
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation } from 'react-router-dom'
 
 export default function Auth() {
   return (
