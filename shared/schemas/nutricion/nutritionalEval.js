@@ -1,13 +1,15 @@
 import { z } from 'zod'
 import { optionalDateSchema } from '../fields.js'
 
+const tinyIntSchema = z.number().int().min(0).max(127)
+
 // eval_apetito_nutricion: VarChar(20) y TinyInt en DB
 export const evalApetitoNutricionSchema = z.object({
   apetito: z.string().trim().max(20).nullish(),
   lleno: z.string().trim().max(20).nullish(),
   sabor_comida: z.string().trim().max(20).nullish(),
   comidas_al_dia: z.string().trim().max(20).nullish(),
-  puntaje_total: z.number().int().nullish(),
+  puntaje_total: tinyIntSchema.nullish(),
   clasif_alteracion_apetito: z.string().trim().max(20).nullish(),
 })
 
@@ -51,9 +53,9 @@ export const frecConsumosAlimentosNutricionSchema = z.object({
   agua_simple: z.string().trim().max(20).nullish(),
   litros_al_dia_agua_simple: z.string().trim().max(20).nullish(),
   agrega_sal_extra: z.string().trim().max(20).nullish(),
-  cdas_al_dia_sal_extra: z.number().int().nullish(),
+  cdas_al_dia_sal_extra: tinyIntSchema.nullish(),
   agrega_azucar: z.string().trim().max(20).nullish(),
-  cdas_sobres_al_dia_azucar: z.number().int().nullish(),
+  cdas_sobres_al_dia_azucar: tinyIntSchema.nullish(),
 })
 
 // horarios_comida_nutricion: VarChar(20) para horas, VarChar(10) para tipo_alimentacion, VarChar(255) para pensamientos

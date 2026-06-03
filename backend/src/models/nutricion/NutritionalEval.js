@@ -38,7 +38,7 @@ function formatMinimal(n) {
 }
 
 export class NutritionalEvalModel {
-  static async getAll({ paciente_id, page, limit, fields } = {}) {
+  static async getAll({ paciente_id, page = 1, limit = 20, fields } = {}) {
     const where = {}
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
 

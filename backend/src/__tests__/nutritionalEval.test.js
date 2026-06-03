@@ -18,16 +18,16 @@ let pacienteId
 
 beforeAll(async () => {
   agent = request.agent(app)
-
-  await agent.post('/auth/login').send({
+  const loginRes = await agent.post('/auth/login').send({
     email: 'carlos.herrera@cais.com',
     password: '123',
   })
+  expect(loginRes.status).toBe(200)
 
   const pacientesRes = await agent.get('/pacientes?page=1&limit=1')
-
   const items = pacientesRes.body.pacientes ?? pacientesRes.body.patients ?? pacientesRes.body
   pacienteId = Array.isArray(items) ? items[0]?.id : undefined
+  expect(pacienteId).toBeDefined()
 })
 
 /**
@@ -342,7 +342,7 @@ describe('PATCH /nutricion/evaluacion-nutricional/:id', () => {
       .patch(`/nutricion/evaluacion-nutricional/${evalId}`)
       .send({ sigue_dieta: true })
     assert.equal(res.status, 200)
-    assert.equal(res.body.sigue_dieta, true)
+    assert.equal(res.body.evaluation.sigue_dieta, true)
   })
 
   /**
@@ -354,7 +354,7 @@ describe('PATCH /nutricion/evaluacion-nutricional/:id', () => {
       .patch(`/nutricion/evaluacion-nutricional/${evalId}`)
       .send({ eval_apetito_nutricion: { apetito: 'Disminuido' } })
     assert.equal(res.status, 200)
-    assert.equal(res.body.eval_apetito_nutricion?.apetito, 'Disminuido')
+    assert.equal(res.body.evaluation.eval_apetito_nutricion?.apetito, 'Disminuido')
   })
 
   /**
@@ -366,7 +366,7 @@ describe('PATCH /nutricion/evaluacion-nutricional/:id', () => {
       .patch(`/nutricion/evaluacion-nutricional/${evalId}`)
       .send({ horarios_comida_nutricion: { hora_desayuno: '09:00' } })
     assert.equal(res.status, 200)
-    assert.equal(res.body.horarios_comida_nutricion?.hora_desayuno, '09:00')
+    assert.equal(res.body.evaluation.horarios_comida_nutricion?.hora_desayuno, '09:00')
   })
 
   /**
