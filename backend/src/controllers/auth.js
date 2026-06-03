@@ -33,17 +33,16 @@ export class AuthController {
 
       const user = await AuthModel.findByEmail(email)
 
-      if (!user) {
-        return res.status(401).json({ error: 'Correo electronico no encontrado' })
-      }
+      // Mensaje único para no permitir enumeración de cuentas.
+      const invalidCredentials = { error: 'Correo o contraseña inválidos' }
 
-      if (!user.password_hash) {
-        return res.status(401).json({ error: 'Contraseña inválida' })
+      if (!user || !user.password_hash) {
+        return res.status(401).json(invalidCredentials)
       }
 
       const isMatch = await bcrypt.compare(password, user.password_hash)
       if (!isMatch) {
-        return res.status(401).json({ error: 'Contraseña inválida' })
+        return res.status(401).json(invalidCredentials)
       }
 
       if (user.estados?.codigo !== ESTADOS.ACTIVO) {
