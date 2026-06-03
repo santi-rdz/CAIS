@@ -86,6 +86,89 @@ export function buildEvolutionNote({ pacienteId }, overrides = {}) {
   }
 }
 
+export function buildNutritionalEvalMinimal({ pacienteId }, overrides = {}) {
+  return {
+    paciente_id: pacienteId,
+    sigue_dieta: false,
+    tiene_alergia: false,
+    cual_alergia: null,
+    alimentos_disgusta: 'Brócoli',
+    ...overrides,
+  }
+}
+
+export function buildNutritionalEvalCompleto({ pacienteId }, overrides = {}) {
+  return {
+    ...buildNutritionalEvalMinimal({ pacienteId }),
+    eval_apetito_nutricion: {
+      apetito: 'Normal',
+      lleno: 'Rápido',
+      sabor_comida: 'Bueno',
+      comidas_al_dia: '3',
+      puntaje_total: 10,
+      clasif_alteracion_apetito: 'Sin alteración',
+    },
+    frec_consumo_alimentos_nutricion: {
+      frutas: 'Diario',
+      verduras_cocidas: 'Semanal',
+      verduras_crudas: 'Diario',
+      pescado: 'Quincenal',
+      mariscos: 'Mensual',
+      pollo: 'Semanal',
+      carne_roja: 'Semanal',
+      quesos: 'Semanal',
+      huevo_entero: 'Diario',
+      clara_huevo: 'Nunca',
+      embutidos: 'Nunca',
+      leguminosas: 'Semanal',
+      tortilla_maiz: 'Diario',
+      cant_tortilla_maiz: '3',
+      tortilla_harina: 'Nunca',
+      cant_tortilla_harina: '0',
+      pan_de_caja: 'Nunca',
+      galletas_industr: 'Nunca',
+      pan_dulce: 'Semanal',
+      cereal_de_caja: 'Nunca',
+      frituras_papas: 'Nunca',
+      birote_bolillo: 'Semanal',
+      pastas_arroz: 'Semanal',
+      aderezos_capsu: 'Nunca',
+      comida_rapida: 'Mensual',
+      grasa_animal: 'Nunca',
+      grasa_vegetal: 'Diario',
+      cafe_te: 'Diario',
+      litros_al_dia_cafe_te: '1',
+      bebida_az: 'Nunca',
+      litros_al_dia_beb_az: '0',
+      bebida_endul_art: 'Nunca',
+      litros_al_dia_beb_endul: '0',
+      leche_sin_az: 'Diario',
+      litros_al_dia_leche_sin_az: '0.5',
+      agua_simple: 'Diario',
+      litros_al_dia_agua_simple: '2',
+      agrega_sal_extra: 'No',
+      cdas_al_dia_sal_extra: 0,
+      agrega_azucar: 'No',
+      cdas_sobres_al_dia_azucar: 0,
+    },
+    horarios_comida_nutricion: {
+      hora_desayuno: '08:00',
+      hora_comida: '14:00',
+      hora_cena: '20:00',
+      hora_colac_1: '11:00',
+      hora_colac_2: '17:00',
+      hora_colac_3: null,
+      hora_despierto: '07:00',
+      tipo_alimentacion: 'Omnívora',
+      problemas_masticar: false,
+      problemas_pasar_alimento: false,
+      perdida_dientes: false,
+      pensamientos_sobre_dieta: 'Me cuesta evitar el pan dulce',
+    },
+    ...overrides,
+  }
+}
+
 export function buildMedicalHistory({ pacienteId, usuarioId }, overrides = {}) {
   return {
     paciente_id: pacienteId,
