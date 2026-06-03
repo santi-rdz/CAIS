@@ -41,14 +41,20 @@ async function getAreaId(nombre) {
 
 // ── Usuarios ─────────────────────────────────────────────────────
 
-async function createTestUser({ role, area = null, estado = 'ACTIVO', tracker, overrides = {} }) {
+async function createTestUser({
+  role,
+  area = null,
+  estado = 'ACTIVO',
+  password = STRONG_TEST_PASSWORD,
+  tracker,
+  overrides = {},
+}) {
   const [rolId, estadoId, areaId] = await Promise.all([
     getRoleId(role),
     getEstadoId(estado),
     area ? getAreaId(area) : Promise.resolve(null),
   ])
 
-  const password = STRONG_TEST_PASSWORD
   const correo = uniqueEmail(role.toLowerCase())
   const uuid = randomUUID()
   const idBuffer = uuidToBuffer(uuid)
