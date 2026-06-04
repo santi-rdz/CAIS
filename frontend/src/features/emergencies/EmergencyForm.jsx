@@ -12,7 +12,7 @@ import TimeField from '@ui/TimeField'
 import { mergeFechaHora } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
-import { useFormKeyDown } from '@hooks/useFormKeyDown'
+import { useFormSubmit } from '@hooks/useFormSubmit'
 import { useCreateEmergency } from '@features/emergencies/hooks/useCreateEmergency'
 import { useUpdateEmergency } from '@features/emergencies/hooks/useUpdateEmergency'
 import { emergencyFormSchema } from '@schemas/emergency'
@@ -49,7 +49,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
     formState: { errors, isDirty },
   } = methods
 
-  const getFormKeyDown = useFormKeyDown(handleSubmit)
+  const getFormSubmit = useFormSubmit(handleSubmit)
 
   function onSubmit(data) {
     const toNullable = (v) => (typeof v === 'string' ? v.trim() || null : (v ?? null))
@@ -86,13 +86,14 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
       <ModalBody>
         <form
           data-testid="emergency-form"
-          onKeyDown={getFormKeyDown(onSubmit, isCreating || isUpdating)}
+          onSubmit={getFormSubmit(onSubmit, isCreating || isUpdating)}
         >
           <RequiredSection register={register} control={control} errors={errors} />
           <Divider className="my-6" />
           <PatientSection register={register} control={control} errors={errors} />
           <Divider className="my-6" />
           <MedicalSection register={register} errors={errors} />
+          <button type="submit" hidden tabIndex={-1} aria-hidden="true" />
         </form>
       </ModalBody>
 
