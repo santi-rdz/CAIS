@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HiOutlineEnvelope, HiOutlinePencil, HiOutlineUserPlus } from 'react-icons/hi2'
@@ -31,6 +32,11 @@ export default function InvitationalLinksForm({ onClose }) {
     if (upsert(email)) reset()
   }
 
+  const roleSelectSuffix = useMemo(
+    () => <RoleSelect role={role} setRole={setRole} />,
+    [role, setRole]
+  )
+
   return (
     <>
       <ModalBody py={8}>
@@ -41,7 +47,7 @@ export default function InvitationalLinksForm({ onClose }) {
             register={register}
             isDomain={isUabcDomain}
             setIsDomain={setIsUabcDomain}
-            extraSuffix={<RoleSelect role={role} setRole={setRole} />}
+            extraSuffix={roleSelectSuffix}
           />
           <Button
             type="submit"

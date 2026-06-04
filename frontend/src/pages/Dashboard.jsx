@@ -1,11 +1,26 @@
+import { lazy, Suspense } from 'react'
 import usePermissions from '@hooks/usePermissions'
 import { PERMISSIONS } from '@lib/permissions'
 import { useDashboardStats } from '@features/dashboard/hooks/useDashboardStats'
 import StatCard from '@features/dashboard/components/StatCard'
 import ActivityFeed from '@features/dashboard/components/ActivityFeed'
-import WeeklyTrendChart from '@features/dashboard/components/WeeklyTrendChart'
-import { GenderPieChart, AgePieChart } from '@features/dashboard/components/DistributionPieChart'
 import Heading from '@ui/components/Heading'
+
+const WeeklyTrendChart = lazy(() => import('@features/dashboard/components/WeeklyTrendChart'))
+const GenderPieChart = lazy(() =>
+  import('@features/dashboard/components/DistributionPieChart').then((m) => ({
+    default: m.GenderPieChart,
+  }))
+)
+const AgePieChart = lazy(() =>
+  import('@features/dashboard/components/DistributionPieChart').then((m) => ({
+    default: m.AgePieChart,
+  }))
+)
+
+function ChartFallback({ height = 200 }) {
+  return <div className="animate-pulse rounded-xl bg-gray-100" style={{ height }} />
+}
 import {
   HiOutlineDocumentText,
   HiOutlineClipboardDocument,
@@ -95,10 +110,14 @@ export default function Dashboard() {
         {/* Distribuciones */}
         <div className="flex h-full min-h-0 flex-col gap-4">
           <div className="shadow-card flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5">
-            <GenderPieChart data={stats?.distribucion_genero} loading={isPending} />
+            <Suspense fallback={<ChartFallback height={220} />}>
+              <GenderPieChart data={stats?.distribucion_genero} loading={isPending} />
+            </Suspense>
           </div>
           <div className="shadow-card flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-white p-5">
-            <AgePieChart data={stats?.distribucion_edad} loading={isPending} />
+            <Suspense fallback={<ChartFallback height={220} />}>
+              <AgePieChart data={stats?.distribucion_edad} loading={isPending} />
+            </Suspense>
           </div>
         </div>
       </div>
@@ -108,7 +127,9 @@ export default function Dashboard() {
         <Heading as="h4" className="mb-4">
           Tendencia últimos 7 días
         </Heading>
-        <WeeklyTrendChart data={stats?.tendencia_semanal} loading={isPending} />
+        <Suspense fallback={<ChartFallback height={250} />}>
+          <WeeklyTrendChart data={stats?.tendencia_semanal} loading={isPending} />
+        </Suspense>
       </div>
     </div>
   )
