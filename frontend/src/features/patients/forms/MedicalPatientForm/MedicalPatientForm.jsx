@@ -11,10 +11,10 @@ import {
   CLONE_STEPS,
   CLONE_STEPS_FIELDS,
   CLONE_STEP_COMPONENTS,
-  DEFAULT_VALUES,
   STEPS,
   STEPS_FIELDS,
   STEP_COMPONENTS,
+  getDefaultValues,
 } from '@features/patients/forms/MedicalPatientForm/formConfig'
 import {
   buildEditDefaults,
@@ -49,7 +49,7 @@ export default function MedicalPatientForm({
     ? buildEditDefaults(patient, historia ?? {})
     : isClone
       ? { ...buildEditDefaults(patient, cloneHistoria), creado_at: dayjs() }
-      : DEFAULT_VALUES
+      : getDefaultValues()
 
   const skipPatientStep = isClone || (isEdit && historiaOnly)
   const [activeSteps, activeStepsFields, activeStepComponents] = resolveSteps({

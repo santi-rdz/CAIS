@@ -35,6 +35,10 @@ export default function useInviteList({ resolveEmail, setIsUabcDomain }) {
     const fullEmail = resolveEmail(rawEmail)
 
     if (isEditMode) {
+      if (users.some((u) => u.email === fullEmail && u.email !== idEdit)) {
+        toast.error('Este correo ya ha sido agregado a la lista')
+        return false
+      }
       setUsers((prev) =>
         prev.map((u) => (u.email === idEdit ? { email: fullEmail, role, status: 'pendiente' } : u))
       )

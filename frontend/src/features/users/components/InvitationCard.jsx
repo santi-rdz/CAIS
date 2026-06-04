@@ -31,12 +31,13 @@ export default function InvitationCard({ user, isEditing, onEdit, onDelete }) {
         </span>
       </div>
 
-      <div className="hidden gap-1 group-hover:flex">
+      <div className="flex gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
         <button
           type="button"
           className={`rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 ${
             isEditing ? 'pointer-events-none opacity-40' : ''
           }`}
+          aria-label={`Editar invitación de ${email}`}
           title="Editar"
           onClick={() => onEdit(user)}
         >
@@ -45,6 +46,7 @@ export default function InvitationCard({ user, isEditing, onEdit, onDelete }) {
         <button
           type="button"
           className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+          aria-label={`Eliminar invitación de ${email}`}
           title="Eliminar"
           onClick={() => onDelete(email)}
         >

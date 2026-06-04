@@ -126,8 +126,14 @@ export const DEFAULT_VALUES = {
   // Step 6 – informacion_fisica
   informacion_fisica: INFORMACION_FISICA_DEFAULTS,
   // Step 7 – historias_medicas directos + planes_estudio
-  creado_at: dayjs(),
+  // creado_at se resuelve en `getDefaultValues()` para evitar timestamps que
+  // se evalúan al cargar el módulo y luego envejecen.
+  creado_at: null,
   motivo_consulta: '',
   historia_enfermedad_actual: '',
   planes_estudio: PLAN_ESTUDIO_DEFAULTS,
+}
+
+export function getDefaultValues() {
+  return { ...DEFAULT_VALUES, creado_at: dayjs() }
 }
