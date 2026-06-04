@@ -1,4 +1,4 @@
-import { updateUserEstado } from '@services/ApiUsers'
+import { updateUserEstado } from '@services/apiUsers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toastApiError } from '@lib/ApiError'

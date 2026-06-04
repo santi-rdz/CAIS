@@ -1,7 +1,7 @@
 import Table from '@components/Table'
 import Pagination from '@components/Pagination'
-import { useEmergencies } from './hooks/useEmergencies'
-import EmergencyRow from './EmergencyRow'
+import { useEmergencies } from '@features/emergencies/hooks/useEmergencies'
+import EmergencyRow from '@features/emergencies/EmergencyRow'
 
 const COLUMNS = '7fr 4fr 11fr 10fr 10fr 2fr'
 

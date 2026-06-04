@@ -5,21 +5,8 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { coordinadorSchema, coordinadorSignupSchema } from '@cais/shared/schemas/users'
-import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { buildCoordCreateSchema, coordEditSchema, coordSignupFormSchema } from '@schemas/users'
 import dayjs from 'dayjs'
-
-const coordSignupFormSchema = coordinadorSignupSchema
-  .omit({ token: true })
-  .extend({ fecha_nacimiento: dayjsDateSchema })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmPassword'],
-  })
-
-const coordEditSchema = coordinadorSchema
-  .omit({ rol: true, password: true })
-  .extend({ fecha_nacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
@@ -35,13 +22,13 @@ function parseUserDefaults(user) {
   }
 }
 
-import useCreateUser from './hooks/useCreateUser'
-import useUpdateUser from './hooks/useUpdateUser'
+import useCreateUser from '@features/users/hooks/useCreateUser'
+import useUpdateUser from '@features/users/hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
-import { useStepForm } from '../../hooks/useStepForm'
-import CoordPersonalInfoForm from './CoordPersonalInfoForm'
-import PasswordForm from './PasswordForm'
-import RegistrationPasswordForm from './RegistrationPasswordForm'
+import { useStepForm } from '@hooks/useStepForm'
+import CoordPersonalInfoForm from '@features/users/CoordPersonalInfoForm'
+import PasswordForm from '@features/users/PasswordForm'
+import RegistrationPasswordForm from '@features/users/RegistrationPasswordForm'
 import Modal from '@components/Modal'
 
 const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
@@ -66,9 +53,7 @@ export default function CoordForm({
   const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
-  const createFormSchema = coordinadorSchema
-    .omit({ rol: true })
-    .extend({ fecha_nacimiento: dayjsDateSchema, correo: correoField })
+  const createFormSchema = buildCoordCreateSchema(correoField)
 
   const stepsFields = isEdit
     ? [['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula']]

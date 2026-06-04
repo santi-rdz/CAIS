@@ -6,7 +6,7 @@ import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
 import DatePickerComponent from '@ui/DatePickerComponent'
-import PlanTratamientoSection from '../../shared/PlanTratamientoSection'
+import PlanTratamientoSection from '@features/patients/forms/shared/PlanTratamientoSection'
 
 export default function MotivoConsultaPlanStep() {
   const {

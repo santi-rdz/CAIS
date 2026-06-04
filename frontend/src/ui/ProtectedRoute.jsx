@@ -1,4 +1,4 @@
-import Spinner from '@components/Spinner'
+import Spinner from './components/Spinner'
 import { Navigate } from 'react-router-dom'
 import useMe from '@features/users/hooks/useMe'
 import useSessionSync from '@features/users/hooks/useSessionSync'

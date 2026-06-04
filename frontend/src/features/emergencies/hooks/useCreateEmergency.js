@@ -1,5 +1,5 @@
 import { toastApiError } from '@lib/ApiError'
-import { createEmergency as apiCreateEmergency } from '@services/ApiEmergencies'
+import { createEmergency as apiCreateEmergency } from '@services/apiEmergencies'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 

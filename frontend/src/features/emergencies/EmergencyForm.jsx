@@ -13,14 +13,11 @@ import { mergeFechaHora } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useFormKeyDown } from '@hooks/useFormKeyDown'
-import { useCreateEmergency } from './hooks/useCreateEmergency'
-import { useUpdateEmergency } from './hooks/useUpdateEmergency'
-import { emergencySchema } from '@cais/shared/schemas/medicina/emergency'
-import { fechaHoraFormFields } from '@cais/shared/schemas/fields'
+import { useCreateEmergency } from '@features/emergencies/hooks/useCreateEmergency'
+import { useUpdateEmergency } from '@features/emergencies/hooks/useUpdateEmergency'
+import { emergencyFormSchema } from '@schemas/emergency'
 import dayjs from 'dayjs'
 import Modal from '@components/Modal'
-
-const emergencyFormSchema = emergencySchema.omit({ fecha_hora: true }).extend(fechaHoraFormFields)
 
 export default function EmergencyForm({ onCloseModal, emergency }) {
   const isEditing = Boolean(emergency)

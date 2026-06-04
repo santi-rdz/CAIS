@@ -1,4 +1,4 @@
-import { getMe, logout as logoutApi } from '@services/ApiAuth'
+import { getMe, logout as logoutApi } from '@services/apiAuth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 

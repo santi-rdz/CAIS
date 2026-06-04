@@ -1,4 +1,4 @@
-import { getEmergency } from '@services/ApiEmergencies'
+import { getEmergency } from '@services/apiEmergencies'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 

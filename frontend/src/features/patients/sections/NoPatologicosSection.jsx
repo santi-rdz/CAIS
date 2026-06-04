@@ -2,7 +2,7 @@ import { HiOutlineBeaker } from 'react-icons/hi2'
 import Heading from '@components/Heading'
 import DataField from '@components/DataField'
 import StatusChip from '@components/StatusChip'
-import InmunizacionesSection from './InmunizacionesSection'
+import InmunizacionesSection from '@features/patients/sections/InmunizacionesSection'
 
 const SERVICIOS_ITEMS = [
   { label: 'Gas', key: 'gas' },

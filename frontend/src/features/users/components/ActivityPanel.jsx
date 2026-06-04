@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { HiOutlineSquares2X2, HiOutlineListBullet, HiOutlineClock } from 'react-icons/hi2'
 import EmptyState from '@components/EmptyState'
 import Filter from '@ui/Filter'
-import ActivityCard from './ActivityCard'
-import { useUserActivity } from '../hooks/useUserActivity'
+import ActivityCard from '@features/users/components/ActivityCard'
+import { useUserActivity } from '@features/users/hooks/useUserActivity'
 
 const FILTER_GROUPS = [
   {

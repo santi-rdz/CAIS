@@ -1,6 +1,6 @@
 import { useController, useFormContext } from 'react-hook-form'
-import FormRow from '@components/FormRow'
-import Input from '@components/Input'
+import FormRow from './components/FormRow'
+import Input from './components/Input'
 import { formatPhone } from '@lib/utils'
 
 export default function PhoneField({

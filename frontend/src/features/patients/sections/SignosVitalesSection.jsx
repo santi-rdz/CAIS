@@ -74,7 +74,7 @@ export default function SignosVitalesSection({ info }) {
         <Heading as="h4" showBar>
           Antropométrica
         </Heading>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2 max-sm:grid-cols-2">
           <VitalStat label="Peso" value={info.peso} unit="kg" />
           <VitalStat label="Altura" value={info.altura} unit="cm" />
           <VitalStat
@@ -94,7 +94,7 @@ export default function SignosVitalesSection({ info }) {
         <Heading as="h4" showBar>
           Signos Vitales
         </Heading>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2 max-sm:grid-cols-2">
           <VitalStat label="Presión arterial" value={pa} unit="mmHg" />
           <VitalStat label="Frec. cardíaca" value={info.fc} unit="lpm" />
           <VitalStat label="Frec. respiratoria" value={info.fr} unit="rpm" />

@@ -1,4 +1,4 @@
-import { deleteInvitation as apiDeleteInvitation } from '@services/ApiInvitations'
+import { deleteInvitation as apiDeleteInvitation } from '@services/apiInvitations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toastApiError } from '@lib/ApiError'

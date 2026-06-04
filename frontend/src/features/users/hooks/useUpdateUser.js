@@ -1,4 +1,4 @@
-import { updateUser as apiUpdateUser } from '@services/ApiUsers'
+import { updateUser as apiUpdateUser } from '@services/apiUsers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toastApiError } from '@lib/ApiError'

@@ -45,3 +45,4 @@ shared/package-lock.json
 
 # Husky runtime (auto-generated por prepare; los hooks user-facing sí se trackean)
 .husky/_/
+.claude/

@@ -42,7 +42,7 @@ export default function UserInfoPanel({ user }) {
       <Heading as="h3" showBar>
         Datos del usuario
       </Heading>
-      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-2 gap-5 max-sm:grid-cols-1">
         <DataField icon={<HiOutlineBriefcase size={14} />} label="Área" value={area} />
         <DataField
           icon={<HiOutlineCalendarDays size={14} />}

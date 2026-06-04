@@ -3,7 +3,7 @@ import { USER_SORT_KEYS } from '@cais/shared/constants/users'
 import Button from '@components/Button'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
-import UserRegisterForms from './UserRegisterForms'
+import UserRegisterForms from '@features/users/UserRegisterForms'
 import Filter from '@ui/Filter'
 import Input from '@components/Input'
 

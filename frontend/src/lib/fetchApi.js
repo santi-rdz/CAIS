@@ -1,5 +1,5 @@
-import { throwApiError } from '@lib/ApiError'
-import { BASE_URL } from '@lib/constants'
+import { throwApiError } from './ApiError'
+import { BASE_URL } from './constants'
 
 /**
  * Wrapper sobre fetch con credentials, JSON y manejo de errores.

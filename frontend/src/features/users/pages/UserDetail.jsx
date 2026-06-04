@@ -1,13 +1,13 @@
 import Modal from '@components/Modal'
 import Tab from '@components/Tab'
-import { useUser } from '../hooks/useUser'
-import useMe from '../hooks/useMe'
-import UserActionBar from '../components/UserActionBar'
-import UserHeader from '../components/UserHeader'
-import UserInfoPanel from '../components/UserInfoPanel'
-import ActivityPanel from '../components/ActivityPanel'
-import UserSkeleton from '../components/UserSkeleton'
-import InternForm from '../InternForm'
+import { useUser } from '@features/users/hooks/useUser'
+import useMe from '@features/users/hooks/useMe'
+import UserActionBar from '@features/users/components/UserActionBar'
+import UserHeader from '@features/users/components/UserHeader'
+import UserInfoPanel from '@features/users/components/UserInfoPanel'
+import ActivityPanel from '@features/users/components/ActivityPanel'
+import UserSkeleton from '@features/users/components/UserSkeleton'
+import InternForm from '@features/users/InternForm'
 
 export default function UserDetail() {
   const { user, isPending } = useUser()

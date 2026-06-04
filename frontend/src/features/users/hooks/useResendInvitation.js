@@ -1,4 +1,4 @@
-import { resendInvitation as apiResendInvitation } from '@services/ApiInvitations'
+import { resendInvitation as apiResendInvitation } from '@services/apiInvitations'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 

@@ -2,7 +2,7 @@ import { HiOutlinePlus } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
 import useMe from '@features/users/hooks/useMe'
-import MedicalPatientForm from '../forms/MedicalPatientForm/MedicalPatientForm'
+import MedicalPatientForm from '@features/patients/forms/MedicalPatientForm/MedicalPatientForm'
 
 const AREA_FORMS = {
   medicina: {

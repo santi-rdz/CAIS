@@ -11,10 +11,10 @@ import {
   HiOutlineTrash,
   HiLockOpen,
 } from 'react-icons/hi2'
-import useResendInvitation from './hooks/useResendInvitation'
-import useDeleteInvitation from './hooks/useDeleteInvitation'
-import useToggleUserEstado from './hooks/useToggleUserEstado'
-import useMe from './hooks/useMe'
+import useResendInvitation from '@features/users/hooks/useResendInvitation'
+import useDeleteInvitation from '@features/users/hooks/useDeleteInvitation'
+import useToggleUserEstado from '@features/users/hooks/useToggleUserEstado'
+import useMe from '@features/users/hooks/useMe'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
 import { useNavigate } from 'react-router-dom'

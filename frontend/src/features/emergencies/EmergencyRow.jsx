@@ -7,7 +7,7 @@ import DangerConfirm from '@components/DangerConfirm'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
 import { HiOutlineEye, HiOutlineTrash } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useDeleteEmergency } from './hooks/useDeleteEmergency'
+import { useDeleteEmergency } from '@features/emergencies/hooks/useDeleteEmergency'
 
 export default function EmergencyRow({ emergency }) {
   const { id, ubicacion, nombre, matricula, diagnostico, recurrente, fecha_hora } = emergency
