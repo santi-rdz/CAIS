@@ -121,7 +121,13 @@ export default function TimePickerComponent({ name, control, rules, label, hasEr
           onWheel={(e) => e.stopPropagation()}
         >
           {isOpen && (
-            <div onClick={handleClockClick}>
+            <div
+              onClick={handleClockClick}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') handleClockClick(e)
+              }}
+              role="presentation"
+            >
               <MultiSectionDigitalClock
                 value={time && time !== 'invalid' ? time : null}
                 onChange={handleClockChange}

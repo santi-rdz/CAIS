@@ -22,34 +22,38 @@ function ActivityItem({ item }) {
   const title = buildActivityTitle(item.accion, item.entidad)
   const timeAgo = formatDistanceToNow(new Date(item.fecha_hora), { addSuffix: true, locale: es })
 
-  return (
-    <div
-      onClick={navPath ? () => navigate(navPath) : undefined}
-      className={[
-        'flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5',
-        navPath ? 'cursor-pointer transition-colors hover:bg-gray-100' : '',
-      ].join(' ')}
-    >
-      {/* Entity icon */}
+  const interactive = Boolean(navPath)
+  const inner = (
+    <>
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${style.bg} ${style.text}`}
       >
         <Icon size={15} />
       </div>
-
-      {/* Text */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 text-left">
         <p className="truncate text-sm text-gray-800">
           <span className="font-semibold">{item.usuario}</span>{' '}
           <span className="text-gray-500">{title}</span>
         </p>
         <p className="text-xs text-neutral-400">{timeAgo}</p>
       </div>
-
-      {/* User avatar */}
       <UserAvatar foto={item.foto} email={item.email} />
-    </div>
+    </>
   )
+
+  if (interactive) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate(navPath)}
+        className="flex w-full items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5 text-left transition-colors hover:bg-gray-100"
+      >
+        {inner}
+      </button>
+    )
+  }
+
+  return <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2.5">{inner}</div>
 }
 
 // ── Feed ──────────────────────────────────────────────────────────────────────

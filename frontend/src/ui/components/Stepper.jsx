@@ -10,7 +10,7 @@ export default function Stepper({ steps, current, setCurrStep, gap = '', classNa
           const isActive = current === i
           return (
             <div
-              key={i}
+              key={step}
               className={`flex flex-1 shrink-0 items-center ${isLast ? 'grow-0' : ''}`}
               style={{ gap }}
             >

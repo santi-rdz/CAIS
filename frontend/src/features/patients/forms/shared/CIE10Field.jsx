@@ -114,13 +114,13 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
                     <span className="font-mono text-sm font-semibold text-green-800">
                       {code.codigo}
                     </span>
-                    <span className="max-w-[22ch] truncate text-xs text-zinc-600">
+                    <span className="max-w-[22ch] truncate text-xs text-green-900">
                       {code.descripcion}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemove(code.codigo)}
-                      className="flex size-4 shrink-0 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-red-100 hover:text-red-600"
+                      className="flex size-4 shrink-0 items-center justify-center rounded-full text-green-700 transition-colors hover:bg-red-100 hover:text-red-600"
                     >
                       <HiXMark size={11} />
                     </button>

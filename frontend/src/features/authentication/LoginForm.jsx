@@ -19,7 +19,7 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} role="form" data-testid="login-form">
+    <form onSubmit={handleSubmit(onSubmit)} data-testid="login-form">
       <DomainEmailInput
         id="email"
         register={register}

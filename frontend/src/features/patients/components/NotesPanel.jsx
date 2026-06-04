@@ -85,6 +85,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             {/* Layout Toggle Buttons */}
             <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
               <button
+                type="button"
                 className={`rounded p-2 text-gray-500 transition-colors ${
                   layout === 'grid' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
                 }`}
@@ -94,6 +95,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
                 <HiOutlineSquares2X2 size={16} />
               </button>
               <button
+                type="button"
                 className={`rounded p-2 text-gray-500 transition-colors ${
                   layout === 'list' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
                 }`}
@@ -119,7 +121,13 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             </Modal.Open>
           </div>
           <Modal.Open opens="create-note">
-            <button ref={openModalRef} type="button" className="hidden" aria-hidden="true" />
+            <button
+              ref={openModalRef}
+              type="button"
+              className="hidden"
+              tabIndex={-1}
+              aria-label="Abrir modal de nota"
+            />
           </Modal.Open>
         </div>
 

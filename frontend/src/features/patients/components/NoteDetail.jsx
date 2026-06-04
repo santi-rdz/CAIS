@@ -34,6 +34,7 @@ export default function NoteDetail({ note, onBack, onEdit }) {
       <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-zinc-50/60 px-5 py-4">
         <div className="flex min-w-0 items-center gap-2 text-zinc-500">
           <button
+            type="button"
             onClick={onBack}
             className="flex shrink-0 cursor-pointer items-center gap-1.5 text-zinc-400 transition-colors hover:text-zinc-700"
           >

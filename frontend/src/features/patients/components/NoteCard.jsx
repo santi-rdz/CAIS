@@ -12,8 +12,16 @@ export default function NoteCard({ note, onClick, onEdit, isSelected = false, la
   const isList = layout === 'list'
 
   return (
-    <article
+    <div
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onClick?.(e)
+        }
+      }}
+      role="button"
+      tabIndex={0}
       data-testid={`note-card-${note.id}`}
       className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-150 hover:border-teal-300 hover:shadow-md ${
         !isList && 'h-[220px]'
@@ -101,6 +109,6 @@ export default function NoteCard({ note, onClick, onEdit, isSelected = false, la
           <span className="text-7 text-zinc-300 italic">Sin diagnósticos</span>
         )}
       </div>
-    </article>
+    </div>
   )
 }

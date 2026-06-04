@@ -54,6 +54,7 @@ export default function ActivityPanel({ userId }) {
           <Filter groups={FILTER_GROUPS} placeholder="Filtrar actividad" />
           <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
             <button
+              type="button"
               className={`rounded p-2 text-gray-500 transition-colors ${
                 layout === 'list' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
               }`}
@@ -63,6 +64,7 @@ export default function ActivityPanel({ userId }) {
               <HiOutlineListBullet size={16} />
             </button>
             <button
+              type="button"
               className={`rounded p-2 text-gray-500 transition-colors ${
                 layout === 'grid' ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-50'
               }`}

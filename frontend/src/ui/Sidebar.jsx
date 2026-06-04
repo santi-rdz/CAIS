@@ -11,9 +11,12 @@ export function Sidebar({ isOpen, onClose }) {
   return (
     <>
       {/* Mobile overlay */}
-      <div
+      <button
+        type="button"
+        aria-label="Cerrar menú"
         onClick={onClose}
-        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 lg:hidden ${
+        tabIndex={isOpen ? 0 : -1}
+        className={`fixed inset-0 z-40 cursor-default bg-black/40 transition-opacity duration-300 lg:hidden ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
       />
