@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { validateToken } from '@services/ApiInvitations'
+import { validateToken } from '@services/apiInvitations'
 
 export function useInvitedUser(token) {
   return useQuery({

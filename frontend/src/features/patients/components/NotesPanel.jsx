@@ -8,15 +8,15 @@ import {
 } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
-import { useEvolutionNotes } from '../hooks/useEvolutionNotes'
-import { useEvolutionNote } from '../hooks/useEvolutionNote'
-import { useMedicalHistories } from '../hooks/useMedicalHistories'
+import { useEvolutionNotes } from '@features/patients/hooks/useEvolutionNotes'
+import { useEvolutionNote } from '@features/patients/hooks/useEvolutionNote'
+import { useMedicalHistories } from '@features/patients/hooks/useMedicalHistories'
 import { formatFecha } from '@lib/dateHelpers'
-import HistoriaPeriodSelect from './HistoriaPeriodSelect'
-import NoteCard from './NoteCard'
-import NoteDetail from './NoteDetail'
+import HistoriaPeriodSelect from '@features/patients/components/HistoriaPeriodSelect'
+import NoteCard from '@features/patients/components/NoteCard'
+import NoteDetail from '@features/patients/components/NoteDetail'
 import EmptyState from '@components/EmptyState'
-import EvolutionNoteForm from '../forms/EvolutionNoteForm/EvolutionNoteForm'
+import EvolutionNoteForm from '@features/patients/forms/EvolutionNoteForm/EvolutionNoteForm'
 
 function formatHistoriaOption(h) {
   return { value: h.id, label: formatFecha(h.creado_at) }

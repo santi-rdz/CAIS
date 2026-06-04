@@ -5,7 +5,7 @@ import Input from '@components/Input'
 import SortBy from '@ui/SortBy'
 import TableOperations from '@ui/TableOperations'
 import { HiArrowDown, HiArrowUp, HiMagnifyingGlass, HiOutlinePlus } from 'react-icons/hi2'
-import EmergencyForm from './EmergencyForm'
+import EmergencyForm from '@features/emergencies/EmergencyForm'
 import Modal from '@components/Modal'
 import { EMERGENCY_SORT_KEYS } from '@cais/shared/constants/emergencies'
 

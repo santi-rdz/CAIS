@@ -3,14 +3,14 @@ import DangerConfirm from '@components/DangerConfirm'
 import { formatFechaLong } from '@lib/dateHelpers'
 import { HiOutlineTrash } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import { useEmergency } from './hooks/useEmergency'
-import { useDeleteEmergency } from './hooks/useDeleteEmergency'
-import EmergencyForm from './EmergencyForm'
-import ActionBar from './components/ActionBar'
-import HeaderCard from './components/HeaderCard'
-import PatientCard from './components/PatientCard'
-import MedicalCard from './components/MedicalCard'
-import Skeleton from './components/Skeleton'
+import { useEmergency } from '@features/emergencies/hooks/useEmergency'
+import { useDeleteEmergency } from '@features/emergencies/hooks/useDeleteEmergency'
+import EmergencyForm from '@features/emergencies/EmergencyForm'
+import ActionBar from '@features/emergencies/components/ActionBar'
+import HeaderCard from '@features/emergencies/components/HeaderCard'
+import PatientCard from '@features/emergencies/components/PatientCard'
+import MedicalCard from '@features/emergencies/components/MedicalCard'
+import Skeleton from '@features/emergencies/components/Skeleton'
 
 export default function EmergencyDetail() {
   const { emergency, isPending } = useEmergency()
@@ -25,7 +25,7 @@ export default function EmergencyDetail() {
       <div className="space-y-6">
         <ActionBar emergencyDate={formatFechaLong(emergency.fecha_hora)} isDeleting={isDeleting} />
         <HeaderCard emergency={emergency} />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
           <PatientCard emergency={emergency} />
           <MedicalCard emergency={emergency} />
         </div>

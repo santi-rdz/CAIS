@@ -5,8 +5,8 @@ import { changePasswordSchema } from '@cais/shared/schemas/password'
 import PasswordInput from '@components/PasswordInput'
 import Button from '@components/Button'
 import Heading from '@components/Heading'
-import PasswordRequirements from './components/PasswordRequirements'
-import useChangePassword from './hooks/useChangePassword'
+import PasswordRequirements from '@features/users/components/PasswordRequirements'
+import useChangePassword from '@features/users/hooks/useChangePassword'
 
 export default function ChangePasswordForm() {
   const { changePassword, isChanging } = useChangePassword()

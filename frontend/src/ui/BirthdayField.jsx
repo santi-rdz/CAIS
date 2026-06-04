@@ -1,6 +1,6 @@
 import { useWatch } from 'react-hook-form'
 import dayjs from 'dayjs'
-import FormRow from '@components/FormRow'
+import FormRow from './components/FormRow'
 import DatePickerComponent from './DatePickerComponent'
 
 export default function BirthdayField({

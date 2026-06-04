@@ -1,4 +1,4 @@
-import { createInvitations as apiCreateInvitations } from '@services/ApiInvitations'
+import { createInvitations as apiCreateInvitations } from '@services/apiInvitations'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toastApiError } from '@lib/ApiError'

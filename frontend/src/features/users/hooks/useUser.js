@@ -1,4 +1,4 @@
-import { getUser } from '@services/ApiUsers'
+import { getUser } from '@services/apiUsers'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 

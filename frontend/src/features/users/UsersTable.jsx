@@ -1,8 +1,8 @@
 import Table from '@components/Table'
-import UserRow from './UserRow'
-import { useUsers } from './hooks/useUsers'
+import UserRow from '@features/users/UserRow'
+import { useUsers } from '@features/users/hooks/useUsers'
 import Pagination from '@components/Pagination'
-import useMe from './hooks/useMe'
+import useMe from '@features/users/hooks/useMe'
 
 export default function UsersTable() {
   const { users, count, isPending } = useUsers()

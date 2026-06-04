@@ -5,21 +5,8 @@ import Stepper from '@components/Stepper'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider } from 'react-hook-form'
 import { HiCheck, HiChevronLeft, HiChevronRight } from 'react-icons/hi2'
-import { pasanteSchema, pasanteSignupSchema } from '@cais/shared/schemas/users'
-import { dayjsDateSchema } from '@cais/shared/schemas/fields'
+import { buildInternCreateSchema, internEditSchema, internSignupFormSchema } from '@schemas/users'
 import dayjs from 'dayjs'
-
-const internSignupFormSchema = pasanteSignupSchema
-  .omit({ token: true })
-  .extend({ fecha_nacimiento: dayjsDateSchema })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmPassword'],
-  })
-
-const internEditSchema = pasanteSchema
-  .omit({ rol: true, password: true })
-  .extend({ fecha_nacimiento: dayjsDateSchema })
 
 function parseUserDefaults(user) {
   const nombre = user.nombre ?? ''
@@ -42,14 +29,14 @@ function parseUserDefaults(user) {
   }
 }
 
-import useCreateUser from './hooks/useCreateUser'
-import useUpdateUser from './hooks/useUpdateUser'
+import useCreateUser from '@features/users/hooks/useCreateUser'
+import useUpdateUser from '@features/users/hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
-import { useStepForm } from '../../hooks/useStepForm'
-import PasswordForm from './PasswordForm'
-import RegistrationPasswordForm from './RegistrationPasswordForm'
-import InterPersonalInfoForm from './InterPersonalInfoForm'
-import InterAcademicInfoForm from './InterAcademicInfoForm'
+import { useStepForm } from '@hooks/useStepForm'
+import PasswordForm from '@features/users/PasswordForm'
+import RegistrationPasswordForm from '@features/users/RegistrationPasswordForm'
+import InterPersonalInfoForm from '@features/users/InterPersonalInfoForm'
+import InterAcademicInfoForm from '@features/users/InterAcademicInfoForm'
 import Modal from '@components/Modal'
 
 const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
@@ -74,9 +61,7 @@ export default function InternForm({
   const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
 
-  const createFormSchema = pasanteSchema
-    .omit({ rol: true })
-    .extend({ fecha_nacimiento: dayjsDateSchema, correo: correoField })
+  const createFormSchema = buildInternCreateSchema(correoField)
 
   const allPersonalAndAcademicFields = [
     'nombre',

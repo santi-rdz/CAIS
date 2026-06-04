@@ -5,8 +5,8 @@ import {
   HiBuildingLibrary,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
-import Tag from '@components/Tag'
-import DropdownPanel from '@components/DropdownPanel'
+import Tag from './components/Tag'
+import DropdownPanel from './components/DropdownPanel'
 
 const NAV_ITEMS = [
   { icon: HiOutlineUser, label: 'Mi Perfil', path: '/perfil' },

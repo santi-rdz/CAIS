@@ -1,6 +1,6 @@
 import Heading from '@components/Heading'
 import DataField from '@components/DataField'
-import CIE10List from './CIE10List'
+import CIE10List from '@features/patients/sections/CIE10List'
 
 export default function PlanEstudioSection({ plan }) {
   const { cie10_codes, plan_tratamiento, tratamiento, estudios_complementarios } = plan ?? {}
@@ -10,7 +10,7 @@ export default function PlanEstudioSection({ plan }) {
         <Heading as="h4" showBar>
           Plan y Tratamiento
         </Heading>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
           <DataField label="Plan de tratamiento" value={plan_tratamiento} multiline block />
           <DataField label="Tratamiento" value={tratamiento} multiline block />
         </div>

@@ -3,7 +3,7 @@ import { HiChevronDoubleLeft, HiMagnifyingGlass, HiOutlineXMark } from 'react-ic
 import MainNav from './MainNav'
 import ProfileCard from './ProfileCard'
 import Logo from './Logo'
-import Input from '@components/Input'
+import Input from './components/Input'
 
 export function Sidebar({ isOpen, onClose }) {
   const [isExpanded, setIsExpanded] = useState(true)

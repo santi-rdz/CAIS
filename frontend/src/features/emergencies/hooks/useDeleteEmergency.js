@@ -1,7 +1,7 @@
 import { formatFecha } from '@lib/dateHelpers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { deleteEmergency as apiDeleteEmergency } from '@services/ApiEmergencies'
+import { deleteEmergency as apiDeleteEmergency } from '@services/apiEmergencies'
 import { toastApiError } from '@lib/ApiError'
 
 export function useDeleteEmergency() {

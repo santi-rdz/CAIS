@@ -1,6 +1,6 @@
 import Tab from '@components/Tab'
-import InternForm from './InternForm'
-import CoordForm from './CoordForm'
+import InternForm from '@features/users/InternForm'
+import CoordForm from '@features/users/CoordForm'
 
 export default function UserForm({ onClose }) {
   return (

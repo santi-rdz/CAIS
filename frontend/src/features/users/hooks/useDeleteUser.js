@@ -1,4 +1,4 @@
-import { deleteUser as deleteUserApi } from '@services/ApiUsers'
+import { deleteUser as deleteUserApi } from '@services/apiUsers'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { toastApiError } from '@lib/ApiError'

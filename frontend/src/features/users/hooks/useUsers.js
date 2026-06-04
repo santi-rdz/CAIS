@@ -1,5 +1,5 @@
 import { PAGE_SIZE } from '@lib/constants'
-import { getUsers } from '@services/ApiUsers'
+import { getUsers } from '@services/apiUsers'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import { usePrefetchPages } from '@hooks/usePrefetchPages'

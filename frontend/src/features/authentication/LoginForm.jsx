@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import DomainEmailInput from '@ui/DomainEmailInput'
 import PasswordInput from '@components/PasswordInput'
-import useLogin from './useLogin'
+import useLogin from '@features/authentication/useLogin'
 import Button from '@components/Button'
 import Checkbox from '@components/Checkbox'
 

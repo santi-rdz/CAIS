@@ -36,7 +36,7 @@ export default function PersonalDataPanel({ patient }) {
       <Heading as="h3" showBar>
         Datos personales
       </Heading>
-      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-2 gap-5 max-sm:grid-cols-1">
         <DataField
           icon={<HiOutlineMapPin size={14} />}
           label="Domicilio"
@@ -74,7 +74,7 @@ export default function PersonalDataPanel({ patient }) {
           Contacto de emergencia
         </Heading>
         {hasContact ? (
-          <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="mt-5 grid grid-cols-2 gap-5 max-sm:grid-cols-1">
             <DataField
               icon={<HiOutlineUser size={14} />}
               label="Nombre"

@@ -1,6 +1,6 @@
 import PasswordInput from '@components/PasswordInput'
 import { useFormContext } from 'react-hook-form'
-import PasswordRequirements from './components/PasswordRequirements'
+import PasswordRequirements from '@features/users/components/PasswordRequirements'
 
 export default function RegistrationPasswordForm() {
   const { register, formState, watch } = useFormContext()

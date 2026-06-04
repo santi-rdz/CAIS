@@ -1,5 +1,5 @@
 import { HiMagnifyingGlass, HiOutlineBars3 } from 'react-icons/hi2'
-import Input from '@components/Input'
+import Input from './components/Input'
 import NewPatientButton from '@features/patients/components/NewPatientButton'
 import Logo from './Logo'
 
