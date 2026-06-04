@@ -5,7 +5,7 @@ import { toast } from 'sonner'
  * @property {string} message - Mensaje principal del error.
  * @property {{ field: string, message: string }[]} fields - Errores por campo.
  */
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(message, fields = []) {
     super(message)
     this.fields = fields

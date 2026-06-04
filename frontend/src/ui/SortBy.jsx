@@ -1,20 +1,19 @@
-import { useContext } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { HiArrowsUpDown, HiXMark } from 'react-icons/hi2'
 import {
   Select,
   SelectContent,
-  SelectContext,
   SelectFooter,
   SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useSelect,
 } from './components/Select'
 
 // Botón "Limpiar" que cierra el dropdown automáticamente
 function ClearButton({ onClear }) {
-  const { close } = useContext(SelectContext)
+  const { close } = useSelect()
   return (
     <button
       type="button"

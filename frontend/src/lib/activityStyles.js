@@ -9,7 +9,7 @@ import {
   HiOutlineArrowRightOnRectangle,
 } from 'react-icons/hi2'
 
-export const ENTITY_STYLE = {
+const ENTITY_STYLE = {
   NOTA_EVOLUCION: { icon: HiOutlineDocumentText, bg: 'bg-rose-50', text: 'text-rose-500' },
   HISTORIA_MEDICA: { icon: HiOutlineClipboardDocument, bg: 'bg-sky-100', text: 'text-sky-600' },
   EMERGENCIA: { icon: HiOutlineExclamationTriangle, bg: 'bg-amber-50', text: 'text-amber-500' },
@@ -17,7 +17,7 @@ export const ENTITY_STYLE = {
   USUARIO: { icon: HiOutlineUser, bg: 'bg-gray-100', text: 'text-gray-500' },
 }
 
-export const ACCION_STYLE_OVERRIDE = {
+const ACCION_STYLE_OVERRIDE = {
   ACTUALIZAR: { icon: HiOutlinePencilSquare, bg: 'bg-blue-50', text: 'text-blue-500' },
   ELIMINAR: { icon: HiOutlineTrash, bg: 'bg-rose-50', text: 'text-rose-500' },
   INICIAR_SESION: {
@@ -33,7 +33,7 @@ export function getActivityStyle(accion, entidad) {
   return ACCION_STYLE_OVERRIDE[accion] ?? ENTITY_STYLE[entidad] ?? FALLBACK
 }
 
-export const ENTITY_LABEL = {
+const ENTITY_LABEL = {
   NOTA_EVOLUCION: 'una nota de evolución',
   HISTORIA_MEDICA: 'una historia médica',
   PACIENTE: 'un paciente',
@@ -41,7 +41,7 @@ export const ENTITY_LABEL = {
   USUARIO: 'un usuario',
 }
 
-export const ACCION_LABEL = {
+const ACCION_LABEL = {
   CREAR: 'creó',
   ACTUALIZAR: 'actualizó',
   ELIMINAR: 'eliminó',

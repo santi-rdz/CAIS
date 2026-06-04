@@ -5,7 +5,7 @@ import { DEFAULT_VALUES } from '@features/patients/forms/MedicalPatientForm/form
 
 const PATIENT_KEYS = new Set(Object.keys(patientSchema.shape))
 
-export const HISTORY_NESTED_KEYS = new Set([
+const HISTORY_NESTED_KEYS = new Set([
   'antecedentes_familiares',
   'antecedentes_patologicos',
   'antecedentes_no_patologicos',

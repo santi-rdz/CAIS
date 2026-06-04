@@ -94,7 +94,7 @@ export default function ExploracionFisicaStep() {
         <p className="text-5 font-medium text-zinc-700">Somatometría</p>
 
         {SOMATOMETRIA.map((row, i) => (
-          <Grid key={i} cols={4} gap={4} mobileCols={2}>
+          <Grid key={row.map((c) => c.name).join('-')} cols={4} gap={4} mobileCols={2}>
             {row.map(({ name, label, step }) => (
               <FormRow key={name} htmlFor={name} label={label}>
                 <Input
