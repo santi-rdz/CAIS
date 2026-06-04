@@ -23,7 +23,7 @@ export default function useMe() {
       // sesión ya expirada en el servidor — limpiamos el estado local igual
     }
     try {
-      localStorage.setItem('session_event', JSON.stringify({ type: 'logout', ts: Date.now() }))
+      localStorage.setItem('session_event:v1', JSON.stringify({ type: 'logout', ts: Date.now() }))
     } catch {
       // localStorage deshabilitado o cuota excedida — continuamos el logout igual
     }

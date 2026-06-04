@@ -1,20 +1,3 @@
-export const PERIODOS = [
-  { value: '2026-2031', label: '2026–2031 (actual)' },
-  { value: '2021-2026', label: '2021–2026' },
-  { value: '2016-2021', label: '2016–2021' },
-]
-
-export const SECCIONES = [
-  { id: 'consulta', label: 'Consulta' },
-  { id: 'signos', label: 'Signos vitales' },
-  { id: 'ant-patologicos', label: 'Ant. patológicos' },
-  { id: 'ant-familiares', label: 'Ant. familiares' },
-  { id: 'aparatos', label: 'Aparatos y sistemas' },
-  { id: 'inmunizaciones', label: 'Inmunizaciones' },
-  { id: 'plan', label: 'Plan de estudio' },
-  { id: 'servicios', label: 'Servicios' },
-]
-
 export function buildAntPatFields(ap) {
   ap ??= {}
   return [

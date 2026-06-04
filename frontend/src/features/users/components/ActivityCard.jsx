@@ -20,6 +20,9 @@ export default function ActivityCard({ activity, layout = 'list', isLast = false
 
   const displayTitle = title.charAt(0).toUpperCase() + title.slice(1)
   const clickable = Boolean(navPath)
+  const handleActivate = () => {
+    if (clickable) navigate(navPath)
+  }
 
   // ── Timeline / list mode ─────────────────────────────────────────
   if (layout === 'list') {
@@ -35,30 +38,29 @@ export default function ActivityCard({ activity, layout = 'list', isLast = false
         </div>
 
         <div className={`flex-1 ${!isLast ? 'mb-5' : ''}`}>
-          <div
-            onClick={clickable ? () => navigate(navPath) : undefined}
-            className={[
-              'shadow-card rounded-2xl border border-gray-100 bg-white px-5 py-4',
-              clickable ? 'cursor-pointer transition-colors hover:bg-gray-50' : '',
-            ].join(' ')}
-          >
-            <p className="text-5 font-semibold text-zinc-800">{displayTitle}</p>
-            <time className="text-6 mt-2 block text-zinc-400">{dateStr}</time>
-          </div>
+          {clickable ? (
+            <button
+              type="button"
+              onClick={handleActivate}
+              className="shadow-card block w-full cursor-pointer rounded-2xl border border-gray-100 bg-white px-5 py-4 text-left transition-colors hover:bg-gray-50"
+            >
+              <p className="text-5 font-semibold text-zinc-800">{displayTitle}</p>
+              <time className="text-6 mt-2 block text-zinc-400">{dateStr}</time>
+            </button>
+          ) : (
+            <div className="shadow-card rounded-2xl border border-gray-100 bg-white px-5 py-4">
+              <p className="text-5 font-semibold text-zinc-800">{displayTitle}</p>
+              <time className="text-6 mt-2 block text-zinc-400">{dateStr}</time>
+            </div>
+          )}
         </div>
       </div>
     )
   }
 
   // ── Grid mode ────────────────────────────────────────────────────
-  return (
-    <article
-      onClick={clickable ? () => navigate(navPath) : undefined}
-      className={[
-        'shadow-card flex h-[160px] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white',
-        clickable ? 'cursor-pointer transition-colors hover:bg-gray-50' : '',
-      ].join(' ')}
-    >
+  const gridContent = (
+    <>
       <div className="flex shrink-0 items-start gap-3 px-4 pt-4 pb-2">
         <div
           className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${style.bg} ${style.text}`}
@@ -73,6 +75,24 @@ export default function ActivityCard({ activity, layout = 'list', isLast = false
       <div className="shrink-0 border-t border-gray-100 px-4 py-2.5">
         <time className="text-6 text-zinc-400">{dateStr}</time>
       </div>
-    </article>
+    </>
+  )
+
+  if (clickable) {
+    return (
+      <button
+        type="button"
+        onClick={handleActivate}
+        className="shadow-card flex h-[160px] cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white text-left transition-colors hover:bg-gray-50"
+      >
+        {gridContent}
+      </button>
+    )
+  }
+
+  return (
+    <div className="shadow-card flex h-[160px] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white">
+      {gridContent}
+    </div>
   )
 }

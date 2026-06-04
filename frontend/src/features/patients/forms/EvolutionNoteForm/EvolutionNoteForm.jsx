@@ -27,6 +27,8 @@ const STEP_COMPONENTS = [
   PlanDiagnosticoStep,
 ]
 
+const NESTED_KEYS = ['aparatos_sistemas', 'informacion_fisica', 'planes_estudio']
+
 const DEFAULT_VALUES_TEMPLATE = {
   // Step 1 – fecha y hora (computed dynamically)
   motivo_consulta: '',
@@ -108,8 +110,6 @@ export default function EvolutionNoteForm({
   } = stepForm
 
   const StepComponent = STEP_COMPONENTS[currStep]
-
-  const NESTED_KEYS = ['aparatos_sistemas', 'informacion_fisica', 'planes_estudio']
 
   async function onSubmit(data) {
     if (isEdit) {

@@ -32,6 +32,7 @@ export default function Pagination({ count }) {
 
       <div className="flex gap-1.5">
         <button
+          type="button"
           onClick={prevPage}
           disabled={currPage === 1}
           className="flex items-center justify-center gap-1 rounded-sm border-none bg-gray-50 px-3 py-1.5 text-sm font-medium transition-all hover:bg-green-800 hover:text-green-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 disabled:hover:text-inherit"
@@ -41,6 +42,7 @@ export default function Pagination({ count }) {
         </button>
 
         <button
+          type="button"
           onClick={nextPage}
           disabled={currPage === pageCount}
           className="flex items-center justify-center gap-1 rounded-sm border-none bg-gray-50 px-3 py-1.5 text-sm font-medium transition-all hover:bg-green-800 hover:text-green-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 disabled:hover:text-inherit"

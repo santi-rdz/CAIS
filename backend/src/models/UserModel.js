@@ -65,11 +65,14 @@ function buildUserWhere({ statuses, rol, search, areaId }) {
     }
   }
   if (search) {
-    where.OR = [
-      { nombre: { contains: search } },
-      { apellidos: { contains: search } },
-      { correo: { contains: search } },
-    ]
+    const tokens = search.trim().split(/\s+/).filter(Boolean)
+    where.AND = tokens.map((token) => ({
+      OR: [
+        { nombre: { contains: token } },
+        { apellidos: { contains: token } },
+        { correo: { contains: token } },
+      ],
+    }))
   }
   if (areaId != null) {
     where.area_id = areaId

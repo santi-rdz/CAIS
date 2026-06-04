@@ -1,19 +1,18 @@
-import { useContext } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { HiOutlineFunnel, HiXMark } from 'react-icons/hi2'
 import {
   Select,
   SelectContent,
-  SelectContext,
   SelectFooter,
   SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useSelect,
 } from './components/Select'
 
 function ClearButton({ onClear }) {
-  const { close } = useContext(SelectContext)
+  const { close } = useSelect()
   return (
     <button
       type="button"

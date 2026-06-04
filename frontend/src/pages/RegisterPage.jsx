@@ -3,7 +3,7 @@ import InternForm from '@features/users/InternForm'
 import { useInvitedUser } from '@features/users/hooks/useInvitedUser'
 import { toastApiError } from '@lib/ApiError'
 import { registroUsuario } from '@services/apiUsers'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Spinner from '@components/Spinner'
 import { toast } from 'sonner'
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
@@ -13,10 +13,12 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const token = searchParams.get('token')
   const { data: invitedUser, isLoading, isError } = useInvitedUser(token)
+  const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
     mutationFn: registroUsuario,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
       toast.success('Registro completado exitosamente')
       navigate('/login')
     },

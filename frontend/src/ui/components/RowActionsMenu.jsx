@@ -1,7 +1,7 @@
 import { HiEllipsisVertical } from 'react-icons/hi2'
 import useClickOutside from '@hooks/useClickOutside'
 import DropdownPanel from './DropdownPanel'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 
 export default function RowActionsMenu({ children, 'data-testid': testId }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -9,20 +9,24 @@ export default function RowActionsMenu({ children, 'data-testid': testId }) {
   const ref = useClickOutside(() => setIsOpen(false), true)
   const [style, setStyle] = useState({})
 
-  useEffect(() => {
-    if (!isOpen || !triggerRef.current) return
-    const rect = triggerRef.current.getBoundingClientRect()
-    setStyle({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
-  }, [isOpen])
+  function handleToggle(e) {
+    e.stopPropagation()
+    setIsOpen((v) => {
+      const next = !v
+      if (next && triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect()
+        setStyle({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+      }
+      return next
+    })
+  }
 
   return (
     <div>
       <button
+        type="button"
         ref={triggerRef}
-        onClick={(e) => {
-          e.stopPropagation()
-          setIsOpen((v) => !v)
-        }}
+        onClick={handleToggle}
         className="cursor-pointer rounded-sm p-1 text-gray-700 duration-200 hover:bg-gray-100"
         data-testid={testId}
       >

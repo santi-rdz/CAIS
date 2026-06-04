@@ -1,10 +1,12 @@
 import Button from './Button'
 import Row from './Row'
 
+const EMPTY_SECONDARY = {}
+
 export default function ModalActions({
   onClose,
   primaryAction,
-  secondaryAction = {},
+  secondaryAction = EMPTY_SECONDARY,
   quickSaveAction = null,
   cancelLabel = 'Cancelar',
   className = '',

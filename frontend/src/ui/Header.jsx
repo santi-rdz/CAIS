@@ -6,6 +6,7 @@ import Logo from './Logo'
 export function Header({ onMenuOpen, menuOpen }) {
   const hamburger = (
     <button
+      type="button"
       onClick={onMenuOpen}
       aria-label="Abrir menú"
       aria-expanded={menuOpen}

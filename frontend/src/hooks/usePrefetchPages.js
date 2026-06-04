@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 /**
@@ -13,22 +13,27 @@ import { useQueryClient } from '@tanstack/react-query'
  */
 export function usePrefetchPages({ queryKey, queryFn, page, pageCount, count }) {
   const queryClient = useQueryClient()
+  const queryFnRef = useRef(queryFn)
+  queryFnRef.current = queryFn
+
+  const queryKeyStr = JSON.stringify(queryKey)
 
   useEffect(() => {
     if (!count) return
+    const baseKey = JSON.parse(queryKeyStr)
 
     if (page < pageCount) {
       queryClient.prefetchQuery({
-        queryKey: [...queryKey, page + 1],
-        queryFn: () => queryFn(page + 1),
+        queryKey: [...baseKey, page + 1],
+        queryFn: () => queryFnRef.current(page + 1),
       })
     }
 
     if (page > 1) {
       queryClient.prefetchQuery({
-        queryKey: [...queryKey, page - 1],
-        queryFn: () => queryFn(page - 1),
+        queryKey: [...baseKey, page - 1],
+        queryFn: () => queryFnRef.current(page - 1),
       })
     }
-  }, [queryClient, page, pageCount, count, ...queryKey])
+  }, [queryClient, page, pageCount, count, queryKeyStr])
 }

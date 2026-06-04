@@ -76,7 +76,7 @@ export default function CoordForm({
     isLast,
     methods,
     handleSubmit,
-    getFormKeyDown,
+    getFormSubmit,
   } = useStepForm(steps, stepsFields, defaultValues, resolver)
 
   const busy = isEdit ? isUpdating : registration ? isPending : isCreating
@@ -185,7 +185,7 @@ export default function CoordForm({
       )}
       <form
         className={registration ? 'mt-6 space-y-6' : 'mt-6'}
-        onKeyDown={getFormKeyDown(onSubmit, busy)}
+        onSubmit={getFormSubmit(onSubmit, busy)}
       >
         {currStep === 0 && (
           <CoordPersonalInfoForm
@@ -195,6 +195,7 @@ export default function CoordForm({
           />
         )}
         {!isEdit && currStep === 1 && <PasswordComponent />}
+        <button type="submit" hidden tabIndex={-1} aria-hidden="true" />
       </form>
     </>
   )

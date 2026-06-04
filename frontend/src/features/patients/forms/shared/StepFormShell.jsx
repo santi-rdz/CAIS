@@ -40,7 +40,7 @@ export default function StepFormShell({
   isLast,
   methods,
   handleSubmit,
-  getFormKeyDown,
+  getFormSubmit,
   onSubmit,
   isPending = false,
   isEdit = false,
@@ -77,7 +77,10 @@ export default function StepFormShell({
         </Modal.Heading>
 
         <ModalBody>
-          <form onKeyDown={getFormKeyDown(onSubmit, isPending)}>{children}</form>
+          <form onSubmit={getFormSubmit(onSubmit, isPending)}>
+            {children}
+            <button type="submit" hidden tabIndex={-1} aria-hidden="true" />
+          </form>
         </ModalBody>
 
         <ModalActions

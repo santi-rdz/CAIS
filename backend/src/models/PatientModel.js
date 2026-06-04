@@ -30,11 +30,14 @@ export class PatientModel {
     }
 
     if (search) {
-      where.OR = [
-        { nombre: { contains: search } },
-        { apellidos: { contains: search } },
-        { telefono: { contains: search } },
-      ]
+      const tokens = search.trim().split(/\s+/).filter(Boolean)
+      where.AND = tokens.map((token) => ({
+        OR: [
+          { nombre: { contains: token } },
+          { apellidos: { contains: token } },
+          { telefono: { contains: token } },
+        ],
+      }))
     }
 
     const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { creado_at: 'desc' }

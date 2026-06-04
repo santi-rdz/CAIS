@@ -8,7 +8,7 @@ export default function useSessionSync() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (e.key !== 'session_event' || !e.newValue) return
+      if (e.key !== 'session_event:v1' || !e.newValue) return
 
       let parsed
       try {

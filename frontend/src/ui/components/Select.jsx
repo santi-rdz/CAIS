@@ -1,4 +1,4 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react'
+import { createContext, useCallback, use, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
@@ -8,11 +8,13 @@ import { cn } from '@lib/utils'
 
 // ─── Context ─────────────────────────────────────────────────────────────────
 
-export const SelectContext = createContext()
+const SelectContext = createContext()
 
-function useSelect() {
-  return useContext(SelectContext)
+export function useSelect() {
+  return use(SelectContext)
 }
+
+const EMPTY_VALUES = []
 
 // ─── Design tokens (single source of truth) ──────────────────────────────────
 
@@ -30,7 +32,7 @@ export function Select({
   onValueChange,
   // multi-select
   multiple = false,
-  values = [],
+  values = EMPTY_VALUES,
   onValuesChange,
   dropdownHeight = 300,
   align = 'auto',
@@ -49,23 +51,24 @@ export function Select({
 
   const { onEnter, onLeave } = useHoverOpen(open, close)
 
-  function registerLabel(val, label) {
+  const registerLabel = useCallback((val, label) => {
     labelsRef.current[val] = label
-  }
+  }, [])
 
-  function getLabelForValue(val) {
-    return labelsRef.current[val] ?? null
-  }
+  const getLabelForValue = useCallback((val) => labelsRef.current[val] ?? null, [])
 
-  function handleValueChange(val) {
-    if (multiple) {
-      const next = values.includes(val) ? values.filter((v) => v !== val) : [...values, val]
-      onValuesChange?.(next)
-    } else {
-      onValueChange?.(val)
-      close()
-    }
-  }
+  const handleValueChange = useCallback(
+    (val) => {
+      if (multiple) {
+        const next = values.includes(val) ? values.filter((v) => v !== val) : [...values, val]
+        onValuesChange?.(next)
+      } else {
+        onValueChange?.(val)
+        close()
+      }
+    },
+    [multiple, values, onValuesChange, onValueChange, close]
+  )
 
   // One layout re-render so SelectValue reads labels registered by SelectItems
   useLayoutEffect(() => {
@@ -83,23 +86,39 @@ export function Select({
     }, 0)
   }
 
+  const contextValue = useMemo(
+    () => ({
+      value,
+      values,
+      multiple,
+      handleValueChange,
+      isOpen,
+      hasError,
+      openAbove,
+      positionStyle,
+      registerLabel,
+      getLabelForValue,
+      toggle,
+      close,
+    }),
+    [
+      value,
+      values,
+      multiple,
+      handleValueChange,
+      isOpen,
+      hasError,
+      openAbove,
+      positionStyle,
+      registerLabel,
+      getLabelForValue,
+      toggle,
+      close,
+    ]
+  )
+
   return (
-    <SelectContext.Provider
-      value={{
-        value,
-        values,
-        multiple,
-        handleValueChange,
-        isOpen,
-        hasError,
-        openAbove,
-        positionStyle,
-        registerLabel,
-        getLabelForValue,
-        toggle,
-        close,
-      }}
-    >
+    <SelectContext.Provider value={contextValue}>
       <div
         ref={triggerRef}
         className={cn('relative', hasError && 'rounded-lg ring-1 ring-red-400', className)}
@@ -186,12 +205,6 @@ export function SelectContent({ children, portal = false }) {
   )
 }
 
-// ─── Header (action row above options) ───────────────────────────────────────
-
-export function SelectHeader({ children }) {
-  return <div className="mb-1 border-b border-gray-100 pb-1">{children}</div>
-}
-
 // ─── Footer (action row below options) ───────────────────────────────────────
 
 export function SelectFooter({ children }) {
@@ -258,19 +271,5 @@ export function SelectItem({ children, value, icon: Icon }) {
 
       {!multiple && isActive && <HiCheck size={12} className="ml-auto shrink-0 text-green-700" />}
     </button>
-  )
-}
-
-// ─── Standalone primitives (for edge cases) ───────────────────────────────────
-
-export function SelectSeparator() {
-  return <div className="my-1 border-t border-gray-100" />
-}
-
-export function SelectLabel({ children }) {
-  return (
-    <p className="px-3 pt-0.5 pb-1 text-[10px] font-semibold tracking-widest text-gray-400 uppercase select-none">
-      {children}
-    </p>
   )
 }

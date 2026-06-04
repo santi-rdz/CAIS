@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'react'
+import { createContext, use, useMemo } from 'react'
 
 const TableContext = createContext()
 
 export default function Table({ columns = '', children }) {
+  const value = useMemo(() => ({ columns }), [columns])
   return (
-    <TableContext.Provider value={{ columns }}>
+    <TableContext.Provider value={value}>
       <div className="text-5 text-dark-gray shadow-card mt-4 overflow-x-auto rounded-2xl border border-gray-100 bg-white">
         <div className="min-w-4xl">{children}</div>
       </div>
@@ -13,7 +14,7 @@ export default function Table({ columns = '', children }) {
 }
 
 Table.Header = function TableHeader({ children }) {
-  const { columns } = useContext(TableContext)
+  const { columns } = use(TableContext)
   return (
     <div className="border-b border-zinc-100 bg-zinc-50">
       <CommonRow
@@ -38,7 +39,7 @@ Table.Body = function TableBody({ data, render }) {
 }
 
 Table.Row = function TableRow({ children, isCurrentUser, onClick, ...rest }) {
-  const { columns } = useContext(TableContext)
+  const { columns } = use(TableContext)
 
   return (
     <CommonRow
@@ -57,13 +58,31 @@ Table.Footer = function TableFooter({ children }) {
 }
 
 function CommonRow({ columns, children, className, onClick, ...rest }) {
+  const gridStyle = { gridTemplateColumns: columns }
+
+  if (onClick) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        className={`grid items-center gap-6 px-7 ${className}`}
+        style={gridStyle}
+        onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onClick(e)
+          }
+        }}
+        {...rest}
+      >
+        {children}
+      </div>
+    )
+  }
+
   return (
-    <div
-      className={`grid items-center gap-6 px-7 ${className}`}
-      style={{ gridTemplateColumns: columns }}
-      onClick={onClick}
-      {...rest}
-    >
+    <div className={`grid items-center gap-6 px-7 ${className}`} style={gridStyle} {...rest}>
       {children}
     </div>
   )

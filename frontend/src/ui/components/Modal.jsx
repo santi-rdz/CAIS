@@ -1,4 +1,4 @@
-import { cloneElement, createContext, useContext, useRef, useState } from 'react'
+import { cloneElement, createContext, use, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HiXMark } from 'react-icons/hi2'
 import useClickOutside from '@hooks/useClickOutside'
@@ -9,21 +9,19 @@ const ContentContext = createContext({ variant: 'default', icon: null })
 
 export default function Modal({ children }) {
   const [openName, setOpenName] = useState('')
-  return (
-    <ModalContext.Provider
-      value={{
-        openName,
-        close: () => setOpenName(''),
-        open: setOpenName,
-      }}
-    >
-      {children}
-    </ModalContext.Provider>
+  const value = useMemo(
+    () => ({
+      openName,
+      close: () => setOpenName(''),
+      open: setOpenName,
+    }),
+    [openName]
   )
+  return <ModalContext.Provider value={value}>{children}</ModalContext.Provider>
 }
 
 Modal.Heading = function ModalHeadingComp({ children }) {
-  const { variant, icon } = useContext(ContentContext)
+  const { variant, icon } = use(ContentContext)
   if (variant === 'alert') {
     return (
       <div className="flex flex-col items-center gap-1.5 p-8 text-center">
@@ -40,7 +38,7 @@ Modal.Heading = function ModalHeadingComp({ children }) {
 }
 
 Modal.Title = function ModalTitleComp({ children }) {
-  const { variant } = useContext(ContentContext)
+  const { variant } = use(ContentContext)
   if (variant === 'alert') {
     return <p className="text-base font-semibold text-zinc-800">{children}</p>
   }
@@ -52,7 +50,7 @@ Modal.Description = function ModalDescriptionComp({ children }) {
 }
 
 Modal.Open = function Open({ children, opens: opensWindowName }) {
-  const { open } = useContext(ModalContext)
+  const { open } = use(ModalContext)
   return cloneElement(children, {
     onClick: (e) => {
       children.props?.onClick?.(e)
@@ -76,7 +74,7 @@ Modal.Content = function Content({
   variant = 'default',
   icon,
 }) {
-  const { openName, close } = useContext(ModalContext)
+  const { openName, close } = use(ModalContext)
   const ref = useClickOutside(
     close,
     true,
@@ -111,6 +109,8 @@ Modal.Content = function Content({
     dragStartY.current = null
   }
 
+  const contentValue = useMemo(() => ({ variant, icon }), [variant, icon])
+
   if (openName !== name) return null
 
   const isAlert = variant === 'alert'
@@ -120,7 +120,7 @@ Modal.Content = function Content({
   const heightClass = isAlert ? 'h-fit' : (HEIGHTS[height] ?? HEIGHTS[80])
 
   return createPortal(
-    <ContentContext.Provider value={{ variant, icon }}>
+    <ContentContext.Provider value={contentValue}>
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
         onClick={(e) => e.stopPropagation()}

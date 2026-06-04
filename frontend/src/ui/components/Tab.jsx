@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useLayoutEffect, useState } from 'react'
+import { createContext, useCallback, use, useLayoutEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Heading from './Heading'
 
@@ -43,19 +43,18 @@ export default function Tab({ children, defaultTab = '', syncUrl = false, varian
     })
   }, [])
 
-  return (
-    <TabContext.Provider
-      value={{
-        activeTab,
-        setActiveTab: handleSetActiveTab,
-        variant,
-        tabMeta,
-        registerTrigger,
-      }}
-    >
-      {children}
-    </TabContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      activeTab,
+      setActiveTab: handleSetActiveTab,
+      variant,
+      tabMeta,
+      registerTrigger,
+    }),
+    [activeTab, handleSetActiveTab, variant, tabMeta, registerTrigger]
   )
+
+  return <TabContext.Provider value={contextValue}>{children}</TabContext.Provider>
 }
 
 /** Wrapper del encabezado del modal. Padding inferior reducido para que Tab.List quede ajustado. */
@@ -69,13 +68,13 @@ Tab.Header = function TabHeader({ children }) {
 
 /** Muestra el título del tab activo (definido en Tab.Trigger via title prop) */
 Tab.Title = function TabTitle() {
-  const { activeTab, tabMeta } = useContext(TabContext)
+  const { activeTab, tabMeta } = use(TabContext)
   return <Heading as="h2">{tabMeta[activeTab]?.title ?? ''}</Heading>
 }
 
 /** Muestra la descripción del tab activo (definida en Tab.Trigger via desc prop) */
 Tab.Description = function TabDescription() {
-  const { activeTab, tabMeta } = useContext(TabContext)
+  const { activeTab, tabMeta } = use(TabContext)
   const desc = tabMeta[activeTab]?.desc
   if (!desc) return null
   return <p className="mt-2 text-sm text-gray-500">{desc}</p>
@@ -87,7 +86,7 @@ Tab.Description = function TabDescription() {
  * variant='underline' renderiza un nav scrollable con indicador de borde inferior.
  */
 Tab.List = function TabList({ children, className = '' }) {
-  const { variant } = useContext(TabContext)
+  const { variant } = use(TabContext)
 
   if (variant === 'underline') {
     return (
@@ -133,7 +132,7 @@ const TRIGGER_STYLES = {
  * @param {string} [desc] - descripción que Tab.Description mostrará cuando esté activo
  */
 Tab.Trigger = function TabTrigger({ value, title, desc, children, ...rest }) {
-  const { activeTab, setActiveTab, variant, registerTrigger } = useContext(TabContext)
+  const { activeTab, setActiveTab, variant, registerTrigger } = use(TabContext)
 
   useLayoutEffect(() => {
     if (title !== undefined || desc !== undefined) {
@@ -147,6 +146,7 @@ Tab.Trigger = function TabTrigger({ value, title, desc, children, ...rest }) {
 
   return (
     <button
+      type="button"
       onClick={() => setActiveTab(value)}
       className={`text-5 cursor-pointer ${styles.base} ${stateClass}`}
       data-testid={`tab-${value}`}
@@ -163,7 +163,7 @@ Tab.Trigger = function TabTrigger({ value, title, desc, children, ...rest }) {
  * @param {boolean} [scrollable=true] - si el panel maneja su propio scroll internamente, usar false
  */
 Tab.Panel = function TabPanel({ value, children, scrollable = true }) {
-  const { activeTab } = useContext(TabContext)
+  const { activeTab } = use(TabContext)
   if (activeTab !== value) return null
   return (
     <div className={`flex min-h-0 flex-1 flex-col ${scrollable ? 'overflow-y-auto' : ''}`}>

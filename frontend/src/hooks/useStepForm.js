@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useFormKeyDown } from './useFormKeyDown'
+import { useFormSubmit } from '@hooks/useFormSubmit'
 
 /**
  * Maneja la lógica de navegación de un formulario multi-paso.
@@ -29,21 +29,18 @@ export function useStepForm(steps, stepsFields, defaultValues = {}, resolver) {
       setCurrStep(i)
       return
     }
-    for (let step = currStep; step < i; step++) {
-      const valid = await trigger(stepsFields[step])
-      if (!valid) return
-    }
+    const stepsToValidate = stepsFields.slice(currStep, i)
+    const results = await Promise.all(stepsToValidate.map((fields) => trigger(fields)))
+    if (results.some((valid) => !valid)) return
     setCurrStep(i)
   }
 
-  const baseKeyDown = useFormKeyDown(handleSubmit)
-  function getFormKeyDown(submitFn, busy = false) {
-    if (isLast) return baseKeyDown(submitFn, busy)
+  const baseSubmit = useFormSubmit(handleSubmit)
+  function getFormSubmit(submitFn, busy = false) {
+    if (isLast) return baseSubmit(submitFn, busy)
     return (e) => {
-      if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-        e.preventDefault()
-        if (!busy) handleNext()
-      }
+      e.preventDefault()
+      if (!busy) handleNext()
     }
   }
 
@@ -55,6 +52,6 @@ export function useStepForm(steps, stepsFields, defaultValues = {}, resolver) {
     isLast,
     methods,
     handleSubmit,
-    getFormKeyDown,
+    getFormSubmit,
   }
 }

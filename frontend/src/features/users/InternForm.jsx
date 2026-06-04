@@ -42,6 +42,19 @@ import Modal from '@components/Modal'
 const CREATE_STEPS = ['Inf. Personal', 'Contraseña']
 const EDIT_STEPS = ['Inf. Personal']
 
+const PERSONAL_AND_ACADEMIC_FIELDS = [
+  'nombre',
+  'apellidos',
+  'fecha_nacimiento',
+  'telefono',
+  'correo',
+  'matricula',
+  'servicio_inicio_anio',
+  'servicio_inicio_periodo',
+  'servicio_fin_anio',
+  'servicio_fin_periodo',
+]
+
 export default function InternForm({
   onClose,
   onCloseModal,
@@ -63,22 +76,9 @@ export default function InternForm({
 
   const createFormSchema = buildInternCreateSchema(correoField)
 
-  const allPersonalAndAcademicFields = [
-    'nombre',
-    'apellidos',
-    'fecha_nacimiento',
-    'telefono',
-    'correo',
-    'matricula',
-    'servicio_inicio_anio',
-    'servicio_inicio_periodo',
-    'servicio_fin_anio',
-    'servicio_fin_periodo',
-  ]
-
   const stepsFields = isEdit
-    ? [allPersonalAndAcademicFields]
-    : [allPersonalAndAcademicFields, registration ? ['password', 'confirmPassword'] : ['password']]
+    ? [PERSONAL_AND_ACADEMIC_FIELDS]
+    : [PERSONAL_AND_ACADEMIC_FIELDS, registration ? ['password', 'confirmPassword'] : ['password']]
 
   const defaultValues = isEdit ? parseUserDefaults(user) : registration ? { correo: email } : {}
 
@@ -94,7 +94,7 @@ export default function InternForm({
     isLast,
     methods,
     handleSubmit,
-    getFormKeyDown,
+    getFormSubmit,
   } = useStepForm(steps, stepsFields, defaultValues, resolver)
 
   const busy = isEdit ? isUpdating : registration ? isPending : isCreating
@@ -219,7 +219,7 @@ export default function InternForm({
       {steps.length > 1 && (
         <Stepper steps={steps} current={currStep} setCurrStep={handleStepClick} />
       )}
-      <form className="mt-6" onKeyDown={getFormKeyDown(onSubmit, busy)}>
+      <form className="mt-6" onSubmit={getFormSubmit(onSubmit, busy)}>
         {currStep === 0 && (
           <>
             <InterPersonalInfoForm />
@@ -233,6 +233,7 @@ export default function InternForm({
           </>
         )}
         {!isEdit && currStep === 1 && <PasswordComponent />}
+        <button type="submit" hidden tabIndex={-1} aria-hidden="true" />
       </form>
     </>
   )
