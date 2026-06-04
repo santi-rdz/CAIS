@@ -5,13 +5,18 @@ import { ROLES, AREAS } from '@cais/shared/constants/users'
 export default function usePermissions() {
   const { user } = useMe()
 
+  const rol = user?.rol?.toUpperCase()
+  const area = user?.area?.toUpperCase()
+
   return {
     user,
+    rol,
+    area,
     can: (permission) => canFn(user, permission),
-    isAdmin: user?.rol === ROLES.ADMIN,
-    isCoordinador: user?.rol === ROLES.COORDINADOR,
-    isPasante: user?.rol === ROLES.PASANTE,
-    isMedicina: user?.area === AREAS.MEDICINA,
-    isNutricion: user?.area === AREAS.NUTRICION,
+    isAdmin: rol === ROLES.ADMIN,
+    isCoordinador: rol === ROLES.COORDINADOR,
+    isPasante: rol === ROLES.PASANTE,
+    isMedicina: area === AREAS.MEDICINA,
+    isNutricion: area === AREAS.NUTRICION,
   }
 }

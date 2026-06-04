@@ -25,7 +25,7 @@ export function formatFecha(fechaHora) {
 /** 'hace 3 días' — recencia para dropdowns y listas compactas */
 export function formatRelativo(fechaHora) {
   if (!fechaHora) return null
-  return dayjs(fechaHora).locale(es).fromNow()
+  return dayjs(toLocalParseable(fechaHora)).locale(es).fromNow()
 }
 
 /** '11 de marzo de 2026' — para vistas de detalle */

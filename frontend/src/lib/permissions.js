@@ -7,9 +7,9 @@ export const PERMISSIONS = {
 }
 
 const RULES = {
-  [PERMISSIONS.SEE_USER_AREA_COLUMN]: (user) => user?.rol === ROLES.ADMIN,
-  [PERMISSIONS.EDIT_PASANTE]: (user) => user?.rol === ROLES.COORDINADOR,
-  [PERMISSIONS.SEE_MEDICINA_STATS]: (user) => user?.area === AREAS.MEDICINA,
+  [PERMISSIONS.SEE_USER_AREA_COLUMN]: (user) => user?.rol?.toUpperCase() === ROLES.ADMIN,
+  [PERMISSIONS.EDIT_PASANTE]: (user) => user?.rol?.toUpperCase() === ROLES.COORDINADOR,
+  [PERMISSIONS.SEE_MEDICINA_STATS]: (user) => user?.area?.toUpperCase() === AREAS.MEDICINA,
 }
 
 export function can(user, permission) {

@@ -1,13 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import Input from '@components/Input'
 import DropdownPanel from '@components/DropdownPanel'
-import { HiMagnifyingGlass, HiOutlineClock, HiOutlineUser } from 'react-icons/hi2'
+import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { getPatients } from '@services/apiPatient'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import { useRecentPatientSearches } from '@features/patients/hooks/useRecentPatientSearches'
-import { formatRelativo } from '@lib/dateHelpers'
+import PatientSearchList from '@features/patients/components/PatientSearchList'
+import PatientSearchSkeleton from '@features/patients/components/PatientSearchSkeleton'
 
 export default function PatientSearchDropdown({ className }) {
   const [search, setSearch] = useState('')
@@ -15,6 +16,8 @@ export default function PatientSearchDropdown({ className }) {
   const debounceRef = useRef(null)
   const navigate = useNavigate()
   const { recent, add: addRecent, clear: clearRecent } = useRecentPatientSearches()
+
+  useEffect(() => () => clearTimeout(debounceRef.current), [])
 
   const { triggerRef, isOpen, positionStyle, open, close } = useDropdownPosition(320, {
     fullWidth: true,
@@ -52,6 +55,7 @@ export default function PatientSearchDropdown({ className }) {
   }
 
   function handleSelect(patient) {
+    clearTimeout(debounceRef.current)
     addRecent(patient)
     close()
     setSearch('')
@@ -65,6 +69,7 @@ export default function PatientSearchDropdown({ className }) {
 
   function handleKeyDown(e) {
     if (e.key === 'Escape') {
+      clearTimeout(debounceRef.current)
       close()
       setSearch('')
       setDebouncedSearch('')
@@ -99,23 +104,20 @@ export default function PatientSearchDropdown({ className }) {
 
           {showRecent && (
             <section>
-              <div className="flex items-center justify-between px-3 pt-0.5 pb-1">
-                <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-400">
-                  <HiOutlineClock size={11} />
-                  Recientes
-                </span>
+              <div className="flex items-center justify-between px-3 pt-1 pb-1.5">
+                <span className="text-xs font-medium text-zinc-400">Recientes</span>
                 <button
                   type="button"
-                  className="text-xs text-zinc-400 transition-colors hover:text-zinc-600"
+                  className="text-xs text-zinc-400 transition-colors hover:text-zinc-700"
                   onClick={handleClearRecent}
                 >
                   Limpiar
                 </button>
               </div>
-              <PatientList
+              <PatientSearchList
                 patients={recent}
                 onSelect={handleSelect}
-                className="max-h-[200px] overflow-y-auto"
+                className="max-h-[260px] overflow-y-auto"
               />
             </section>
           )}
@@ -123,23 +125,23 @@ export default function PatientSearchDropdown({ className }) {
           {isSearching && (
             <section>
               {loading ? (
-                <SearchSkeleton />
+                <PatientSearchSkeleton />
               ) : patients.length > 0 ? (
                 <>
-                  <p className="px-3 pt-0.5 pb-1 text-xs font-medium text-zinc-400">
+                  <p className="px-3 pt-1 pb-1.5 text-xs font-medium text-zinc-400">
                     {patients.length} resultado{patients.length !== 1 ? 's' : ''}
                   </p>
-                  <PatientList
+                  <PatientSearchList
                     patients={patients}
                     onSelect={handleSelect}
-                    className="max-h-[280px] overflow-y-auto"
+                    className="max-h-[340px] overflow-y-auto"
                   />
                 </>
               ) : (
-                <div className="px-4 py-4 text-center">
-                  <p className="text-sm text-zinc-400">
+                <div className="px-4 py-6 text-center">
+                  <p className="text-sm text-zinc-500">
                     Sin resultados para{' '}
-                    <span className="font-medium text-zinc-600">
+                    <span className="font-medium text-zinc-800">
                       &ldquo;{debouncedSearch}&rdquo;
                     </span>
                   </p>
@@ -149,62 +151,6 @@ export default function PatientSearchDropdown({ className }) {
           )}
         </DropdownPanel>
       )}
-    </div>
-  )
-}
-
-function PatientList({ patients, onSelect, className = '' }) {
-  return (
-    <ul className={className}>
-      {patients.map((patient) => (
-        <PatientItem key={patient.id} patient={patient} onSelect={onSelect} />
-      ))}
-    </ul>
-  )
-}
-
-function PatientItem({ patient, onSelect }) {
-  const { nombre, apellidos, telefono, correo, actualizado_at } = patient
-  const fullName = [nombre, apellidos].filter(Boolean).join(' ')
-  const contact = telefono ?? correo
-  const relativo = formatRelativo(actualizado_at)
-
-  return (
-    <li>
-      <button
-        type="button"
-        className="group flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-zinc-50"
-        onClick={() => onSelect(patient)}
-      >
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50">
-          <HiOutlineUser size={13} className="text-emerald-600" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-zinc-800 transition-colors group-hover:text-green-800">
-            {fullName}
-          </p>
-          {contact && <p className="truncate text-xs text-zinc-400">{contact}</p>}
-        </div>
-        {relativo && (
-          <span className="shrink-0 text-xs whitespace-nowrap text-zinc-400">Act. {relativo}</span>
-        )}
-      </button>
-    </li>
-  )
-}
-
-function SearchSkeleton() {
-  return (
-    <div className="py-0.5">
-      {[0, 1].map((i) => (
-        <div key={i} className="flex items-center gap-2.5 px-3 py-2">
-          <div className="h-7 w-7 shrink-0 animate-pulse rounded-full bg-zinc-100" />
-          <div className="flex-1 space-y-1.5">
-            <div className="h-3 w-28 animate-pulse rounded bg-zinc-100" />
-            <div className="h-2.5 w-20 animate-pulse rounded bg-zinc-100" />
-          </div>
-        </div>
-      ))}
     </div>
   )
 }
