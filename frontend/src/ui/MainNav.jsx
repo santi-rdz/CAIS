@@ -1,21 +1,12 @@
 import { NavLink } from 'react-router-dom'
 import navRoutes from './navRoutes'
 import NewPatientButton from '@features/patients/components/NewPatientButton'
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
+import { canSeeRoute } from '@lib/permissions'
 
 export default function MainNav({ isExpanded }) {
-  const { user } = useMe()
-  const isAdmin = user?.rol === 'ADMIN'
-  const userArea = user?.area?.toUpperCase() ?? null
-  const userRole = user?.rol?.toUpperCase() ?? null
-
-  const visibleRoutes = navRoutes.filter((r) => {
-    if (r.hiddenForRoles?.includes(userRole)) return false
-    if (isAdmin) return true
-    if (r.areas && !r.areas.includes(userArea)) return false
-    if (r.roles && !r.roles.includes(userRole)) return false
-    return true
-  })
+  const { user } = usePermissions()
+  const visibleRoutes = navRoutes.filter((r) => canSeeRoute(user, r))
 
   return (
     <nav className="flex flex-col gap-4">

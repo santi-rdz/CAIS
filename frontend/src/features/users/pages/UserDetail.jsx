@@ -1,7 +1,8 @@
 import Modal from '@components/Modal'
 import Tab from '@components/Tab'
 import { useUser } from '@features/users/hooks/useUser'
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
+import { PERMISSIONS } from '@lib/permissions'
 import UserActionBar from '@features/users/components/UserActionBar'
 import UserHeader from '@features/users/components/UserHeader'
 import UserInfoPanel from '@features/users/components/UserInfoPanel'
@@ -11,14 +12,13 @@ import InternForm from '@features/users/InternForm'
 
 export default function UserDetail() {
   const { user, isPending } = useUser()
-  const { user: me } = useMe()
+  const { can } = usePermissions()
 
   if (isPending) return <UserSkeleton />
   if (!user) return null
 
   const viewedRole = user.rol?.toLowerCase()
-  const myRole = me?.rol?.toLowerCase()
-  const canEdit = myRole === 'coordinador' && viewedRole === 'pasante'
+  const canEdit = can(PERMISSIONS.EDIT_PASANTE) && viewedRole === 'pasante'
 
   return (
     <Modal>

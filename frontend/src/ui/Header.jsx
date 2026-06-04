@@ -1,5 +1,5 @@
-import { HiMagnifyingGlass, HiOutlineBars3 } from 'react-icons/hi2'
-import Input from './components/Input'
+import { HiOutlineBars3 } from 'react-icons/hi2'
+import PatientSearchDropdown from '@features/patients/components/PatientSearchDropdown'
 import NewPatientButton from '@features/patients/components/NewPatientButton'
 import Logo from './Logo'
 
@@ -32,27 +32,13 @@ export function Header({ onMenuOpen, menuOpen }) {
           <Logo.Heading />
           <Logo.Area />
         </Logo>
-        <div className="grow">
-          <Input
-            className="w-full"
-            type="text"
-            size="md"
-            placeholder="Buscar paciente..."
-            suffix={<HiMagnifyingGlass />}
-          />
-        </div>
+        <PatientSearchDropdown className="grow" />
         {hamburger}
       </div>
 
       {/* Desktop (lg+): search | new patient */}
       <div className="flex grow max-lg:hidden">
-        <Input
-          className="w-[600px]"
-          type="text"
-          size="md"
-          placeholder="Buscar paciente..."
-          suffix={<HiMagnifyingGlass />}
-        />
+        <PatientSearchDropdown className="w-[600px]" />
       </div>
       <div className="block max-lg:hidden">
         <NewPatientButton />

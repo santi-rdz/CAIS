@@ -1,5 +1,8 @@
 import dayjs from 'dayjs'
 import es from 'dayjs/locale/es'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
 
 /**
  * Si es un string de solo fecha (YYYY-MM-DD), agrega T00:00:00 para que dayjs
@@ -17,6 +20,12 @@ function toLocalParseable(fechaHora) {
 export function formatFecha(fechaHora) {
   if (!fechaHora) return '---'
   return dayjs(toLocalParseable(fechaHora)).locale(es).format('DD MMMM YYYY')
+}
+
+/** 'hace 3 días' — recencia para dropdowns y listas compactas */
+export function formatRelativo(fechaHora) {
+  if (!fechaHora) return null
+  return dayjs(fechaHora).locale(es).fromNow()
 }
 
 /** '11 de marzo de 2026' — para vistas de detalle */

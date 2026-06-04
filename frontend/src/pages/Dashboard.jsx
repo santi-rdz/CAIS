@@ -1,4 +1,5 @@
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
+import { PERMISSIONS } from '@lib/permissions'
 import { useDashboardStats } from '@features/dashboard/hooks/useDashboardStats'
 import StatCard from '@features/dashboard/components/StatCard'
 import ActivityFeed from '@features/dashboard/components/ActivityFeed'
@@ -50,13 +51,11 @@ const COMMON_CARDS = (counts) => [
 ]
 
 export default function Dashboard() {
-  const { user } = useMe()
+  const { can } = usePermissions()
   const { stats, isPending } = useDashboardStats()
 
   const counts = stats?.counts
-  const area = user?.area
-
-  const areaCards = area === 'MEDICINA' ? MEDICINA_CARDS(counts) : []
+  const areaCards = can(PERMISSIONS.SEE_MEDICINA_STATS) ? MEDICINA_CARDS(counts) : []
 
   const allCards = [...areaCards, ...COMMON_CARDS(counts)]
 

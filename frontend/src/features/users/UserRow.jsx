@@ -14,13 +14,15 @@ import {
 import useResendInvitation from '@features/users/hooks/useResendInvitation'
 import useDeleteInvitation from '@features/users/hooks/useDeleteInvitation'
 import useToggleUserEstado from '@features/users/hooks/useToggleUserEstado'
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
+import Can from '@components/Can'
+import { PERMISSIONS } from '@lib/permissions'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
 import { useNavigate } from 'react-router-dom'
 import { HiArrowRight } from 'react-icons/hi2'
 
-export default function UserRow({ user, isAdmin }) {
+export default function UserRow({ user }) {
   const {
     nombre,
     apellidos,
@@ -35,9 +37,8 @@ export default function UserRow({ user, isAdmin }) {
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
 
-  const {
-    user: { id: userId },
-  } = useMe()
+  const { user: me } = usePermissions()
+  const userId = me?.id
 
   const status = statusUp?.toLowerCase() ?? ''
   const role = roleUp?.toLowerCase() ?? ''
@@ -78,7 +79,9 @@ export default function UserRow({ user, isAdmin }) {
         avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
       />
       <div className="font-medium text-zinc-700 capitalize">{role}</div>
-      {isAdmin && <div className="text-zinc-700 capitalize">{area?.toLowerCase() ?? '—'}</div>}
+      <Can permission={PERMISSIONS.SEE_USER_AREA_COLUMN}>
+        <div className="text-zinc-700 capitalize">{area?.toLowerCase() ?? '—'}</div>
+      </Can>
       <DateTime value={lastLogin} />
       <div>
         <Tag type={status}>{status}</Tag>

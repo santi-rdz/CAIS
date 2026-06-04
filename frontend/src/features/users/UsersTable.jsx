@@ -2,29 +2,30 @@ import Table from '@components/Table'
 import UserRow from '@features/users/UserRow'
 import { useUsers } from '@features/users/hooks/useUsers'
 import Pagination from '@components/Pagination'
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
+import Can from '@components/Can'
+import { PERMISSIONS } from '@lib/permissions'
 
 export default function UsersTable() {
   const { users, count, isPending } = useUsers()
-  const { user: me } = useMe()
-  const isAdmin = me?.rol === 'ADMIN'
+  const { can } = usePermissions()
+  const showAreaCol = can(PERMISSIONS.SEE_USER_AREA_COLUMN)
 
   if (isPending) return <UsersTableSkeleton />
 
   return (
-    <Table columns={isAdmin ? '27fr 10fr 10fr 15fr 15fr 2fr' : '27fr 10fr 15fr 15fr 2fr'}>
+    <Table columns={showAreaCol ? '27fr 10fr 10fr 15fr 15fr 2fr' : '27fr 10fr 15fr 15fr 2fr'}>
       <Table.Header>
         <div>Usuario</div>
         <div>Rol</div>
-        {isAdmin && <div>Área</div>}
+        <Can permission={PERMISSIONS.SEE_USER_AREA_COLUMN}>
+          <div>Área</div>
+        </Can>
         <div>Último login</div>
         <div>Estado</div>
         <div></div>
       </Table.Header>
-      <Table.Body
-        data={users}
-        render={(user) => <UserRow user={user} key={user.id} isAdmin={isAdmin} />}
-      />
+      <Table.Body data={users} render={(user) => <UserRow user={user} key={user.id} />} />
       <Table.Footer>
         <Pagination count={count} />
       </Table.Footer>
