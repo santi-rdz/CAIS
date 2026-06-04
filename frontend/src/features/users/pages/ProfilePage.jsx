@@ -2,7 +2,7 @@ import { HiArrowRight } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 import Modal from '@components/Modal'
 import Tab from '@components/Tab'
-import useMe from '@features/users/hooks/useMe'
+import usePermissions from '@hooks/usePermissions'
 import { useMyProfile } from '@features/users/hooks/useMyProfile'
 import ProfileActionBar from '@features/users/components/ProfileActionBar'
 import ProfileHeader from '@features/users/components/ProfileHeader'
@@ -31,13 +31,13 @@ function ConfigHint({ onGoToConfig }) {
 
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { user: me } = useMe()
+  const { isCoordinador } = usePermissions()
   const { user, isPending } = useMyProfile()
 
   if (isPending) return <UserSkeleton />
   if (!user) return null
 
-  const EditForm = me?.rol?.toLowerCase() === 'coordinador' ? CoordForm : InternForm
+  const EditForm = isCoordinador ? CoordForm : InternForm
 
   return (
     <Modal>
