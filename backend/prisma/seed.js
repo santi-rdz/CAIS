@@ -50,7 +50,14 @@ async function main() {
   const rolesData = ['PASANTE', 'COORDINADOR', 'ADMIN']
   const areasData = ['MEDICINA', 'NUTRICION']
   const accionesData = ['CREAR', 'ACTUALIZAR', 'ELIMINAR', 'INICIAR_SESION']
-  const entidadesData = ['NOTA_EVOLUCION', 'HISTORIA_MEDICA', 'PACIENTE', 'USUARIO', 'EMERGENCIA']
+  const entidadesData = [
+    'NOTA_EVOLUCION',
+    'HISTORIA_MEDICA',
+    'PACIENTE',
+    'USUARIO',
+    'EMERGENCIA',
+    'HISTORIA_NUTRICION',
+  ]
 
   for (const codigo of estadosData) {
     await prisma.estados.upsert({
