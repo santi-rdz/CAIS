@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS pacientes (
     religion VARCHAR(100),
     nss VARCHAR(50),
     curp_matricula VARCHAR(50),
+    salario_dia VARCHAR(20),
     contacto_emergencia VARCHAR(255),
     telefono_emergencia VARCHAR(30),
     parentesco_emergencia VARCHAR(100),

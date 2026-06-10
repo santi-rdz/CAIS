@@ -422,6 +422,7 @@ model pacientes {
   religion                      String?                         @db.VarChar(100)
   nss                           String?                         @db.VarChar(50)
   curp_matricula                String?                         @db.VarChar(50)
+  salario_dia                   String?                         @db.VarChar(20)
   contacto_emergencia           String?                         @db.VarChar(255)
   telefono_emergencia           String?                         @db.VarChar(30)
   parentesco_emergencia         String?                         @db.VarChar(100)
