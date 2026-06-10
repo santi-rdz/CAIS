@@ -1,21 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { evolutionNoteFormSchema } from '@schemas/evolutionNote'
 import { useStepForm } from '@hooks/useStepForm'
-import AparatosSistemasStep from '@features/patients/forms/MedicalPatientForm/steps/AparatosSistemasStep'
-import ExploracionFisicaStep from '@features/patients/forms/MedicalPatientForm/steps/ExploracionFisicaStep'
-import StepFormShell from '@features/patients/forms/shared/StepFormShell'
+import AparatosSistemasStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AparatosSistemasStep'
+import ExploracionFisicaStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/ExploracionFisicaStep'
+import StepFormShell from '@features/patients/shared/forms/StepFormShell'
 import {
   APARATOS_DEFAULTS,
   INFORMACION_FISICA_DEFAULTS,
   PLAN_ESTUDIO_DEFAULTS,
-} from '@features/patients/forms/shared/formDefaults'
+} from '@features/patients/shared/forms/formDefaults'
 import dayjs from 'dayjs'
 import { mergeFechaHora } from '@lib/dateHelpers'
 import { omitEmpty, pickDirty, nullifyEmpty } from '@lib/utils'
-import { useCreateEvolutionNote } from '@features/patients/hooks/useCreateEvolutionNote'
-import { useUpdateEvolutionNote } from '@features/patients/hooks/useUpdateEvolutionNote'
-import MotivoConsultaStep from '@features/patients/forms/EvolutionNoteForm/steps/MotivoConsultaStep'
-import PlanDiagnosticoStep from '@features/patients/forms/EvolutionNoteForm/steps/PlanDiagnosticoStep'
+import { useCreateEvolutionNote } from '@features/patients/medicina/hooks/useCreateEvolutionNote'
+import { useUpdateEvolutionNote } from '@features/patients/medicina/hooks/useUpdateEvolutionNote'
+import MotivoConsultaStep from '@features/patients/medicina/forms/EvolutionNoteForm/steps/MotivoConsultaStep'
+import PlanDiagnosticoStep from '@features/patients/medicina/forms/EvolutionNoteForm/steps/PlanDiagnosticoStep'
 
 const STEPS = ['Consulta', 'Aparatos', 'Exploración', 'Plan']
 const STEPS_FIELDS = [[], [], [], []]

@@ -1,6 +1,6 @@
 import Heading from '@components/Heading'
 import DataField from '@components/DataField'
-import CIE10List from '@features/patients/sections/CIE10List'
+import CIE10List from '@features/patients/medicina/sections/CIE10List'
 
 export default function PlanEstudioSection({ plan }) {
   const { cie10_codes, plan_tratamiento, tratamiento, estudios_complementarios } = plan ?? {}

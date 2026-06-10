@@ -1,3 +1,5 @@
+// ── Medicina: helpers de visualización ──────────────────────────────────────
+
 export function buildAntPatFields(ap) {
   ap ??= {}
   return [

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import { patientSchema } from '@cais/shared/schemas/medicina/patient'
 import { omitEmpty, nullifyEmpty } from '@lib/utils'
-import { DEFAULT_VALUES } from '@features/patients/forms/MedicalPatientForm/formConfig'
+import { DEFAULT_VALUES } from '@features/patients/medicina/forms/MedicalPatientForm/formConfig'
 
 const PATIENT_KEYS = new Set(Object.keys(patientSchema.shape))
 

@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { medicalPatientFormSchema } from '@schemas/medicalPatient'
 import { useStepForm } from '@hooks/useStepForm'
 import { pickDirty } from '@lib/utils'
-import { useCreatePatientWithHistory } from '@features/patients/hooks/useCreatePatientWithHistory'
-import { useCreateMedicalHistory } from '@features/patients/hooks/useCreateMedicalHistory'
-import { useUpdatePatientWithHistory } from '@features/patients/hooks/useUpdatePatientWithHistory'
-import StepFormShell from '@features/patients/forms/shared/StepFormShell'
+import { useCreatePatientWithHistory } from '@features/patients/medicina/hooks/useCreatePatientWithHistory'
+import { useCreateMedicalHistory } from '@features/patients/medicina/hooks/useCreateMedicalHistory'
+import { useUpdatePatientWithHistory } from '@features/patients/medicina/hooks/useUpdatePatientWithHistory'
+import StepFormShell from '@features/patients/shared/forms/StepFormShell'
 import {
   CLONE_STEPS,
   CLONE_STEPS_FIELDS,
@@ -15,13 +15,13 @@ import {
   STEPS_FIELDS,
   STEP_COMPONENTS,
   getDefaultValues,
-} from '@features/patients/forms/MedicalPatientForm/formConfig'
+} from '@features/patients/medicina/forms/MedicalPatientForm/formConfig'
 import {
   buildEditDefaults,
   splitDirtyData,
   splitFormData,
-} from '@features/patients/forms/MedicalPatientForm/formHelpers'
-import { getFormCopy } from '@features/patients/forms/MedicalPatientForm/formCopy'
+} from '@features/patients/medicina/forms/MedicalPatientForm/formHelpers'
+import { getFormCopy } from '@features/patients/medicina/forms/MedicalPatientForm/formCopy'
 
 function resolveSteps({ patientOnly, skipPatientStep }) {
   if (patientOnly) return [[STEPS[0]], [STEPS_FIELDS[0]], [STEP_COMPONENTS[0]]]

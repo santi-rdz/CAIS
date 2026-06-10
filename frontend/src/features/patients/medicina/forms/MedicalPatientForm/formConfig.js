@@ -3,14 +3,14 @@ import {
   APARATOS_DEFAULTS,
   INFORMACION_FISICA_DEFAULTS,
   PLAN_ESTUDIO_DEFAULTS,
-} from '@features/patients/forms/shared/formDefaults'
-import DatosPersonalesStep from '@features/patients/forms/MedicalPatientForm/steps/DatosPersonalesStep'
-import AntecedentesFamiliaresStep from '@features/patients/forms/MedicalPatientForm/steps/AntecedentesFamiliaresStep'
-import AntecedentesNoPatStep from '@features/patients/forms/MedicalPatientForm/steps/AntecedentesNoPatStep'
-import AntecedentesPatologicosStep from '@features/patients/forms/MedicalPatientForm/steps/AntecedentesPatologicosStep'
-import AparatosSistemasStep from '@features/patients/forms/MedicalPatientForm/steps/AparatosSistemasStep'
-import ExploracionFisicaStep from '@features/patients/forms/MedicalPatientForm/steps/ExploracionFisicaStep'
-import MotivoConsultaPlanStep from '@features/patients/forms/MedicalPatientForm/steps/MotivoConsultaPlanStep'
+} from '@features/patients/shared/forms/formDefaults'
+import DatosPersonalesStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/DatosPersonalesStep'
+import AntecedentesFamiliaresStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AntecedentesFamiliaresStep'
+import AntecedentesNoPatStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AntecedentesNoPatStep'
+import AntecedentesPatologicosStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AntecedentesPatologicosStep'
+import AparatosSistemasStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AparatosSistemasStep'
+import ExploracionFisicaStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/ExploracionFisicaStep'
+import MotivoConsultaPlanStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/MotivoConsultaPlanStep'
 
 export const STEPS = [
   'Identificación',

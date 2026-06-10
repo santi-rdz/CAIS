@@ -3,20 +3,20 @@ import { HiOutlinePlus, HiOutlinePencilSquare } from 'react-icons/hi2'
 import Tab from '@components/Tab'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
-import { useMedicalHistories } from '@features/patients/hooks/useMedicalHistories'
-import { useMedicalHistory } from '@features/patients/hooks/useMedicalHistory'
+import { useMedicalHistories } from '@features/patients/medicina/hooks/useMedicalHistories'
+import { useMedicalHistory } from '@features/patients/medicina/hooks/useMedicalHistory'
 import { formatFecha } from '@lib/dateHelpers'
 import {
   buildAntPatFields,
   buildAntFamFields,
   buildAparSistFields,
-} from '@features/patients/constants'
-import HistoriaPeriodSelect from '@features/patients/components/HistoriaPeriodSelect'
-import FieldsSection from '@features/patients/sections/FieldsSection'
-import SignosVitalesSection from '@features/patients/sections/SignosVitalesSection'
-import NoPatologicosSection from '@features/patients/sections/NoPatologicosSection'
-import ConsultaYPlanSection from '@features/patients/sections/ConsultaYPlanSection'
-import MedicalPatientForm from '@features/patients/forms/MedicalPatientForm/MedicalPatientForm'
+} from '@features/patients/medicina/constants'
+import HistoriaPeriodSelect from '@features/patients/medicina/components/HistoriaPeriodSelect'
+import FieldsSection from '@features/patients/medicina/sections/FieldsSection'
+import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
+import NoPatologicosSection from '@features/patients/medicina/sections/NoPatologicosSection'
+import ConsultaYPlanSection from '@features/patients/medicina/sections/ConsultaYPlanSection'
+import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
 
 function formatHistoriaOption(h) {
   return { value: h.id, label: formatFecha(h.creado_at) }

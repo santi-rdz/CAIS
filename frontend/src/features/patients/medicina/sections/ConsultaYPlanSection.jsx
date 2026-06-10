@@ -1,6 +1,6 @@
 import DataField from '@components/DataField'
-import MotivoConsultaSection from '@features/patients/sections/MotivoConsultaSection'
-import PlanEstudioSection from '@features/patients/sections/PlanEstudioSection'
+import MotivoConsultaSection from '@features/patients/medicina/sections/MotivoConsultaSection'
+import PlanEstudioSection from '@features/patients/medicina/sections/PlanEstudioSection'
 
 export default function ConsultaYPlanSection({ historia }) {
   const { motivo_consulta, historia_enfermedad_actual, planes_estudio } = historia

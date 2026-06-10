@@ -1,6 +1,6 @@
 import Grid from '@components/Grid'
 import DataField from '@components/DataField'
-import Empty from '@features/patients/sections/Empty'
+import Empty from '@features/patients/medicina/sections/Empty'
 
 export default function FieldsSection({ fields, cols = 2, mobileCols }) {
   if (!fields) return <Empty />

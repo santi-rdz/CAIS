@@ -3,7 +3,7 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Divider from '@components/Divider'
-import PlanTratamientoSection from '@features/patients/forms/shared/PlanTratamientoSection'
+import PlanTratamientoSection from '@features/patients/shared/forms/PlanTratamientoSection'
 
 export default function PlanDiagnosticoStep() {
   const { register } = useFormContext()
