@@ -35,3 +35,30 @@ yarn-error.log*
 
 # Tests
 **/__tests__/__snapshots__
+**/__tests__
+**/*.test.js
+**/*.test.jsx
+**/*.spec.js
+**/*.spec.jsx
+**/jest.config.js
+**/jest.teardown.js
+
+# Docs y miscelánea que no debe entrar a la imagen
+docs
+**/docs
+**/CLAUDE.md
+**/README.md
+**/readme.md
+**/*.md
+!frontend/index.html
+.husky
+.claude
+.agents
+.gitleaks.toml
+.prettierrc
+.prettierignore
+eslint.config.js
+skills-lock.json
+
+# Archivos HTTP del backend (para REST Client de VSCode)
+backend/http

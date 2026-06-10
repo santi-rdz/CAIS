@@ -1,3 +1,4 @@
+import '#config/loadEnv.js'
 import pkg from '@prisma/client'
 const { PrismaClient } = pkg
 
@@ -41,6 +42,11 @@ const NE_IDS = {
 }
 
 async function main() {
+  if ((await prisma.usuarios.count()) > 0) {
+    console.log('Seed skipped: ya existen usuarios en la DB.')
+    return
+  }
+
   const passwordHash = await bcrypt.hash(SEED_PASSWORD, 12)
 
   // ═══════════════════════════════════════════
