@@ -1,4 +1,4 @@
-import 'dotenv/config'
+import './loadEnv.js'
 
 const DEFAULT_FRONTEND_URL = 'http://localhost:5173'
 const DEFAULT_CORS_ORIGINS = [DEFAULT_FRONTEND_URL, 'http://127.0.0.1:5173', 'http://frontend:5173']
@@ -38,6 +38,12 @@ if (isProduction && !envValue('SESSION_SECRET')) {
   throw new Error('SESSION_SECRET es requerido en producción')
 }
 
+// Cookie segura por default en prod, override con SESSION_COOKIE_SECURE
+// para pruebas locales de prod sobre HTTP (donde HTTPS no termina).
+const cookieSecureEnv = envValue('SESSION_COOKIE_SECURE')?.toLowerCase()
+const sessionCookieSecure =
+  cookieSecureEnv === 'false' ? false : cookieSecureEnv === 'true' ? true : isProduction
+
 export const serverConfig = {
   nodeEnv,
   isTest: nodeEnv === 'test',
@@ -46,5 +52,6 @@ export const serverConfig = {
   corsOrigins,
   jsonBodyLimit: envValue('JSON_BODY_LIMIT') ?? '100kb',
   sessionSecret: envValue('SESSION_SECRET') ?? 'dev-secret-change-in-prod',
+  sessionCookieSecure,
   trustProxy: isProduction,
 }

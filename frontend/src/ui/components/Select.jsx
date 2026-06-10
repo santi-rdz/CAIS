@@ -1,4 +1,13 @@
-import { createContext, useCallback, use, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import {
+  Children,
+  createContext,
+  useCallback,
+  use,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { HiCheck, HiChevronRight } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
@@ -37,6 +46,7 @@ export function Select({
   dropdownHeight = 300,
   align = 'auto',
   fullWidth = false,
+  allowCustom = false,
   className = '',
   hasError,
 }) {
@@ -48,8 +58,15 @@ export function Select({
   const labelsRef = useRef({})
   const [, forceUpdate] = useState(0)
   const seeded = useRef(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const { onEnter, onLeave } = useHoverOpen(open, close)
+  // Wrap close so search resets atomically — avoids the extra render of a useEffect
+  const closeAndReset = useCallback(() => {
+    close()
+    setSearchQuery('')
+  }, [close])
+
+  const { onEnter, onLeave } = useHoverOpen(open, closeAndReset)
 
   const registerLabel = useCallback((val, label) => {
     labelsRef.current[val] = label
@@ -64,10 +81,17 @@ export function Select({
         onValuesChange?.(next)
       } else {
         onValueChange?.(val)
-        close()
+        closeAndReset()
       }
     },
-    [multiple, values, onValuesChange, onValueChange, close]
+    [multiple, values, onValuesChange, onValueChange, closeAndReset]
+  )
+
+  const handleCustomAdd = useCallback(
+    (val) => {
+      handleValueChange(val)
+    },
+    [handleValueChange]
   )
 
   // One layout re-render so SelectValue reads labels registered by SelectItems
@@ -78,13 +102,15 @@ export function Select({
     }
   }, [])
 
-  function handleBlur(e) {
-    const { currentTarget, relatedTarget } = e
-    // Delay to let portal click events fire before closing
-    setTimeout(() => {
-      if (!currentTarget.contains(relatedTarget)) close()
-    }, 0)
-  }
+  const handleBlur = useCallback(
+    (e) => {
+      const { currentTarget, relatedTarget } = e
+      setTimeout(() => {
+        if (!currentTarget.contains(relatedTarget)) closeAndReset()
+      }, 0)
+    },
+    [closeAndReset]
+  )
 
   const contextValue = useMemo(
     () => ({
@@ -99,7 +125,10 @@ export function Select({
       registerLabel,
       getLabelForValue,
       toggle,
-      close,
+      close: closeAndReset,
+      searchQuery,
+      setSearchQuery,
+      handleCustomAdd: allowCustom ? handleCustomAdd : null,
     }),
     [
       value,
@@ -113,7 +142,10 @@ export function Select({
       registerLabel,
       getLabelForValue,
       toggle,
-      close,
+      closeAndReset,
+      searchQuery,
+      allowCustom,
+      handleCustomAdd,
     ]
   )
 
@@ -161,7 +193,7 @@ export function SelectTrigger({ children, className = '', icon: Icon, size = 'md
       {...props}
     >
       {Icon && <Icon size={16} className="shrink-0 text-gray-500" />}
-      <span className="max-w-[11ch] truncate">{children}</span>
+      <span className="truncate">{children}</span>
       <HiChevronRight
         size="16"
         className={`ml-auto inline-block duration-200 ${isOpen ? 'rotate-270' : 'rotate-90'}`}
@@ -180,14 +212,26 @@ export function SelectValue({ placeholder = 'Seleccionar' }) {
     return <span>{values.map((v) => getLabelForValue(v) ?? v).join(', ')}</span>
   }
 
-  const label = value ? getLabelForValue(value) : null
+  const label = value ? (getLabelForValue(value) ?? value) : null
   return <span>{label ?? placeholder}</span>
 }
 
 // ─── Dropdown ─────────────────────────────────────────────────────────────────
 
-export function SelectContent({ children, portal = false }) {
-  const { isOpen, openAbove, positionStyle } = useSelect()
+export function SelectContent({ children, portal = false, maxHeight = 220 }) {
+  const { isOpen, openAbove, positionStyle, searchQuery, handleCustomAdd } = useSelect()
+
+  const childArray = Children.toArray(children)
+  const searchChild = childArray.find((c) => c.type === SelectSearch)
+  const rest = childArray.filter((c) => c.type !== SelectSearch)
+
+  const hasExactMatch =
+    searchQuery &&
+    rest
+      .filter((c) => c.type === SelectItem)
+      .some((c) => String(c.props.children).toLowerCase() === searchQuery.toLowerCase())
+
+  const showAddOption = handleCustomAdd && searchQuery.trim() && !hasExactMatch
 
   return (
     <DropdownPanel
@@ -200,8 +244,48 @@ export function SelectContent({ children, portal = false }) {
           : 'pointer-events-none scale-95 opacity-0'
       )}
     >
-      {children}
+      {searchChild}
+      <div style={{ maxHeight }} className="overflow-y-auto">
+        {rest}
+        {showAddOption && (
+          <button
+            type="button"
+            onClick={() => handleCustomAdd(searchQuery.trim())}
+            className="text-5 mt-0.5 flex w-full cursor-pointer items-center gap-2 rounded-sm border-t border-gray-100 px-3 py-1.5 pt-2 text-green-700 transition-colors hover:bg-green-50"
+          >
+            <span className="font-medium">+</span>
+            Agregar &ldquo;{searchQuery.trim()}&rdquo;
+          </button>
+        )}
+      </div>
     </DropdownPanel>
+  )
+}
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+export function SelectSearch({ placeholder = 'Buscar...' }) {
+  const { searchQuery, setSearchQuery, handleCustomAdd } = useSelect()
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && searchQuery.trim() && handleCustomAdd) {
+      e.preventDefault()
+      handleCustomAdd(searchQuery.trim())
+    }
+  }
+
+  return (
+    <div className="-mx-1.5 -mt-1.5 mb-1.5 border-b border-gray-100">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        autoFocus
+        className="text-5 w-full rounded-t-xl bg-white px-4 py-2.5 outline-none placeholder:text-gray-400 focus:bg-gray-50"
+      />
+    </div>
   )
 }
 
@@ -246,12 +330,17 @@ export function SelectItem({ children, value, icon: Icon }) {
     multiple,
     isOpen,
     registerLabel,
+    searchQuery,
   } = useSelect()
 
   const isActive = multiple ? values.includes(value) : selectedValue === value
 
   if (typeof children === 'string') {
     registerLabel(value, children)
+  }
+
+  if (searchQuery && !String(children).toLowerCase().includes(searchQuery.toLowerCase())) {
+    return null
   }
 
   return (

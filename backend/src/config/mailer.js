@@ -1,6 +1,5 @@
+import './loadEnv.js'
 import { createTransport } from 'nodemailer'
-import dotenv from 'dotenv'
-dotenv.config()
 
 export const transporter =
   process.env.NODE_ENV === 'test'

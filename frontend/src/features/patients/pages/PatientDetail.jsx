@@ -8,11 +8,11 @@ import { usePatient } from '@features/patients/hooks/usePatient'
 import { useDeletePatient } from '@features/patients/hooks/useDeletePatient'
 import PatientActionBar from '@features/patients/components/PatientActionBar'
 import PatientHeader from '@features/patients/components/PatientHeader'
-import NotesPanel from '@features/patients/components/NotesPanel'
+import NotesPanel from '@features/patients/medicina/components/NotesPanel'
 import PersonalDataPanel from '@features/patients/components/PersonalDataPanel'
 import PatientSkeleton from '@features/patients/components/PatientSkeleton'
-import PatientHistoria from '@features/patients/components/PatientHistoria'
-import MedicalPatientForm from '@features/patients/forms/MedicalPatientForm/MedicalPatientForm'
+import PatientHistoria from '@features/patients/medicina/components/PatientHistoria'
+import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
 
 export default function PatientDetail() {
   const { patient, isPending } = usePatient()

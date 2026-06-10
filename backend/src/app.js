@@ -34,7 +34,7 @@ app.use(
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: isProduction,
+      secure: serverConfig.sessionCookieSecure,
       maxAge: SESSION_MAX_AGE_MS,
       sameSite: 'lax',
     },

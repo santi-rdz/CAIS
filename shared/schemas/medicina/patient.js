@@ -15,6 +15,7 @@ export const patientSchema = z.object({
   ocupacion: z.string().max(100).nullish(),
   estado_civil: z.string().max(50).nullish(),
   nivel_educativo: z.string().max(100).nullish(),
+  salario_dia: z.string().max(20).nullish(),
   religion: z.string().max(100).nullish(),
   nss: z.string().max(50).nullish(),
   curp_matricula: z.string().max(50).nullish(),
