@@ -358,7 +358,7 @@ CREATE TABLE IF NOT EXISTS historias_pacientes_nutricion(
     motivo_consulta TEXT,
     adicciones_id INT,
     CONSTRAINT fk_historia_nutricion_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_historia_nutricion_adiccion FOREIGN KEY (adicciones_id) REFERENCES adicciones(id)
+    CONSTRAINT fk_historia_nutricion_adiccion FOREIGN KEY (adicciones_id) REFERENCES adicciones(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS historias_medicas_nutricion(
@@ -368,7 +368,7 @@ CREATE TABLE IF NOT EXISTS historias_medicas_nutricion(
     evol INT,
     farmacos TEXT,
     dosis VARCHAR(20),
-    CONSTRAINT fk_historia_medica_historia_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
+    CONSTRAINT fk_historia_medica_historia_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
     cual_producto TEXT,
     mejora VARCHAR(10),
     dosis VARCHAR(20),
-    CONSTRAINT fk_tratamiento_nutricion_historia_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
+    CONSTRAINT fk_tratamiento_nutricion_historia_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS eval_cal_sueno(
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS eval_cal_sueno(
     horas_sueno TINYINT,
     insomnio TINYINT,
     medicacion TINYINT,
-    CONSTRAINT fk_cal_sueno_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
+    CONSTRAINT fk_cal_sueno_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
@@ -402,7 +402,7 @@ CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
     intensidad INT,
     tiempo_de_practica VARCHAR(20),
     pensamientos_con_realizar_AF VARCHAR(50),
-    CONSTRAINT fk_eval_act_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id)
+    CONSTRAINT fk_eval_act_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
 -- ===============================

@@ -79,6 +79,30 @@ export function createCleanupTracker() {
         }
       }
 
+      // Pre-step 2: borrar hijos de historias_pacientes_nutricion por historia_paciente_id.
+      // Prisma con adapter MariaDB no aplica ON DELETE CASCADE automáticamente,
+      // así que hay que borrar los hijos manualmente antes que el padre.
+      const nutricionIds = records.get('historias_pacientes_nutricion')
+      if (nutricionIds?.size) {
+        const idList = [...nutricionIds]
+        try {
+          await Promise.all([
+            prisma.historias_medicas_nutricion.deleteMany({
+              where: { historia_paciente_id: { in: idList } },
+            }),
+            prisma.eval_act_fisica_nutricion.deleteMany({
+              where: { historia_paciente_id: { in: idList } },
+            }),
+            prisma.eval_cal_sueno.deleteMany({ where: { historia_paciente_id: { in: idList } } }),
+            prisma.tratamiento_alt_nutricion.deleteMany({
+              where: { historia_paciente_id: { in: idList } },
+            }),
+          ])
+        } catch (err) {
+          console.warn(`Cleanup hijos nutricion: ${err.message}`)
+        }
+      }
+
       // Borrar por niveles. Dentro del mismo nivel, en paralelo.
       for (const level of DELETE_ORDER) {
         await Promise.all(
