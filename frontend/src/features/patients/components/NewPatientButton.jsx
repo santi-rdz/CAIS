@@ -4,10 +4,15 @@ import Modal from '@components/Modal'
 import usePermissions from '@hooks/usePermissions'
 import { AREAS } from '@cais/shared/constants/users'
 import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
+import NutritionalPatientForm from '@features/patients/nutricion/forms/NutritionalPatientForm/NutritionalPatientForm'
 
 const AREA_FORMS = {
   [AREAS.MEDICINA]: {
     form: <MedicalPatientForm />,
+    modalSize: 'xl',
+  },
+  [AREAS.NUTRICION]: {
+    form: <NutritionalPatientForm />,
     modalSize: 'xl',
   },
 }
