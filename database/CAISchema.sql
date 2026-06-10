@@ -358,7 +358,7 @@ CREATE TABLE IF NOT EXISTS historias_pacientes_nutricion(
     motivo_consulta TEXT,
     adicciones_id INT,
     CONSTRAINT fk_historia_nutricion_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_historia_nutricion_adiccion FOREIGN KEY (adicciones_id) REFERENCES adicciones(id) ON DELETE CASCADE ON UPDATE NO ACTION
+    CONSTRAINT fk_historia_nutricion_adiccion FOREIGN KEY (adicciones_id) REFERENCES adicciones(id) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS historias_medicas_nutricion(

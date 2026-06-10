@@ -66,6 +66,7 @@ function formatNutritionHistory(n) {
 function formatMinimal(n) {
   const result = { ...n, id: toUUID(n.id) }
   if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
+  if ('usuario_id' in n) result.usuario_id = n.usuario_id ? toUUID(n.usuario_id) : null
   return result
 }
 

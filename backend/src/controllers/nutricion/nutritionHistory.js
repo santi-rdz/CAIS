@@ -48,6 +48,13 @@ export class NutritionHistoryController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
+    if (fields !== undefined && typeof fields !== 'string') {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "fields" debe ser una cadena separada por comas',
+      })
+    }
+
     const parsedFields = fields
       ? fields
           .split(',')
@@ -55,20 +62,36 @@ export class NutritionHistoryController {
           .filter(Boolean)
       : null
 
-    const result = await NutritionHistoryModel.getAll({
-      paciente_id,
-      page,
-      limit,
-      fields: parsedFields,
-    })
-    res.json(result)
+    try {
+      const result = await NutritionHistoryModel.getAll({
+        paciente_id,
+        page,
+        limit,
+        fields: parsedFields,
+      })
+      return res.json(result)
+    } catch (err) {
+      console.error('Error al obtener historias de nutrición:', err)
+      return res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al obtener historias de nutrición',
+      })
+    }
   }
 
   static async getById(req, res) {
     const { id } = req.params
-    const history = await NutritionHistoryModel.getById(id)
-    if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
-    res.json(history)
+    try {
+      const history = await NutritionHistoryModel.getById(id)
+      if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
+      return res.json(history)
+    } catch (err) {
+      console.error('Error al obtener historia de nutrición:', err)
+      return res.status(500).json({
+        error: 'InternalError',
+        message: 'Error al obtener historia de nutrición',
+      })
+    }
   }
 
   static async delete(req, res) {
@@ -77,6 +100,7 @@ export class NutritionHistoryController {
       const history = await prisma.$transaction(async (tx) => {
         const h = await NutritionHistoryModel.delete(id, tx)
         if (!h) return null
+        await PatientModel.touch(h.paciente_id, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,

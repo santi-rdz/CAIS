@@ -85,9 +85,16 @@ describe('GET /nutricion/historias-nutricion', () => {
   })
 
   test('200 — filtra por paciente_id', async () => {
+    const created = await agent
+      .post('/nutricion/historias-nutricion')
+      .send(buildMinimal({ motivo_consulta: 'Para validar filtro por paciente' }))
+    expect(created.status).toBe(201)
+    tracker.track('historias_pacientes_nutricion', uuidToBuffer(created.body.history.id))
+
     const res = await agent.get(`/nutricion/historias-nutricion?paciente_id=${pacienteId}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.histories)).toBe(true)
+    expect(res.body.histories.length).toBeGreaterThan(0)
     for (const h of res.body.histories) {
       expect(h.paciente_id).toBe(pacienteId)
     }
