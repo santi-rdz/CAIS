@@ -27,7 +27,9 @@ beforeAll(async () => {
   nutricionAgent = nut.agent
 })
 
-afterAll(() => tracker.cleanup())
+afterAll(async () => {
+  await tracker.cleanup()
+})
 
 // ── Factories ──────────────────────────────────────────────────────────
 

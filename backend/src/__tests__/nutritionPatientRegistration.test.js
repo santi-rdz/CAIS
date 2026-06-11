@@ -27,7 +27,9 @@ beforeAll(async () => {
   medicinaAgent = med.agent
 })
 
-afterAll(() => tracker.cleanup())
+afterAll(async () => {
+  await tracker.cleanup()
+})
 
 // ── Factories ──────────────────────────────────────────────────────────
 
