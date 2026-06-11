@@ -29,12 +29,15 @@ const DELETE_ORDER = [
     'antecedentes_familiares',
     'antecedentes_no_patologicos',
     'antecedentes_patologicos',
-    'adicciones',
     'planes_estudio',
   ],
 
   // Nivel 3: hijos directos de pacientes
   ['historias_medicas', 'historias_pacientes_nutricion'],
+
+  // Nivel 3.5: adicciones es padre de historias_pacientes_nutricion (FK
+  // adicciones_id), así que se borra después de las historias que la referencian.
+  ['adicciones'],
 
   // Nivel 4: hijos de usuarios que no son audit
   ['invitaciones_registro', 'password_reset_tokens'],

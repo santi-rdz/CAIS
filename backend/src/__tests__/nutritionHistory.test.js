@@ -7,6 +7,7 @@
 
 import request from 'supertest'
 import app from '#app'
+import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { authenticatedCoordinador } from './helpers/agents.js'
 import { createTestPaciente } from './helpers/db.js'
@@ -59,8 +60,23 @@ const buildCompleto = (overrides = {}) => ({
   tratamiento_alt_nutricion: [
     { producto: 'Suplemento', cual_producto: 'Vitamina C', mejora: 'Sí', dosis: '500mg' },
   ],
+  adicciones: {
+    adicto_tabaco: 'si',
+    tabaco_frecuencia: 'Diario',
+    num_cigarros_d: 10,
+    adicto_alcohol: 'no',
+    adicto_droga: 'no',
+    adicto_med_contr: 'no',
+  },
   ...overrides,
 })
+
+// Trackea una historia y, si la trae, su adicción asociada (1:1 propiedad de
+// la historia) para que el cleanup no deje filas huérfanas en `adicciones`.
+const trackHistoria = (history) => {
+  tracker.track('historias_pacientes_nutricion', uuidToBuffer(history.id))
+  if (history.adicciones?.id) tracker.track('adicciones', history.adicciones.id)
+}
 
 // ── GET /nutricion/historias-nutricion ─────────────────────────────
 
@@ -89,7 +105,7 @@ describe('GET /nutricion/historias-nutricion', () => {
       .post('/nutricion/historias-nutricion')
       .send(buildMinimal({ motivo_consulta: 'Para validar filtro por paciente' }))
     expect(created.status).toBe(201)
-    tracker.track('historias_pacientes_nutricion', uuidToBuffer(created.body.history.id))
+    trackHistoria(created.body.history)
 
     const res = await agent.get(`/nutricion/historias-nutricion?paciente_id=${pacienteId}`)
     expect(res.status).toBe(200)
@@ -151,7 +167,7 @@ describe('POST /nutricion/historias-nutricion', () => {
     expect(h.eval_cal_sueno).toEqual([])
     expect(h.tratamiento_alt_nutricion).toEqual([])
 
-    tracker.track('historias_pacientes_nutricion', uuidToBuffer(h.id))
+    trackHistoria(h)
   })
 
   test('201 — crea historia con todas las relaciones', async () => {
@@ -175,7 +191,12 @@ describe('POST /nutricion/historias-nutricion', () => {
     expect(h.tratamiento_alt_nutricion).toHaveLength(1)
     expect(h.tratamiento_alt_nutricion[0].producto).toBe('Suplemento')
 
-    tracker.track('historias_pacientes_nutricion', uuidToBuffer(h.id))
+    expect(h.adicciones).toBeTruthy()
+    expect(h.adicciones.adicto_tabaco).toBe('si')
+    expect(h.adicciones.tabaco_frecuencia).toBe('Diario')
+    expect(h.adicciones.num_cigarros_d).toBe(10)
+
+    trackHistoria(h)
   })
 })
 
@@ -188,7 +209,7 @@ describe('PATCH /nutricion/historias-nutricion/:id', () => {
     const res = await agent.post('/nutricion/historias-nutricion').send(buildCompleto())
     historiaId = res.body.history?.id
     if (!historiaId) throw new Error(`No se pudo crear historia para PATCH. status=${res.status}`)
-    tracker.track('historias_pacientes_nutricion', uuidToBuffer(historiaId))
+    trackHistoria(res.body.history)
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -249,6 +270,24 @@ describe('PATCH /nutricion/historias-nutricion/:id', () => {
     expect(res.body.tratamiento_alt_nutricion[0].cual_producto).toBe('Té verde')
   })
 
+  test('200 — actualiza adicciones (upsert)', async () => {
+    const res = await agent.patch(`/nutricion/historias-nutricion/${historiaId}`).send({
+      adicciones: {
+        adicto_tabaco: 'no',
+        adicto_alcohol: 'si',
+        alcohol_frecuencia: 'Semanal',
+        ml_ocasion: 250,
+        adicto_droga: 'no',
+        adicto_med_contr: 'no',
+      },
+    })
+    expect(res.status).toBe(200)
+    expect(res.body.adicciones).toBeTruthy()
+    expect(res.body.adicciones.adicto_tabaco).toBe('no')
+    expect(res.body.adicciones.adicto_alcohol).toBe('si')
+    expect(res.body.adicciones.ml_ocasion).toBe(250)
+  })
+
   test('404 — historia no existe', async () => {
     const res = await agent
       .patch('/nutricion/historias-nutricion/00000000-0000-0000-0000-000000000000')
@@ -261,12 +300,14 @@ describe('PATCH /nutricion/historias-nutricion/:id', () => {
 
 describe('DELETE /nutricion/historias-nutricion/:id', () => {
   let historiaId
+  let adiccionesId
 
   beforeAll(async () => {
     const res = await agent.post('/nutricion/historias-nutricion').send(buildCompleto())
     historiaId = res.body.history?.id
+    adiccionesId = res.body.history?.adicciones?.id
     if (!historiaId) throw new Error(`No se pudo crear historia para DELETE. status=${res.status}`)
-    tracker.track('historias_pacientes_nutricion', uuidToBuffer(historiaId))
+    trackHistoria(res.body.history)
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -285,6 +326,12 @@ describe('DELETE /nutricion/historias-nutricion/:id', () => {
     const res = await agent.delete(`/nutricion/historias-nutricion/${historiaId}`)
     expect(res.status).toBe(200)
     expect(res.body.id).toBeDefined()
+  })
+
+  test('borra en cascada la adicción asociada', async () => {
+    expect(adiccionesId).toBeDefined()
+    const adiccion = await prisma.adicciones.findUnique({ where: { id: adiccionesId } })
+    expect(adiccion).toBeNull()
   })
 
   test('404 — confirma que ya no existe tras eliminar', async () => {
