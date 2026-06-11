@@ -1,10 +1,11 @@
 import { fetchApi } from '@lib/fetchApi'
 
-export async function createNutritionHistory(data) {
-  return fetchApi('/nutricion/historias-nutricion', {
+// Registro atómico: crea paciente + 1ª historia nutricional en un solo request.
+export async function registerNutritionPatient(body) {
+  return fetchApi('/nutricion/pacientes', {
     method: 'POST',
-    body: data,
-    errorMsg: 'Error al crear historia de nutrición',
+    body,
+    errorMsg: 'Error al registrar al paciente',
   })
 }
 
