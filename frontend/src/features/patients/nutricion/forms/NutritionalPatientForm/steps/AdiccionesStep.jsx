@@ -12,6 +12,9 @@ const ADICCIONES = [
   {
     key: 'tabaco',
     label: 'Tabaco',
+    activoField: 'adicto_tabaco',
+    frecField: 'tabaco_frecuencia',
+    metricField: 'num_cigarros_d',
     metricLabel: 'Núm. cigarro/d',
     metricPlaceholder: '0',
     metricType: 'number',
@@ -19,6 +22,9 @@ const ADICCIONES = [
   {
     key: 'alcohol',
     label: 'Alcohol',
+    activoField: 'adicto_alcohol',
+    frecField: 'alcohol_frecuencia',
+    metricField: 'ml_ocasion',
     metricLabel: 'ml por ocasión',
     metricPlaceholder: '0',
     metricType: 'number',
@@ -26,6 +32,9 @@ const ADICCIONES = [
   {
     key: 'drogas',
     label: 'Drogas',
+    activoField: 'adicto_droga',
+    frecField: 'drogas_frecuencia',
+    metricField: 'cual_droga',
     metricLabel: '¿Cuál?',
     metricPlaceholder: 'Tipo de droga',
     metricType: 'text',
@@ -33,6 +42,9 @@ const ADICCIONES = [
   {
     key: 'med_controlado',
     label: 'Med. Controlado',
+    activoField: 'adicto_med_contr',
+    frecField: 'med_contr_frecuencia',
+    metricField: 'cual_med_contr',
     metricLabel: '¿Cuál?',
     metricPlaceholder: 'Nombre del medicamento',
     metricType: 'text',
@@ -42,7 +54,7 @@ const ADICCIONES = [
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function AdiccionItem({ adic, control, register, errors }) {
-  const activo = useWatch({ control, name: `adicciones.${adic.key}.activo` })
+  const activo = useWatch({ control, name: `adicciones.${adic.activoField}` })
   const isActive = activo === 'si'
 
   return (
@@ -50,7 +62,7 @@ function AdiccionItem({ adic, control, register, errors }) {
       <div className="flex items-center justify-between gap-4">
         <span className="text-4 font-semibold text-zinc-800">{adic.label}</span>
         <Controller
-          name={`adicciones.${adic.key}.activo`}
+          name={`adicciones.${adic.activoField}`}
           control={control}
           render={({ field }) => (
             <div className="flex items-center gap-4">
@@ -75,7 +87,7 @@ function AdiccionItem({ adic, control, register, errors }) {
         <div className="mt-3 grid grid-cols-2 gap-3 max-sm:grid-cols-1">
           <FormRow label="Frecuencia">
             <Controller
-              name={`adicciones.${adic.key}.frecuencia`}
+              name={`adicciones.${adic.frecField}`}
               control={control}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange} fullWidth>
@@ -96,13 +108,13 @@ function AdiccionItem({ adic, control, register, errors }) {
 
           <FormRow label={adic.metricLabel}>
             <Input
-              {...register(`adicciones.${adic.key}.metrica`)}
+              {...register(`adicciones.${adic.metricField}`)}
               type={adic.metricType}
               min={adic.metricType === 'number' ? 0 : undefined}
               placeholder={adic.metricPlaceholder}
               variant="outline"
               size="md"
-              hasError={errors?.adicciones?.[adic.key]?.metrica?.message}
+              hasError={errors?.adicciones?.[adic.metricField]?.message}
             />
           </FormRow>
         </div>

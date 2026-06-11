@@ -90,12 +90,12 @@ export default function HistoriaMedicaStep() {
     fields: enfFields,
     append: appendEnf,
     remove: removeEnf,
-  } = useFieldArray({ control, name: 'enfermedades' })
+  } = useFieldArray({ control, name: 'historias_medicas_nutricion' })
   const {
     fields: tratFields,
     append: appendTrat,
     remove: removeTrat,
-  } = useFieldArray({ control, name: 'tratamientos' })
+  } = useFieldArray({ control, name: 'tratamiento_alt_nutricion' })
 
   return (
     <div className="space-y-6">
@@ -149,7 +149,7 @@ export default function HistoriaMedicaStep() {
                     className={`group grid ${ENF_COLS} items-center gap-2 border-b border-zinc-100 py-2 last:border-0`}
                   >
                     <Controller
-                      name={`enfermedades.${index}.enfermedad`}
+                      name={`historias_medicas_nutricion.${index}.enfermedad`}
                       control={control}
                       render={({ field: f }) => (
                         <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
@@ -168,29 +168,29 @@ export default function HistoriaMedicaStep() {
                       )}
                     />
                     <Input
-                      {...register(`enfermedades.${index}.evol`)}
+                      {...register(`historias_medicas_nutricion.${index}.evol`)}
                       type="number"
                       min={0}
                       placeholder="0"
                       variant="outline"
                       size="md"
-                      hasError={errors?.enfermedades?.[index]?.evol?.message}
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.evol?.message}
                     />
                     <Input
-                      {...register(`enfermedades.${index}.farmacos`)}
+                      {...register(`historias_medicas_nutricion.${index}.farmacos`)}
                       type="text"
                       placeholder="Fármacos"
                       variant="outline"
                       size="md"
-                      hasError={errors?.enfermedades?.[index]?.farmacos?.message}
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.farmacos?.message}
                     />
                     <Input
-                      {...register(`enfermedades.${index}.dosis`)}
+                      {...register(`historias_medicas_nutricion.${index}.dosis`)}
                       type="text"
                       placeholder="0-0-0"
                       variant="outline"
                       size="md"
-                      hasError={errors?.enfermedades?.[index]?.dosis?.message}
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.dosis?.message}
                     />
                     <DeleteButton onClick={() => removeEnf(index)} />
                   </div>
@@ -252,7 +252,7 @@ export default function HistoriaMedicaStep() {
                     className={`group grid ${TRAT_COLS} items-center gap-2 border-b border-zinc-100 py-2 last:border-0`}
                   >
                     <Controller
-                      name={`tratamientos.${index}.producto`}
+                      name={`tratamiento_alt_nutricion.${index}.producto`}
                       control={control}
                       render={({ field: f }) => (
                         <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
@@ -271,15 +271,15 @@ export default function HistoriaMedicaStep() {
                       )}
                     />
                     <Input
-                      {...register(`tratamientos.${index}.cual_producto`)}
+                      {...register(`tratamiento_alt_nutricion.${index}.cual_producto`)}
                       type="text"
                       placeholder="¿Cuál?"
                       variant="outline"
                       size="md"
-                      hasError={errors?.tratamientos?.[index]?.cual_producto?.message}
+                      hasError={errors?.tratamiento_alt_nutricion?.[index]?.cual_producto?.message}
                     />
                     <Controller
-                      name={`tratamientos.${index}.mejora`}
+                      name={`tratamiento_alt_nutricion.${index}.mejora`}
                       control={control}
                       render={({ field: f }) => (
                         <Select value={f.value} onValueChange={f.onChange} fullWidth>
@@ -297,12 +297,12 @@ export default function HistoriaMedicaStep() {
                       )}
                     />
                     <Input
-                      {...register(`tratamientos.${index}.dosis`)}
+                      {...register(`tratamiento_alt_nutricion.${index}.dosis`)}
                       type="text"
                       placeholder="0-0-0"
                       variant="outline"
                       size="md"
-                      hasError={errors?.tratamientos?.[index]?.dosis?.message}
+                      hasError={errors?.tratamiento_alt_nutricion?.[index]?.dosis?.message}
                     />
                     <DeleteButton onClick={() => removeTrat(index)} />
                   </div>
