@@ -20,19 +20,35 @@ function formatHistoriaOption(h) {
 export default function PatientHistoriaNutricion() {
   const { id: pacienteId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { histories, isPending: isLoadingList } = useNutritionHistories(pacienteId)
+  const {
+    histories,
+    isPending: isLoadingList,
+    isError: isListError,
+  } = useNutritionHistories(pacienteId)
 
   const selectedId = searchParams.get('historia')
   const mostRecentId = histories[0]?.id ?? null
   const activeId = selectedId ?? mostRecentId
-  const { historia, isPending: isLoadingDetail } = useNutritionHistory(activeId)
+  const {
+    historia,
+    isPending: isLoadingDetail,
+    isError: isDetailError,
+  } = useNutritionHistory(activeId)
 
+  // Preserva los demás query params (ej. el ?tab= de los tabs externos url-sync'd).
   function handleSelectHistory(id) {
-    setSearchParams({ historia: id }, { replace: true })
+    setSearchParams(
+      (prev) => {
+        prev.set('historia', id)
+        return prev
+      },
+      { replace: true }
+    )
   }
 
   const periodos = histories.map(formatHistoriaOption)
   const isLoading = isLoadingList || (activeId != null && isLoadingDetail)
+  const isError = isListError || isDetailError
 
   return (
     <div>
@@ -64,6 +80,10 @@ export default function PatientHistoriaNutricion() {
                   <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" />
                 ))}
               </div>
+            ) : isError ? (
+              <p className="text-5 py-8 text-center text-red-400">
+                No se pudo cargar la historia nutricional. Intenta de nuevo.
+              </p>
             ) : !historia ? (
               <p className="text-5 py-8 text-center text-zinc-400">
                 Sin historia nutricional registrada.

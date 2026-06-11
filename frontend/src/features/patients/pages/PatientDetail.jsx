@@ -32,7 +32,7 @@ export default function PatientDetail() {
           patientName={[patient.nombre, patient.apellidos].filter(Boolean).join(' ')}
           isDeleting={isDeleting}
         />
-        <Tab defaultTab={tabs[0].value} syncUrl>
+        <Tab defaultTab={tabs[0]?.value} syncUrl>
           <PatientHeader patient={patient} tabs={tabs} />
           <div className="mt-4 space-y-4">
             {tabs.map((tab) => (
