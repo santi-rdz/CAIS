@@ -35,17 +35,25 @@ export const DEFAULT_VALUES = {
   contacto_emergencia: '',
   telefono_emergencia: '',
   parentesco_emergencia: '',
-  // Step 2 — historias_medicas_nutricion
+  // Step 2 — historias_medicas_nutricion (presenta_* es toggle solo-UI)
   presenta_enfermedad: 'no',
-  enfermedades: [],
+  historias_medicas_nutricion: [],
   // Step 2 — tratamiento_alt_nutricion
   presenta_tratamiento: 'no',
-  tratamientos: [],
-  // Step 3 — adicciones
+  tratamiento_alt_nutricion: [],
+  // Step 3 — adicciones (campos planos según la tabla adicciones)
   adicciones: {
-    tabaco: { activo: 'no', frecuencia: '', metrica: '' },
-    alcohol: { activo: 'no', frecuencia: '', metrica: '' },
-    drogas: { activo: 'no', frecuencia: '', metrica: '' },
-    med_controlado: { activo: 'no', frecuencia: '', metrica: '' },
+    adicto_tabaco: 'no',
+    tabaco_frecuencia: '',
+    num_cigarros_d: '',
+    adicto_alcohol: 'no',
+    alcohol_frecuencia: '',
+    ml_ocasion: '',
+    adicto_droga: 'no',
+    drogas_frecuencia: '',
+    cual_droga: '',
+    adicto_med_contr: 'no',
+    med_contr_frecuencia: '',
+    cual_med_contr: '',
   },
 }

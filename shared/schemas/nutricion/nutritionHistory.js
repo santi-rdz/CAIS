@@ -1,12 +1,20 @@
 import { z } from 'zod'
 import { optionalDateSchema } from '../fields.js'
 
+// Campo entero proveniente de formularios: '' → null y string numérico → número.
+// Permite que los componentes registren inputs normales y el schema coaccione.
+const intField = (max) => {
+  let schema = z.coerce.number().int().min(0)
+  if (max != null) schema = schema.max(max)
+  return z.preprocess((v) => (v === '' ? null : v), schema.nullish())
+}
+
 // ─── Subschemas de relaciones one-to-many ────────────────────────────────────
 
 // historias_medicas_nutricion — antecedentes médicos propios del contexto nutricional
 export const historiasMedicasNutricionSchema = z.object({
   enfermedad: z.string().trim().nullish(),
-  evol: z.int().nullish(),
+  evol: intField(), // Int
   farmacos: z.string().trim().nullish(),
   dosis: z.string().trim().max(20).nullish(),
 })
@@ -17,8 +25,8 @@ export const evalActFisicaNutricionSchema = z.object({
   tipo: z.string().trim().max(50).nullish(),
   porque_no: z.string().trim().max(255).nullish(),
   frecuencia: z.string().trim().max(20).nullish(),
-  duracion: z.int().min(0).nullish(), // SmallInt
-  intensidad: z.int().min(0).nullish(),
+  duracion: intField(32767), // SmallInt
+  intensidad: intField(), // Int
   tiempo_de_practica: z.string().trim().max(20).nullish(),
   pensamientos_con_realizar_AF: z.string().trim().max(50).nullish(),
 })
@@ -26,9 +34,9 @@ export const evalActFisicaNutricionSchema = z.object({
 // eval_cal_sueno — calidad del sueño
 export const evalCalSuenoSchema = z.object({
   fecha: optionalDateSchema,
-  horas_sueno: z.int().min(0).max(127).nullish(), // TinyInt
-  insomnio: z.int().min(0).max(127).nullish(),
-  medicacion: z.int().min(0).max(127).nullish(),
+  horas_sueno: intField(127), // TinyInt
+  insomnio: intField(127),
+  medicacion: intField(127),
 })
 
 // tratamiento_alt_nutricion — tratamientos alternativos
@@ -39,18 +47,14 @@ export const tratamientoAltNutricionSchema = z.object({
   dosis: z.string().trim().max(20).nullish(),
 })
 
-// adicciones — objeto único conectado por FK (adicciones_id)
-export const adiccionesSchema = z.object({
-  id: z.int().positive(), // connect por id existente
-})
-
+// adicciones — objeto único 1:1; se crea anidado junto con la historia
 export const adiccionesCreateSchema = z.object({
   adicto_tabaco: z.string().trim().max(10).nullish(),
   tabaco_frecuencia: z.string().trim().max(20).nullish(),
-  num_cigarros_d: z.int().min(0).max(127).nullish(), // TinyInt
+  num_cigarros_d: intField(127), // TinyInt
   adicto_alcohol: z.string().trim().max(10).nullish(),
   alcohol_frecuencia: z.string().trim().max(20).nullish(),
-  ml_ocasion: z.int().min(0).max(32767).nullish(), // SmallInt
+  ml_ocasion: intField(32767), // SmallInt
   adicto_droga: z.string().trim().max(10).nullish(),
   drogas_frecuencia: z.string().trim().max(20).nullish(),
   cual_droga: z.string().trim().nullish(),
@@ -66,8 +70,8 @@ export const nutritionHistorySchema = z.object({
   fecha_ingreso: optionalDateSchema,
   motivo_consulta: z.string().trim().nullish(),
 
-  // FK a adicciones: se puede enviar solo el id para conectar un registro existente
-  adicciones_id: z.int().positive().nullish(),
+  // adicciones 1:1: se crea anidada junto con la historia
+  adicciones: adiccionesCreateSchema.optional(),
 
   // Relaciones one-to-many: arreglos opcionales
   historias_medicas_nutricion: z.array(historiasMedicasNutricionSchema).optional(),

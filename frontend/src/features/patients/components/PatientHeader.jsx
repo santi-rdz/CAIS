@@ -3,8 +3,6 @@ import {
   HiOutlinePhone,
   HiOutlineEnvelope,
   HiOutlineIdentification,
-  HiOutlineClipboardDocument,
-  HiOutlinePencilSquare,
 } from 'react-icons/hi2'
 import dayjs from 'dayjs'
 import Heading from '@components/Heading'
@@ -13,7 +11,7 @@ import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
 import MetaChip from '@components/MetaChip'
 
-export default function PatientHeader({ patient }) {
+export default function PatientHeader({ patient, tabs }) {
   const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
@@ -64,24 +62,14 @@ export default function PatientHeader({ patient }) {
       </div>
 
       <Tab.List className="mt-5">
-        <Tab.Trigger value="historia">
-          <span className="inline-flex items-center justify-center gap-1.5">
-            <HiOutlineClipboardDocument size={13} />
-            Historia médica
-          </span>
-        </Tab.Trigger>
-        <Tab.Trigger value="notas">
-          <span className="inline-flex items-center justify-center gap-1.5">
-            <HiOutlinePencilSquare size={13} />
-            Notas de evolución
-          </span>
-        </Tab.Trigger>
-        <Tab.Trigger value="datos">
-          <span className="inline-flex items-center justify-center gap-1.5">
-            <HiOutlineIdentification size={13} />
-            Datos personales
-          </span>
-        </Tab.Trigger>
+        {tabs.map((tab) => (
+          <Tab.Trigger key={tab.value} value={tab.value}>
+            <span className="inline-flex items-center justify-center gap-1.5">
+              {tab.icon}
+              {tab.label}
+            </span>
+          </Tab.Trigger>
+        ))}
       </Tab.List>
     </div>
   )

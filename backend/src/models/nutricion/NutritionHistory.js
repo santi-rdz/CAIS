@@ -1,7 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
-import { toUUID } from '#lib/prismaHelpers.js'
+import {
+  toUUID,
+  nestedCreate,
+  nestedUpsert,
+  buildNestedRelations,
+  manyCreate,
+  manyReplace,
+} from '#lib/prismaHelpers.js'
 
 // ─── Relaciones a incluir en queries completas ───────────────────────────────
 
@@ -31,26 +38,6 @@ const MANY_RELATIONS = [
   'tratamiento_alt_nutricion',
 ]
 
-// ─── Helpers de relaciones anidadas ──────────────────────────────────────────
-
-function buildManyCreate(data, relations) {
-  return relations.reduce((acc, key) => {
-    if (data[key] !== undefined) {
-      acc[key] = { create: data[key] }
-    }
-    return acc
-  }, {})
-}
-
-function buildManyReplace(data, relations) {
-  return relations.reduce((acc, key) => {
-    if (data[key] !== undefined) {
-      acc[key] = { deleteMany: {}, create: data[key] }
-    }
-    return acc
-  }, {})
-}
-
 // ─── Formatters ──────────────────────────────────────────────────────────────
 
 function formatNutritionHistory(n) {
@@ -59,14 +46,12 @@ function formatNutritionHistory(n) {
     ...n,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
-    usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
   }
 }
 
 function formatMinimal(n) {
   const result = { ...n, id: toUUID(n.id) }
   if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
-  if ('usuario_id' in n) result.usuario_id = n.usuario_id ? toUUID(n.usuario_id) : null
   return result
 }
 
@@ -113,11 +98,13 @@ export class NutritionHistoryModel {
     await tx.historias_pacientes_nutricion.create({
       data: {
         id: uuidToBuffer(historyId),
-        paciente_id: uuidToBuffer(data.paciente_id),
+        // connect (modo checked) para habilitar el create anidado de adicciones,
+        // que es una relación to-one padre (FK adicciones_id en esta fila).
+        pacientes: { connect: { id: uuidToBuffer(data.paciente_id) } },
         fecha_ingreso: data.fecha_ingreso,
         motivo_consulta: data.motivo_consulta,
-        ...(data.adicciones_id !== undefined && { adicciones_id: data.adicciones_id }),
-        ...buildManyCreate(data, MANY_RELATIONS),
+        ...(data.adicciones && { adicciones: nestedCreate(data.adicciones) }),
+        ...buildNestedRelations(data, MANY_RELATIONS, manyCreate),
       },
     })
 
@@ -154,6 +141,14 @@ export class NutritionHistoryModel {
 
       await tx.historias_pacientes_nutricion.delete({ where: { id: idBuffer } })
 
+      // adicciones es 1:1 propiedad de la historia (FK adicciones_id en la
+      // historia); se borra después de la historia para no violar la FK.
+      if (history.adicciones?.id) {
+        await tx.adicciones.delete({ where: { id: history.adicciones.id } }).catch((err) => {
+          if (err.code !== 'P2025') throw err
+        })
+      }
+
       return formatNutritionHistory(history)
     } catch (err) {
       if (err.code === 'P2025') return null
@@ -168,8 +163,8 @@ export class NutritionHistoryModel {
         data: {
           ...(data.fecha_ingreso !== undefined && { fecha_ingreso: data.fecha_ingreso }),
           ...(data.motivo_consulta !== undefined && { motivo_consulta: data.motivo_consulta }),
-          ...(data.adicciones_id !== undefined && { adicciones_id: data.adicciones_id }),
-          ...buildManyReplace(data, MANY_RELATIONS),
+          ...(data.adicciones && { adicciones: nestedUpsert(data.adicciones) }),
+          ...buildNestedRelations(data, MANY_RELATIONS, manyReplace),
         },
       })
       return this.getById(id, tx)

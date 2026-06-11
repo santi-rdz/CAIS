@@ -43,6 +43,20 @@ export function buildNestedRelations(data, keys, nestedFn) {
 }
 
 /**
+ * Envuelve un arreglo en { create: [...] } para crear relaciones one-to-many
+ * anidadas en un create. Análogo a nestedCreate pero para arreglos.
+ * Se pasa como nestedFn a buildNestedRelations.
+ */
+export const manyCreate = (arr) => ({ create: arr })
+
+/**
+ * Envuelve un arreglo en { deleteMany, create } para reemplazar por completo
+ * relaciones one-to-many en un update. Análogo a nestedUpsert pero para arreglos.
+ * Se pasa como nestedFn a buildNestedRelations.
+ */
+export const manyReplace = (arr) => ({ deleteMany: {}, create: arr })
+
+/**
  * Construye los códigos CIE-10 anidados para un create de planes_estudio.
  * Retorna vacío si no hay códigos.
  */
