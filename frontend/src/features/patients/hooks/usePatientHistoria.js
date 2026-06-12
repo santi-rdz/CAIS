@@ -26,11 +26,20 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
   const { historia, isPending: isLoadingDetail, isError: isDetailError } = useHistory(activeId)
 
   // Base para clonar: siempre la historia más reciente. Solo se carga aparte
-  // cuando se está viendo un período que no es el más reciente.
-  const { historia: mostRecentHistoria, isPending: isLoadingCloneBase } = useHistory(
-    mostRecentId !== activeId ? mostRecentId : null
+  // cuando se está viendo un período que no es el más reciente; si no, reusamos
+  // la historia activa ya cargada.
+  const needsSeparateCloneBase = mostRecentId !== activeId
+  const { historia: mostRecentHistoria, isPending: isCloneBasePending } = useHistory(
+    needsSeparateCloneBase ? mostRecentId : null
   )
-  const cloneBase = mostRecentId !== activeId ? mostRecentHistoria : historia
+  const cloneBase = needsSeparateCloneBase ? mostRecentHistoria : historia
+
+  // Solo está "cargando" cuando de verdad se busca la base aparte (o aún carga la
+  // historia activa que la reusa). Una query deshabilitada reporta isPending=true
+  // en react-query, así que no se puede usar isPending crudo aquí.
+  const isLoadingCloneBase = needsSeparateCloneBase
+    ? isCloneBasePending
+    : activeId != null && isLoadingDetail
 
   const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep)
 

@@ -1,4 +1,9 @@
-import { HiOutlinePlus, HiOutlinePencilSquare } from 'react-icons/hi2'
+import {
+  HiOutlinePlus,
+  HiOutlinePencilSquare,
+  HiOutlineClipboardDocument,
+  HiOutlineExclamationCircle,
+} from 'react-icons/hi2'
 import Tab from '@components/Tab'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
@@ -110,15 +115,25 @@ export default function PatientHistoriaShell({
 
           <div className="p-5">
             {isLoading ? (
-              <div className="space-y-3 py-4">
-                {Array.from({ length: 4 }, (_, i) => (
-                  <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" />
+              <div className="space-y-3 py-2">
+                {['85%', '70%', '92%', '55%'].map((w, i) => (
+                  <div
+                    key={i}
+                    className="h-5 animate-pulse rounded bg-zinc-100"
+                    style={{ width: w }}
+                  />
                 ))}
               </div>
             ) : isError ? (
-              <p className="text-5 py-8 text-center text-red-400">{errorMessage}</p>
+              <div className="flex flex-col items-center gap-2 py-12 text-center">
+                <HiOutlineExclamationCircle size={26} className="text-red-300" />
+                <p className="text-5 text-zinc-500">{errorMessage}</p>
+              </div>
             ) : !historia ? (
-              <p className="text-5 py-8 text-center text-zinc-400">{emptyMessage}</p>
+              <div className="flex flex-col items-center gap-2 py-12 text-center">
+                <HiOutlineClipboardDocument size={26} className="text-zinc-300" />
+                <p className="text-5 text-zinc-500">{emptyMessage}</p>
+              </div>
             ) : (
               tabs.map((t) => (
                 <Tab.Panel key={t.value} value={t.value} scrollable={false}>
