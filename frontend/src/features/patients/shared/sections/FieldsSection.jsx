@@ -12,8 +12,8 @@ const GRID = {
 export default function FieldsSection({ fields, cols = 2 }) {
   return (
     <div className={`grid ${GRID[cols] ?? GRID[2]} gap-x-8 gap-y-4`}>
-      {(fields ?? []).map((f) => (
-        <DataField key={f.label} label={f.label} value={f.value} multiline />
+      {(fields ?? []).map((f, index) => (
+        <DataField key={f.id ?? index} label={f.label} value={f.value} multiline />
       ))}
     </div>
   )

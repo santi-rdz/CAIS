@@ -5,9 +5,9 @@ export default function BadgeList({ items }) {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {items.map((it) => (
+      {items.map((it, index) => (
         <span
-          key={it.label}
+          key={it.id ?? `${it.label ?? 'item'}-${it.sub ?? ''}-${index}`}
           className="inline-flex items-baseline gap-2 rounded-lg bg-zinc-50 px-3 py-1.5"
         >
           <span className="text-5 font-semibold tracking-tight text-zinc-700 tabular-nums">

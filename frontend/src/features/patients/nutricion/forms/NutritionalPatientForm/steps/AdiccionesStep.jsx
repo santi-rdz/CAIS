@@ -64,7 +64,13 @@ function AdiccionItem({ adic, control, register, errors }) {
         <Controller
           name={`adicciones.${adic.activoField}`}
           control={control}
-          render={({ field }) => <SegmentedToggle value={field.value} onChange={field.onChange} />}
+          render={({ field }) => (
+            <SegmentedToggle
+              value={field.value}
+              onChange={field.onChange}
+              ariaLabel={`¿Consume ${adic.label}?`}
+            />
+          )}
         />
       </div>
 

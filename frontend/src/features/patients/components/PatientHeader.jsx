@@ -16,6 +16,7 @@ export default function PatientHeader({ patient, tabs }) {
   const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
+  const telDigits = telefono ? String(telefono).replace(/\D/g, '').slice(0, 10) : ''
 
   const age = fecha_nacimiento ? dayjs().diff(dayjs(fecha_nacimiento), 'year') : null
 
@@ -50,7 +51,7 @@ export default function PatientHeader({ patient, tabs }) {
             )}
           </div>
           {subtitle && <p className="text-5 mt-1 text-zinc-400">{subtitle}</p>}
-          {(correo || telefono || nss) && (
+          {(correo || telDigits || nss) && (
             <div className="mt-3 flex flex-wrap gap-2">
               {correo && (
                 <a
@@ -61,9 +62,9 @@ export default function PatientHeader({ patient, tabs }) {
                   <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />
                 </a>
               )}
-              {telefono && (
+              {telDigits && (
                 <a
-                  href={`tel:${String(telefono).replace(/\D/g, '')}`}
+                  href={`tel:${telDigits}`}
                   aria-label={`Llamar al ${formatPhone(telefono)}`}
                   className="rounded-md transition-transform duration-150 ease-out active:scale-[0.98]"
                 >

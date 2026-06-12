@@ -27,8 +27,12 @@ function CheckItem({ label, value }) {
 export default function CheckGrid({ items }) {
   return (
     <div className="flex flex-wrap gap-x-6 gap-y-2.5">
-      {items.map((it) => (
-        <CheckItem key={it.label} label={it.label} value={it.value} />
+      {items.map((it, index) => (
+        <CheckItem
+          key={it.key ?? it.id ?? `${it.label}-${index}`}
+          label={it.label}
+          value={it.value}
+        />
       ))}
     </div>
   )

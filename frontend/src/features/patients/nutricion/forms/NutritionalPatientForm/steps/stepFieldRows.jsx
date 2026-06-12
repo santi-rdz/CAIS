@@ -5,7 +5,7 @@ import SegmentedToggle from '@components/SegmentedToggle'
 // Primitivos compartidos por los steps de relaciones one-to-many
 // (HistoriaMedicaStep y TratamientoAlternativoStep).
 
-export function ToggleSiNo({ name, control, onSelectSi }) {
+export function ToggleSiNo({ name, control, onSelectSi, ariaLabel = 'Selector sí o no' }) {
   return (
     <Controller
       name={name}
@@ -13,6 +13,7 @@ export function ToggleSiNo({ name, control, onSelectSi }) {
       render={({ field }) => (
         <SegmentedToggle
           value={field.value}
+          ariaLabel={ariaLabel}
           onChange={(v) => {
             field.onChange(v)
             if (v === 'si') onSelectSi?.()

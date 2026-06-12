@@ -46,6 +46,7 @@ export default function HistoriaMedicaStep() {
         <ToggleSiNo
           name="presenta_enfermedad"
           control={control}
+          ariaLabel="¿Presenta alguna enfermedad?"
           onSelectSi={() => {
             if (enfFields.length === 0) appendEnf(ENFERMEDAD_DEFAULT)
           }}

@@ -33,8 +33,12 @@ function metric(value, unit) {
 export default function SignosVitalesSection({ info }) {
   info ??= {}
 
+  const peso = Number(info.peso)
+  const altura = Number(info.altura)
   const imc =
-    info.peso && info.altura ? (info.peso / Math.pow(info.altura / 100, 2)).toFixed(1) : null
+    Number.isFinite(peso) && peso > 0 && Number.isFinite(altura) && altura > 0
+      ? (peso / Math.pow(altura / 100, 2)).toFixed(1)
+      : null
   const pa =
     info.pa_sistolica && info.pa_diastolica ? `${info.pa_sistolica}/${info.pa_diastolica}` : null
 

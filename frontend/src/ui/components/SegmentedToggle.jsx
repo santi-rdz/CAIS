@@ -8,10 +8,19 @@ const SI_NO = [
 // Control segmentado (por defecto Sí/No). Pill sobre track gris con el segmento
 // activo en blanco — consistente con el Tab secundario de la app. Reemplaza el
 // par de radios para una entrada binaria más clara y moderna.
-export default function SegmentedToggle({ value, onChange, options = SI_NO, className }) {
+export default function SegmentedToggle({
+  value,
+  onChange,
+  options = SI_NO,
+  className,
+  ariaLabel,
+  ariaLabelledBy,
+}) {
   return (
     <div
       role="radiogroup"
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
       className={cn('inline-flex shrink-0 gap-0.5 rounded-lg bg-gray-100 p-0.5', className)}
     >
       {options.map((opt) => {

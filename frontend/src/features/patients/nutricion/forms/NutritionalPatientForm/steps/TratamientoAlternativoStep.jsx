@@ -55,6 +55,7 @@ export default function TratamientoAlternativoStep() {
         <ToggleSiNo
           name="presenta_tratamiento"
           control={control}
+          ariaLabel="¿Utiliza algún tratamiento alternativo?"
           onSelectSi={() => {
             if (tratFields.length === 0) appendTrat(TRATAMIENTO_DEFAULT)
           }}
