@@ -4,7 +4,7 @@ import { HiMagnifyingGlass, HiXMark } from 'react-icons/hi2'
 import Input from '@components/Input'
 import DropdownPanel from '@components/DropdownPanel'
 import useDropdownPosition from '@hooks/useDropdownPosition'
-import { CIE10_DATA } from '@features/patients/shared/forms/cie10Data'
+import { CIE10_DATA } from '@features/patients/medicina/forms/shared/cie10Data'
 
 export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { control } = useFormContext()

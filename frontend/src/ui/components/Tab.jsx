@@ -9,18 +9,34 @@ const TabContext = createContext()
  * @param {string} defaultTab - value del tab activo por defecto
  * @param {boolean} [syncUrl] - sincroniza el tab activo con ?tab= en la URL
  * @param {'primary'|'secondary'} variant - estilo de los botones
+ * @param {string} [value] - tab activo controlado (junto con onValueChange)
+ * @param {(tab: string) => void} [onValueChange] - callback en modo controlado
  */
-export default function Tab({ children, defaultTab = '', syncUrl = false, variant = 'primary' }) {
+export default function Tab({
+  children,
+  defaultTab = '',
+  syncUrl = false,
+  variant = 'primary',
+  value,
+  onValueChange,
+}) {
   const [searchParams, setSearchParams] = useSearchParams()
   const [localTab, setLocalTab] = useState(defaultTab)
   const [tabMeta, setTabMeta] = useState({})
 
-  // When syncUrl, derive activeTab directly from URL — no local state needed
-  const activeTab = syncUrl ? (searchParams.get('tab') ?? defaultTab) : localTab
+  const isControlled = value != null
+  // Controlado > syncUrl (?tab=) > estado local.
+  const activeTab = isControlled
+    ? value
+    : syncUrl
+      ? (searchParams.get('tab') ?? defaultTab)
+      : localTab
 
   const handleSetActiveTab = useCallback(
     (tab) => {
-      if (syncUrl) {
+      if (isControlled) {
+        onValueChange?.(tab)
+      } else if (syncUrl) {
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev)
@@ -33,7 +49,7 @@ export default function Tab({ children, defaultTab = '', syncUrl = false, varian
         setLocalTab(tab)
       }
     },
-    [syncUrl, setSearchParams]
+    [isControlled, onValueChange, syncUrl, setSearchParams]
   )
 
   const registerTrigger = useCallback((value, meta) => {

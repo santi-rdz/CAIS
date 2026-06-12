@@ -3,7 +3,7 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
-import CIE10Field from '@features/patients/shared/forms/CIE10Field'
+import CIE10Field from '@features/patients/medicina/forms/shared/CIE10Field'
 
 function Tratamiento({ prefix = 'planes_estudio' }) {
   const { register } = useFormContext()

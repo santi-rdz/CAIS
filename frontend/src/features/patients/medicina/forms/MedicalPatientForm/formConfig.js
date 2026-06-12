@@ -3,7 +3,7 @@ import {
   APARATOS_DEFAULTS,
   INFORMACION_FISICA_DEFAULTS,
   PLAN_ESTUDIO_DEFAULTS,
-} from '@features/patients/shared/forms/formDefaults'
+} from '@features/patients/medicina/forms/shared/formDefaults'
 import DatosPersonalesStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/DatosPersonalesStep'
 import AntecedentesFamiliaresStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AntecedentesFamiliaresStep'
 import AntecedentesNoPatStep from '@features/patients/medicina/forms/MedicalPatientForm/steps/AntecedentesNoPatStep'
