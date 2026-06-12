@@ -16,7 +16,7 @@ import {
   MEJORA_OPTIONS,
 } from '@features/patients/nutricion/constants'
 import {
-  RadioSiNo,
+  ToggleSiNo,
   DeletableRow,
   EmptyRows,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/steps/stepFieldRows'
@@ -52,9 +52,10 @@ export default function TratamientoAlternativoStep() {
 
       <div className="space-y-2">
         <p className="text-5 font-medium text-zinc-700">¿Utiliza alguno?</p>
-        <RadioSiNo
+        <ToggleSiNo
           name="presenta_tratamiento"
           control={control}
+          ariaLabel="¿Utiliza algún tratamiento alternativo?"
           onSelectSi={() => {
             if (tratFields.length === 0) appendTrat(TRATAMIENTO_DEFAULT)
           }}

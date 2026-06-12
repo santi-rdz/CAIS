@@ -13,7 +13,7 @@ export default function RecordTable({ columns, rows, emptyMessage = 'Sin registr
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="text-6 px-3 py-2 font-semibold tracking-widest text-zinc-400 uppercase"
+                className="text-6 px-3 py-2 font-medium tracking-wide text-zinc-400 uppercase"
               >
                 {col.label}
               </th>
@@ -23,7 +23,10 @@ export default function RecordTable({ columns, rows, emptyMessage = 'Sin registr
         <tbody>
           {hasRows ? (
             rows.map((row, i) => (
-              <tr key={row.id ?? i} className="border-b border-zinc-50 last:border-0">
+              <tr
+                key={row.id ?? i}
+                className="border-b border-zinc-50 transition-colors last:border-0 hover:bg-zinc-50/70"
+              >
                 {columns.map((col) => {
                   const value = row[col.key]
                   const hasValue = value != null && String(value).trim() !== ''

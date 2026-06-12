@@ -9,12 +9,14 @@ import Heading from '@components/Heading'
 import Tag from '@components/Tag'
 import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
+import { formatPhone } from '@lib/utils'
 import MetaChip from '@components/MetaChip'
 
 export default function PatientHeader({ patient, tabs }) {
   const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
+  const telDigits = telefono ? String(telefono).replace(/\D/g, '').slice(0, 10) : ''
 
   const age = fecha_nacimiento ? dayjs().diff(dayjs(fecha_nacimiento), 'year') : null
 
@@ -49,10 +51,26 @@ export default function PatientHeader({ patient, tabs }) {
             )}
           </div>
           {subtitle && <p className="text-5 mt-1 text-zinc-400">{subtitle}</p>}
-          {(correo || telefono || nss) && (
+          {(correo || telDigits || nss) && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {correo && <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />}
-              {telefono && <MetaChip icon={<HiOutlinePhone size={12} />} value={telefono} />}
+              {correo && (
+                <a
+                  href={`mailto:${correo}`}
+                  aria-label={`Enviar correo a ${correo}`}
+                  className="rounded-md transition-transform duration-150 ease-out active:scale-[0.98]"
+                >
+                  <MetaChip icon={<HiOutlineEnvelope size={12} />} value={correo} />
+                </a>
+              )}
+              {telDigits && (
+                <a
+                  href={`tel:${telDigits}`}
+                  aria-label={`Llamar al ${formatPhone(telefono)}`}
+                  className="rounded-md transition-transform duration-150 ease-out active:scale-[0.98]"
+                >
+                  <MetaChip icon={<HiOutlinePhone size={12} />} value={formatPhone(telefono)} />
+                </a>
+              )}
               {nss && (
                 <MetaChip icon={<HiOutlineIdentification size={12} />} value={`NSS ${nss}`} />
               )}

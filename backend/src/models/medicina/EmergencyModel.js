@@ -17,7 +17,9 @@ function formatEmergency(u) {
     ...rest,
     id: bufferToUUID(u.id),
     usuario_id: bufferToUUID(u.usuario_id),
-    registrado_por: usuarios ? { nombre: usuarios.nombre, correo: usuarios.correo } : null,
+    registrado_por: usuarios
+      ? { nombre: usuarios.nombre, apellidos: usuarios.apellidos, correo: usuarios.correo }
+      : null,
   }
 }
 

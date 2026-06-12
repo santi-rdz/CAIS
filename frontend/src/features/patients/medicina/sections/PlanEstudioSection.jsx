@@ -1,33 +1,26 @@
-import Heading from '@components/Heading'
-import DataField from '@components/DataField'
-import CIE10List from '@features/patients/medicina/sections/CIE10List'
+import SubSection from '@features/patients/shared/sections/SubSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
+import BadgeList from '@features/patients/medicina/sections/BadgeList'
 
 export default function PlanEstudioSection({ plan }) {
   const { cie10_codes, plan_tratamiento, tratamiento, estudios_complementarios } = plan ?? {}
+
+  const planFields = [
+    { label: 'Plan de tratamiento', value: plan_tratamiento },
+    { label: 'Tratamiento', value: tratamiento },
+    { label: 'Estudios complementarios', value: estudios_complementarios },
+  ]
+
+  const cieBadges = (cie10_codes ?? []).map((c) => ({ label: c.codigo, sub: c.descripcion }))
+
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Plan y Tratamiento
-        </Heading>
-        <div className="grid grid-cols-2 gap-5 max-sm:grid-cols-1">
-          <DataField label="Plan de tratamiento" value={plan_tratamiento} multiline block />
-          <DataField label="Tratamiento" value={tratamiento} multiline block />
-        </div>
-        <DataField
-          label="Estudios complementarios"
-          value={estudios_complementarios}
-          multiline
-          block
-        />
-      </div>
-
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Diagnóstico — Código CIE-10
-        </Heading>
-        <CIE10List codes={cie10_codes} />
-      </div>
+      <SubSection title="Plan y tratamiento">
+        <FieldsSection fields={planFields} cols={1} />
+      </SubSection>
+      <SubSection title="Diagnóstico (CIE-10)">
+        <BadgeList items={cieBadges} />
+      </SubSection>
     </div>
   )
 }

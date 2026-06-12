@@ -1,10 +1,10 @@
-import { HiOutlineBeaker } from 'react-icons/hi2'
-import Heading from '@components/Heading'
-import DataField from '@components/DataField'
-import StatusChip from '@components/StatusChip'
-import InmunizacionesSection from '@features/patients/medicina/sections/InmunizacionesSection'
+import { HiOutlineCheckCircle, HiOutlineMinusCircle } from 'react-icons/hi2'
+import { formatFecha } from '@lib/dateHelpers'
+import SubSection from '@features/patients/shared/sections/SubSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
+import CheckGrid from '@features/patients/medicina/sections/CheckGrid'
 
-const SERVICIOS_ITEMS = [
+const SERVICIOS = [
   { label: 'Gas', key: 'gas' },
   { label: 'Luz', key: 'luz' },
   { label: 'Agua', key: 'agua' },
@@ -13,22 +13,11 @@ const SERVICIOS_ITEMS = [
   { label: 'Internet', key: 'internet' },
 ]
 
-const ANTECEDENTES_ITEMS = [
-  {
-    key: 'alimentacion_adecuada',
-    labelTrue: 'Buena alimentación',
-    labelFalse: 'Mala alimentación',
-  },
-  {
-    key: 'inmunizaciones_completas',
-    labelTrue: 'Inmunizaciones completas',
-    labelFalse: 'Inmunizaciones incompletas',
-  },
-  {
-    key: 'zoonosis',
-    labelTrue: 'Con zoonosis',
-    labelFalse: 'Sin zoonosis',
-  },
+const VACUNAS = [
+  { label: 'Influenza', key: 'influenza' },
+  { label: 'Tétanos', key: 'tetanos' },
+  { label: 'Hepatitis B', key: 'hepatitis_b' },
+  { label: 'COVID-19', key: 'covid_19' },
 ]
 
 export default function NoPatologicosSection({ historia }) {
@@ -37,88 +26,68 @@ export default function NoPatologicosSection({ historia }) {
     vacunas_infancia_completas,
     inmunizaciones,
     servicios,
-    antecedentes_no_patologicos: antecedentes,
+    antecedentes_no_patologicos: ant,
   } = historia
+  const inm = inmunizaciones ?? {}
+
+  const flags = [
+    { label: 'Alimentación adecuada', value: ant?.alimentacion_adecuada ?? null },
+    { label: 'Inmunizaciones completas', value: ant?.inmunizaciones_completas ?? null },
+    { label: 'Zoonosis', value: ant?.zoonosis ?? null },
+    { label: 'Vacunas de infancia completas', value: vacunas_infancia_completas ?? null },
+  ]
+
+  const textFields = [
+    { label: 'Tipo de sangre', value: tipo_sangre },
+    { label: 'Calidad y cantidad de alimentación', value: ant?.calidad_cantidad_alimentacion },
+    { label: 'Higiene adecuada', value: ant?.higiene_adecuada },
+    { label: 'Actividad física', value: ant?.actividad_fisica },
+    { label: 'Tipo de zoonosis', value: ant?.tipo_zoonosis },
+  ]
+
+  const serviciosItems = SERVICIOS.map(({ label, key }) => ({
+    label,
+    value: servicios?.[key] ?? null,
+  }))
 
   return (
     <div className="space-y-6">
-      {/* Chips de resumen */}
-      <div className="flex flex-wrap gap-2">
-        {tipo_sangre && (
-          <span className="text-6 inline-flex items-center gap-1.5 rounded-full border border-red-100 bg-red-50 px-3 py-1 font-medium text-red-700">
-            <HiOutlineBeaker size={12} />
-            Tipo de sangre: {tipo_sangre}
-          </span>
-        )}
-        {vacunas_infancia_completas != null && (
-          <StatusChip active={vacunas_infancia_completas}>
-            Vacunas {vacunas_infancia_completas ? 'completas' : 'incompletas'}
-          </StatusChip>
-        )}
-        {antecedentes &&
-          ANTECEDENTES_ITEMS.map(({ key, labelTrue, labelFalse }) => {
-            if (antecedentes[key] == null) return null
+      <SubSection title="Antecedentes no patológicos">
+        <div className="space-y-4">
+          <CheckGrid items={flags} />
+          <FieldsSection fields={textFields} cols={2} />
+        </div>
+      </SubSection>
+
+      <SubSection title="Servicios del hogar">
+        <CheckGrid items={serviciosItems} />
+      </SubSection>
+
+      <SubSection title="Inmunizaciones">
+        <div className="flex flex-wrap gap-x-8 gap-y-2.5">
+          {VACUNAS.map(({ label, key }) => {
+            const date = inm[key]
             return (
-              <StatusChip key={key} active={antecedentes[key]}>
-                {antecedentes[key] ? labelTrue : labelFalse}
-              </StatusChip>
+              <div key={key} className="flex items-center gap-2">
+                {date ? (
+                  <HiOutlineCheckCircle size={16} className="shrink-0 text-green-600" />
+                ) : (
+                  <HiOutlineMinusCircle size={16} className="shrink-0 text-zinc-400" />
+                )}
+                <span className={`text-5 ${date ? 'text-zinc-700' : 'text-zinc-400'}`}>
+                  {label}
+                </span>
+                {date && <span className="text-6 text-zinc-400">· {formatFecha(date)}</span>}
+              </div>
             )
           })}
-      </div>
-
-      {/* Inmunizaciones */}
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Inmunizaciones
-        </Heading>
-        <InmunizacionesSection inm={inmunizaciones} />
-      </div>
-
-      {/* Servicios del hogar */}
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Servicios del Hogar
-        </Heading>
-        {servicios ? (
-          <div className="flex flex-wrap gap-2">
-            {SERVICIOS_ITEMS.map(({ label, key }) => (
-              <StatusChip key={key} active={servicios[key]} size="md">
-                {label}
-              </StatusChip>
-            ))}
-          </div>
-        ) : (
-          <p className="text-5 text-zinc-400">Sin servicios del hogar registrados.</p>
-        )}
-      </div>
-
-      {/* Antecedentes no patologicos - Campos de texto */}
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Antecedentes No Patológicos
-        </Heading>
-        <div className="space-y-3">
-          <DataField
-            label="Calidad y cantidad de alimentación"
-            value={antecedentes?.calidad_cantidad_alimentacion}
-            multiline
-            block
-          />
-          <DataField
-            label="Higiene adecuada"
-            value={antecedentes?.higiene_adecuada}
-            multiline
-            block
-          />
-          <DataField
-            label="Actividad física"
-            value={antecedentes?.actividad_fisica}
-            multiline
-            block
-          />
-          <DataField label="Tipo de zoonosis" value={antecedentes?.tipo_zoonosis} multiline block />
         </div>
-      </div>
+        {inm.otros && (
+          <div className="mt-4">
+            <FieldsSection fields={[{ label: 'Otras', value: inm.otros }]} cols={1} />
+          </div>
+        )}
+      </SubSection>
     </div>
   )
 }

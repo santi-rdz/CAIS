@@ -1,16 +1,10 @@
-import Heading from '@components/Heading'
-import DataField from '@components/DataField'
+import SubSection from '@features/patients/shared/sections/SubSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 
-export default function MotivoConsultaSection({ motivo_consulta, children }) {
+export default function MotivoConsultaSection({ fields }) {
   return (
-    <div className="space-y-4">
-      <Heading as="h4" showBar>
-        Motivo de Consulta
-      </Heading>
-      <div className="flex flex-col gap-4">
-        <DataField label="Motivo de consulta" value={motivo_consulta} multiline block />
-        {children}
-      </div>
-    </div>
+    <SubSection title="Motivo de consulta">
+      <FieldsSection fields={fields} cols={1} />
+    </SubSection>
   )
 }
