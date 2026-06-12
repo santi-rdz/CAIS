@@ -2,7 +2,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
-import Radio from '@components/Radio'
+import SegmentedToggle from '@components/SegmentedToggle'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/Select'
 import { FRECUENCIA_OPTIONS } from '@features/patients/nutricion/constants'
 
@@ -64,22 +64,7 @@ function AdiccionItem({ adic, control, register, errors }) {
         <Controller
           name={`adicciones.${adic.activoField}`}
           control={control}
-          render={({ field }) => (
-            <div className="flex items-center gap-4">
-              <Radio
-                id={`adic-${adic.key}-si`}
-                label="Sí"
-                checked={field.value === 'si'}
-                onChange={() => field.onChange('si')}
-              />
-              <Radio
-                id={`adic-${adic.key}-no`}
-                label="No"
-                checked={field.value === 'no'}
-                onChange={() => field.onChange('no')}
-              />
-            </div>
-          )}
+          render={({ field }) => <SegmentedToggle value={field.value} onChange={field.onChange} />}
         />
       </div>
 

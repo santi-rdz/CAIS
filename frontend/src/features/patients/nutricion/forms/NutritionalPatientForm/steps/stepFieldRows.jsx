@@ -1,33 +1,23 @@
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { HiOutlineTrash, HiOutlineArrowUturnLeft } from 'react-icons/hi2'
-import Radio from '@components/Radio'
+import SegmentedToggle from '@components/SegmentedToggle'
 
 // Primitivos compartidos por los steps de relaciones one-to-many
 // (HistoriaMedicaStep y TratamientoAlternativoStep).
 
-export function RadioSiNo({ name, control, onSelectSi }) {
+export function ToggleSiNo({ name, control, onSelectSi }) {
   return (
     <Controller
       name={name}
       control={control}
       render={({ field }) => (
-        <div className="flex items-center gap-5">
-          <Radio
-            id={`${name}-si`}
-            label="Sí"
-            checked={field.value === 'si'}
-            onChange={() => {
-              field.onChange('si')
-              onSelectSi?.()
-            }}
-          />
-          <Radio
-            id={`${name}-no`}
-            label="No"
-            checked={field.value === 'no'}
-            onChange={() => field.onChange('no')}
-          />
-        </div>
+        <SegmentedToggle
+          value={field.value}
+          onChange={(v) => {
+            field.onChange(v)
+            if (v === 'si') onSelectSi?.()
+          }}
+        />
       )}
     />
   )

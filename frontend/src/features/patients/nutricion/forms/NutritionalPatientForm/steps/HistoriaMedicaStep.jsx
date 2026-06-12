@@ -13,7 +13,7 @@ import {
 } from '@components/Select'
 import { ENFERMEDAD_OPTIONS } from '@features/patients/nutricion/constants'
 import {
-  RadioSiNo,
+  ToggleSiNo,
   DeletableRow,
   EmptyRows,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/steps/stepFieldRows'
@@ -43,7 +43,7 @@ export default function HistoriaMedicaStep() {
 
       <div className="space-y-2">
         <p className="text-5 font-medium text-zinc-700">¿Presenta alguna enfermedad?</p>
-        <RadioSiNo
+        <ToggleSiNo
           name="presenta_enfermedad"
           control={control}
           onSelectSi={() => {
