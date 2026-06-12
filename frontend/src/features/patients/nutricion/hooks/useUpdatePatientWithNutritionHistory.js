@@ -7,21 +7,27 @@ import { toastApiError } from '@lib/ApiError'
 export function useUpdatePatientWithNutritionHistory() {
   const queryClient = useQueryClient()
 
+  function invalidateNutritionPatientQueries() {
+    queryClient.invalidateQueries({ queryKey: ['patients'] })
+    queryClient.invalidateQueries({ queryKey: ['patient'] })
+    queryClient.invalidateQueries({ queryKey: ['nutrition-histories'] })
+    queryClient.invalidateQueries({ queryKey: ['nutrition-history'] })
+  }
+
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ patientId, historyId, patientData, historyData }) => {
       const calls = []
       if (patientData) calls.push(updatePatient(patientId, patientData))
       if (historyId && historyData) calls.push(updateNutritionHistory(historyId, historyData))
 
-      await Promise.all(calls)
+      const results = await Promise.allSettled(calls)
+      const failed = results.find((result) => result.status === 'rejected')
+      if (failed) throw failed.reason
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['patients'] })
-      queryClient.invalidateQueries({ queryKey: ['patient'] })
-      queryClient.invalidateQueries({ queryKey: ['nutrition-histories'] })
-      queryClient.invalidateQueries({ queryKey: ['nutrition-history'] })
       toast.success('Paciente actualizado correctamente')
     },
+    onSettled: invalidateNutritionPatientQueries,
   })
 
   async function update(payload) {

@@ -7,12 +7,15 @@ import CIE10Field from '@features/patients/medicina/forms/shared/CIE10Field'
 
 function Tratamiento({ prefix = 'planes_estudio' }) {
   const { register } = useFormContext()
+  const planTratamientoId = `${prefix}_plan_tratamiento`
+  const tratamientoId = `${prefix}_tratamiento`
+
   return (
     <Grid cols={2} gap={4} mobileCols={1}>
-      <FormRow htmlFor="plan_tratamiento" label="Plan de Tratamiento">
+      <FormRow htmlFor={planTratamientoId} label="Plan de Tratamiento">
         <Input
           {...register(`${prefix}.plan_tratamiento`)}
-          id="plan_tratamiento"
+          id={planTratamientoId}
           textarea
           rows={4}
           placeholder="Plan de estudio, consideraciones terapéuticas y maniobras diagnósticas"
@@ -20,10 +23,10 @@ function Tratamiento({ prefix = 'planes_estudio' }) {
           size="md"
         />
       </FormRow>
-      <FormRow htmlFor="tratamiento" label="Tratamiento">
+      <FormRow htmlFor={tratamientoId} label="Tratamiento">
         <Input
           {...register(`${prefix}.tratamiento`)}
-          id="tratamiento"
+          id={tratamientoId}
           textarea
           rows={4}
           placeholder="Medicamentos, dosis y frecuencia"

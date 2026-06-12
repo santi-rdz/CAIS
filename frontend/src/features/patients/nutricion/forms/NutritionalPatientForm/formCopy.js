@@ -19,14 +19,14 @@ export function getFormCopy({
   if (isEdit) {
     return {
       title: historiaOnly ? 'Editar Historia Nutricional' : 'Editar Paciente',
-      subtitle: historiaOnly ? formatFecha(historia.fecha_ingreso) : undefined,
+      subtitle: historiaOnly && historia ? formatFecha(historia.fecha_ingreso) : undefined,
       submitLabel: historiaOnly ? 'Actualizar historia' : 'Actualizar paciente',
     }
   }
   if (isClone) {
     return {
       title: 'Nueva Historia Nutricional',
-      subtitle: formatFecha(cloneHistoria.fecha_ingreso),
+      subtitle: cloneHistoria ? formatFecha(cloneHistoria.fecha_ingreso) : undefined,
       description:
         'Se tomó la historia más reciente como base. Modifica los campos necesarios antes de guardar.',
       submitLabel: 'Crear historia',

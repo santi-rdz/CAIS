@@ -9,8 +9,13 @@ import { useState } from 'react'
  * @param {string} [defaultTab] - tab inicial (por defecto, el primero del mapa)
  * @returns {{ activeTab: string, setActiveTab: (tab: string) => void, initialStep: number }}
  */
-export function useTabStep(tabToStep, defaultTab = Object.keys(tabToStep)[0]) {
-  const [activeTab, setActiveTab] = useState(defaultTab)
+export function useTabStep(tabToStep, defaultTab) {
+  if (!tabToStep || typeof tabToStep !== 'object') {
+    throw new Error('useTabStep: tabToStep must be a non-null object')
+  }
+
+  const computedDefault = defaultTab ?? Object.keys(tabToStep)[0]
+  const [activeTab, setActiveTab] = useState(computedDefault)
   const initialStep = tabToStep[activeTab] ?? 0
   return { activeTab, setActiveTab, initialStep }
 }

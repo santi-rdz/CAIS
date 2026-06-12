@@ -11,7 +11,9 @@ import { useFormSubmit } from '@hooks/useFormSubmit'
  * @param {number} [initialStep=0] - paso inicial (para abrir directo en una sección)
  */
 export function useStepForm(steps, stepsFields, defaultValues = {}, resolver, initialStep = 0) {
-  const [currStep, setCurrStep] = useState(initialStep)
+  const [currStep, setCurrStep] = useState(() =>
+    Math.max(0, Math.min(initialStep, steps.length - 1))
+  )
   const methods = useForm({
     // onTouched: valida un campo tras el primer blur y luego en cada cambio, en
     // vez de validar en cada tecla desde el inicio (onChange). Menos re-renders;
