@@ -58,6 +58,7 @@ async function main() {
   const accionesData = ['CREAR', 'ACTUALIZAR', 'ELIMINAR', 'INICIAR_SESION']
   const entidadesData = [
     'NOTA_EVOLUCION',
+    'EXAMINACION_FISICA',
     'HISTORIA_MEDICA',
     'PACIENTE',
     'USUARIO',

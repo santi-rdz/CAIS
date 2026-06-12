@@ -627,7 +627,7 @@ CREATE TABLE IF NOT EXISTS patron_alimentacion_nutricion(
 -- EXAMEN FISICO NUTRICION
 -- ===============================
 CREATE TABLE IF NOT EXISTS exam_fis_orien_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY NOT NULL,
     paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     id_perdida_peso INT NOT NULL,
@@ -641,7 +641,7 @@ CREATE TABLE IF NOT EXISTS exam_fis_orien_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    exam_fis_id INT NOT NULL,
+    exam_fis_id BINARY(16) NOT NULL,
     presenta_sgi BOOLEAN,
     presencia VARCHAR(50),
     CONSTRAINT fk_exam_fis_sintomas FOREIGN KEY (exam_fis_id) REFERENCES exam_fis_orien_nutricion(id)

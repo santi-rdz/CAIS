@@ -39,7 +39,7 @@
     "db:fresh": "docker compose -f docker-compose.dev.yml down -v && pnpm db:up && pnpm db:wait && pnpm seed",
     "db:logs": "docker compose -f docker-compose.dev.yml logs -f db",
     "db:sql": "docker compose -f docker-compose.dev.yml exec db mysql -u user -puser cais",
-    "db:wait": "docker compose -f docker-compose.dev.yml exec -T db sh -c 'until mysqladmin ping -h localhost -u user -puser --silent; do sleep 1; done'",
+    "db:wait": "node scripts/db-wait.mjs",
     "//— Producción (Docker completo) —": "",
     "build": "docker compose build",
     "up": "docker compose up -d",

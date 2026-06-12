@@ -33,7 +33,7 @@ const DELETE_ORDER = [
   ],
 
   // Nivel 3: hijos directos de pacientes
-  ['historias_medicas', 'historias_pacientes_nutricion'],
+  ['historias_medicas', 'historias_pacientes_nutricion', 'exam_fis_orien_nutricion'],
 
   // Nivel 3.5: adicciones es padre de historias_pacientes_nutricion (FK
   // adicciones_id), así que se borra después de las historias que la referencian.
@@ -103,6 +103,39 @@ export function createCleanupTracker() {
           ])
         } catch (err) {
           console.warn(`Cleanup hijos nutricion: ${err.message}`)
+        }
+      }
+
+      // Pre-step 3: borrar hijos de exam_fis_orien_nutricion.
+      const examFisIds = records.get('exam_fis_orien_nutricion')
+      if (examFisIds?.size) {
+        const idList = [...examFisIds]
+        try {
+          const exams = await prisma.exam_fis_orien_nutricion.findMany({
+            where: { id: { in: idList } },
+            select: {
+              id_perdida_peso: true,
+              id_signos_vitales: true,
+              id_semiologia: true,
+            },
+          })
+
+          await Promise.all([
+            prisma.eval_sintomas_gastroin_nutricion.deleteMany({
+              where: { exam_fis_id: { in: idList } },
+            }),
+            prisma.eval_perdida_peso_nutricion.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_perdida_peso) } },
+            }),
+            prisma.signos_vitales_nutricion.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_signos_vitales) } },
+            }),
+            prisma.eval_semiologia_nutricional.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_semiologia) } },
+            }),
+          ])
+        } catch (err) {
+          console.warn(`Cleanup hijos exam_fis: ${err.message}`)
         }
       }
 

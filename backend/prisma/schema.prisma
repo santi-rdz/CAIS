@@ -687,7 +687,7 @@ model eval_nutr_fh {
 
 model eval_sintomas_gastroin_nutricion {
   id                       Int                      @id @default(autoincrement())
-  exam_fis_id              Int
+  exam_fis_id              Bytes                    @db.Binary(16)
   presenta_sgi             Boolean?
   presencia                String?                  @db.VarChar(50)
   exam_fis_orien_nutricion exam_fis_orien_nutricion @relation(fields: [exam_fis_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_exam_fis_sintomas")
@@ -696,7 +696,7 @@ model eval_sintomas_gastroin_nutricion {
 }
 
 model exam_fis_orien_nutricion {
-  id                               Int                                @id @default(autoincrement())
+  id                               Bytes                                @id @db.Binary(16)
   paciente_id                      Bytes                              @db.Binary(16)
   fecha                            DateTime?                          @default(dbgenerated("(curdate())")) @db.Date
   id_perdida_peso                  Int
