@@ -8,7 +8,7 @@ import {
   buildAntFamFields,
   buildAparSistFields,
 } from '@features/patients/medicina/constants'
-import FieldsSection from '@features/patients/medicina/sections/FieldsSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
 import NoPatologicosSection from '@features/patients/medicina/sections/NoPatologicosSection'
 import ConsultaYPlanSection from '@features/patients/medicina/sections/ConsultaYPlanSection'

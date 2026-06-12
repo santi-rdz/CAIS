@@ -1,11 +1,10 @@
 import { HiOutlineArrowLeft, HiOutlinePencilSquare } from 'react-icons/hi2'
 import Tab from '@components/Tab'
 import Button from '@components/Button'
-import DataField from '@components/DataField'
 import MotivoConsultaSection from '@features/patients/medicina/sections/MotivoConsultaSection'
 import PlanEstudioSection from '@features/patients/medicina/sections/PlanEstudioSection'
 import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
-import FieldsSection from '@features/patients/medicina/sections/FieldsSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import { buildAparSistFields } from '@features/patients/medicina/constants'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
 
@@ -78,9 +77,12 @@ export default function NoteDetail({ note, onBack, onEdit }) {
 
         <div className="p-5">
           <Tab.Panel value="consulta" scrollable={false}>
-            <MotivoConsultaSection motivo_consulta={motivo_consulta}>
-              <DataField label="Antec. gin./androl." value={ant_gine_andro} multiline block />
-            </MotivoConsultaSection>
+            <MotivoConsultaSection
+              fields={[
+                { label: 'Motivo de consulta', value: motivo_consulta },
+                { label: 'Antecedentes gineco / andrológicos', value: ant_gine_andro },
+              ]}
+            />
           </Tab.Panel>
 
           <Tab.Panel value="aparatos" scrollable={false}>

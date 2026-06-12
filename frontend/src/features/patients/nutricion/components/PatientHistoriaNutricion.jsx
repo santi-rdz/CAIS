@@ -1,10 +1,10 @@
-import DataField from '@components/DataField'
 import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
 import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useNutritionHistories } from '@features/patients/nutricion/hooks/useNutritionHistories'
 import { useNutritionHistory } from '@features/patients/nutricion/hooks/useNutritionHistory'
 import NutritionalPatientForm from '@features/patients/nutricion/forms/NutritionalPatientForm/NutritionalPatientForm'
-import RecordTable from '@features/patients/nutricion/sections/RecordTable'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
+import RecordTable from '@features/patients/shared/sections/RecordTable'
 import {
   ENFERMEDAD_COLUMNS,
   TRATAMIENTO_COLUMNS,
@@ -22,7 +22,10 @@ const TABS = [
     label: 'Historia médica',
     render: (historia) => (
       <div className="space-y-6">
-        <DataField label="Motivo de consulta" value={historia.motivo_consulta} multiline block />
+        <FieldsSection
+          fields={[{ label: 'Motivo de consulta', value: historia.motivo_consulta }]}
+          cols={1}
+        />
         <RecordTable
           columns={ENFERMEDAD_COLUMNS}
           rows={historia.historias_medicas_nutricion}

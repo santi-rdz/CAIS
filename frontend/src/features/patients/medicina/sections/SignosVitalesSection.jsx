@@ -1,59 +1,31 @@
-import { HiOutlineDocumentText, HiOutlineUser } from 'react-icons/hi2'
-import Heading from '@components/Heading'
-import DataField from '@components/DataField'
-
-function VitalStat({ label, value, unit, badge }) {
-  return (
-    <div className="rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5">
-      <p className="text-6 font-medium tracking-wide text-zinc-400 uppercase">{label}</p>
-      <div className="mt-1 flex items-baseline gap-2">
-        <p className="text-4 font-lato font-semibold text-zinc-800">
-          {value != null ? (
-            <>
-              {value}
-              {unit && <span className="text-6 ml-1 font-normal text-zinc-400">{unit}</span>}
-            </>
-          ) : (
-            <span className="text-5 font-normal text-zinc-300">—</span>
-          )}
-        </p>
-        {badge}
-      </div>
-    </div>
-  )
-}
+import SubSection from '@features/patients/shared/sections/SubSection'
+import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 
 const IMC_LEVELS = [
-  {
-    max: 18.5,
-    label: 'Bajo peso',
-    color: 'border-blue-100 bg-blue-50 text-blue-700',
-  },
-  {
-    max: 24.9,
-    label: 'Normal',
-    color: 'border-green-100 bg-green-50 text-green-700',
-  },
-  {
-    max: 29.9,
-    label: 'Sobrepeso',
-    color: 'border-yellow-100 bg-yellow-50 text-yellow-700',
-  },
-  {
-    max: Infinity,
-    label: 'Obesidad',
-    color: 'border-red-100 bg-red-50 text-red-700',
-  },
+  { max: 18.5, label: 'Bajo peso', color: 'border-blue-100 bg-blue-50 text-blue-700' },
+  { max: 24.9, label: 'Normal', color: 'border-green-100 bg-green-50 text-green-700' },
+  { max: 29.9, label: 'Sobrepeso', color: 'border-yellow-100 bg-yellow-50 text-yellow-700' },
+  { max: Infinity, label: 'Obesidad', color: 'border-red-100 bg-red-50 text-red-700' },
 ]
 
 function ImcBadge({ imc }) {
-  if (!imc) return null
   const level = IMC_LEVELS.find((l) => parseFloat(imc) <= l.max)
   return (
     <span
-      className={`text-6 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}
+      className={`text-7 ml-2 inline-flex items-center rounded-full border px-2 py-px font-medium ${level.color}`}
     >
       {level.label}
+    </span>
+  )
+}
+
+// Valor "número + unidad" (unidad tenue), o '' si no hay dato.
+function metric(value, unit) {
+  if (value == null || value === '') return ''
+  return (
+    <span>
+      {value}
+      <span className="ml-1 text-zinc-400">{unit}</span>
     </span>
   )
 }
@@ -63,63 +35,53 @@ export default function SignosVitalesSection({ info }) {
 
   const imc =
     info.peso && info.altura ? (info.peso / Math.pow(info.altura / 100, 2)).toFixed(1) : null
-
   const pa =
     info.pa_sistolica && info.pa_diastolica ? `${info.pa_sistolica}/${info.pa_diastolica}` : null
 
+  const antropometria = [
+    { label: 'Peso', value: metric(info.peso, 'kg') },
+    { label: 'Altura', value: metric(info.altura, 'cm') },
+    {
+      label: 'IMC',
+      value: imc ? (
+        <span>
+          {imc}
+          <span className="ml-1 text-zinc-400">kg/m²</span>
+          <ImcBadge imc={imc} />
+        </span>
+      ) : (
+        ''
+      ),
+    },
+    { label: 'Glucosa capilar', value: metric(info.glucosa_capilar, 'mg/dL') },
+    { label: 'Circ. cintura', value: metric(info.circ_cintura, 'cm') },
+    { label: 'Circ. cadera', value: metric(info.circ_cadera, 'cm') },
+  ]
+
+  const vitales = [
+    { label: 'Presión arterial', value: pa ? metric(pa, 'mmHg') : '' },
+    { label: 'Frecuencia cardíaca', value: metric(info.fc, 'lpm') },
+    { label: 'Frecuencia respiratoria', value: metric(info.fr, 'rpm') },
+    { label: 'SpO₂', value: metric(info.sp_o2, '%') },
+    { label: 'Temperatura', value: metric(info.temperatura, '°C') },
+  ]
+
+  const exploracion = [
+    { label: 'Exploración física', value: info.exploracion_fisica },
+    { label: 'Hábito exterior', value: info.habito_exterior },
+  ]
+
   return (
     <div className="space-y-6">
-      {/* Antropométrica */}
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Antropométrica
-        </Heading>
-        <div className="grid grid-cols-4 gap-2 max-sm:grid-cols-2">
-          <VitalStat label="Peso" value={info.peso} unit="kg" />
-          <VitalStat label="Altura" value={info.altura} unit="cm" />
-          <VitalStat
-            label="IMC"
-            value={imc}
-            unit={imc ? 'kg/m²' : ''}
-            badge={<ImcBadge imc={imc} />}
-          />
-          <VitalStat label="Glucosa" value={info.glucosa_capilar} unit="mg/dL" />
-          <VitalStat label="Circ. cintura" value={info.circ_cintura} unit="cm" />
-          <VitalStat label="Circ. cadera" value={info.circ_cadera} unit="cm" />
-        </div>
-      </div>
-
-      {/* Signos vitales */}
-      <div className="space-y-3">
-        <Heading as="h4" showBar>
-          Signos Vitales
-        </Heading>
-        <div className="grid grid-cols-4 gap-2 max-sm:grid-cols-2">
-          <VitalStat label="Presión arterial" value={pa} unit="mmHg" />
-          <VitalStat label="Frec. cardíaca" value={info.fc} unit="lpm" />
-          <VitalStat label="Frec. respiratoria" value={info.fr} unit="rpm" />
-          <VitalStat label="SpO₂" value={info.sp_o2} unit="%" />
-          <VitalStat label="Temperatura" value={info.temperatura} unit="°C" />
-        </div>
-      </div>
-
-      {/* Exploración física */}
-      <div className="space-y-3 border-t border-gray-100 pt-2">
-        <DataField
-          icon={<HiOutlineDocumentText size={13} />}
-          label="Exploración física"
-          value={info.exploracion_fisica}
-          multiline
-          block
-        />
-        <DataField
-          icon={<HiOutlineUser size={13} />}
-          label="Hábito exterior"
-          value={info.habito_exterior}
-          multiline
-          block
-        />
-      </div>
+      <SubSection title="Antropometría">
+        <FieldsSection fields={antropometria} cols={3} />
+      </SubSection>
+      <SubSection title="Signos vitales">
+        <FieldsSection fields={vitales} cols={3} />
+      </SubSection>
+      <SubSection title="Exploración">
+        <FieldsSection fields={exploracion} cols={1} />
+      </SubSection>
     </div>
   )
 }
