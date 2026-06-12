@@ -9,6 +9,10 @@ import {
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
+import { z } from 'zod'
+
+const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha'])
+const uuidSchema = z.uuid()
 
 export class PhysicalExaminationController {
   static async create(req, res) {
@@ -48,6 +52,16 @@ export class PhysicalExaminationController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
+    if (paciente_id !== undefined) {
+      const parsedPacienteId = uuidSchema.safeParse(paciente_id)
+      if (!parsedPacienteId.success) {
+        return res.status(422).json({
+          error: 'ValidationError',
+          message: 'El parámetro "paciente_id" debe ser un UUID válido',
+        })
+      }
+    }
+
     if (fields !== undefined && typeof fields !== 'string') {
       return res.status(422).json({
         error: 'ValidationError',
@@ -61,6 +75,13 @@ export class PhysicalExaminationController {
           .map((f) => f.trim())
           .filter(Boolean)
       : null
+
+    if (parsedFields && parsedFields.some((field) => !LISTABLE_FIELDS.has(field))) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "fields" contiene valores no permitidos',
+      })
+    }
 
     try {
       const result = await PhysicalExaminationModel.getAll({

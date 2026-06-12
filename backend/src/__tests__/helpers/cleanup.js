@@ -108,9 +108,27 @@ export function createCleanupTracker() {
       if (examFisIds?.size) {
         const idList = [...examFisIds]
         try {
+          const exams = await prisma.exam_fis_orien_nutricion.findMany({
+            where: { id: { in: idList } },
+            select: {
+              id_perdida_peso: true,
+              id_signos_vitales: true,
+              id_semiologia: true,
+            },
+          })
+
           await Promise.all([
             prisma.eval_sintomas_gastroin_nutricion.deleteMany({
               where: { exam_fis_id: { in: idList } },
+            }),
+            prisma.eval_perdida_peso_nutricion.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_perdida_peso) } },
+            }),
+            prisma.signos_vitales_nutricion.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_signos_vitales) } },
+            }),
+            prisma.eval_semiologia_nutricional.deleteMany({
+              where: { id: { in: exams.map((e) => e.id_semiologia) } },
             }),
           ])
         } catch (err) {
