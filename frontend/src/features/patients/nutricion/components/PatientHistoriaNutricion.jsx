@@ -1,10 +1,9 @@
-import { useParams, useSearchParams } from 'react-router-dom'
-import Tab from '@components/Tab'
 import DataField from '@components/DataField'
-import { formatFecha } from '@lib/dateHelpers'
-import HistoriaPeriodSelect from '@features/patients/medicina/components/HistoriaPeriodSelect'
+import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
+import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useNutritionHistories } from '@features/patients/nutricion/hooks/useNutritionHistories'
 import { useNutritionHistory } from '@features/patients/nutricion/hooks/useNutritionHistory'
+import NutritionalPatientForm from '@features/patients/nutricion/forms/NutritionalPatientForm/NutritionalPatientForm'
 import RecordTable from '@features/patients/nutricion/sections/RecordTable'
 import {
   ENFERMEDAD_COLUMNS,
@@ -13,117 +12,62 @@ import {
   buildAdiccionesRows,
 } from '@features/patients/nutricion/constants'
 
-function formatHistoriaOption(h) {
-  return { value: h.id, label: formatFecha(h.fecha_ingreso) }
-}
+// Tab de la vista → step de la modal (HISTORIA_STEPS: Historia Médica,
+// Tratamiento Alternativo, Adicciones).
+const TAB_TO_STEP = { enfermedades: 0, tratamientos: 1, adicciones: 2 }
 
-export default function PatientHistoriaNutricion() {
-  const { id: pacienteId } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const {
-    histories,
-    isPending: isLoadingList,
-    isError: isListError,
-  } = useNutritionHistories(pacienteId)
+const TABS = [
+  {
+    value: 'enfermedades',
+    label: 'Historia médica',
+    render: (historia) => (
+      <div className="space-y-6">
+        <DataField label="Motivo de consulta" value={historia.motivo_consulta} multiline block />
+        <RecordTable
+          columns={ENFERMEDAD_COLUMNS}
+          rows={historia.historias_medicas_nutricion}
+          emptyMessage="Sin enfermedades registradas."
+        />
+      </div>
+    ),
+  },
+  {
+    value: 'tratamientos',
+    label: 'Tratamientos alternativos',
+    render: (historia) => (
+      <RecordTable
+        columns={TRATAMIENTO_COLUMNS}
+        rows={historia.tratamiento_alt_nutricion}
+        emptyMessage="Sin tratamientos alternativos registrados."
+      />
+    ),
+  },
+  {
+    value: 'adicciones',
+    label: 'Adicciones',
+    render: (historia) => (
+      <RecordTable columns={ADICCIONES_COLUMNS} rows={buildAdiccionesRows(historia.adicciones)} />
+    ),
+  },
+]
 
-  const selectedId = searchParams.get('historia')
-  const mostRecentId = histories[0]?.id ?? null
-  const activeId = selectedId ?? mostRecentId
-  const {
-    historia,
-    isPending: isLoadingDetail,
-    isError: isDetailError,
-  } = useNutritionHistory(activeId)
-
-  // Preserva los demás query params (ej. el ?tab= de los tabs externos url-sync'd).
-  function handleSelectHistory(id) {
-    setSearchParams(
-      (prev) => {
-        prev.set('historia', id)
-        return prev
-      },
-      { replace: true }
-    )
-  }
-
-  const periodos = histories.map(formatHistoriaOption)
-  const isLoading = isLoadingList || (activeId != null && isLoadingDetail)
-  const isError = isListError || isDetailError
+export default function PatientHistoriaNutricion({ patient }) {
+  const state = usePatientHistoria({
+    useHistories: useNutritionHistories,
+    useHistory: useNutritionHistory,
+    periodField: 'fecha_ingreso',
+    tabToStep: TAB_TO_STEP,
+  })
 
   return (
-    <div>
-      <div className="mb-4 flex items-center gap-2">
-        {!isLoadingList && periodos.length > 0 && (
-          <>
-            <span className="text-6 text-zinc-400">Historia nutricional</span>
-            <HistoriaPeriodSelect
-              value={activeId}
-              onChange={handleSelectHistory}
-              periodos={periodos}
-            />
-          </>
-        )}
-      </div>
-
-      <div className="shadow-card rounded-2xl border border-gray-100 bg-white">
-        <Tab variant="underline" defaultTab="enfermedades">
-          <Tab.List>
-            <Tab.Trigger value="enfermedades">Historia médica</Tab.Trigger>
-            <Tab.Trigger value="adicciones">Adicciones</Tab.Trigger>
-            <Tab.Trigger value="tratamientos">Tratamientos alternativos</Tab.Trigger>
-          </Tab.List>
-
-          <div className="p-5">
-            {isLoading ? (
-              <div className="space-y-3 py-4">
-                {Array.from({ length: 4 }, (_, i) => (
-                  <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" />
-                ))}
-              </div>
-            ) : isError ? (
-              <p className="text-5 py-8 text-center text-red-400">
-                No se pudo cargar la historia nutricional. Intenta de nuevo.
-              </p>
-            ) : !historia ? (
-              <p className="text-5 py-8 text-center text-zinc-400">
-                Sin historia nutricional registrada.
-              </p>
-            ) : (
-              <>
-                <Tab.Panel value="enfermedades" scrollable={false}>
-                  <div className="space-y-6">
-                    <DataField
-                      label="Motivo de consulta"
-                      value={historia.motivo_consulta}
-                      multiline
-                      block
-                    />
-                    <RecordTable
-                      columns={ENFERMEDAD_COLUMNS}
-                      rows={historia.historias_medicas_nutricion}
-                      emptyMessage="Sin enfermedades registradas."
-                    />
-                  </div>
-                </Tab.Panel>
-                <Tab.Panel value="adicciones" scrollable={false}>
-                  <RecordTable
-                    columns={ADICCIONES_COLUMNS}
-                    rows={buildAdiccionesRows(historia.adicciones)}
-                    emptyMessage="Sin adicciones registradas."
-                  />
-                </Tab.Panel>
-                <Tab.Panel value="tratamientos" scrollable={false}>
-                  <RecordTable
-                    columns={TRATAMIENTO_COLUMNS}
-                    rows={historia.tratamiento_alt_nutricion}
-                    emptyMessage="Sin tratamientos alternativos registrados."
-                  />
-                </Tab.Panel>
-              </>
-            )}
-          </div>
-        </Tab>
-      </div>
-    </div>
+    <PatientHistoriaShell
+      patient={patient}
+      periodLabel="Historia nutricional"
+      FormComponent={NutritionalPatientForm}
+      tabs={TABS}
+      emptyMessage="Sin historia nutricional registrada."
+      errorMessage="No se pudo cargar la historia nutricional. Intenta de nuevo."
+      {...state}
+    />
   )
 }

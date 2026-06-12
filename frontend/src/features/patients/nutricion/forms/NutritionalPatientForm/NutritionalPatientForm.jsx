@@ -2,39 +2,119 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { nutritionalPatientFormSchema } from '@schemas/nutritionalPatient'
 import { useStepForm } from '@hooks/useStepForm'
 import { useCreatePatientWithNutritionHistory } from '@features/patients/nutricion/hooks/useCreatePatientWithNutritionHistory'
+import { useCreateNutritionHistory } from '@features/patients/nutricion/hooks/useCreateNutritionHistory'
+import { useUpdatePatientWithNutritionHistory } from '@features/patients/nutricion/hooks/useUpdatePatientWithNutritionHistory'
 import StepFormShell from '@features/patients/shared/forms/StepFormShell'
 import {
   DEFAULT_VALUES,
   STEPS,
   STEPS_FIELDS,
   STEP_COMPONENTS,
+  HISTORIA_STEPS,
+  HISTORIA_STEPS_FIELDS,
+  HISTORIA_STEP_COMPONENTS,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/formConfig'
-import { splitFormData } from '@features/patients/nutricion/forms/NutritionalPatientForm/formHelpers'
+import { pickDirty } from '@lib/utils'
+import {
+  buildEditDefaults,
+  buildHistoryUpdate,
+  splitDirtyData,
+  splitFormData,
+} from '@features/patients/nutricion/forms/NutritionalPatientForm/formHelpers'
+import { getFormCopy } from '@features/patients/nutricion/forms/NutritionalPatientForm/formCopy'
 
 const resolver = zodResolver(nutritionalPatientFormSchema)
 
-export default function NutritionalPatientForm({ onCloseModal }) {
-  const stepForm = useStepForm(STEPS, STEPS_FIELDS, DEFAULT_VALUES, resolver)
-  const { currStep, methods } = stepForm
-  const StepComponent = STEP_COMPONENTS[currStep]
+function resolveSteps({ patientOnly, skipPatientStep }) {
+  if (patientOnly) return [[STEPS[0]], [STEPS_FIELDS[0]], [STEP_COMPONENTS[0]]]
+  if (skipPatientStep) return [HISTORIA_STEPS, HISTORIA_STEPS_FIELDS, HISTORIA_STEP_COMPONENTS]
+  return [STEPS, STEPS_FIELDS, STEP_COMPONENTS]
+}
 
-  const { register, isRegistering } = useCreatePatientWithNutritionHistory()
+export default function NutritionalPatientForm({
+  onCloseModal,
+  patient,
+  historia,
+  cloneHistoria,
+  onCreated,
+  historiaOnly = false,
+  patientOnly = false,
+  initialStep = 0,
+}) {
+  const isEdit = !!patient && (!!historia || patientOnly)
+  const isClone = !isEdit && !!patient && !!cloneHistoria
+
+  const { register: registerPatient, isRegistering } = useCreatePatientWithNutritionHistory()
+  const { createHistory, isCreating } = useCreateNutritionHistory()
+  const { update, isUpdating } = useUpdatePatientWithNutritionHistory()
+
+  const defaultValues = isEdit
+    ? buildEditDefaults(patient, historia ?? {}, { patientOnly })
+    : isClone
+      ? buildEditDefaults(patient, cloneHistoria)
+      : DEFAULT_VALUES
+
+  const skipPatientStep = isClone || (isEdit && historiaOnly)
+  const [activeSteps, activeStepsFields, activeStepComponents] = resolveSteps({
+    patientOnly,
+    skipPatientStep,
+  })
+
+  const startStep = Math.min(initialStep, activeSteps.length - 1)
+  const stepForm = useStepForm(activeSteps, activeStepsFields, defaultValues, resolver, startStep)
+  const { currStep, methods } = stepForm
+  const { isDirty } = methods.formState
+  const StepComponent = activeStepComponents[currStep]
 
   async function onSubmit(data) {
-    const { patientData, historyData } = splitFormData(data)
-    await register({ patientData, historyData })
+    if (isEdit) {
+      if (!isDirty) return onCloseModal?.()
+
+      if (patientOnly) {
+        // Solo datos del paciente (+ motivo): se envía lo modificado, vacíos → null.
+        const dirty = pickDirty(data, methods.formState.dirtyFields)
+        const { patientData, historyData } = splitDirtyData(dirty, data)
+        await update({ patientId: patient.id, historyId: historia?.id, patientData, historyData })
+      } else {
+        // Edición de historia: reemplaza las 3 secciones clínicas completas.
+        await update({
+          patientId: patient.id,
+          historyId: historia.id,
+          patientData: null,
+          historyData: buildHistoryUpdate(data),
+        })
+      }
+    } else if (isClone) {
+      const { historyData } = splitFormData(data)
+      const result = await createHistory({ pacienteId: patient.id, historyData })
+      onCreated?.(result?.history?.id)
+    } else {
+      const { patientData, historyData } = splitFormData(data)
+      await registerPatient({ patientData, historyData })
+    }
     onCloseModal?.()
   }
 
+  const copy = getFormCopy({
+    isEdit,
+    isClone,
+    historiaOnly,
+    patientOnly,
+    historia,
+    cloneHistoria,
+  })
+
   return (
     <StepFormShell
-      title="Registro de Nuevo Paciente"
-      submitLabel="Registrar paciente"
-      steps={STEPS}
+      title={copy.title}
+      subtitle={copy.subtitle}
+      description={copy.description}
+      submitLabel={copy.submitLabel}
+      steps={activeSteps}
       onSubmit={onSubmit}
-      isPending={isRegistering}
-      isEdit={false}
-      isDirty={methods.formState.isDirty}
+      isPending={isEdit ? isUpdating : isClone ? isCreating : isRegistering}
+      isEdit={isEdit}
+      isDirty={isDirty}
       onCloseModal={onCloseModal}
       {...stepForm}
     >
