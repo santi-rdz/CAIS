@@ -85,7 +85,6 @@ export class PhysicalExaminationModel {
    * porque el padre guarda sus IDs como FK.
    */
   static async create(data, tx = prisma) {
-    if (!tx) return prisma.$transaction((trx) => this.create(data, trx))
     const examId = randomUUID()
 
     // 1. Crear los tres registros hijos independientes
@@ -121,7 +120,6 @@ export class PhysicalExaminationModel {
    * semiologia) apuntan desde el padre como FK → se borran después del padre.
    */
   static async delete(id, tx = prisma) {
-    if (!tx) return prisma.$transaction((trx) => this.delete(id, trx))
     try {
       const idBuffer = uuidToBuffer(id)
 
@@ -150,7 +148,6 @@ export class PhysicalExaminationModel {
   }
 
   static async update(id, data, tx = prisma) {
-    if (!tx) return prisma.$transaction((trx) => this.update(id, data, trx))
     try {
       const idBuffer = uuidToBuffer(id)
 
