@@ -9,6 +9,14 @@ export async function registerNutritionPatient(body) {
   })
 }
 
+export async function createNutritionHistory(data) {
+  return fetchApi('/nutricion/historias-nutricion', {
+    method: 'POST',
+    body: data,
+    errorMsg: 'Error al crear historia de nutrición',
+  })
+}
+
 export async function getNutritionHistory(id) {
   return fetchApi(`/nutricion/historias-nutricion/${id}`, {
     errorMsg: 'Error al obtener historia de nutrición',

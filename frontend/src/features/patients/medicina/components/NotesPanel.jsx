@@ -12,7 +12,7 @@ import { useEvolutionNotes } from '@features/patients/medicina/hooks/useEvolutio
 import { useEvolutionNote } from '@features/patients/medicina/hooks/useEvolutionNote'
 import { useMedicalHistories } from '@features/patients/medicina/hooks/useMedicalHistories'
 import { formatFecha } from '@lib/dateHelpers'
-import HistoriaPeriodSelect from '@features/patients/medicina/components/HistoriaPeriodSelect'
+import HistoriaPeriodSelect from '@features/patients/components/HistoriaPeriodSelect'
 import NoteCard from '@features/patients/medicina/components/NoteCard'
 import NoteDetail from '@features/patients/medicina/components/NoteDetail'
 import EmptyState from '@components/EmptyState'

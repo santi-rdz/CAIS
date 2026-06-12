@@ -8,11 +8,17 @@ import { useFormSubmit } from '@hooks/useFormSubmit'
  * @param {string[][]} stepsFields - campos a validar por paso
  * @param {object} defaultValues - valores iniciales del formulario
  * @param {Function} [resolver] - resolver de validación (p.ej. zodResolver)
+ * @param {number} [initialStep=0] - paso inicial (para abrir directo en una sección)
  */
-export function useStepForm(steps, stepsFields, defaultValues = {}, resolver) {
-  const [currStep, setCurrStep] = useState(0)
+export function useStepForm(steps, stepsFields, defaultValues = {}, resolver, initialStep = 0) {
+  const [currStep, setCurrStep] = useState(() =>
+    Math.max(0, Math.min(initialStep, steps.length - 1))
+  )
   const methods = useForm({
-    mode: 'onChange',
+    // onTouched: valida un campo tras el primer blur y luego en cada cambio, en
+    // vez de validar en cada tecla desde el inicio (onChange). Menos re-renders;
+    // la navegación por paso valida explícito con trigger() al dar "Siguiente".
+    mode: 'onTouched',
     defaultValues,
     ...(resolver ? { resolver } : {}),
   })

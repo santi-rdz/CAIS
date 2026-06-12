@@ -8,7 +8,7 @@ import {
   APARATOS_DEFAULTS,
   INFORMACION_FISICA_DEFAULTS,
   PLAN_ESTUDIO_DEFAULTS,
-} from '@features/patients/shared/forms/formDefaults'
+} from '@features/patients/medicina/forms/shared/formDefaults'
 import dayjs from 'dayjs'
 import { mergeFechaHora } from '@lib/dateHelpers'
 import { omitEmpty, pickDirty, nullifyEmpty } from '@lib/utils'

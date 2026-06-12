@@ -121,19 +121,32 @@ function adiccionRow(sustancia, activo, frecuencia, metrica, unidad) {
   }
 }
 
-// Construye las filas de adicciones para RecordTable (consistente con las
-// demás tabs, que también usan tabla).
-export function buildAdiccionesRows(a) {
-  if (!a) return []
+// Construye las filas de adicciones para RecordTable. Es un catálogo fijo (4
+// sustancias), así que siempre se muestran las 4 — sin registro = todas en "No",
+// nunca un empty state (consistente con los chips de servicios de medicina).
+export function buildAdiccionesRows(a = {}) {
+  const adic = a ?? {}
   return [
-    adiccionRow('Tabaco', a.adicto_tabaco, a.tabaco_frecuencia, a.num_cigarros_d, 'cig/día'),
-    adiccionRow('Alcohol', a.adicto_alcohol, a.alcohol_frecuencia, a.ml_ocasion, 'ml/ocasión'),
-    adiccionRow('Drogas', a.adicto_droga, a.drogas_frecuencia, a.cual_droga),
+    adiccionRow(
+      'Tabaco',
+      adic.adicto_tabaco,
+      adic.tabaco_frecuencia,
+      adic.num_cigarros_d,
+      'cig/día'
+    ),
+    adiccionRow(
+      'Alcohol',
+      adic.adicto_alcohol,
+      adic.alcohol_frecuencia,
+      adic.ml_ocasion,
+      'ml/ocasión'
+    ),
+    adiccionRow('Drogas', adic.adicto_droga, adic.drogas_frecuencia, adic.cual_droga),
     adiccionRow(
       'Medicamento controlado',
-      a.adicto_med_contr,
-      a.med_contr_frecuencia,
-      a.cual_med_contr
+      adic.adicto_med_contr,
+      adic.med_contr_frecuencia,
+      adic.cual_med_contr
     ),
   ]
 }

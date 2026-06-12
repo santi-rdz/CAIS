@@ -10,8 +10,7 @@ import { useDeletePatient } from '@features/patients/hooks/useDeletePatient'
 import PatientActionBar from '@features/patients/components/PatientActionBar'
 import PatientHeader from '@features/patients/components/PatientHeader'
 import PatientSkeleton from '@features/patients/components/PatientSkeleton'
-import { getPatientAreaTabs } from '@features/patients/patientAreaTabs'
-import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
+import { getPatientArea } from '@features/patients/patientAreaRegistry'
 
 export default function PatientDetail() {
   const { patient, isPending } = usePatient()
@@ -23,7 +22,7 @@ export default function PatientDetail() {
   if (!patient) return null
 
   const { id } = patient
-  const tabs = getPatientAreaTabs(area)
+  const { tabs, editForm } = getPatientArea(area)
 
   return (
     <Modal>
@@ -45,7 +44,7 @@ export default function PatientDetail() {
       </div>
 
       <Modal.Content name="edit-patient" size="xl" noPadding>
-        <MedicalPatientForm patient={patient} patientOnly />
+        {editForm(patient)}
       </Modal.Content>
 
       <Modal.Content

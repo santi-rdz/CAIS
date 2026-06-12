@@ -1,167 +1,81 @@
-import { useParams, useSearchParams } from 'react-router-dom'
-import { HiOutlinePlus, HiOutlinePencilSquare } from 'react-icons/hi2'
-import Tab from '@components/Tab'
-import Button from '@components/Button'
-import Modal from '@components/Modal'
+import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
+import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useMedicalHistories } from '@features/patients/medicina/hooks/useMedicalHistories'
 import { useMedicalHistory } from '@features/patients/medicina/hooks/useMedicalHistory'
-import { formatFecha } from '@lib/dateHelpers'
+import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
 import {
   buildAntPatFields,
   buildAntFamFields,
   buildAparSistFields,
 } from '@features/patients/medicina/constants'
-import HistoriaPeriodSelect from '@features/patients/medicina/components/HistoriaPeriodSelect'
 import FieldsSection from '@features/patients/medicina/sections/FieldsSection'
 import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
 import NoPatologicosSection from '@features/patients/medicina/sections/NoPatologicosSection'
 import ConsultaYPlanSection from '@features/patients/medicina/sections/ConsultaYPlanSection'
-import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
 
-function formatHistoriaOption(h) {
-  return { value: h.id, label: formatFecha(h.creado_at) }
+// Tab de la vista → step de la modal (CLONE_STEPS: omite Identificación →
+// Heredofamiliares es el step 0).
+const TAB_TO_STEP = {
+  heredofamiliares: 0,
+  'no-patologicos': 1,
+  patologicos: 2,
+  aparatos: 3,
+  exploracion: 4,
+  'consulta-plan': 5,
 }
 
+const TABS = [
+  {
+    value: 'heredofamiliares',
+    label: 'Heredofamiliares',
+    render: (h) => <FieldsSection fields={buildAntFamFields(h.antecedentes_familiares)} />,
+  },
+  {
+    value: 'no-patologicos',
+    label: 'No Patológicos',
+    render: (h) => <NoPatologicosSection historia={h} />,
+  },
+  {
+    value: 'patologicos',
+    label: 'Patológicos',
+    render: (h) => (
+      <FieldsSection fields={buildAntPatFields(h.antecedentes_patologicos)} cols={3} />
+    ),
+  },
+  {
+    value: 'aparatos',
+    label: 'Aparatos y sistemas',
+    render: (h) => <FieldsSection fields={buildAparSistFields(h.aparatos_sistemas)} cols={3} />,
+  },
+  {
+    value: 'exploracion',
+    label: 'Exploración física',
+    render: (h) => <SignosVitalesSection info={h.informacion_fisica} />,
+  },
+  {
+    value: 'consulta-plan',
+    label: 'Consulta y Plan',
+    render: (h) => <ConsultaYPlanSection historia={h} />,
+  },
+]
+
 export default function PatientHistoria({ patient }) {
-  const { id: pacienteId } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { histories, isPending: isLoadingList } = useMedicalHistories(pacienteId)
+  const state = usePatientHistoria({
+    useHistories: useMedicalHistories,
+    useHistory: useMedicalHistory,
+    periodField: 'creado_at',
+    tabToStep: TAB_TO_STEP,
+  })
 
-  const selectedId = searchParams.get('historia')
-  const mostRecentId = histories[0]?.id ?? null
-  const activeId = selectedId ?? mostRecentId
-  const { historia, isPending: isLoadingDetail } = useMedicalHistory(activeId)
-  // Para el clone siempre usamos la historia más reciente como base
-  const { historia: mostRecentHistoria } = useMedicalHistory(
-    mostRecentId !== activeId ? mostRecentId : null
-  )
-  const cloneBase = mostRecentId !== activeId ? mostRecentHistoria : historia
-
-  function handleSelectHistory(id) {
-    setSearchParams({ historia: id }, { replace: true })
-  }
-
-  function handleHistoriaCreated(id) {
-    setSearchParams({ historia: id }, { replace: true })
-  }
-
-  const periodos = histories.map(formatHistoriaOption)
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          {!isLoadingList && periodos.length > 0 && (
-            <>
-              <span className="text-6 text-zinc-400">Historia médica</span>
-              <HistoriaPeriodSelect
-                value={activeId}
-                onChange={handleSelectHistory}
-                periodos={periodos}
-              />
-            </>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {!isLoadingList && patient && (
-            <>
-              {historia && (
-                <Modal.Open opens="edit-history">
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    className="gap-1.5"
-                    data-testid="edit-historia-btn"
-                  >
-                    <HiOutlinePencilSquare size={14} />
-                    Editar historia
-                  </Button>
-                </Modal.Open>
-              )}
-              <Modal.Open opens="new-history">
-                <Button
-                  variant="primary"
-                  size="md"
-                  className="gap-1.5"
-                  data-testid="new-historia-btn"
-                >
-                  <HiOutlinePlus size={14} />
-                  Nueva historia
-                </Button>
-              </Modal.Open>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="shadow-card rounded-2xl border border-gray-100 bg-white">
-        <Modal.Content name="edit-history" size="xl" noPadding>
-          {historia && patient && (
-            <MedicalPatientForm patient={patient} historia={historia} historiaOnly />
-          )}
-        </Modal.Content>
-
-        <Modal.Content name="new-history" size="xl" noPadding>
-          {patient && (
-            <MedicalPatientForm
-              patient={patient}
-              cloneHistoria={cloneBase ?? {}}
-              onCreated={handleHistoriaCreated}
-            />
-          )}
-        </Modal.Content>
-
-        <Tab variant="underline" defaultTab="heredofamiliares">
-          <Tab.List>
-            <Tab.Trigger value="heredofamiliares">Heredofamiliares</Tab.Trigger>
-            <Tab.Trigger value="no-patologicos">No Patológicos</Tab.Trigger>
-            <Tab.Trigger value="patologicos">Patológicos</Tab.Trigger>
-            <Tab.Trigger value="aparatos">Aparatos y sistemas</Tab.Trigger>
-            <Tab.Trigger value="exploracion">Exploración física</Tab.Trigger>
-            <Tab.Trigger value="consulta-plan">Consulta y Plan</Tab.Trigger>
-          </Tab.List>
-
-          <div className="p-5">
-            {isLoadingList || (activeId != null && isLoadingDetail) ? (
-              <div className="space-y-3 py-4">
-                {Array.from({ length: 4 }, (_, i) => (
-                  <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" />
-                ))}
-              </div>
-            ) : !historia ? (
-              <p className="text-5 py-8 text-center text-zinc-400">
-                Sin historia médica registrada.
-              </p>
-            ) : (
-              <>
-                <Tab.Panel value="heredofamiliares" scrollable={false}>
-                  <FieldsSection fields={buildAntFamFields(historia.antecedentes_familiares)} />
-                </Tab.Panel>
-                <Tab.Panel value="no-patologicos" scrollable={false}>
-                  <NoPatologicosSection historia={historia} />
-                </Tab.Panel>
-                <Tab.Panel value="patologicos" scrollable={false}>
-                  <FieldsSection
-                    fields={buildAntPatFields(historia.antecedentes_patologicos)}
-                    cols={3}
-                  />
-                </Tab.Panel>
-                <Tab.Panel value="aparatos" scrollable={false}>
-                  <FieldsSection
-                    fields={buildAparSistFields(historia.aparatos_sistemas)}
-                    cols={3}
-                  />
-                </Tab.Panel>
-                <Tab.Panel value="exploracion" scrollable={false}>
-                  <SignosVitalesSection info={historia.informacion_fisica} />
-                </Tab.Panel>
-                <Tab.Panel value="consulta-plan" scrollable={false}>
-                  <ConsultaYPlanSection historia={historia} />
-                </Tab.Panel>
-              </>
-            )}
-          </div>
-        </Tab>
-      </div>
-    </div>
+    <PatientHistoriaShell
+      patient={patient}
+      periodLabel="Historia médica"
+      FormComponent={MedicalPatientForm}
+      tabs={TABS}
+      emptyMessage="Sin historia médica registrada."
+      errorMessage="No se pudo cargar la historia médica. Intenta de nuevo."
+      {...state}
+    />
   )
 }

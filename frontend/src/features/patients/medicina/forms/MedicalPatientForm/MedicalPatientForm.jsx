@@ -23,6 +23,8 @@ import {
 } from '@features/patients/medicina/forms/MedicalPatientForm/formHelpers'
 import { getFormCopy } from '@features/patients/medicina/forms/MedicalPatientForm/formCopy'
 
+const resolver = zodResolver(medicalPatientFormSchema)
+
 function resolveSteps({ patientOnly, skipPatientStep }) {
   if (patientOnly) return [[STEPS[0]], [STEPS_FIELDS[0]], [STEP_COMPONENTS[0]]]
   if (skipPatientStep) return [CLONE_STEPS, CLONE_STEPS_FIELDS, CLONE_STEP_COMPONENTS]
@@ -37,6 +39,7 @@ export default function MedicalPatientForm({
   onCreated,
   historiaOnly = false,
   patientOnly = false,
+  initialStep = 0,
 }) {
   const isEdit = !!patient && (!!historia || patientOnly)
   const isClone = !isEdit && !!patient && !!cloneHistoria
@@ -57,12 +60,8 @@ export default function MedicalPatientForm({
     skipPatientStep,
   })
 
-  const stepForm = useStepForm(
-    activeSteps,
-    activeStepsFields,
-    defaultValues,
-    zodResolver(medicalPatientFormSchema)
-  )
+  const startStep = Math.min(initialStep, activeSteps.length - 1)
+  const stepForm = useStepForm(activeSteps, activeStepsFields, defaultValues, resolver, startStep)
   const { currStep, methods } = stepForm
   const { isDirty } = methods.formState
   const StepComponent = activeStepComponents[currStep]
