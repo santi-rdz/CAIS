@@ -16,6 +16,10 @@ export function useUpdatePatientWithNutritionHistory() {
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ patientId, historyId, patientData, historyData }) => {
+      if (!patientData && !(historyId && historyData)) {
+        throw new Error('No update payload provided')
+      }
+
       const calls = []
       if (patientData) calls.push(updatePatient(patientId, patientData))
       if (historyId && historyData) calls.push(updateNutritionHistory(historyId, historyData))

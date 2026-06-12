@@ -20,6 +20,7 @@ export default function PatientHistoriaShell({
   cloneBase,
   activeId,
   periodos,
+  isLoadingCloneBase,
   isLoadingList,
   isLoading,
   isError,
@@ -65,6 +66,7 @@ export default function PatientHistoriaShell({
                   size="md"
                   className="gap-1.5"
                   data-testid="new-historia-btn"
+                  disabled={isLoadingCloneBase}
                 >
                   <HiOutlinePlus size={14} />
                   Nueva historia
@@ -88,7 +90,7 @@ export default function PatientHistoriaShell({
         </Modal.Content>
 
         <Modal.Content name="new-history" size="xl" noPadding>
-          {patient && (
+          {patient && !isLoadingCloneBase && (
             <FormComponent
               patient={patient}
               cloneHistoria={cloneBase ?? {}}

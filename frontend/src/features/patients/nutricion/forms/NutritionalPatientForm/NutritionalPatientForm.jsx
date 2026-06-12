@@ -71,7 +71,8 @@ export default function NutritionalPatientForm({
       if (!isDirty) return onCloseModal?.()
 
       if (patientOnly) {
-        // Solo datos del paciente (+ motivo): se envía lo modificado, vacíos → null.
+        // Editar datos personales también permite cambiar motivo_consulta; si
+        // solo cambia ese campo, update recibe historyData sin patientData.
         const dirty = pickDirty(data, methods.formState.dirtyFields)
         const { patientData, historyData } = splitDirtyData(dirty, data)
         await update({ patientId: patient.id, historyId: historia?.id, patientData, historyData })

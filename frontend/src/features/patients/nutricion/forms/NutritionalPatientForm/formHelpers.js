@@ -92,10 +92,11 @@ const PATIENT_KEYS = new Set(Object.keys(patientSchema.shape))
 // Flags solo-UI (no son columnas) que nunca viajan al backend.
 const UI_FLAGS = new Set(['presenta_enfermedad', 'presenta_tratamiento'])
 
-// Separa los campos modificados en paciente vs historia. Las relaciones
-// one-to-many y adicciones se reconstruyen completas desde el form (aunque
-// queden vacías) para que el backend las reemplace/borre — por eso vaciar y
-// guardar sí elimina, igual que en medicina. Los escalares vacíos → null.
+// Separa los campos modificados en paciente vs historia. Si cambia cualquier
+// fila de una relación one-to-many, se envía la sección completa para que el
+// backend la reemplace/borre; esto mantiene correcto el borrado de filas, con
+// el tradeoff de más payload y potencial overwrites si hubiera edición
+// concurrente sobre la misma historia. Los escalares vacíos → null.
 export function splitDirtyData(dirty, fullData) {
   const dirtyPatient = {}
   const dirtyHistory = {}
@@ -171,11 +172,12 @@ export function buildEditDefaults(patient, historia, { patientOnly = false } = {
   for (const key of Object.keys(DEFAULT_VALUES)) {
     if (key in patient) patientFields[key] = patient[key] ?? DEFAULT_VALUES[key]
   }
+  const parsedFechaNacimiento = patient.fecha_nacimiento ? dayjs(patient.fecha_nacimiento) : null
 
   return {
     ...DEFAULT_VALUES,
     ...patientFields,
-    fecha_nacimiento: patient.fecha_nacimiento ? dayjs(patient.fecha_nacimiento) : null,
+    fecha_nacimiento: parsedFechaNacimiento?.isValid() ? parsedFechaNacimiento : null,
     motivo_consulta: historia.motivo_consulta ?? '',
     presenta_enfermedad: enfermedades.length ? 'si' : 'no',
     historias_medicas_nutricion: enfermedades,

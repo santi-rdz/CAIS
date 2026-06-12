@@ -27,7 +27,7 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
 
   // Base para clonar: siempre la historia más reciente. Solo se carga aparte
   // cuando se está viendo un período que no es el más reciente.
-  const { historia: mostRecentHistoria } = useHistory(
+  const { historia: mostRecentHistoria, isPending: isLoadingCloneBase } = useHistory(
     mostRecentId !== activeId ? mostRecentId : null
   )
   const cloneBase = mostRecentId !== activeId ? mostRecentHistoria : historia
@@ -46,13 +46,17 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
     )
   }
 
-  const periodos = histories.map((h) => ({ value: h.id, label: formatFecha(h[periodField]) }))
+  const periodos = histories.map((h) => ({
+    value: h.id,
+    label: h[periodField] ? formatFecha(h[periodField]) : 'N/A',
+  }))
 
   return {
     historia,
     cloneBase,
     activeId,
     periodos,
+    isLoadingCloneBase,
     isLoadingList,
     isLoading: isLoadingList || (activeId != null && isLoadingDetail),
     isError: isListError || isDetailError,
