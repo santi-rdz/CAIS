@@ -34,7 +34,7 @@ const DELETE_ORDER = [
   ],
 
   // Nivel 3: hijos directos de pacientes
-  ['historias_medicas', 'historias_pacientes_nutricion'],
+  ['historias_medicas', 'historias_pacientes_nutricion', 'exam_fis_orien_nutricion'],
 
   // Nivel 4: hijos de usuarios que no son audit
   ['invitaciones_registro', 'password_reset_tokens'],
@@ -100,6 +100,21 @@ export function createCleanupTracker() {
           ])
         } catch (err) {
           console.warn(`Cleanup hijos nutricion: ${err.message}`)
+        }
+      }
+
+      // Pre-step 3: borrar hijos de exam_fis_orien_nutricion.
+      const examFisIds = records.get('exam_fis_orien_nutricion')
+      if (examFisIds?.size) {
+        const idList = [...examFisIds]
+        try {
+          await Promise.all([
+            prisma.eval_sintomas_gastroin_nutricion.deleteMany({
+              where: { exam_fis_id: { in: idList } },
+            }),
+          ])
+        } catch (err) {
+          console.warn(`Cleanup hijos exam_fis: ${err.message}`)
         }
       }
 

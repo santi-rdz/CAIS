@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
@@ -20,18 +21,21 @@ const selectBasic = {
   fecha: true,
 }
 
-// ─── Formatter ───────────────────────────────────────────────────────────────
+// ─── Formatters ───────────────────────────────────────────────────────────────
 
 function formatExamFis(e) {
   if (!e) return null
   return {
     ...e,
+    id: toUUID(e.id),
     paciente_id: toUUID(e.paciente_id),
   }
 }
 
 function formatMinimal(e) {
-  return { ...e, paciente_id: toUUID(e.paciente_id) }
+  const result = { ...e, id: toUUID(e.id) }
+  if ('paciente_id' in e) result.paciente_id = toUUID(e.paciente_id)
+  return result
 }
 
 // ─── Modelo ──────────────────────────────────────────────────────────────────
@@ -65,18 +69,20 @@ export class PhysicalExaminationModel {
 
   static async getById(id, tx = prisma) {
     const exam = await tx.exam_fis_orien_nutricion.findUnique({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     return formatExamFis(exam)
   }
 
   /**
-   * Crea el registro principal y sus tres tablas relacionadas por FK en una
-   * sola transacción. Las FKs (id_perdida_peso, id_signos_vitales, id_semiologia)
-   * se resuelven creando primero cada registro hijo y usando su id generado.
+   * Crea el registro principal y sus tres tablas relacionadas por FK.
+   * Los tres hijos (perdida_peso, signos_vitales, semiologia) se crean primero
+   * porque el padre guarda sus IDs como FK.
    */
   static async create(data, tx = prisma) {
+    const examId = randomUUID()
+
     // 1. Crear los tres registros hijos independientes
     const [perdidaPeso, signosVitales, semiologia] = await Promise.all([
       tx.eval_perdida_peso_nutricion.create({ data: data.eval_perdida_peso ?? {} }),
@@ -84,49 +90,46 @@ export class PhysicalExaminationModel {
       tx.eval_semiologia_nutricional.create({ data: data.semiologia ?? {} }),
     ])
 
-    // 2. Crear el registro principal con las FKs resueltas
-    const exam = await tx.exam_fis_orien_nutricion.create({
+    // 2. Crear el registro principal con UUID y FKs resueltas
+    await tx.exam_fis_orien_nutricion.create({
       data: {
+        id: uuidToBuffer(examId),
         paciente_id: uuidToBuffer(data.paciente_id),
         ...(data.fecha !== undefined && { fecha: data.fecha }),
         id_perdida_peso: perdidaPeso.id,
         id_signos_vitales: signosVitales.id,
         id_semiologia: semiologia.id,
-        // one-to-many
         ...(data.eval_sintomas_gastroin?.length && {
           eval_sintomas_gastroin_nutricion: { create: data.eval_sintomas_gastroin },
         }),
       },
     })
 
-    return this.getById(exam.id, tx)
+    return this.getById(examId, tx)
   }
 
   /**
-   * Elimina el registro principal y sus hijos.
+   * Elimina el registro y sus hijos.
    *
-   * Los tres registros independientes (perdida_peso, signos_vitales, semiologia)
-   * no tienen ON DELETE CASCADE hacia exam_fis, así que se eliminan manualmente
-   * después de borrar el padre (que sí tiene FK hacia ellos).
-   * eval_sintomas_gastroin_nutricion sí apunta al padre, así que se limpia primero.
+   * eval_sintomas_gastroin apunta al padre → se borra primero.
+   * Los tres registros hijos independientes (perdida_peso, signos_vitales,
+   * semiologia) apuntan desde el padre como FK → se borran después del padre.
    */
   static async delete(id, tx = prisma) {
     try {
-      const numericId = Number(id)
+      const idBuffer = uuidToBuffer(id)
 
       const exam = await tx.exam_fis_orien_nutricion.findUnique({
-        where: { id: numericId },
+        where: { id: idBuffer },
         include: includeRelations,
       })
       if (!exam) return null
 
-      // Borrar one-to-many y luego el padre
       await tx.eval_sintomas_gastroin_nutricion.deleteMany({
-        where: { exam_fis_id: numericId },
+        where: { exam_fis_id: idBuffer },
       })
-      await tx.exam_fis_orien_nutricion.delete({ where: { id: numericId } })
+      await tx.exam_fis_orien_nutricion.delete({ where: { id: idBuffer } })
 
-      // Borrar los tres hijos independientes
       await Promise.all([
         tx.eval_perdida_peso_nutricion.delete({ where: { id: exam.id_perdida_peso } }),
         tx.signos_vitales_nutricion.delete({ where: { id: exam.id_signos_vitales } }),
@@ -140,22 +143,18 @@ export class PhysicalExaminationModel {
     }
   }
 
-  /**
-   * Actualiza el registro principal y reemplaza en su totalidad cada uno de los
-   * tres registros hijo cuando se envían en el body.
-   */
   static async update(id, data, tx = prisma) {
     try {
-      const numericId = Number(id)
+      const idBuffer = uuidToBuffer(id)
 
       const exam = await tx.exam_fis_orien_nutricion.findUnique({
-        where: { id: numericId },
+        where: { id: idBuffer },
         select: { id_perdida_peso: true, id_signos_vitales: true, id_semiologia: true },
       })
       if (!exam) return null
 
-      // Actualizar hijos si se incluyen en el payload
       const childUpdates = []
+
       if (data.eval_perdida_peso !== undefined) {
         childUpdates.push(
           tx.eval_perdida_peso_nutricion.update({
@@ -183,14 +182,11 @@ export class PhysicalExaminationModel {
       if (data.eval_sintomas_gastroin !== undefined) {
         childUpdates.push(
           tx.eval_sintomas_gastroin_nutricion
-            .deleteMany({ where: { exam_fis_id: numericId } })
+            .deleteMany({ where: { exam_fis_id: idBuffer } })
             .then(() =>
               data.eval_sintomas_gastroin.length
                 ? tx.eval_sintomas_gastroin_nutricion.createMany({
-                    data: data.eval_sintomas_gastroin.map((s) => ({
-                      ...s,
-                      exam_fis_id: numericId,
-                    })),
+                    data: data.eval_sintomas_gastroin.map((s) => ({ ...s, exam_fis_id: idBuffer })),
                   })
                 : Promise.resolve()
             )
@@ -200,14 +196,14 @@ export class PhysicalExaminationModel {
       const mainUpdate =
         data.fecha !== undefined
           ? tx.exam_fis_orien_nutricion.update({
-              where: { id: numericId },
+              where: { id: idBuffer },
               data: { fecha: data.fecha },
             })
           : Promise.resolve()
 
       await Promise.all([mainUpdate, ...childUpdates])
 
-      return this.getById(numericId, tx)
+      return this.getById(id, tx)
     } catch (err) {
       if (err.code === 'P2025') return null
       throw err

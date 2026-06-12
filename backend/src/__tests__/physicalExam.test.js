@@ -7,6 +7,7 @@
 
 import request from 'supertest'
 import app from '#app'
+import { uuidToBuffer } from '#lib/uuid.js'
 import { authenticatedCoordinador } from './helpers/agents.js'
 import { createTestPaciente } from './helpers/db.js'
 import { createCleanupTracker } from './helpers/cleanup.js'
@@ -92,7 +93,7 @@ const buildCompleto = (overrides = {}) => ({
   ...overrides,
 })
 
-// ── GET /nutricion/examinacion-fisica ─────────────────────────────────
+// ── GET /nutricion/examinacion-fisica ─────────────────────────────
 
 describe('GET /nutricion/examinacion-fisica', () => {
   test('401 — sin sesión devuelve 401', async () => {
@@ -117,7 +118,7 @@ describe('GET /nutricion/examinacion-fisica', () => {
   test('200 — filtra por paciente_id', async () => {
     const created = await agent.post('/nutricion/examinacion-fisica').send(buildMinimal())
     expect(created.status).toBe(201)
-    tracker.track('exam_fis_orien_nutricion', created.body.exam.id)
+    tracker.track('exam_fis_orien_nutricion', uuidToBuffer(created.body.exam.id))
 
     const res = await agent.get(`/nutricion/examinacion-fisica?paciente_id=${pacienteId}`)
     expect(res.status).toBe(200)
@@ -129,22 +130,24 @@ describe('GET /nutricion/examinacion-fisica', () => {
   })
 })
 
-// ── GET /nutricion/examinacion-fisica/:id ────────────────────────────
+// ── GET /nutricion/examinacion-fisica/:id ────────────────────────
 
 describe('GET /nutricion/examinacion-fisica/:id', () => {
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await api.get('/nutricion/examinacion-fisica/0')
+    const res = await api.get('/nutricion/examinacion-fisica/00000000-0000-0000-0000-000000000000')
     expect(res.status).toBe(401)
   })
 
   test('404 — examen no existe', async () => {
-    const res = await agent.get('/nutricion/examinacion-fisica/999999')
+    const res = await agent.get(
+      '/nutricion/examinacion-fisica/00000000-0000-0000-0000-000000000000'
+    )
     expect(res.status).toBe(404)
     expect(res.body).toHaveProperty('message')
   })
 })
 
-// ── POST /nutricion/examinacion-fisica ────────────────────────────────
+// ── POST /nutricion/examinacion-fisica ────────────────────────────
 
 describe('POST /nutricion/examinacion-fisica', () => {
   test('401 — sin sesión devuelve 401', async () => {
@@ -201,7 +204,7 @@ describe('POST /nutricion/examinacion-fisica', () => {
     expect(e.eval_semiologia_nutricional.edema).toBe('Ausente')
     expect(e.eval_sintomas_gastroin_nutricion).toEqual([])
 
-    tracker.track('exam_fis_orien_nutricion', e.id)
+    tracker.track('exam_fis_orien_nutricion', uuidToBuffer(e.id))
   })
 
   test('201 — crea examen con todas las relaciones', async () => {
@@ -225,11 +228,11 @@ describe('POST /nutricion/examinacion-fisica', () => {
     expect(e.eval_sintomas_gastroin_nutricion[0].presencia).toBe('Náuseas frecuentes')
     expect(e.eval_sintomas_gastroin_nutricion[1].presencia).toBe('Distensión abdominal')
 
-    tracker.track('exam_fis_orien_nutricion', e.id)
+    tracker.track('exam_fis_orien_nutricion', uuidToBuffer(e.id))
   })
 })
 
-// ── PATCH /nutricion/examinacion-fisica/:id ──────────────────────────
+// ── PATCH /nutricion/examinacion-fisica/:id ──────────────────────
 
 describe('PATCH /nutricion/examinacion-fisica/:id', () => {
   let examId
@@ -238,7 +241,7 @@ describe('PATCH /nutricion/examinacion-fisica/:id', () => {
     const res = await agent.post('/nutricion/examinacion-fisica').send(buildCompleto())
     examId = res.body.exam?.id
     if (!examId) throw new Error(`No se pudo crear examen para PATCH. status=${res.status}`)
-    tracker.track('exam_fis_orien_nutricion', examId)
+    tracker.track('exam_fis_orien_nutricion', uuidToBuffer(examId))
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -253,7 +256,7 @@ describe('PATCH /nutricion/examinacion-fisica/:id', () => {
       .patch(`/nutricion/examinacion-fisica/${examId}`)
       .send({ fecha: '2024-04-01' })
     expect(res.status).toBe(200)
-    expect(res.body.fecha).toBe('2024-04-01')
+    expect(res.body.fecha).toBe('2024-04-01T00:00:00.000Z')
   })
 
   test('200 — actualiza eval_perdida_peso', async () => {
@@ -302,13 +305,13 @@ describe('PATCH /nutricion/examinacion-fisica/:id', () => {
 
   test('404 — examen no existe', async () => {
     const res = await agent
-      .patch('/nutricion/examinacion-fisica/999999')
+      .patch('/nutricion/examinacion-fisica/00000000-0000-0000-0000-000000000000')
       .send({ fecha: '2024-04-01' })
     expect(res.status).toBe(404)
   })
 })
 
-// ── DELETE /nutricion/examinacion-fisica/:id ─────────────────────────
+// ── DELETE /nutricion/examinacion-fisica/:id ─────────────────────
 
 describe('DELETE /nutricion/examinacion-fisica/:id', () => {
   let examId
@@ -317,7 +320,7 @@ describe('DELETE /nutricion/examinacion-fisica/:id', () => {
     const res = await agent.post('/nutricion/examinacion-fisica').send(buildCompleto())
     examId = res.body.exam?.id
     if (!examId) throw new Error(`No se pudo crear examen para DELETE. status=${res.status}`)
-    tracker.track('exam_fis_orien_nutricion', examId)
+    tracker.track('exam_fis_orien_nutricion', uuidToBuffer(examId))
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -326,7 +329,9 @@ describe('DELETE /nutricion/examinacion-fisica/:id', () => {
   })
 
   test('404 — examen no existe', async () => {
-    const res = await agent.delete('/nutricion/examinacion-fisica/999999')
+    const res = await agent.delete(
+      '/nutricion/examinacion-fisica/00000000-0000-0000-0000-000000000000'
+    )
     expect(res.status).toBe(404)
   })
 
