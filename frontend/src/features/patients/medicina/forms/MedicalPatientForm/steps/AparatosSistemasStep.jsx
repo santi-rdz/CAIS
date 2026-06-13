@@ -3,6 +3,7 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
+import { getFieldError } from '@lib/formErrors'
 
 const SISTEMAS = [
   { name: 'neurologico', label: 'Neurológico' },
@@ -18,7 +19,10 @@ const SISTEMAS = [
 ]
 
 export default function AparatosSistemasStep() {
-  const { register } = useFormContext()
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-4">
@@ -38,6 +42,7 @@ export default function AparatosSistemasStep() {
               placeholder="Ingresa y agrega"
               variant="outline"
               size="md"
+              hasError={getFieldError(errors, `aparatos_sistemas.${name}`)}
             />
           </FormRow>
         ))}

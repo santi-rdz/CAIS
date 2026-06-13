@@ -54,9 +54,10 @@ export default function DatosPersonalesStep() {
             <Controller
               name="genero"
               control={control}
+              hasError={errors?.genero?.message}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange} fullWidth>
-                  <SelectTrigger size="lg">
+                  <SelectTrigger size="lg" hasError={errors?.genero?.message}>
                     <SelectValue placeholder="Seleccionar" />
                   </SelectTrigger>
                   <SelectContent>
@@ -118,6 +119,7 @@ export default function DatosPersonalesStep() {
               id="nss"
               type="text"
               placeholder="Número de Seguro Social"
+              hasError={errors?.nss?.message}
               variant="outline"
               size="lg"
             />
@@ -132,6 +134,7 @@ export default function DatosPersonalesStep() {
               id="curp_matricula"
               type="text"
               placeholder="00000000000"
+              hasError={errors?.curp_matricula?.message}
               variant="outline"
               size="lg"
             />
@@ -165,6 +168,7 @@ export default function DatosPersonalesStep() {
               id="correo"
               type="email"
               placeholder="correo@uabc.edu.mx"
+              hasError={errors?.correo?.message}
               variant="outline"
               size="lg"
               suffix={<HiOutlineEnvelope className="text-zinc-400" />}
@@ -176,6 +180,7 @@ export default function DatosPersonalesStep() {
               id="ocupacion"
               type="text"
               placeholder="Ocupación del paciente"
+              hasError={errors?.ocupacion?.message}
               variant="outline"
               size="lg"
             />
@@ -189,6 +194,7 @@ export default function DatosPersonalesStep() {
               id="religion"
               type="text"
               placeholder="Religión"
+              hasError={errors?.religion?.message}
               variant="outline"
               size="lg"
             />
@@ -199,6 +205,7 @@ export default function DatosPersonalesStep() {
               id="lugar_nacimiento"
               type="text"
               placeholder="Ciudad, Estado"
+              hasError={errors?.lugar_nacimiento?.message}
               variant="outline"
               size="lg"
               suffix={<HiOutlineMapPin className="text-zinc-400" />}
@@ -210,6 +217,7 @@ export default function DatosPersonalesStep() {
               id="domicilio"
               type="text"
               placeholder="Calle, número, colonia"
+              hasError={errors?.domicilio?.message}
               variant="outline"
               size="lg"
             />
@@ -230,6 +238,7 @@ export default function DatosPersonalesStep() {
                 id="contacto_emergencia"
                 type="text"
                 placeholder="Nombre completo"
+                hasError={errors?.contacto_emergencia?.message}
                 variant="outline"
                 size="lg"
               />
@@ -240,6 +249,7 @@ export default function DatosPersonalesStep() {
                 id="parentesco_emergencia"
                 type="text"
                 placeholder="Ej: Esposo/a, Hijo/a"
+                hasError={errors?.parentesco_emergencia?.message}
                 variant="outline"
                 size="lg"
               />

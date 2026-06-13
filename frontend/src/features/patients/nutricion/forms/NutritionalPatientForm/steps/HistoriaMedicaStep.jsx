@@ -16,6 +16,7 @@ import {
   ToggleSiNo,
   DeletableRow,
   EmptyRows,
+  FieldCell,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/steps/stepFieldRows'
 
 const ENF_COLS = 'grid-cols-[minmax(0,2fr)_5rem_minmax(0,2fr)_5rem_1.5rem]'
@@ -88,46 +89,63 @@ export default function HistoriaMedicaStep() {
                     name={`historias_medicas_nutricion.${index}.enfermedad`}
                     control={control}
                     render={({ field: f }) => (
-                      <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
-                        <SelectTrigger size="md">
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent maxHeight={200}>
-                          <SelectSearch placeholder="Buscar enfermedad..." />
-                          {ENFERMEDAD_OPTIONS.map((op) => (
-                            <SelectItem key={op} value={op}>
-                              {op}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FieldCell
+                        error={errors?.historias_medicas_nutricion?.[index]?.enfermedad?.message}
+                      >
+                        <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
+                          <SelectTrigger
+                            size="md"
+                            hasError={
+                              errors?.historias_medicas_nutricion?.[index]?.enfermedad?.message
+                            }
+                          >
+                            <SelectValue placeholder="Seleccionar" />
+                          </SelectTrigger>
+                          <SelectContent maxHeight={200}>
+                            <SelectSearch placeholder="Buscar enfermedad..." />
+                            {ENFERMEDAD_OPTIONS.map((op) => (
+                              <SelectItem key={op} value={op}>
+                                {op}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FieldCell>
                     )}
                   />
-                  <Input
-                    {...register(`historias_medicas_nutricion.${index}.evol`)}
-                    type="number"
-                    min={0}
-                    placeholder="0"
-                    variant="outline"
-                    size="md"
-                    hasError={errors?.historias_medicas_nutricion?.[index]?.evol?.message}
-                  />
-                  <Input
-                    {...register(`historias_medicas_nutricion.${index}.farmacos`)}
-                    type="text"
-                    placeholder="Fármacos"
-                    variant="outline"
-                    size="md"
-                    hasError={errors?.historias_medicas_nutricion?.[index]?.farmacos?.message}
-                  />
-                  <Input
-                    {...register(`historias_medicas_nutricion.${index}.dosis`)}
-                    type="text"
-                    placeholder="0-0-0"
-                    variant="outline"
-                    size="md"
-                    hasError={errors?.historias_medicas_nutricion?.[index]?.dosis?.message}
-                  />
+                  <FieldCell error={errors?.historias_medicas_nutricion?.[index]?.evol?.message}>
+                    <Input
+                      {...register(`historias_medicas_nutricion.${index}.evol`)}
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      variant="outline"
+                      size="md"
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.evol?.message}
+                    />
+                  </FieldCell>
+                  <FieldCell
+                    error={errors?.historias_medicas_nutricion?.[index]?.farmacos?.message}
+                  >
+                    <Input
+                      {...register(`historias_medicas_nutricion.${index}.farmacos`)}
+                      type="text"
+                      placeholder="Fármacos"
+                      variant="outline"
+                      size="md"
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.farmacos?.message}
+                    />
+                  </FieldCell>
+                  <FieldCell error={errors?.historias_medicas_nutricion?.[index]?.dosis?.message}>
+                    <Input
+                      {...register(`historias_medicas_nutricion.${index}.dosis`)}
+                      type="text"
+                      placeholder="0-0-0"
+                      variant="outline"
+                      size="md"
+                      hasError={errors?.historias_medicas_nutricion?.[index]?.dosis?.message}
+                    />
+                  </FieldCell>
                 </DeletableRow>
               ))}
             </div>

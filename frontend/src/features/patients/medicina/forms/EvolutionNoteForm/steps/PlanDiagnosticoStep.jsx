@@ -6,7 +6,10 @@ import Divider from '@components/Divider'
 import PlanTratamientoSection from '@features/patients/medicina/forms/shared/PlanTratamientoSection'
 
 export default function PlanDiagnosticoStep() {
-  const { register } = useFormContext()
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-5">
@@ -30,6 +33,7 @@ export default function PlanDiagnosticoStep() {
             placeholder="Laboratorios, imágenes y otros estudios realizados en esta consulta"
             variant="outline"
             size="md"
+            hasError={errors?.planes_estudio?.estudios_complementarios?.message}
           />
         </FormRow>
 

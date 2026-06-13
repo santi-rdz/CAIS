@@ -4,11 +4,17 @@ import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
 import CIE10Field from '@features/patients/medicina/forms/shared/CIE10Field'
+import { getFieldError } from '@lib/formErrors'
 
 function Tratamiento({ prefix = 'planes_estudio' }) {
-  const { register } = useFormContext()
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext()
   const planTratamientoId = `${prefix}_plan_tratamiento`
   const tratamientoId = `${prefix}_tratamiento`
+  const planTratamientoError = getFieldError(errors, `${prefix}.plan_tratamiento`)
+  const tratamientoError = getFieldError(errors, `${prefix}.tratamiento`)
 
   return (
     <Grid cols={2} gap={4} mobileCols={1}>
@@ -21,6 +27,7 @@ function Tratamiento({ prefix = 'planes_estudio' }) {
           placeholder="Plan de estudio, consideraciones terapéuticas y maniobras diagnósticas"
           variant="outline"
           size="md"
+          hasError={planTratamientoError}
         />
       </FormRow>
       <FormRow htmlFor={tratamientoId} label="Tratamiento">
@@ -32,6 +39,7 @@ function Tratamiento({ prefix = 'planes_estudio' }) {
           placeholder="Medicamentos, dosis y frecuencia"
           variant="outline"
           size="md"
+          hasError={tratamientoError}
         />
       </FormRow>
     </Grid>

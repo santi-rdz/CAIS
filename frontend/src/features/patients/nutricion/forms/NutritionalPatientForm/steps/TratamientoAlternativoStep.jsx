@@ -19,6 +19,7 @@ import {
   ToggleSiNo,
   DeletableRow,
   EmptyRows,
+  FieldCell,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/steps/stepFieldRows'
 
 const TRAT_COLS = 'grid-cols-[minmax(0,2fr)_minmax(0,2fr)_5rem_5rem_1.5rem]'
@@ -97,55 +98,75 @@ export default function TratamientoAlternativoStep() {
                     name={`tratamiento_alt_nutricion.${index}.producto`}
                     control={control}
                     render={({ field: f }) => (
-                      <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
-                        <SelectTrigger size="md">
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent maxHeight={200}>
-                          <SelectSearch placeholder="Buscar producto..." />
-                          {TRATAMIENTO_PRODUCTO_OPTIONS.map((op) => (
-                            <SelectItem key={op} value={op}>
-                              {op}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FieldCell
+                        error={errors?.tratamiento_alt_nutricion?.[index]?.producto?.message}
+                      >
+                        <Select value={f.value} onValueChange={f.onChange} fullWidth allowCustom>
+                          <SelectTrigger
+                            size="md"
+                            hasError={errors?.tratamiento_alt_nutricion?.[index]?.producto?.message}
+                          >
+                            <SelectValue placeholder="Seleccionar" />
+                          </SelectTrigger>
+                          <SelectContent maxHeight={200}>
+                            <SelectSearch placeholder="Buscar producto..." />
+                            {TRATAMIENTO_PRODUCTO_OPTIONS.map((op) => (
+                              <SelectItem key={op} value={op}>
+                                {op}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FieldCell>
                     )}
                   />
-                  <Input
-                    {...register(`tratamiento_alt_nutricion.${index}.cual_producto`)}
-                    type="text"
-                    placeholder="¿Cuál?"
-                    variant="outline"
-                    size="md"
-                    hasError={errors?.tratamiento_alt_nutricion?.[index]?.cual_producto?.message}
-                  />
+                  <FieldCell
+                    error={errors?.tratamiento_alt_nutricion?.[index]?.cual_producto?.message}
+                  >
+                    <Input
+                      {...register(`tratamiento_alt_nutricion.${index}.cual_producto`)}
+                      type="text"
+                      placeholder="¿Cuál?"
+                      variant="outline"
+                      size="md"
+                      hasError={errors?.tratamiento_alt_nutricion?.[index]?.cual_producto?.message}
+                    />
+                  </FieldCell>
                   <Controller
                     name={`tratamiento_alt_nutricion.${index}.mejora`}
                     control={control}
                     render={({ field: f }) => (
-                      <Select value={f.value} onValueChange={f.onChange} fullWidth>
-                        <SelectTrigger size="md">
-                          <SelectValue placeholder="-" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {MEJORA_OPTIONS.map((op) => (
-                            <SelectItem key={op} value={op}>
-                              {op}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FieldCell
+                        error={errors?.tratamiento_alt_nutricion?.[index]?.mejora?.message}
+                      >
+                        <Select value={f.value} onValueChange={f.onChange} fullWidth>
+                          <SelectTrigger
+                            size="md"
+                            hasError={errors?.tratamiento_alt_nutricion?.[index]?.mejora?.message}
+                          >
+                            <SelectValue placeholder="-" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {MEJORA_OPTIONS.map((op) => (
+                              <SelectItem key={op} value={op}>
+                                {op}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FieldCell>
                     )}
                   />
-                  <Input
-                    {...register(`tratamiento_alt_nutricion.${index}.dosis`)}
-                    type="text"
-                    placeholder="0-0-0"
-                    variant="outline"
-                    size="md"
-                    hasError={errors?.tratamiento_alt_nutricion?.[index]?.dosis?.message}
-                  />
+                  <FieldCell error={errors?.tratamiento_alt_nutricion?.[index]?.dosis?.message}>
+                    <Input
+                      {...register(`tratamiento_alt_nutricion.${index}.dosis`)}
+                      type="text"
+                      placeholder="0-0-0"
+                      variant="outline"
+                      size="md"
+                      hasError={errors?.tratamiento_alt_nutricion?.[index]?.dosis?.message}
+                    />
+                  </FieldCell>
                 </DeletableRow>
               ))}
             </div>

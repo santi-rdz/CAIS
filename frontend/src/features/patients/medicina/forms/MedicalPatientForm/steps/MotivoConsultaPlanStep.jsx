@@ -48,6 +48,7 @@ export default function MotivoConsultaPlanStep() {
             placeholder="Describe el motivo principal por el que consulta el paciente"
             variant="outline"
             size="md"
+            hasError={errors?.motivo_consulta?.message}
           />
         </FormRow>
         <FormRow htmlFor="historia_enfermedad_actual" label="Historia de la Enfermedad Actual">
@@ -59,6 +60,7 @@ export default function MotivoConsultaPlanStep() {
             placeholder="Describe detalladamente el padecimiento actual del paciente"
             variant="outline"
             size="md"
+            hasError={errors?.historia_enfermedad_actual?.message}
           />
         </FormRow>
       </Grid>

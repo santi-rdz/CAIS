@@ -59,6 +59,7 @@ export default function IdentificacionNutrStep() {
             <Controller
               name="genero"
               control={control}
+              hasError={errors?.genero?.message}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange} fullWidth>
                   <SelectTrigger size="lg" hasError={errors?.genero?.message}>

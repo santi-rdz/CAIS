@@ -3,6 +3,7 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
+import { getFieldError } from '@lib/formErrors'
 
 const FAMILIARES = [
   {
@@ -38,7 +39,10 @@ const FAMILIARES = [
 ]
 
 export default function AntecedentesFamiliaresStep() {
-  const { register } = useFormContext()
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-4">
@@ -57,6 +61,7 @@ export default function AntecedentesFamiliaresStep() {
               placeholder={placeholder}
               variant="outline"
               size="md"
+              hasError={getFieldError(errors, `antecedentes_familiares.${name}`)}
             />
           </FormRow>
         ))}
@@ -71,6 +76,7 @@ export default function AntecedentesFamiliaresStep() {
           placeholder="Hermanos, tíos u otros familiares con condiciones relevantes"
           variant="outline"
           size="md"
+          hasError={errors?.antecedentes_familiares?.otros?.message}
         />
       </FormRow>
     </div>

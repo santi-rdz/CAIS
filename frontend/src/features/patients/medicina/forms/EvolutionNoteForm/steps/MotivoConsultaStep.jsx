@@ -64,6 +64,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
           placeholder="Describe el motivo de consulta del paciente"
           variant="outline"
           size="md"
+          hasError={errors?.motivo_consulta?.message}
         />
       </FormRow>
 
@@ -80,6 +81,7 @@ export default function MotivoConsultaStep({ patientGenero }) {
               placeholder={getGineAndroPlaceholder(patientGenero)}
               variant="outline"
               size="md"
+              hasError={errors?.ant_gine_andro?.message}
             />
           </FormRow>
         </>
