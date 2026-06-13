@@ -55,11 +55,10 @@ export default function IdentificacionNutrStep() {
         <Grid cols={3} gap={4} mobileCols={2}>
           <BirthdayField name="fecha_nacimiento" control={control} errors={errors} />
           <PhoneField />
-          <FormRow label="Género" required>
+          <FormRow label="Género" required error={errors?.genero?.message}>
             <Controller
               name="genero"
               control={control}
-              hasError={errors?.genero?.message}
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange} fullWidth>
                   <SelectTrigger size="lg" hasError={errors?.genero?.message}>
