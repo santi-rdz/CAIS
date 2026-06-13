@@ -122,7 +122,7 @@ model eval_act_fisica_nutricion {
   intensidad                    Int?
   tiempo_de_practica            String?                       @db.VarChar(20)
   pensamientos_con_realizar_AF  String?                       @db.VarChar(50)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_act_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_act_paciente")
 
   @@index([historia_paciente_id], map: "fk_eval_act_paciente")
 }
@@ -196,7 +196,7 @@ model eval_cal_sueno {
   horas_sueno                   Int?                          @db.TinyInt
   insomnio                      Int?                          @db.TinyInt
   medicacion                    Int?                          @db.TinyInt
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
 
   @@index([historia_paciente_id], map: "fk_cal_sueno_paciente")
 }
@@ -310,7 +310,7 @@ model historias_medicas_nutricion {
   evol                          Int?
   farmacos                      String?                       @db.Text
   dosis                         String?                       @db.VarChar(20)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_medica_historia_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_historia_medica_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_historia_medica_historia_paciente")
 }
@@ -504,7 +504,7 @@ model tratamiento_alt_nutricion {
   cual_producto                 String?                       @db.Text
   mejora                        String?                       @db.VarChar(10)
   dosis                         String?                       @db.VarChar(20)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
 }
