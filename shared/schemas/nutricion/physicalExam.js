@@ -1,22 +1,21 @@
 import { z } from 'zod'
-import { optionalDateSchema, coerceBounded, str } from '../fields.js'
+import { optionalDateSchema, num, str, text } from '../fields.js'
 
 // ─── Subschemas de tablas relacionadas ───────────────────────────────────────
-// Numéricos: coerceBounded coacciona el string del input del FE, '' → undefined
-// y valida el rango clínico (fuera de rango → 422, no un 500 en la columna).
+// Numéricos: num coacciona strings del FE, '' → undefined y valida rango clínico.
 
 // eval_perdida_peso_nutricion
 export const evalPerdidaPesoSchema = z.object({
-  peso_habitual: coerceBounded({ max: 500 }),
-  peso_perdido: coerceBounded({ max: 500 }),
-  porcentaje_peso_perdido: coerceBounded({ min: 0, max: 100 }),
+  peso_habitual: num({ max: 500 }),
+  peso_perdido: num({ max: 500 }),
+  porcentaje_peso_perdido: num({ max: 100 }),
 })
 
 // signos_vitales_nutricion
 export const signosVitalesNutricionSchema = z.object({
-  tas: coerceBounded({ int: true, max: 400 }),
-  tad: coerceBounded({ int: true, max: 400 }),
-  temperatura: coerceBounded({ max: 45 }),
+  tas: num({ max: 300 }),
+  tad: num({ max: 200 }),
+  temperatura: num({ max: 45 }),
   dificultad_respiratoria: z.boolean().nullish(),
 })
 
@@ -37,8 +36,8 @@ export const evalSemiologiaNutricionalSchema = z.object({
   pantorrilla: str(),
   diag_reserva_muscular: str(15),
   edema: str(20),
-  descripcion: z.string().trim().nullish(),
-  descripcion_sist_genito_urinario: z.string().trim().nullish(),
+  descripcion: text(),
+  descripcion_sist_genito_urinario: text(),
 })
 
 // eval_sintomas_gastroin_nutricion — one-to-many

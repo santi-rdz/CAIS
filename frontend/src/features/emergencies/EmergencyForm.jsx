@@ -24,6 +24,7 @@ export default function EmergencyForm({ onCloseModal, emergency }) {
 
   const methods = useForm({
     resolver: zodResolver(emergencyFormSchema),
+    mode: 'onChange',
     defaultValues: isEditing
       ? {
           fecha: dayjs(emergency.fecha_hora),

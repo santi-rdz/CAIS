@@ -15,10 +15,7 @@ export function useStepForm(steps, stepsFields, defaultValues = {}, resolver, in
     Math.max(0, Math.min(initialStep, steps.length - 1))
   )
   const methods = useForm({
-    // onTouched: valida un campo tras el primer blur y luego en cada cambio, en
-    // vez de validar en cada tecla desde el inicio (onChange). Menos re-renders;
-    // la navegación por paso valida explícito con trigger() al dar "Siguiente".
-    mode: 'onTouched',
+    mode: 'onChange',
     defaultValues,
     ...(resolver ? { resolver } : {}),
   })

@@ -1,86 +1,90 @@
 import { z } from 'zod'
-import { optionalDateSchema } from '../fields.js'
+import { optionalDateSchema, num, int, str } from '../fields.js'
+
+const labNum = num({ max: 100000 })
+const percent = num({ max: 100 })
+const phScale = num({ max: 14 })
 
 export const balanceAcidoBaseSchema = z.object({
-  ph_serico: z.number().nullish(),
-  saturacion_o2: z.number().nullish(),
-  bicarbonato: z.number().nullish(),
-  pco2_total: z.number().nullish(),
+  ph_serico: phScale,
+  saturacion_o2: percent,
+  bicarbonato: labNum,
+  pco2_total: labNum,
 })
 
 export const evalEstadoNutricionSchema = z.object({
-  leucocitos: z.number().nullish(),
-  linfocitos: z.number().nullish(),
-  ctl: z.number().nullish(),
-  albumina: z.number().nullish(),
-  pre_albumina: z.number().nullish(),
-  transferrina: z.number().nullish(),
+  leucocitos: labNum,
+  linfocitos: labNum,
+  ctl: labNum,
+  albumina: labNum,
+  pre_albumina: labNum,
+  transferrina: labNum,
 })
 
 export const perfilAnemiaSchema = z.object({
-  eritrocitos: z.number().nullish(),
-  hemoglobina: z.number().nullish(),
-  hematocrito: z.number().nullish(),
-  vcm: z.number().nullish(),
-  homocisteina: z.number().nullish(),
-  ferritina: z.number().nullish(),
-  hierro: z.number().nullish(),
-  cap_fij_tot_he: z.number().nullish(),
-  saturacion_hierro: z.number().nullish(),
+  eritrocitos: labNum,
+  hemoglobina: labNum,
+  hematocrito: percent,
+  vcm: labNum,
+  homocisteina: labNum,
+  ferritina: labNum,
+  hierro: labNum,
+  cap_fij_tot_he: labNum,
+  saturacion_hierro: percent,
 })
 
 export const perfilEndocrinoSchema = z.object({
-  glucosa: z.number().nullish(),
-  hbAlc: z.number().nullish(),
-  insulina: z.number().nullish(),
-  tiroxina_libre: z.number().nullish(),
-  triyodotironina: z.number().nullish(),
+  glucosa: labNum,
+  hbAlc: percent,
+  insulina: labNum,
+  tiroxina_libre: labNum,
+  triyodotironina: labNum,
 })
 
 export const perfilInflamatorioSchema = z.object({
-  pcr: z.number().nullish(),
-  plaquetas: z.number().int().nullish(),
+  pcr: labNum,
+  plaquetas: int({ max: 1000000 }),
 })
 
 export const perfilLipidosSchema = z.object({
-  colesterol: z.number().nullish(),
-  c_hdl: z.number().nullish(),
-  c_ldl: z.number().nullish(),
-  trigliceridos: z.number().nullish(),
+  colesterol: labNum,
+  c_hdl: labNum,
+  c_ldl: labNum,
+  trigliceridos: labNum,
 })
 
 export const perfilOrinaSchema = z.object({
-  volumen_urinario: z.number().nullish(),
-  densidad: z.number().nullish(),
-  alteraciones_urinarias: z.string().trim().max(20).nullish(),
-  litos: z.string().trim().max(50).nullish(),
-  ph: z.number().nullish(),
-  cetonas: z.string().trim().max(50).nullish(),
-  sodio: z.number().int().nullish(),
+  volumen_urinario: labNum,
+  densidad: num({ max: 2000 }),
+  alteraciones_urinarias: str(20),
+  litos: str(50),
+  ph: phScale,
+  cetonas: str(50),
+  sodio: int({ max: 32767 }),
 })
 
 export const perfilRenalElectrolitosSchema = z.object({
-  osmolaridad: z.number().nullish(),
-  urea: z.number().nullish(),
-  bun: z.number().nullish(),
-  creatinina: z.number().nullish(),
-  acido_urico: z.number().nullish(),
-  sodio: z.number().nullish(),
-  peso_sin_edema: z.number().nullish(),
-  agua: z.number().nullish(),
-  potasio: z.number().nullish(),
-  fosforo: z.number().nullish(),
-  calcio_serico: z.number().nullish(),
-  ca_corregido: z.number().nullish(),
-  producto_caP: z.number().nullish(),
-  pth: z.number().nullish(),
-  vitamina_d: z.number().nullish(),
-  tfge: z.number().nullish(),
-  albuminuria: z.number().nullish(),
+  osmolaridad: labNum,
+  urea: labNum,
+  bun: labNum,
+  creatinina: labNum,
+  acido_urico: labNum,
+  sodio: labNum,
+  peso_sin_edema: num({ max: 500 }),
+  agua: percent,
+  potasio: labNum,
+  fosforo: labNum,
+  calcio_serico: labNum,
+  ca_corregido: labNum,
+  producto_caP: labNum,
+  pth: labNum,
+  vitamina_d: labNum,
+  tfge: labNum,
+  albuminuria: labNum,
 })
 
 export const evalBioqNutricionSchema = z.object({
-  paciente_id: z.string().uuid('El ID del paciente debe ser un UUID válido'),
+  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
   fecha: optionalDateSchema,
   balance_acido_base: balanceAcidoBaseSchema.optional(),
   eval_estado_nutricion: evalEstadoNutricionSchema.optional(),

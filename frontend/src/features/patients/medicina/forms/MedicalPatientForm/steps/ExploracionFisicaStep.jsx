@@ -4,6 +4,7 @@ import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
 import Divider from '@components/Divider'
+import { getFieldError } from '@lib/formErrors'
 
 const SOMATOMETRIA = [
   [
@@ -79,7 +80,11 @@ function ImcDisplay({ peso, altura }) {
 }
 
 export default function ExploracionFisicaStep() {
-  const { register, control } = useFormContext()
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
   const peso = useWatch({ control, name: 'informacion_fisica.peso' })
   const altura = useWatch({ control, name: 'informacion_fisica.altura' })
 
@@ -105,6 +110,7 @@ export default function ExploracionFisicaStep() {
                   placeholder="0000"
                   variant="outline"
                   size="md"
+                  hasError={getFieldError(errors, `informacion_fisica.${name}`)}
                 />
               </FormRow>
             ))}
@@ -128,6 +134,7 @@ export default function ExploracionFisicaStep() {
             placeholder="Descripción del hábito exterior del paciente: talla, complexión, estado nutricional, facies y actitud"
             variant="outline"
             size="md"
+            hasError={errors?.informacion_fisica?.habito_exterior?.message}
           />
         </FormRow>
         <FormRow htmlFor="exploracion_fisica" label="Exploración Física">
@@ -139,6 +146,7 @@ export default function ExploracionFisicaStep() {
             placeholder="Descripción de hallazgos de la exploración física general"
             variant="outline"
             size="md"
+            hasError={errors?.informacion_fisica?.exploracion_fisica?.message}
           />
         </FormRow>
       </Grid>

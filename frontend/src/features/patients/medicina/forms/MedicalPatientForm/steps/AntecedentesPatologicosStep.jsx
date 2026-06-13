@@ -3,6 +3,7 @@ import Heading from '@components/Heading'
 import FormRow from '@components/FormRow'
 import Input from '@components/Input'
 import Grid from '@components/Grid'
+import { getFieldError } from '@lib/formErrors'
 
 const CAMPOS = [
   { name: 'cronico_degenerativos', label: 'Crónico-Degenerativos' },
@@ -22,7 +23,10 @@ const CAMPOS = [
 ]
 
 export default function AntecedentesPatologicosStep() {
-  const { register } = useFormContext()
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext()
 
   return (
     <div className="space-y-4">
@@ -41,6 +45,7 @@ export default function AntecedentesPatologicosStep() {
               placeholder="Ingresa y agrega"
               variant="outline"
               size="md"
+              hasError={getFieldError(errors, `antecedentes_patologicos.${name}`)}
             />
           </FormRow>
         ))}

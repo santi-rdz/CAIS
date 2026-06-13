@@ -7,7 +7,7 @@ export const passwordResetSchema = withPasswordConfirmation(
   z.object({
     token: z.uuid('Token inválido'),
     password: passwordSchema,
-    confirmPassword: z.string(),
+    confirmPassword: z.string({ error: 'Confirma la contraseña' }),
   })
 )
 
@@ -20,9 +20,11 @@ export function validatePasswordReset(input) {
 export const changePasswordSchema = withPasswordConfirmation(
   z
     .object({
-      currentPassword: z.string().min(1, 'Ingresa tu contraseña actual'),
+      currentPassword: z
+        .string({ error: 'Ingresa tu contraseña actual' })
+        .min(1, 'Ingresa tu contraseña actual'),
       password: passwordSchema,
-      confirmPassword: z.string(),
+      confirmPassword: z.string({ error: 'Confirma la contraseña' }),
     })
     .refine((d) => d.password !== d.currentPassword, {
       message: 'La nueva contraseña no puede ser igual a la actual',

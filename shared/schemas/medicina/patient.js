@@ -1,30 +1,41 @@
 import { z } from 'zod'
-import { telefonoSchema, correoSchema, dateSchema } from '../fields.js'
+import { telefonoSchema, correoSchema, dateSchema, str } from '../fields.js'
 
 export const patientSchema = z.object({
-  nombre: z.string().trim().min(1, 'El nombre es requerido').max(255),
-  apellidos: z.string().trim().min(1, 'Los apellidos son requeridos').max(255),
+  nombre: z
+    .string({ error: 'Debe ser texto' })
+    .trim()
+    .min(1, 'El nombre es requerido')
+    .max(255, 'El nombre debe tener máximo 255 caracteres'),
+  apellidos: z
+    .string({ error: 'Debe ser texto' })
+    .trim()
+    .min(2, 'Los apellidos son requeridos')
+    .max(255, 'Los apellidos deben tener máximo 255 caracteres'),
   fecha_nacimiento: dateSchema,
   es_externo: z.boolean().optional(),
   correo: z.preprocess((v) => (v === '' ? null : v), correoSchema.nullable().optional()),
   telefono: telefonoSchema,
-  genero: z.string().min(1, 'El género es requerido').max(20),
-  domicilio: z.string().max(255).nullish(),
-  fuente_informacion: z.string().max(100).nullish(),
-  lugar_nacimiento: z.string().max(255).nullish(),
-  ocupacion: z.string().max(100).nullish(),
-  estado_civil: z.string().max(50).nullish(),
-  nivel_educativo: z.string().max(100).nullish(),
-  salario_dia: z.string().max(20).nullish(),
-  religion: z.string().max(100).nullish(),
-  nss: z.string().max(50).nullish(),
-  curp_matricula: z.string().max(50).nullish(),
-  contacto_emergencia: z.string().max(255).nullish(),
+  genero: z
+    .string({ error: 'Debe ser texto' })
+    .min(1, 'El género es requerido')
+    .max(20, 'El género debe tener máximo 20 caracteres'),
+  domicilio: str(),
+  fuente_informacion: str(100),
+  lugar_nacimiento: str(),
+  ocupacion: str(20),
+  estado_civil: str(50),
+  nivel_educativo: str(20),
+  salario_dia: str(20),
+  religion: str(100),
+  nss: str(20),
+  curp_matricula: str(20),
+  contacto_emergencia: str(),
   telefono_emergencia: z.preprocess(
     (v) => (v === '' ? null : v),
     telefonoSchema.nullable().optional()
   ),
-  parentesco_emergencia: z.string().max(100).nullish(),
+  parentesco_emergencia: str(100),
 })
 
 export function validatePatient(input) {

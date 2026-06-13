@@ -116,13 +116,13 @@ model eval_act_fisica_nutricion {
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   tipo                          String?                       @db.VarChar(50)
-  porque_no                     String?                       @db.VarChar(255)
+  porque_no                     String?                       @db.Text
   frecuencia                    String?                       @db.VarChar(20)
   duracion                      Int?                          @db.SmallInt
   intensidad                    Int?
   tiempo_de_practica            String?                       @db.VarChar(20)
   pensamientos_con_realizar_AF  String?                       @db.VarChar(50)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_eval_act_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_act_paciente")
 
   @@index([historia_paciente_id], map: "fk_eval_act_paciente")
 }
@@ -196,7 +196,7 @@ model eval_cal_sueno {
   horas_sueno                   Int?                          @db.TinyInt
   insomnio                      Int?                          @db.TinyInt
   medicacion                    Int?                          @db.TinyInt
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cal_sueno_paciente")
 
   @@index([historia_paciente_id], map: "fk_cal_sueno_paciente")
 }
@@ -310,7 +310,7 @@ model historias_medicas_nutricion {
   evol                          Int?
   farmacos                      String?                       @db.Text
   dosis                         String?                       @db.VarChar(20)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_historia_medica_historia_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_historia_medica_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_historia_medica_historia_paciente")
 }
@@ -346,7 +346,7 @@ model horarios_comida_nutricion {
   problemas_masticar       Boolean?
   problemas_pasar_alimento Boolean?
   perdida_dientes          Boolean?
-  pensamientos_sobre_dieta String?      @db.VarChar(255)
+  pensamientos_sobre_dieta String?      @db.Text
   eval_nutr_fh             eval_nutr_fh @relation(fields: [id_eval_nutr], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_horarios_eval_nutr")
 }
 
@@ -504,7 +504,7 @@ model tratamiento_alt_nutricion {
   cual_producto                 String?                       @db.Text
   mejora                        String?                       @db.VarChar(10)
   dosis                         String?                       @db.VarChar(20)
-  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
+  historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_tratamiento_nutricion_historia_paciente")
 
   @@index([historia_paciente_id], map: "fk_tratamiento_nutricion_historia_paciente")
 }
@@ -561,9 +561,9 @@ model bitacora_emergencias {
   nombre            String?   @db.VarChar(255)
   matricula         String?   @db.VarChar(20)
   telefono          String?   @db.VarChar(30)
-  diagnostico       String?   @db.VarChar(255)
-  accion_realizada  String?   @db.VarChar(255)
-  tratamiento_admin String?   @db.VarChar(255)
+  diagnostico       String?   @db.Text
+  accion_realizada  String?   @db.Text
+  tratamiento_admin String?   @db.Text
   recurrente        Boolean?  @default(false)
   usuarios          usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bitacora_usuario")
 
@@ -604,11 +604,11 @@ model cal_get_nutr {
 model diagnostico_nutricional_adulto {
   id                           Int                          @id @default(autoincrement())
   reporte_een_id               Int
-  pes                          String?                      @db.VarChar(255)
+  pes                          String?                      @db.Text
   intervencion                 String?                      @db.VarChar(50)
-  objetivos                    String?                      @db.VarChar(255)
-  indicadores                  String?                      @db.VarChar(255)
-  criterio                     String?                      @db.VarChar(255)
+  objetivos                    String?                      @db.Text
+  indicadores                  String?                      @db.Text
+  criterio                     String?                      @db.Text
   progreso                     String?                      @db.VarChar(20)
   reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
 
@@ -696,7 +696,7 @@ model eval_sintomas_gastroin_nutricion {
 }
 
 model exam_fis_orien_nutricion {
-  id                               Bytes                                @id @db.Binary(16)
+  id                               Bytes                              @id @db.Binary(16)
   paciente_id                      Bytes                              @db.Binary(16)
   fecha                            DateTime?                          @default(dbgenerated("(curdate())")) @db.Date
   id_perdida_peso                  Int
@@ -887,8 +887,8 @@ model registro_auditoria {
 model reporte_een_adulto_nutricion {
   id                             Int                              @id @default(autoincrement())
   paciente_id                    Bytes                            @db.Binary(16)
-  habitos_ali_obs                String?                          @db.VarChar(100)
-  alteraciones_gastroin          String?                          @db.VarChar(100)
+  habitos_ali_obs                String?                          @db.Text
+  alteraciones_gastroin          String?                          @db.Text
   diagnostico_nutricional_adulto diagnostico_nutricional_adulto[]
   pacientes                      pacientes                        @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_reporte_een_adulto")
 
@@ -900,10 +900,10 @@ model reporte_een_kids_nutricion {
   paciente_id        Bytes     @db.Binary(16)
   eval_diag_edo_nutr String?   @db.Text
   solicito_orient    Boolean?
-  prescrip_nut_obs   String?   @db.VarChar(100)
-  educ_nut_obs       String?   @db.VarChar(100)
-  consejeria_nut_obs String?   @db.VarChar(100)
-  coord_aten_nut_obs String?   @db.VarChar(100)
+  prescrip_nut_obs   String?   @db.Text
+  educ_nut_obs       String?   @db.Text
+  consejeria_nut_obs String?   @db.Text
+  coord_aten_nut_obs String?   @db.Text
   pacientes          pacientes @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_reporte_een_kid")
 
   @@index([paciente_id], map: "fk_paciente_reporte_een_kid")

@@ -8,6 +8,7 @@ import Divider from '@components/Divider'
 import Checkbox from '@components/Checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/Select'
 import DatePickerComponent from '@ui/DatePickerComponent'
+import { getFieldError } from '@lib/formErrors'
 
 const SERVICIOS = [
   { name: 'gas', label: 'Gas' },
@@ -54,7 +55,12 @@ function YesNoField({ name, control, idPrefix }) {
 }
 
 export default function AntecedentesNoPatStep() {
-  const { control, register, setValue } = useFormContext()
+  const {
+    control,
+    register,
+    setValue,
+    formState: { errors },
+  } = useFormContext()
   const zoonosis = useWatch({
     control,
     name: 'antecedentes_no_patologicos.zoonosis',
@@ -103,6 +109,10 @@ export default function AntecedentesNoPatStep() {
             placeholder="Describe la dieta habitual del paciente"
             variant="outline"
             size="md"
+            hasError={getFieldError(
+              errors,
+              'antecedentes_no_patologicos.calidad_cantidad_alimentacion'
+            )}
           />
         </FormRow>
 
@@ -116,6 +126,7 @@ export default function AntecedentesNoPatStep() {
               placeholder="Hábitos de higiene personal"
               variant="outline"
               size="md"
+              hasError={getFieldError(errors, 'antecedentes_no_patologicos.higiene_adecuada')}
             />
           </FormRow>
 
@@ -128,6 +139,7 @@ export default function AntecedentesNoPatStep() {
               placeholder="Tipo y frecuencia de actividad física"
               variant="outline"
               size="md"
+              hasError={getFieldError(errors, 'antecedentes_no_patologicos.actividad_fisica')}
             />
           </FormRow>
         </Grid>
@@ -151,6 +163,7 @@ export default function AntecedentesNoPatStep() {
                 placeholder="Especifica el tipo de zoonosis"
                 variant="outline"
                 size="md"
+                hasError={getFieldError(errors, 'antecedentes_no_patologicos.tipo_zoonosis')}
               />
             </FormRow>
           )}
@@ -212,6 +225,7 @@ export default function AntecedentesNoPatStep() {
             placeholder="Especifica otras vacunas aplicadas"
             variant="outline"
             size="md"
+            hasError={errors?.inmunizaciones?.otros?.message}
           />
         </FormRow>
       </div>

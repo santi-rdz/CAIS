@@ -48,6 +48,15 @@ export function EmptyRows({ label }) {
   )
 }
 
+export function FieldCell({ children, error }) {
+  return (
+    <div>
+      {children}
+      {error && <span className="text-6 mt-1 inline-block text-red-600">{error}</span>}
+    </div>
+  )
+}
+
 // Fila de un field array con borrado-con-restauración. Se suscribe SOLO a su
 // propio _deleted (no al array completo) para aislar el re-render a esta fila.
 // Renderiza las celdas (children) + el botón borrar/restaurar como última celda.

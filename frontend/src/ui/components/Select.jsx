@@ -153,7 +153,7 @@ export function Select({
     <SelectContext.Provider value={contextValue}>
       <div
         ref={triggerRef}
-        className={cn('relative', hasError && 'rounded-lg ring-1 ring-red-400', className)}
+        className={cn('relative', className)}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         onBlur={handleBlur}
@@ -176,8 +176,16 @@ const triggerSizes = {
   lg: 'px-4 py-3.5 rounded-xl shadow-xs',
 }
 
-export function SelectTrigger({ children, className = '', icon: Icon, size = 'md', ...props }) {
-  const { toggle, isOpen, hasError } = useSelect()
+export function SelectTrigger({
+  children,
+  className = '',
+  icon: Icon,
+  size = 'md',
+  hasError: hasErrorProp,
+  ...props
+}) {
+  const { toggle, isOpen, hasError: contextHasError } = useSelect()
+  const hasError = hasErrorProp ?? contextHasError
 
   return (
     <button
@@ -185,8 +193,8 @@ export function SelectTrigger({ children, className = '', icon: Icon, size = 'md
       onClick={toggle}
       tabIndex={0}
       className={cn(
-        hasError && 'error',
-        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto bg-white font-medium ring ring-gray-200 transition-colors duration-100 hover:border-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800',
+        hasError ? 'error' : 'focus-visible:outline-[1.5px] focus-visible:outline-green-900',
+        'text-5 flex w-full cursor-pointer items-center justify-center gap-2 overflow-x-auto border border-gray-200 bg-white font-medium shadow-xs transition-colors duration-100',
         triggerSizes[size],
         className
       )}
