@@ -1,45 +1,45 @@
 import { z } from 'zod'
 import { aparatosSistemasSchema, informacionFisicaSchema, planEstudioSchema } from './shared.js'
-import { optionalDateSchema } from '../fields.js'
+import { optionalDateSchema, str, text } from '../fields.js'
 
 // antecedentes_familiares: todos VarChar(255) en DB
 export const antecedentes_familiaresSchema = z.object({
-  padre: z.string().trim().max(255).nullish(),
-  madre: z.string().trim().max(255).nullish(),
-  abuelo_paterno: z.string().trim().max(255).nullish(),
-  abuelo_materno: z.string().trim().max(255).nullish(),
-  abuela_paterna: z.string().trim().max(255).nullish(),
-  abuela_materna: z.string().trim().max(255).nullish(),
-  otros: z.string().trim().max(255).nullish(),
+  padre: str(),
+  madre: str(),
+  abuelo_paterno: str(),
+  abuelo_materno: str(),
+  abuela_paterna: str(),
+  abuela_materna: str(),
+  otros: str(),
 })
 
 // antecedentes_patologicos: todos Text en DB, sin límite práctico
 export const antecedentes_patologicosSchema = z.object({
-  cronico_degenerativos: z.string().trim().nullish(),
-  quirurgicos: z.string().trim().nullish(),
-  hospitalizaciones: z.string().trim().nullish(),
-  traumaticos: z.string().trim().nullish(),
-  transfusionales: z.string().trim().nullish(),
-  transplantes: z.string().trim().nullish(),
-  alergicos: z.string().trim().nullish(),
-  infectocontagiosos: z.string().trim().nullish(),
-  toxicomanias: z.string().trim().nullish(),
-  covid_19: z.string().trim().nullish(),
-  psicologia_psiquiatria: z.string().trim().nullish(),
-  gyo: z.string().trim().nullish(),
-  enfermedades_congenitas: z.string().trim().nullish(),
-  enfermedades_infancia: z.string().trim().nullish(),
+  cronico_degenerativos: text(),
+  quirurgicos: text(),
+  hospitalizaciones: text(),
+  traumaticos: text(),
+  transfusionales: text(),
+  transplantes: text(),
+  alergicos: text(),
+  infectocontagiosos: text(),
+  toxicomanias: text(),
+  covid_19: text(),
+  psicologia_psiquiatria: text(),
+  gyo: text(),
+  enfermedades_congenitas: text(),
+  enfermedades_infancia: text(),
 })
 
 // antecedentes_no_patologicos: campos Text en DB, sin límite práctico
 export const antecedentes_no_patologicosSchema = z.object({
   alimentacion_adecuada: z.boolean().nullish(),
-  calidad_cantidad_alimentacion: z.string().trim().nullish(),
-  higiene_adecuada: z.string().trim().nullish(),
-  actividad_fisica: z.string().trim().nullish(),
+  calidad_cantidad_alimentacion: text(),
+  higiene_adecuada: text(),
+  actividad_fisica: text(),
   inmunizaciones_completas: z.boolean().nullish(),
   zoonosis: z.boolean().nullish(),
-  tipo_zoonosis: z.string().trim().nullish(),
+  tipo_zoonosis: text(),
 })
 
 export const inmunizacionesSchema = z.object({
@@ -47,7 +47,7 @@ export const inmunizacionesSchema = z.object({
   tetanos: optionalDateSchema,
   hepatitis_b: optionalDateSchema,
   covid_19: optionalDateSchema,
-  otros: z.string().trim().nullish(),
+  otros: text(),
 })
 
 export const serviciosSchema = z.object({
@@ -61,10 +61,10 @@ export const serviciosSchema = z.object({
 
 export const medicalHistoryBaseSchema = z.object({
   creado_at: optionalDateSchema,
-  tipo_sangre: z.string().trim().max(5).nullish(), // VarChar(5) en DB
+  tipo_sangre: str(5), // VarChar(5) en DB
   vacunas_infancia_completas: z.boolean().nullish(),
-  motivo_consulta: z.string().trim().nullish(),
-  historia_enfermedad_actual: z.string().trim().nullish(),
+  motivo_consulta: text(),
+  historia_enfermedad_actual: text(),
 })
 
 export const medicalHistorySchema = z.object({

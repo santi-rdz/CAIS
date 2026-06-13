@@ -46,7 +46,7 @@ export function validateUserCreate(input) {
 
 const signupFields = {
   password: passwordSchema,
-  confirmPassword: z.string(),
+  confirmPassword: z.string({ error: 'Confirma la contraseña' }),
   token: z.uuid('Token inválido'),
 }
 

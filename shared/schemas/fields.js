@@ -8,9 +8,13 @@ const soloLetrasMessage = 'Solo puede contener letras, espacios, guiones y após
 
 // ── Campos reutilizables ──────────────────────────────────────────────
 
-export const correoSchema = z.email('Correo electrónico inválido').max(255)
+export const correoSchema = z
+  .email('Correo electrónico inválido')
+  .max(255, 'El correo debe tener máximo 255 caracteres')
 
-export const telefonoSchema = z.string().regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
+export const telefonoSchema = z
+  .string({ error: 'Debe ser texto' })
+  .regex(/^\d{10}$/, 'El teléfono debe tener 10 dígitos')
 
 export const uuidSchema = z.uuid('Debe ser un UUID válido')
 
@@ -18,60 +22,87 @@ export const uuidSchema = z.uuid('Debe ser un UUID válido')
 export const isUUID = (value) => uuidSchema.safeParse(value).success
 
 // ── Numéricos de formulario ───────────────────────────────────────────
-// Coacciona el string del input → número, '' → undefined, opcional. min por
-// defecto exige > 0; { min: 0 } permite 0; { max } pone tope (fuera de rango →
-// error de validación, no un 500 al pegar en la columna).
-const emptyToUndefined = z.literal('').transform(() => undefined)
+// Coacciona strings de inputs a número, convierte strings vacíos en undefined
+// y exige rango. Todo numérico debe declarar max para evitar valores absurdos.
+const numericField = ({ min = 0, max, integer = false } = {}) => {
+  if (max == null) throw new Error('Los campos numéricos deben declarar max')
 
-export const coerceBounded = ({ int = false, min, max } = {}) => {
-  let schema = int ? z.coerce.number().int() : z.coerce.number()
-  schema = min != null ? schema.min(min) : schema.positive()
-  if (max != null) schema = schema.max(max)
-  return schema.optional().or(emptyToUndefined)
+  const schema = integer
+    ? z.coerce.number({ error: 'Debe ser un número válido' }).int('Debe ser un número entero')
+    : z.coerce.number({ error: 'Debe ser un número válido' })
+  return z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+    schema
+      .min(min, `Debe ser mayor o igual a ${min}`)
+      .max(max, `Debe ser menor o igual a ${max}`)
+      .nullish()
+  )
 }
 
-// Caso común sin tope (se usan como instancia, sin llamar).
-export const coerceNum = coerceBounded()
-export const coerceInt = coerceBounded({ int: true })
+export const num = (options) => numericField(options)
+export const int = (options) => numericField({ ...options, integer: true })
 
 // ── Strings de formulario ─────────────────────────────────────────────
-// trim + tope + nullish. Default 10 (ancho de VarChar corto más común); pasa el
-// max real para columnas mayores.
-export const str = (max = 10) => z.string().trim().max(max).nullish()
+// trim + tope + nullish. Default 255 para VarChar comunes; campos cortos deben
+// pasar su límite explícito.
+export const str = (max = 255) =>
+  z
+    .string({ error: 'Debe ser texto' })
+    .trim()
+    .max(max, `Debe tener máximo ${max} caracteres`)
+    .nullish()
+
+// Texto narrativo: siempre limitado aunque la DB use TEXT.
+export const text = (max = 1500) =>
+  z
+    .string({ error: 'Debe ser texto' })
+    .trim()
+    .max(max, `Debe tener máximo ${max} caracteres`)
+    .nullish()
 
 export const personalFields = {
   nombre: z
     .string()
     .min(2, 'El nombre es requerido')
-    .max(255)
+    .max(255, 'El nombre debe tener máximo 255 caracteres')
     .refine(soloLetras, soloLetrasMessage),
   apellidos: z
     .string()
     .min(2, 'Los apellidos son requeridos')
-    .max(255)
+    .max(255, 'Los apellidos deben tener máximo 255 caracteres')
     .refine(soloLetras, soloLetrasMessage),
   telefono: telefonoSchema,
 }
 
 export const pasanteFields = {
-  matricula: z.string().min(1, 'La matrícula es requerida').max(20),
-  servicio_inicio_anio: z.string().min(1, 'Selecciona el año de inicio'),
-  servicio_inicio_periodo: z.string().min(1, 'Selecciona el periodo de inicio'),
-  servicio_fin_anio: z.string().min(1, 'Selecciona el año de fin'),
-  servicio_fin_periodo: z.string().min(1, 'Selecciona el periodo de fin'),
+  matricula: z
+    .string()
+    .min(1, 'La matrícula es requerida')
+    .max(20, 'La matrícula debe tener máximo 20 caracteres'),
+  servicio_inicio_anio: z.string({ error: 'Debe ser texto' }).min(1, 'Selecciona el año de inicio'),
+  servicio_inicio_periodo: z
+    .string({ error: 'Debe ser texto' })
+    .min(1, 'Selecciona el periodo de inicio'),
+  servicio_fin_anio: z.string({ error: 'Debe ser texto' }).min(1, 'Selecciona el año de fin'),
+  servicio_fin_periodo: z
+    .string({ error: 'Debe ser texto' })
+    .min(1, 'Selecciona el periodo de fin'),
 }
 
 export const coordinadorFields = {
-  cedula: z.string().min(1, 'La cédula es requerida').max(20),
+  cedula: z
+    .string()
+    .min(1, 'La cédula es requerida')
+    .max(20, 'La cédula debe tener máximo 20 caracteres'),
 }
 
 // ── Fechas ────────────────────────────────────────────────────────────
 
-export const dateSchema = z.coerce.date()
+export const dateSchema = z.coerce.date({ error: 'Fecha inválida' })
 
 export const optionalDateSchema = z.preprocess(
   (v) => (v === '' ? undefined : v),
-  z.coerce.date().nullable().optional()
+  z.coerce.date({ error: 'Fecha inválida' }).nullable().optional()
 )
 
 export const dayjsDateSchema = z.preprocess(
@@ -81,7 +112,7 @@ export const dayjsDateSchema = z.preprocess(
       return v.isValid() ? v.format('YYYY-MM-DD') : ''
     return v
   },
-  z.string().min(1, 'La fecha es requerida')
+  z.string({ error: 'Fecha inválida' }).min(1, 'La fecha es requerida')
 )
 
 export const isoDateTimeSchema = z.iso.datetime({
