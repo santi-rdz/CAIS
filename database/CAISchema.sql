@@ -397,7 +397,7 @@ CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
     historia_paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     tipo VARCHAR(50),
-    porque_no VARCHAR(255),
+    porque_no TEXT,
     frecuencia VARCHAR(20),
     duracion SMALLINT,
     intensidad INT,
@@ -548,7 +548,7 @@ CREATE TABLE IF NOT EXISTS horarios_comida_nutricion(
     problemas_masticar BOOLEAN,
     problemas_pasar_alimento BOOLEAN,
     perdida_dientes BOOLEAN,
-    pensamientos_sobre_dieta VARCHAR(255),
+    pensamientos_sobre_dieta TEXT,
     CONSTRAINT fk_horarios_eval_nutr FOREIGN KEY (id_eval_nutr) REFERENCES eval_nutr_fh(id) ON DELETE CASCADE
 );
 
@@ -704,29 +704,29 @@ CREATE TABLE IF NOT EXISTS reporte_een_kids_nutricion(
     paciente_id BINARY(16) NOT NULL,
     eval_diag_edo_nutr TEXT,
     solicito_orient BOOLEAN,
-    prescrip_nut_obs VARCHAR(100),
-    educ_nut_obs VARCHAR(100),
-    consejeria_nut_obs VARCHAR(100),
-    coord_aten_nut_obs VARCHAR(100),
+    prescrip_nut_obs TEXT,
+    educ_nut_obs TEXT,
+    consejeria_nut_obs TEXT,
+    coord_aten_nut_obs TEXT,
     CONSTRAINT fk_paciente_reporte_een_kid FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 CREATE TABLE IF NOT EXISTS reporte_een_adulto_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    habitos_ali_obs VARCHAR(100),
-    alteraciones_gastroin VARCHAR(100),
+    habitos_ali_obs TEXT,
+    alteraciones_gastroin TEXT,
     CONSTRAINT fk_paciente_reporte_een_adulto FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
 );
 
 CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
     id INT AUTO_INCREMENT PRIMARY KEY,
     reporte_een_id INT NOT NULL,
-    pes VARCHAR(255),
+    pes TEXT,
     intervencion VARCHAR(50),
-    objetivos VARCHAR(255),
-    indicadores VARCHAR(255),
-    criterio VARCHAR(255),
+    objetivos TEXT,
+    indicadores TEXT,
+    criterio TEXT,
     progreso VARCHAR(20),
     CONSTRAINT fk_reporte_diagnostico FOREIGN KEY (reporte_een_id) REFERENCES reporte_een_adulto_nutricion(id)
 );
@@ -809,9 +809,9 @@ CREATE TABLE IF NOT EXISTS bitacora_emergencias (
     nombre VARCHAR(255),
     matricula VARCHAR(20),
     telefono VARCHAR(30),
-    diagnostico VARCHAR(255),
-    accion_realizada VARCHAR(255),
-    tratamiento_admin VARCHAR(255),
+    diagnostico TEXT,
+    accion_realizada TEXT,
+    tratamiento_admin TEXT,
     recurrente BOOLEAN DEFAULT FALSE,
     CONSTRAINT fk_bitacora_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
