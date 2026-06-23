@@ -59,6 +59,7 @@ async function main() {
   const entidadesData = [
     'NOTA_EVOLUCION',
     'EXAMINACION_FISICA',
+    'TPAN',
     'HISTORIA_MEDICA',
     'PACIENTE',
     'USUARIO',
