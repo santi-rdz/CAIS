@@ -214,6 +214,13 @@ describe('PATCH /nutricion/tpan/:id', () => {
     expect(res.status).toBe(422)
   })
 
+  test('422 — rechaza paciente_id en PATCH', async () => {
+    const res = await agent
+      .patch(`/nutricion/tpan/${tpanId}`)
+      .send({ paciente_id: pacienteId, observacion: 'X' })
+    expect(res.status).toBe(422)
+  })
+
   test('404 — TPAN no existe', async () => {
     const res = await agent.patch('/nutricion/tpan/999999').send({ observacion: 'X' })
     expect(res.status).toBe(404)

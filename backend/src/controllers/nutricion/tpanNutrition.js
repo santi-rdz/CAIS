@@ -14,6 +14,11 @@ import { z } from 'zod'
 const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha_eval'])
 const uuidSchema = z.uuid()
 
+function parsePositiveIntId(rawId) {
+  const n = Number(rawId)
+  return Number.isInteger(n) && n > 0 ? n : null
+}
+
 export class TpanNutritionController {
   static async create(req, res) {
     const result = validateTpanNutrition(req.body)
@@ -101,7 +106,14 @@ export class TpanNutritionController {
   }
 
   static async getById(req, res) {
-    const { id } = req.params
+    //const { id } = req.params
+    const id = parsePositiveIntId(req.params.id)
+    if (id === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "id" debe ser un entero positivo',
+      })
+    }
     try {
       const tpan = await TpanNutritionModel.getById(id)
       if (!tpan) return res.status(404).json({ message: 'TPAN no encontrado' })
