@@ -6,7 +6,6 @@ import { nutritionPatientRegistrationRouter } from './nutricion/patientRegistrat
 import { biochemicalEvalRouter } from './nutricion/biochemicalEval.js'
 import { nutritionalEvalRouter } from './nutricion/nutritionalEval.js'
 import { physicalExaminationRouter } from './nutricion/physicalExam.js'
-
 export const nutritionRouter = Router()
 
 nutritionRouter.use(requireAuth)

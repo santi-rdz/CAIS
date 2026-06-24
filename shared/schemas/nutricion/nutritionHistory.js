@@ -19,6 +19,7 @@ export const evalActFisicaNutricionSchema = z.object({
   frecuencia: str(20),
   duracion: int({ max: 32767 }), // SmallInt
   intensidad: int({ max: 100 }), // Int
+  clasif_tiempo_af: str(20),
   tiempo_de_practica: str(20),
   pensamientos_con_realizar_AF: str(50),
 })
@@ -26,9 +27,10 @@ export const evalActFisicaNutricionSchema = z.object({
 // eval_cal_sueno — calidad del sueño
 export const evalCalSuenoSchema = z.object({
   fecha: optionalDateSchema,
-  horas_sueno: int({ max: 127 }), // TinyInt
-  insomnio: int({ max: 127 }),
-  medicacion: int({ max: 127 }),
+  horas_sueno: int({ max: 24 }),
+  clasif_horas_sueno: str(20),
+  insomnio: str(10),
+  medicacion: str(10),
 })
 
 // tratamiento_alt_nutricion — tratamientos alternativos

@@ -16,8 +16,8 @@ const includeRelations = {
   pacientes: { select: { nombre: true, apellidos: true } },
   adicciones: true,
   historias_medicas_nutricion: true,
-  eval_act_fisica_nutricion: true,
-  eval_cal_sueno: true,
+  eval_act_fisica_nutricion: { orderBy: { id: 'desc' } },
+  eval_cal_sueno: { orderBy: { id: 'desc' } },
   tratamiento_alt_nutricion: true,
 }
 
