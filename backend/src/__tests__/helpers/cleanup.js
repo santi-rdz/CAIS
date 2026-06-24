@@ -30,6 +30,7 @@ const DELETE_ORDER = [
     'antecedentes_no_patologicos',
     'antecedentes_patologicos',
     'planes_estudio',
+    'tpan_nutricion',
   ],
 
   // Nivel 3: hijos directos de pacientes
