@@ -4,15 +4,13 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
-/**
- * Si es un string de solo fecha (YYYY-MM-DD), agrega T00:00:00 para que dayjs
- * lo trate como hora local en vez de UTC midnight (evita corrimiento de día).
- * Si ya tiene hora/offset, dayjs lo convierte a local correctamente.
- */
+// Prisma serializa @db.Date como UTC midnight ISO string ('2026-06-24T00:00:00.000Z').
+// Sin corrección, dayjs lo convierte a hora local y retrocede un día en zonas UTC-.
+// Normaliza ambos formatos a 'YYYY-MM-DDT00:00:00' para que dayjs lo lea como local.
 function toLocalParseable(fechaHora) {
-  if (typeof fechaHora === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(fechaHora)) {
-    return fechaHora + 'T00:00:00'
-  }
+  if (typeof fechaHora !== 'string') return fechaHora
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHora)) return fechaHora + 'T00:00:00'
+  if (/^\d{4}-\d{2}-\d{2}T00:00:00/.test(fechaHora)) return fechaHora.slice(0, 10) + 'T00:00:00'
   return fechaHora
 }
 
