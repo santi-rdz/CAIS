@@ -1,20 +1,141 @@
+import { useRef, useState } from 'react'
+import { HiOutlinePlus } from 'react-icons/hi2'
 import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
 import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useNutritionHistories } from '@features/patients/nutricion/hooks/useNutritionHistories'
 import { useNutritionHistory } from '@features/patients/nutricion/hooks/useNutritionHistory'
 import NutritionalPatientForm from '@features/patients/nutricion/forms/NutritionalPatientForm/NutritionalPatientForm'
+import EvalSuenoForm from '@features/patients/nutricion/forms/EvalSuenoForm'
+import EvalActFisicaForm from '@features/patients/nutricion/forms/EvalActFisicaForm'
 import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import RecordTable from '@features/patients/shared/sections/RecordTable'
+import Modal from '@components/Modal'
+import Button from '@components/Button'
+import Heading from '@components/Heading'
 import {
   ENFERMEDAD_COLUMNS,
   TRATAMIENTO_COLUMNS,
   ADICCIONES_COLUMNS,
+  SUENO_COLUMNS,
+  ACT_FISICA_COLUMNS,
   buildAdiccionesRows,
 } from '@features/patients/nutricion/constants'
 
-// Tab de la vista → step de la modal (HISTORIA_STEPS: Historia Médica,
-// Tratamiento Alternativo, Adicciones).
-const TAB_TO_STEP = { enfermedades: 0, tratamientos: 1, adicciones: 2 }
+// Tab de la vista → step de la modal principal (HISTORIA_STEPS).
+// HISTORIA_STEPS = STEPS.slice(1): 0=Historia Médica, 1=Tratamiento, 2=Adicciones, 3=Sueño, 4=AF
+const TAB_TO_STEP = { enfermedades: 0, tratamientos: 1, adicciones: 2, sueno: 3, af: 4 }
+
+// ─── Tab calidad del sueño ────────────────────────────────────────────────────
+// Tiene su propio <Modal> para no interferir con el context de PatientDetail.
+// El botón oculto actúa como puente entre el estado local y el sistema de
+// nombres del Modal.
+
+function SuenoTab({ historia }) {
+  const [editingEval, setEditingEval] = useState(null)
+  const openRef = useRef(null)
+
+  function handleAdd() {
+    setEditingEval(null)
+    openRef.current?.click()
+  }
+
+  function handleEdit(row) {
+    setEditingEval(row)
+    openRef.current?.click()
+  }
+
+  return (
+    <Modal>
+      {/* Trigger oculto — se activa programáticamente */}
+      <Modal.Open opens="sueno-form">
+        <button ref={openRef} type="button" hidden aria-hidden="true" />
+      </Modal.Open>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h4">Calidad del Sueño</Heading>
+          <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
+            <HiOutlinePlus size={13} strokeWidth={2.5} />
+            Agregar
+          </Button>
+        </div>
+        <RecordTable
+          columns={SUENO_COLUMNS}
+          rows={historia.eval_cal_sueno}
+          emptyMessage="Sin evaluaciones de sueño registradas."
+          onEdit={handleEdit}
+        />
+      </div>
+
+      <Modal.Content name="sueno-form" size="md" noPadding>
+        <EvalSuenoForm
+          key={editingEval?.id ?? 'new-sueno'}
+          historiaId={historia.id}
+          historia={historia}
+          eval={editingEval ?? undefined}
+          title={editingEval?.id ? 'Editar evaluación de sueño' : 'Nueva evaluación de sueño'}
+        />
+      </Modal.Content>
+    </Modal>
+  )
+}
+
+// ─── Tab actividad física ─────────────────────────────────────────────────────
+
+function ActFisicaTab({ historia }) {
+  const [editingEval, setEditingEval] = useState(null)
+  const openRef = useRef(null)
+
+  function handleAdd() {
+    setEditingEval(null)
+    openRef.current?.click()
+  }
+
+  function handleEdit(row) {
+    setEditingEval(row)
+    openRef.current?.click()
+  }
+
+  return (
+    <Modal>
+      <Modal.Open opens="af-form">
+        <button ref={openRef} type="button" hidden aria-hidden="true" />
+      </Modal.Open>
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Heading as="h4">Actividad Física</Heading>
+          <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
+            <HiOutlinePlus size={13} strokeWidth={2.5} />
+            Agregar
+          </Button>
+        </div>
+        <RecordTable
+          columns={ACT_FISICA_COLUMNS}
+          rows={historia.eval_act_fisica_nutricion}
+          emptyMessage="Sin evaluaciones de actividad física registradas."
+          onEdit={handleEdit}
+        />
+      </div>
+
+      <Modal.Content name="af-form" size="lg" noPadding>
+        <EvalActFisicaForm
+          key={editingEval?.id ?? 'new-af'}
+          historiaId={historia.id}
+          historia={historia}
+          eval={editingEval ?? undefined}
+          title={
+            editingEval?.id
+              ? 'Editar evaluación de actividad física'
+              : 'Nueva evaluación de actividad física'
+          }
+        />
+      </Modal.Content>
+    </Modal>
+  )
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
   {
@@ -52,7 +173,19 @@ const TABS = [
       <RecordTable columns={ADICCIONES_COLUMNS} rows={buildAdiccionesRows(historia.adicciones)} />
     ),
   },
+  {
+    value: 'sueno',
+    label: 'Sueño',
+    render: (historia) => <SuenoTab historia={historia} />,
+  },
+  {
+    value: 'af',
+    label: 'Actividad física',
+    render: (historia) => <ActFisicaTab historia={historia} />,
+  },
 ]
+
+// ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function PatientHistoriaNutricion({ patient }) {
   const state = usePatientHistoria({

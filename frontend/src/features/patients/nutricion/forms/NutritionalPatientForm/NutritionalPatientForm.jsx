@@ -6,13 +6,16 @@ import { useCreateNutritionHistory } from '@features/patients/nutricion/hooks/us
 import { useUpdatePatientWithNutritionHistory } from '@features/patients/nutricion/hooks/useUpdatePatientWithNutritionHistory'
 import StepFormShell from '@features/patients/shared/forms/StepFormShell'
 import {
-  DEFAULT_VALUES,
+  getDefaultValues,
   STEPS,
   STEPS_FIELDS,
   STEP_COMPONENTS,
   HISTORIA_STEPS,
   HISTORIA_STEPS_FIELDS,
   HISTORIA_STEP_COMPONENTS,
+  EDIT_HISTORIA_STEPS,
+  EDIT_HISTORIA_STEPS_FIELDS,
+  EDIT_HISTORIA_STEP_COMPONENTS,
 } from '@features/patients/nutricion/forms/NutritionalPatientForm/formConfig'
 import { pickDirty } from '@lib/utils'
 import {
@@ -25,8 +28,10 @@ import { getFormCopy } from '@features/patients/nutricion/forms/NutritionalPatie
 
 const resolver = zodResolver(nutritionalPatientFormSchema)
 
-function resolveSteps({ patientOnly, skipPatientStep }) {
+function resolveSteps({ patientOnly, skipPatientStep, historiaOnly }) {
   if (patientOnly) return [[STEPS[0]], [STEPS_FIELDS[0]], [STEP_COMPONENTS[0]]]
+  if (historiaOnly)
+    return [EDIT_HISTORIA_STEPS, EDIT_HISTORIA_STEPS_FIELDS, EDIT_HISTORIA_STEP_COMPONENTS]
   if (skipPatientStep) return [HISTORIA_STEPS, HISTORIA_STEPS_FIELDS, HISTORIA_STEP_COMPONENTS]
   return [STEPS, STEPS_FIELDS, STEP_COMPONENTS]
 }
@@ -51,13 +56,14 @@ export default function NutritionalPatientForm({
   const defaultValues = isEdit
     ? buildEditDefaults(patient, historia ?? {}, { patientOnly })
     : isClone
-      ? buildEditDefaults(patient, cloneHistoria)
-      : DEFAULT_VALUES
+      ? buildEditDefaults(patient, cloneHistoria, { skipMonitoring: true })
+      : getDefaultValues()
 
   const skipPatientStep = isClone || (isEdit && historiaOnly)
   const [activeSteps, activeStepsFields, activeStepComponents] = resolveSteps({
     patientOnly,
     skipPatientStep,
+    historiaOnly: isEdit && historiaOnly,
   })
 
   const startStep = Math.min(initialStep, activeSteps.length - 1)

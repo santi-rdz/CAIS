@@ -387,8 +387,9 @@ CREATE TABLE IF NOT EXISTS eval_cal_sueno(
     historia_paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     horas_sueno TINYINT,
-    insomnio TINYINT,
-    medicacion TINYINT,
+    clasif_horas_sueno VARCHAR(20),
+    insomnio VARCHAR(10),
+    medicacion VARCHAR(10),
     CONSTRAINT fk_cal_sueno_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
@@ -401,6 +402,7 @@ CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
     frecuencia VARCHAR(20),
     duracion SMALLINT,
     intensidad INT,
+    clasif_tiempo_af VARCHAR(20),
     tiempo_de_practica VARCHAR(20),
     pensamientos_con_realizar_AF VARCHAR(50),
     CONSTRAINT fk_eval_act_paciente FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION

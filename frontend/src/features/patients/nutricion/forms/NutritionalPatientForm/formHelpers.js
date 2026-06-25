@@ -2,6 +2,35 @@ import dayjs from 'dayjs'
 import { patientSchema } from '@cais/shared/schemas/medicina/patient'
 import { omitEmpty, nullifyEmpty } from '@lib/utils'
 import { DEFAULT_VALUES } from '@features/patients/nutricion/forms/NutritionalPatientForm/formConfig'
+import {
+  SUENO_ROW_KEYS,
+  ACT_FISICA_ROW_KEYS,
+  buildMonitoringFieldRow,
+} from '@features/patients/nutricion/forms/monitoreoRows'
+
+// Convierte dayjs a ISO date string para enviar al backend.
+function formatMonitoringRow(row, keys) {
+  return Object.fromEntries(
+    keys.map((k) => {
+      if (k !== 'fecha') return [k, row?.[k]]
+      const val = row?.fecha
+      return [k, dayjs.isDayjs(val) ? val.format('YYYY-MM-DD') : val || null]
+    })
+  )
+}
+
+// Conserva filas no borradas con algún campo con valor (ignora solo-fecha vacías).
+function cleanMonitoringRows(rows, keys) {
+  const dataKeys = keys.filter((k) => k !== 'fecha')
+  return (rows ?? [])
+    .filter((row) => !row?._deleted && dataKeys.some((k) => hasValue(row?.[k])))
+    .map((row) => formatMonitoringRow(row, keys))
+}
+
+// Mapea filas de la DB al shape del field array; fecha → dayjs (default hoy).
+function mapMonitoringRows(rows, keys) {
+  return (rows ?? []).map((row) => buildMonitoringFieldRow(keys, row))
+}
 
 // Grupos de adicciones: [campo activo, campo frecuencia, campo métrica].
 const ADICCION_GROUPS = [
@@ -49,6 +78,8 @@ const HISTORY_KEYS = new Set([
   'motivo_consulta',
   'presenta_enfermedad',
   'presenta_tratamiento',
+  'eval_cal_sueno',
+  'eval_act_fisica_nutricion',
 ])
 
 // Divide el form data en lo que pertenece al paciente vs la historia de
@@ -73,6 +104,9 @@ export function splitFormData(rawData) {
     'dosis',
   ])
 
+  const sueno = cleanMonitoringRows(rawData.eval_cal_sueno, SUENO_ROW_KEYS)
+  const actFisica = cleanMonitoringRows(rawData.eval_act_fisica_nutricion, ACT_FISICA_ROW_KEYS)
+
   const historyData = {
     ...(rawData.fecha_ingreso && { fecha_ingreso: rawData.fecha_ingreso }),
     ...(rawData.motivo_consulta && { motivo_consulta: rawData.motivo_consulta }),
@@ -81,6 +115,8 @@ export function splitFormData(rawData) {
     ...(hasAnyAdiccion(rawData.adicciones) && {
       adicciones: buildAdicciones(rawData.adicciones),
     }),
+    ...(sueno.length && { eval_cal_sueno: sueno }),
+    ...(actFisica.length && { eval_act_fisica_nutricion: actFisica }),
   }
 
   return { patientData, historyData }
@@ -122,6 +158,15 @@ export function splitDirtyData(dirty, fullData) {
   if ('adicciones' in dirtyHistory) {
     dirtyHistory.adicciones = buildAdicciones(fullData.adicciones)
   }
+  if ('eval_cal_sueno' in dirtyHistory) {
+    dirtyHistory.eval_cal_sueno = cleanMonitoringRows(fullData.eval_cal_sueno, SUENO_ROW_KEYS)
+  }
+  if ('eval_act_fisica_nutricion' in dirtyHistory) {
+    dirtyHistory.eval_act_fisica_nutricion = cleanMonitoringRows(
+      fullData.eval_act_fisica_nutricion,
+      ACT_FISICA_ROW_KEYS
+    )
+  }
 
   return {
     patientData: Object.keys(dirtyPatient).length ? nullifyEmpty(dirtyPatient) : null,
@@ -160,13 +205,23 @@ function buildAdiccionesDefaults(adicciones) {
 // Construye los defaults del form en modo edición. En patientOnly solo importa
 // el paciente (+ motivo de la historia más reciente); las relaciones clínicas se
 // editan desde "Editar historia", así que quedan vacías.
-export function buildEditDefaults(patient, historia, { patientOnly = false } = {}) {
+export function buildEditDefaults(
+  patient,
+  historia,
+  { patientOnly = false, skipMonitoring = false } = {}
+) {
   const enfermedades = patientOnly
     ? []
     : mapRows(historia.historias_medicas_nutricion, ENFERMEDAD_ROW_KEYS)
   const tratamientos = patientOnly
     ? []
     : mapRows(historia.tratamiento_alt_nutricion, TRATAMIENTO_ROW_KEYS)
+  const sueno =
+    patientOnly || skipMonitoring ? [] : mapMonitoringRows(historia.eval_cal_sueno, SUENO_ROW_KEYS)
+  const actFisica =
+    patientOnly || skipMonitoring
+      ? []
+      : mapMonitoringRows(historia.eval_act_fisica_nutricion, ACT_FISICA_ROW_KEYS)
 
   const patientFields = {}
   for (const key of Object.keys(DEFAULT_VALUES)) {
@@ -186,6 +241,8 @@ export function buildEditDefaults(patient, historia, { patientOnly = false } = {
     adicciones: patientOnly
       ? { ...DEFAULT_VALUES.adicciones }
       : buildAdiccionesDefaults(historia.adicciones),
+    eval_cal_sueno: sueno,
+    eval_act_fisica_nutricion: actFisica,
   }
 }
 
@@ -198,5 +255,10 @@ export function buildHistoryUpdate(data) {
     historias_medicas_nutricion: cleanRows(data.historias_medicas_nutricion, ENFERMEDAD_ROW_KEYS),
     tratamiento_alt_nutricion: cleanRows(data.tratamiento_alt_nutricion, TRATAMIENTO_ROW_KEYS),
     adicciones: buildAdicciones(data.adicciones),
+    eval_cal_sueno: cleanMonitoringRows(data.eval_cal_sueno, SUENO_ROW_KEYS),
+    eval_act_fisica_nutricion: cleanMonitoringRows(
+      data.eval_act_fisica_nutricion,
+      ACT_FISICA_ROW_KEYS
+    ),
   }
 }

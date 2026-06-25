@@ -1,3 +1,5 @@
+import { formatFecha } from '@lib/dateHelpers'
+
 // ── Catálogos de selects — Step 1 (Identificación) ──────────────────────────
 
 export const ESCOLARIDAD_OPTIONS = [
@@ -85,6 +87,26 @@ export const FRECUENCIA_OPTIONS = [
   'De 5 a 6/7',
 ]
 
+// ── Step — Evaluación calidad del sueño ─────────────────────────────────────
+
+export const CLASIF_HORAS_SUENO_OPTIONS = ['<3 horas', '3-5 horas', '6-8 horas', '>8 horas']
+export const INSOMNIO_OPTIONS = ['SI', 'NO', 'RARA VEZ']
+export const MEDICACION_SUENO_OPTIONS = ['SI', 'NO', 'RARA VEZ']
+
+// ── Step — Evaluación actividad física ───────────────────────────────────────
+
+export const TIPO_AF_OPTIONS = ['NINGUNO', 'AEROBIO', 'ANAEROBIO', 'MIXTO']
+export const FRECUENCIA_AF_OPTIONS = ['3 días/s', '4 días/s', '5 días/s', 'Semanal', 'Mensual']
+export const CLASIF_TIEMPO_AF_OPTIONS = ['<30 min', 'De 30-60 min', '>60 min']
+export const TIEMPO_PRACTICA_OPTIONS = ['Menos de 6 meses', 'Más de 6 meses']
+export const PENSAMIENTOS_AF_OPTIONS = [
+  'No lo he pensado',
+  'Estoy pensando en hacerlo',
+  'Planeo iniciar en los próximos 6 m',
+  'Empecé hace 6 m',
+  'Lo hago de manera regular',
+]
+
 // ── Visualización de la historia nutricional ─────────────────────────────────
 
 // Columnas de las tablas de relaciones one-to-many (reutilizadas por RecordTable).
@@ -100,6 +122,26 @@ export const TRATAMIENTO_COLUMNS = [
   { key: 'cual_producto', label: '¿Cuál?' },
   { key: 'mejora', label: 'Mejoró' },
   { key: 'dosis', label: 'Dosis' },
+]
+
+export const SUENO_COLUMNS = [
+  { key: 'fecha', label: 'Fecha', format: formatFecha },
+  { key: 'horas_sueno', label: 'Horas sueño' },
+  { key: 'clasif_horas_sueno', label: 'Clasif. Hrs sueño' },
+  { key: 'insomnio', label: 'Insomnio' },
+  { key: 'medicacion', label: 'Med. para dormir' },
+]
+
+export const ACT_FISICA_COLUMNS = [
+  { key: 'fecha', label: 'Fecha', format: formatFecha },
+  { key: 'tipo', label: 'Tipo AF' },
+  { key: 'porque_no', label: '¿Por qué NO?' },
+  { key: 'frecuencia', label: 'Frecuencia' },
+  { key: 'duracion', label: 'Duración (min)' },
+  { key: 'clasif_tiempo_af', label: 'Clasif. Tiempo AF' },
+  { key: 'intensidad', label: 'Intensidad (%)' },
+  { key: 'tiempo_de_practica', label: 'Tiempo práctica' },
+  { key: 'pensamientos_con_realizar_AF', label: '¿Qué ha pensado?' },
 ]
 
 export const ADICCIONES_COLUMNS = [

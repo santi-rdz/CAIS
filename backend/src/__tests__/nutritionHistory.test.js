@@ -56,7 +56,15 @@ const buildCompleto = (overrides = {}) => ({
       pensamientos_con_realizar_AF: 'Positivos',
     },
   ],
-  eval_cal_sueno: [{ fecha: '2024-01-15', horas_sueno: 7, insomnio: 1, medicacion: 0 }],
+  eval_cal_sueno: [
+    {
+      fecha: '2024-01-15',
+      horas_sueno: 7,
+      clasif_horas_sueno: '6-8 horas',
+      insomnio: 'SI',
+      medicacion: 'NO',
+    },
+  ],
   tratamiento_alt_nutricion: [
     { producto: 'Suplemento', cual_producto: 'Vitamina C', mejora: 'Sí', dosis: '500mg' },
   ],
@@ -247,13 +255,15 @@ describe('PATCH /nutricion/historias-nutricion/:id', () => {
     })
     expect(res.status).toBe(200)
     expect(res.body.eval_act_fisica_nutricion).toHaveLength(2)
-    expect(res.body.eval_act_fisica_nutricion[0].tipo).toBe('Resistencia')
+    // Orden id desc: el último insertado va primero.
+    expect(res.body.eval_act_fisica_nutricion[0].tipo).toBe('Flexibilidad')
+    expect(res.body.eval_act_fisica_nutricion[1].tipo).toBe('Resistencia')
   })
 
   test('200 — reemplaza eval_cal_sueno', async () => {
     const res = await agent
       .patch(`/nutricion/historias-nutricion/${historiaId}`)
-      .send({ eval_cal_sueno: [{ horas_sueno: 8, insomnio: 0, medicacion: 0 }] })
+      .send({ eval_cal_sueno: [{ horas_sueno: 8, insomnio: 'NO', medicacion: 'NO' }] })
     expect(res.status).toBe(200)
     expect(res.body.eval_cal_sueno).toHaveLength(1)
     expect(res.body.eval_cal_sueno[0].horas_sueno).toBe(8)
