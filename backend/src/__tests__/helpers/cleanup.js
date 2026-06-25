@@ -107,7 +107,11 @@ export function createCleanupTracker() {
         }
       }
 
-      // Pre-step 3: borrar hijos de exam_fis_orien_nutricion.
+      // Pre-step 3: borrar exam_fis_orien_nutricion y sus relaciones. Todos los
+      // FK son NoAction, así que el orden es estricto y secuencial:
+      //   1) eval_sintomas_gastroin (hijo del exam, vía exam_fis_id)
+      //   2) el exam (hijo de las 3 tablas 1:1 vía id_perdida_peso/...)
+      //   3) las 3 tablas padre 1:1, ya sin referencias (en paralelo)
       const examFisIds = records.get('exam_fis_orien_nutricion')
       if (examFisIds?.size) {
         const idList = [...examFisIds]
@@ -121,10 +125,11 @@ export function createCleanupTracker() {
             },
           })
 
+          await prisma.eval_sintomas_gastroin_nutricion.deleteMany({
+            where: { exam_fis_id: { in: idList } },
+          })
+          await prisma.exam_fis_orien_nutricion.deleteMany({ where: { id: { in: idList } } })
           await Promise.all([
-            prisma.eval_sintomas_gastroin_nutricion.deleteMany({
-              where: { exam_fis_id: { in: idList } },
-            }),
             prisma.eval_perdida_peso_nutricion.deleteMany({
               where: { id: { in: exams.map((e) => e.id_perdida_peso) } },
             }),
