@@ -1,5 +1,3 @@
-import './loadEnv.js'
-
 const DEFAULT_FRONTEND_URL = 'http://localhost:5173'
 const DEFAULT_CORS_ORIGINS = [DEFAULT_FRONTEND_URL, 'http://127.0.0.1:5173', 'http://frontend:5173']
 

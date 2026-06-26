@@ -1,19 +1,18 @@
+import express from 'express'
+import cors from 'cors'
+import session from 'express-session'
 import { SESSION_MAX_AGE_MS } from '#lib/constants.js'
-import { prisma } from '#config/prisma.js'
+import { PrismaSessionStore } from '#config/sessionStore.js'
+import { apiRateLimiter, corsOptions, securityHeaders } from '#lib/security.js'
+import { serverConfig } from '#config/env.js'
 import { userRouter } from '#routes/users.js'
 import { authRouter } from '#routes/auth.js'
 import { invitationRouter } from '#routes/invitations.js'
-import cors from 'cors'
-import session from 'express-session'
-import { PrismaSessionStore } from '#config/sessionStore.js'
 import { patientRouter } from '#routes/patient.js'
 import { medicineRouter } from '#routes/medicine.js'
 import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { dashboardRouter } from '#routes/dashboard.js'
-import express from 'express'
-import { apiRateLimiter, corsOptions, securityHeaders } from '#lib/security.js'
-import { isProduction, serverConfig } from '#config/env.js'
 
 const app = express()
 
@@ -63,26 +62,3 @@ app.use((err, _req, res, next) => {
 })
 
 export default app
-
-// En tests supertest llama al app sin abrir el puerto.
-if (!serverConfig.isTest) {
-  const server = app.listen(serverConfig.port, () => {
-    console.log(`Server is running on http://localhost:${serverConfig.port}`)
-  })
-
-  // Sin $disconnect, cada restart deja conexiones zombies hasta saturar MySQL.
-  async function gracefulShutdown(signal) {
-    console.log(`Received ${signal}, shutting down gracefully...`)
-    server.close(async () => {
-      await prisma.$disconnect()
-      process.exit(0)
-    })
-    setTimeout(() => {
-      console.warn('Forced exit after timeout')
-      process.exit(1)
-    }, 5000).unref()
-  }
-
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
-}

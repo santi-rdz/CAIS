@@ -1,4 +1,3 @@
-import './loadEnv.js'
 import { createTransport } from 'nodemailer'
 
 export const transporter =

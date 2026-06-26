@@ -32,7 +32,7 @@
     "setup": "pnpm install && pnpm db:up && pnpm db:wait && pnpm --filter backend exec prisma generate && pnpm seed",
     "//— Desarrollo (host nativo + DB en Docker) —": "",
     "dev": "pnpm db:up && pnpm --parallel --filter frontend --filter backend run dev",
-    "seed": "pnpm --filter backend exec node prisma/seed.js",
+    "seed": "pnpm --filter backend run prisma:seed",
     "//— DB de desarrollo —": "",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
     "db:down": "docker compose -f docker-compose.dev.yml down",

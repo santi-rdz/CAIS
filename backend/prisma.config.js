@@ -1,11 +1,15 @@
-import dotenv from 'dotenv'
+import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { defineConfig, env } from 'prisma/config'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
+// El CLI de Prisma carga este config sin pasar por el flag --env-file de los
+// scripts, así que cargamos el .env de la raíz del monorepo de forma nativa.
+// En CI/Docker las env vars ya están en el entorno → solo si el archivo existe.
 const here = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.resolve(here, '../.env'), quiet: true })
+const envPath = path.resolve(here, '../.env')
+if (existsSync(envPath)) process.loadEnvFile(envPath)
 
 function makeAdapter() {
   const url = new URL(env('DATABASE_URL'))
