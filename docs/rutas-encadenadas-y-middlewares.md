@@ -83,3 +83,5 @@ Orden: `permiso → validate → controller`.
 - `POST /auth/login` (validación manual).
 - `POST /usuarios/registro` (el schema depende del rol de la invitación, runtime).
 - Checks de un campo sin schema (`if (!correo)`).
+- Reglas extra de negocio post-`validate` (ej. `nutritionalEval` rechaza un PATCH
+  con body vacío con 422).

@@ -1,5 +1,5 @@
 import { formatZodErrors } from '#lib/formatErrors.js'
-import { isPositiveIntId } from '#lib/parseId.js'
+import { parsePositiveIntId } from '#lib/parseId.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 
 /**
@@ -35,7 +35,7 @@ export function validate(validateFn) {
  * repetía la validación de id).
  *
  * @param {string} name - nombre del parámetro (ej. 'id')
- * @param {(value: string) => boolean} isValid - predicado (isUUID, isPositiveIntId)
+ * @param {(value: string) => boolean} isValid - predicado (ej. isUUID)
  * @param {string} message - mensaje de error para el cliente
  */
 export function validateParam(name, isValid, message) {
@@ -51,6 +51,21 @@ export function validateParam(name, isValid, message) {
 export const validateUuidParam = (name = 'id') =>
   validateParam(name, isUUID, `El parámetro "${name}" debe ser un UUID válido`)
 
-/** `validateParam` preconfigurado para ids enteros autoincrement. */
-export const validateIntParam = (name = 'id') =>
-  validateParam(name, isPositiveIntId, `El parámetro "${name}" debe ser un entero positivo`)
+/**
+ * `validateParam` para ids enteros autoincrement. Además de validar, normaliza
+ * `req.params[name]` al número parseado para que el controller no dependa de que
+ * el modelo haga la conversión.
+ */
+export const validateIntParam =
+  (name = 'id') =>
+  (req, res, next) => {
+    const parsed = parsePositiveIntId(req.params[name])
+    if (parsed === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: `El parámetro "${name}" debe ser un entero positivo`,
+      })
+    }
+    req.params[name] = parsed
+    next()
+  }
