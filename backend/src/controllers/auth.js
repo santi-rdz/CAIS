@@ -71,7 +71,7 @@ export class AuthController {
       })
     } catch (err) {
       console.error(err)
-      return res.status(500).json({ error: 'Server error' })
+      return res.status(500).json({ error: 'Error en el servidor' })
     }
   }
 
@@ -92,7 +92,7 @@ export class AuthController {
       return res.json(formatUser(user))
     } catch (err) {
       console.error(err)
-      return res.status(500).json({ error: 'Server error' })
+      return res.status(500).json({ error: 'Error en servidor' })
     }
   }
 
