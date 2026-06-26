@@ -1,38 +1,23 @@
 import { prisma } from '#config/prisma.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 /**
  * Construye un controller de registro atómico (paciente + 1ª historia) por área.
- * Medicina y nutrición solo difieren en el schema de validación, el modelo de
- * historia y la entidad auditada, así que el flujo vive aquí una sola vez.
+ * Medicina y nutrición solo difieren en el modelo de historia y la entidad
+ * auditada, así que el flujo vive aquí una sola vez. La validación del body
+ * (`{ patient, historia }`) la aplica el middleware `validate` en la ruta.
  *
  * @param {object} deps
- * @param {(body: object) => object} deps.validate - validateXRegistration (safeParse)
  * @param {(data: object, userId: string, tx: object) => Promise} deps.createHistory
  * @param {string} deps.historiaEntidad - ENTIDADES.HISTORIA_*
  * @param {string} deps.errorLabel - área para el log de error
  */
-export function makePatientRegistrationController({
-  validate,
-  createHistory,
-  historiaEntidad,
-  errorLabel,
-}) {
+export function makePatientRegistrationController({ createHistory, historiaEntidad, errorLabel }) {
   return {
     async create(req, res) {
-      const result = validate(req.body)
-      if (result.error) {
-        return res.status(422).json({
-          error: 'ValidationError',
-          message: 'Datos de registro inválidos',
-          fields: formatZodErrors(result.error),
-        })
-      }
-
-      const { patient, historia } = result.data
+      const { patient, historia } = req.body
       const userId = req.session.userId
 
       try {

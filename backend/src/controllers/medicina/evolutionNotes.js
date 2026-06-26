@@ -1,10 +1,5 @@
 import { EvolutionNoteModel } from '#models/medicina/EvolutionNote.js'
 import { PatientModel } from '#models/PatientModel.js'
-import {
-  validateEvolutionNote,
-  validatePartialEvolutionNote,
-} from '@cais/shared/schemas/medicina/evolutionNote'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { prisma } from '#config/prisma.js'
 import { AuditModel } from '#models/AuditModel.js'
@@ -12,26 +7,17 @@ import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 export class EvolutionNoteController {
   static async create(req, res) {
-    const result = validateEvolutionNote(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de nota de evolución inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const note = await prisma.$transaction(async (tx) => {
-        const n = await EvolutionNoteModel.create(result.data, req.session.userId, tx)
-        await PatientModel.touch(result.data.paciente_id, tx)
+        const n = await EvolutionNoteModel.create(req.body, req.session.userId, tx)
+        await PatientModel.touch(req.body.paciente_id, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
             accion: ACCIONES.CREAR,
             entidad: ENTIDADES.NOTA_EVOLUCION,
             objetivo_id: n.id,
-            paciente_id: result.data.paciente_id,
+            paciente_id: req.body.paciente_id,
           },
           tx
         )
@@ -94,18 +80,10 @@ export class EvolutionNoteController {
   }
 
   static async update(req, res) {
-    const result = validatePartialEvolutionNote(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedNote = await prisma.$transaction(async (tx) => {
-        const n = await EvolutionNoteModel.update(id, result.data, req.session.userId, tx)
+        const n = await EvolutionNoteModel.update(id, req.body, req.session.userId, tx)
         if (!n) return null
         await PatientModel.touch(n.paciente_id, tx)
         await AuditModel.create(
@@ -122,7 +100,7 @@ export class EvolutionNoteController {
       })
       if (!updatedNote) return res.status(404).json({ message: 'Nota de evolución no encontrada' })
       res.json(updatedNote)
-    } catch (_err) {
+    } catch {
       res.status(500).json({
         error: 'InternalError',
         message: 'Error al actualizar nota de evolución',

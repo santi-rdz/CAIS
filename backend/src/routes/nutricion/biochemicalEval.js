@@ -1,13 +1,24 @@
 import { Router } from 'express'
 import { BiochemicalEvalController } from '#controllers/nutricion/biochemicalEval.js'
 import { requireAuth } from '#middleware/auth.js'
+import { validate, validateUuidParam } from '#middleware/validate.js'
+import {
+  validateEvalBioqNutricion,
+  validatePartialEvalBioqNutricion,
+} from '@cais/shared/schemas/nutricion/biochemicalEval'
 
 export const biochemicalEvalRouter = Router()
 
 biochemicalEvalRouter.use(requireAuth)
 
-biochemicalEvalRouter.post('/', BiochemicalEvalController.create)
-biochemicalEvalRouter.get('/', BiochemicalEvalController.getAll)
-biochemicalEvalRouter.get('/:id', BiochemicalEvalController.getById)
-biochemicalEvalRouter.patch('/:id', BiochemicalEvalController.update)
-biochemicalEvalRouter.delete('/:id', BiochemicalEvalController.delete)
+biochemicalEvalRouter
+  .route('/')
+  .get(BiochemicalEvalController.getAll)
+  .post(validate(validateEvalBioqNutricion), BiochemicalEvalController.create)
+
+biochemicalEvalRouter
+  .route('/:id')
+  .all(validateUuidParam())
+  .get(BiochemicalEvalController.getById)
+  .patch(validate(validatePartialEvalBioqNutricion), BiochemicalEvalController.update)
+  .delete(BiochemicalEvalController.delete)

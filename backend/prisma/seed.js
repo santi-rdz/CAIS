@@ -1,4 +1,3 @@
-import '#config/loadEnv.js'
 import pkg from '@prisma/client'
 const { PrismaClient } = pkg
 

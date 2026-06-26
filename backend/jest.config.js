@@ -1,6 +1,5 @@
 export default {
   testEnvironment: 'node',
-  setupFiles: ['dotenv/config'],
   globalTeardown: '<rootDir>/jest.teardown.js',
   testMatch: ['<rootDir>/src/**/*.test.js'],
   // Tests son aislados (cada uno crea sus propias fixtures con uniqueEmail

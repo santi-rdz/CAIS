@@ -1,13 +1,24 @@
 import { Router } from 'express'
 import { EvalCalSuenoController } from '#controllers/nutricion/evalCalSueno.js'
 import { requireAuth } from '#middleware/auth.js'
+import { validate, validateIntParam } from '#middleware/validate.js'
+import {
+  validateEvalCalSueno,
+  validatePartialEvalCalSueno,
+} from '@cais/shared/schemas/nutricion/evalCalSueno'
 
 export const evalCalSuenoRouter = Router()
 
 evalCalSuenoRouter.use(requireAuth)
 
-evalCalSuenoRouter.post('/', EvalCalSuenoController.create)
-evalCalSuenoRouter.get('/', EvalCalSuenoController.getAll)
-evalCalSuenoRouter.get('/:id', EvalCalSuenoController.getById)
-evalCalSuenoRouter.patch('/:id', EvalCalSuenoController.update)
-evalCalSuenoRouter.delete('/:id', EvalCalSuenoController.delete)
+evalCalSuenoRouter
+  .route('/')
+  .get(EvalCalSuenoController.getAll)
+  .post(validate(validateEvalCalSueno), EvalCalSuenoController.create)
+
+evalCalSuenoRouter
+  .route('/:id')
+  .all(validateIntParam())
+  .get(EvalCalSuenoController.getById)
+  .patch(validate(validatePartialEvalCalSueno), EvalCalSuenoController.update)
+  .delete(EvalCalSuenoController.delete)

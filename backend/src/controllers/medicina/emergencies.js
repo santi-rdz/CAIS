@@ -1,28 +1,14 @@
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { EmergencyModel } from '#models/medicina/EmergencyModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validateEmergency,
-  validatePartialEmergency,
-} from '@cais/shared/schemas/medicina/emergency'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 import { prisma } from '#config/prisma.js'
 
 export class EmergencyController {
   static async create(req, res) {
-    const result = validateEmergency(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de emergencia inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const emergency = await prisma.$transaction(async (tx) => {
-        const e = await EmergencyModel.create(result.data, req.session.userId, tx)
+        const e = await EmergencyModel.create(req.body, req.session.userId, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
@@ -92,18 +78,10 @@ export class EmergencyController {
   }
 
   static async update(req, res) {
-    const result = validatePartialEmergency(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedEmergency = await prisma.$transaction(async (tx) => {
-        const e = await EmergencyModel.update(id, result.data, tx)
+        const e = await EmergencyModel.update(id, req.body, tx)
         if (!e) return null
         await AuditModel.create(
           {

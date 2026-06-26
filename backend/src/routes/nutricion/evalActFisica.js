@@ -1,13 +1,24 @@
 import { Router } from 'express'
 import { EvalActFisicaController } from '#controllers/nutricion/evalActFisica.js'
 import { requireAuth } from '#middleware/auth.js'
+import { validate, validateIntParam } from '#middleware/validate.js'
+import {
+  validateEvalActFisica,
+  validatePartialEvalActFisica,
+} from '@cais/shared/schemas/nutricion/evalActFisica'
 
 export const evalActFisicaRouter = Router()
 
 evalActFisicaRouter.use(requireAuth)
 
-evalActFisicaRouter.post('/', EvalActFisicaController.create)
-evalActFisicaRouter.get('/', EvalActFisicaController.getAll)
-evalActFisicaRouter.get('/:id', EvalActFisicaController.getById)
-evalActFisicaRouter.patch('/:id', EvalActFisicaController.update)
-evalActFisicaRouter.delete('/:id', EvalActFisicaController.delete)
+evalActFisicaRouter
+  .route('/')
+  .get(EvalActFisicaController.getAll)
+  .post(validate(validateEvalActFisica), EvalActFisicaController.create)
+
+evalActFisicaRouter
+  .route('/:id')
+  .all(validateIntParam())
+  .get(EvalActFisicaController.getById)
+  .patch(validate(validatePartialEvalActFisica), EvalActFisicaController.update)
+  .delete(EvalActFisicaController.delete)

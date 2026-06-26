@@ -2,13 +2,7 @@ import { prisma } from '#config/prisma.js'
 import { EvalActFisicaModel } from '#models/nutricion/EvalActFisica.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validateEvalActFisica,
-  validatePartialEvalActFisica,
-} from '@cais/shared/schemas/nutricion/evalActFisica'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
-import { parsePositiveIntId } from '#lib/parseId.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
@@ -16,18 +10,9 @@ const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha'])
 
 export class EvalActFisicaController {
   static async create(req, res) {
-    const result = validateEvalActFisica(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de evaluación de actividad física inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
-        const e = await EvalActFisicaModel.create(result.data, tx)
+        const e = await EvalActFisicaModel.create(req.body, tx)
         await PatientModel.touch(e.paciente_id, tx)
         await AuditModel.create(
           {
@@ -100,13 +85,7 @@ export class EvalActFisicaController {
   }
 
   static async getById(req, res) {
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const evaluacion = await EvalActFisicaModel.getById(id)
       if (!evaluacion)
@@ -122,13 +101,7 @@ export class EvalActFisicaController {
   }
 
   static async delete(req, res) {
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
         const e = await EvalActFisicaModel.delete(id, tx)
@@ -159,24 +132,10 @@ export class EvalActFisicaController {
   }
 
   static async update(req, res) {
-    const result = validatePartialEvalActFisica(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const updated = await prisma.$transaction(async (tx) => {
-        const e = await EvalActFisicaModel.update(id, result.data, tx)
+        const e = await EvalActFisicaModel.update(id, req.body, tx)
         if (!e) return null
         await PatientModel.touch(e.paciente_id, tx)
         await AuditModel.create(

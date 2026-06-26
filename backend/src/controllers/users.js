@@ -1,4 +1,4 @@
-import { validateUserUpdate, validateUserCreate, validateSignup } from '@cais/shared/schemas/users'
+import { validateSignup } from '@cais/shared/schemas/users'
 import { ROLES } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
@@ -57,35 +57,18 @@ export class UserController {
   }
 
   static async update(req, res) {
-    const result = validateUserUpdate(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
-    const updatedUser = await UserModel.update(req.params.id, result.data)
+    const updatedUser = await UserModel.update(req.params.id, req.body)
     if (!updatedUser) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json(updatedUser)
   }
 
   static async create(req, res) {
-    const result = validateUserCreate(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de usuario inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
-      const area = req.session.role === ROLES.ADMIN ? result.data.area : req.session.area
-      const password_hash = await bcrypt.hash(result.data.password, BCRYPT_ROUNDS)
+      const area = req.session.role === ROLES.ADMIN ? req.body.area : req.session.area
+      const password_hash = await bcrypt.hash(req.body.password, BCRYPT_ROUNDS)
 
       const createdUser = await prisma.$transaction((tx) =>
-        UserModel.create({ ...result.data, area, foto: randomAvatar(), password_hash }, tx)
+        UserModel.create({ ...req.body, area, foto: randomAvatar(), password_hash }, tx)
       )
 
       res.status(201).json({ message: 'Usuario creado exitosamente', usuario: createdUser })
