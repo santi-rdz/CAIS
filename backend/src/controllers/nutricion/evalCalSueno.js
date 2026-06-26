@@ -128,6 +128,13 @@ export class EvalCalSuenoController {
 
   static async delete(req, res) {
     const { id } = req.params
+    const parsedId = parsePositiveIntId(req.params.id)
+    if (parsedId === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "id" debe ser un entero positivo',
+      })
+    }
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
         const e = await EvalCalSuenoModel.delete(id, tx)
@@ -166,6 +173,13 @@ export class EvalCalSuenoController {
     }
 
     const { id } = req.params
+    const parsedId = parsePositiveIntId(req.params.id)
+    if (parsedId === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "id" debe ser un entero positivo',
+      })
+    }
     try {
       const updated = await prisma.$transaction(async (tx) => {
         const e = await EvalCalSuenoModel.update(id, result.data, tx)
