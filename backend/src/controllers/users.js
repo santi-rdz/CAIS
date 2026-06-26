@@ -14,13 +14,6 @@ function randomAvatar() {
   return `https://randomuser.me/api/portraits/${gender}/${n}.jpg`
 }
 
-function handlePrismaError(err, res) {
-  if (err.code === 'P2002') {
-    return res.status(409).json({ error: 'Conflict', message: 'El correo ya está registrado' })
-  }
-  throw err
-}
-
 export class UserController {
   static async getAll(req, res) {
     const { status, rol, sortBy, search } = req.query
@@ -63,18 +56,14 @@ export class UserController {
   }
 
   static async create(req, res) {
-    try {
-      const area = req.session.role === ROLES.ADMIN ? req.body.area : req.session.area
-      const password_hash = await bcrypt.hash(req.body.password, BCRYPT_ROUNDS)
+    const area = req.session.role === ROLES.ADMIN ? req.body.area : req.session.area
+    const password_hash = await bcrypt.hash(req.body.password, BCRYPT_ROUNDS)
 
-      const createdUser = await prisma.$transaction((tx) =>
-        UserModel.create({ ...req.body, area, foto: randomAvatar(), password_hash }, tx)
-      )
+    const createdUser = await prisma.$transaction((tx) =>
+      UserModel.create({ ...req.body, area, foto: randomAvatar(), password_hash }, tx)
+    )
 
-      res.status(201).json({ message: 'Usuario creado exitosamente', usuario: createdUser })
-    } catch (err) {
-      handlePrismaError(err, res)
-    }
+    res.status(201).json({ message: 'Usuario creado exitosamente', usuario: createdUser })
   }
 
   static async registro(req, res) {
@@ -95,31 +84,27 @@ export class UserController {
       })
     }
 
-    try {
-      const password_hash = await bcrypt.hash(result.data.password, BCRYPT_ROUNDS)
+    const password_hash = await bcrypt.hash(result.data.password, BCRYPT_ROUNDS)
 
-      const createdUser = await prisma.$transaction(async (tx) => {
-        const user = await UserModel.create(
-          {
-            ...result.data,
-            correo: invitacion.correo,
-            rol: invitacion.rol,
-            area: invitacion.area ?? null,
-            foto: randomAvatar(),
-            password_hash,
-          },
-          tx
-        )
-        await InvitationModel.markAsUsed(req.body.token, tx)
-        return user
-      })
+    const createdUser = await prisma.$transaction(async (tx) => {
+      const user = await UserModel.create(
+        {
+          ...result.data,
+          correo: invitacion.correo,
+          rol: invitacion.rol,
+          area: invitacion.area ?? null,
+          foto: randomAvatar(),
+          password_hash,
+        },
+        tx
+      )
+      await InvitationModel.markAsUsed(req.body.token, tx)
+      return user
+    })
 
-      res.status(201).json({
-        message: 'Registro completado exitosamente',
-        usuario: createdUser,
-      })
-    } catch (err) {
-      handlePrismaError(err, res)
-    }
+    res.status(201).json({
+      message: 'Registro completado exitosamente',
+      usuario: createdUser,
+    })
   }
 }

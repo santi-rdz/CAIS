@@ -4,6 +4,8 @@ Cambió cómo escribimos routers y dónde validamos.
 
 - Routers: se agrupan por path con `router.route(...)`.
 - Validación: es middleware en la ruta. El controller ya no valida.
+- Errores: el controller ya no usa `try/catch`. Lanza (o deja propagar) y el
+  error middleware de `app.js` responde.
 
 ---
 
@@ -58,6 +60,43 @@ router.route('/:id').all(validateIntParam()) //  id entero
 
 ¿Cuál? El `where` del modelo: `uuidToBuffer(id)` → UUID · `Number(id)` → entero.
 El controller ya no valida el id.
+
+## 4. Errores: sin `try/catch`
+
+Express 5 reenvía solo cualquier throw/rejection de un handler async al error
+middleware de `app.js`. Así que el controller no atrapa nada: hace lo suyo y, si
+algo falla, deja que suba.
+
+```js
+// ❌ antes
+static async create(req, res) {
+  try {
+    const x = await Model.create(req.body)
+    res.status(201).json(x)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'InternalError' })
+  }
+}
+
+// ✅ ahora
+static async create(req, res) {
+  const x = await Model.create(req.body)
+  res.status(201).json(x)
+}
+```
+
+- **404/403** siguen igual: son flujo normal (`if (!x) return res.status(404)...`), no errores.
+- **Status específico** (409, etc.): se **lanza** un `HttpError` desde el model/service
+  y el middleware lo traduce. No armes el `res.status(...)` en un `catch`.
+
+  ```js
+  throw new HttpError(409, 'El correo ya está registrado', { error: 'Conflict' })
+  ```
+
+- La **atomicidad no depende del `try/catch`**: `prisma.$transaction` hace rollback solo
+  cuando el callback lanza, y re-lanza el error hacia el middleware.
+- Excepción: `auth.js` sí usa `try/catch` (APIs de sesión por callback + anti-enumeración).
 
 ---
 

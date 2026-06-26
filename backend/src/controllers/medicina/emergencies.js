@@ -6,25 +6,20 @@ import { prisma } from '#config/prisma.js'
 
 export class EmergencyController {
   static async create(req, res) {
-    try {
-      const emergency = await prisma.$transaction(async (tx) => {
-        const e = await EmergencyModel.create(req.body, req.session.userId, tx)
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.CREAR,
-            entidad: ENTIDADES.EMERGENCIA,
-            objetivo_id: e.id,
-          },
-          tx
-        )
-        return e
-      })
-      return res.status(201).json({ message: 'Emergencia registrada', emergency })
-    } catch (error) {
-      console.error('Error creating emergency:', error)
-      return res.status(500).json({ error: 'Error al registrar emergencia' })
-    }
+    const emergency = await prisma.$transaction(async (tx) => {
+      const e = await EmergencyModel.create(req.body, req.session.userId, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.EMERGENCIA,
+          objetivo_id: e.id,
+        },
+        tx
+      )
+      return e
+    })
+    res.status(201).json({ message: 'Emergencia registrada', emergency })
   }
 
   static async getAll(req, res) {
@@ -51,57 +46,41 @@ export class EmergencyController {
 
   static async delete(req, res) {
     const { id } = req.params
-    try {
-      const emergency = await prisma.$transaction(async (tx) => {
-        const e = await EmergencyModel.delete(id, tx)
-        if (!e) return null
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ELIMINAR,
-            entidad: ENTIDADES.EMERGENCIA,
-            objetivo_id: e.id,
-          },
-          tx
-        )
-        return e
-      })
-      if (!emergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
-      res.json(emergency)
-    } catch (err) {
-      console.error('Error al eliminar emergencia:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al eliminar emergencia',
-      })
-    }
+    const emergency = await prisma.$transaction(async (tx) => {
+      const e = await EmergencyModel.delete(id, tx)
+      if (!e) return null
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.EMERGENCIA,
+          objetivo_id: e.id,
+        },
+        tx
+      )
+      return e
+    })
+    if (!emergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
+    res.json(emergency)
   }
 
   static async update(req, res) {
     const { id } = req.params
-    try {
-      const updatedEmergency = await prisma.$transaction(async (tx) => {
-        const e = await EmergencyModel.update(id, req.body, tx)
-        if (!e) return null
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ACTUALIZAR,
-            entidad: ENTIDADES.EMERGENCIA,
-            objetivo_id: e.id,
-          },
-          tx
-        )
-        return e
-      })
-      if (!updatedEmergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
-      res.json(updatedEmergency)
-    } catch (err) {
-      console.error('Error al actualizar emergencia:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al actualizar emergencia',
-      })
-    }
+    const updatedEmergency = await prisma.$transaction(async (tx) => {
+      const e = await EmergencyModel.update(id, req.body, tx)
+      if (!e) return null
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.EMERGENCIA,
+          objetivo_id: e.id,
+        },
+        tx
+      )
+      return e
+    })
+    if (!updatedEmergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
+    res.json(updatedEmergency)
   }
 }

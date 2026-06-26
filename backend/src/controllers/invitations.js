@@ -3,102 +3,54 @@ import { UserService } from '#services/users.js'
 
 export class InvitationController {
   static async create(req, res) {
-    try {
-      const creadoPor = req.session.userId || null
-      const response = await UserService.preRegister(req.body, creadoPor)
-      res.status(201).json(response)
-    } catch (err) {
-      if (err.name === 'EmailConflictError') {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: err.message,
-          emails: err.emails,
-        })
-      }
-      if (err.code === 'P2002') {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: 'Uno o más correos ya tienen una invitación pendiente',
-        })
-      }
-      console.error('Error en preRegister:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Ocurrió un error al enviar las invitaciones. Inténtalo de nuevo.',
-      })
-    }
+    // Los conflictos (correo ya registrado / invitación pendiente) los lanza
+    // UserService como EmailConflictError → 409 vía el error middleware.
+    const creadoPor = req.session.userId || null
+    const response = await UserService.preRegister(req.body, creadoPor)
+    res.status(201).json(response)
   }
 
   static async remove(req, res) {
     const { correo } = req.body
-
     if (!correo) {
       return res.status(422).json({ error: 'ValidationError', message: 'correo es requerido' })
     }
 
-    try {
-      const deleted = await InvitationModel.deleteByCorreo(correo)
-      if (!deleted) {
-        return res.status(404).json({
-          error: 'NotFound',
-          message: 'No existe invitación pendiente para este correo',
-        })
-      }
-      res.json({ message: 'Invitación eliminada exitosamente' })
-    } catch (err) {
-      console.error('Error al eliminar invitación:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al eliminar invitación',
+    const deleted = await InvitationModel.deleteByCorreo(correo)
+    if (!deleted) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'No existe invitación pendiente para este correo',
       })
     }
+    res.json({ message: 'Invitación eliminada exitosamente' })
   }
 
   static async resend(req, res) {
     const { correo } = req.body
-
     if (!correo) {
       return res.status(422).json({ error: 'ValidationError', message: 'correo es requerido' })
     }
 
-    try {
-      const result = await UserService.resendInvitation(correo)
-      if (!result) {
-        return res.status(404).json({
-          error: 'NotFound',
-          message: 'No existe invitación pendiente para este correo',
-        })
-      }
-      res.json({ message: 'Invitación reenviada exitosamente' })
-    } catch (err) {
-      console.error('Error al reenviar invitación:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al reenviar invitación',
+    const result = await UserService.resendInvitation(correo)
+    if (!result) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'No existe invitación pendiente para este correo',
       })
     }
+    res.json({ message: 'Invitación reenviada exitosamente' })
   }
 
   static async validateToken(req, res) {
-    const { token } = req.params
-
-    try {
-      const invitacion = await InvitationModel.findByToken(token)
-
-      if (!invitacion) {
-        return res.status(404).json({
-          error: 'NotFound',
-          message: 'El token es inválido, ha expirado o ya fue utilizado',
-        })
-      }
-
-      res.json({
-        correo: invitacion.correo,
-        rol: invitacion.rol,
+    const invitacion = await InvitationModel.findByToken(req.params.token)
+    if (!invitacion) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'El token es inválido, ha expirado o ya fue utilizado',
       })
-    } catch (err) {
-      console.error('Error validando token:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al validar token' })
     }
+
+    res.json({ correo: invitacion.correo, rol: invitacion.rol })
   }
 }
