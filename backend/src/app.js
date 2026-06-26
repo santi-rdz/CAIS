@@ -61,11 +61,12 @@ app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
 
   // Errores con status intencional (HttpError y subclases como EmailConflictError).
+  // `meta` va primero para que nunca pise los campos fijos error/message.
   if (typeof err?.status === 'number') {
     return res.status(err.status).json({
+      ...err.meta,
       error: err.error ?? 'Error',
       message: err.message,
-      ...err.meta,
     })
   }
 

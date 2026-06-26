@@ -71,9 +71,17 @@ export class UserService {
         await InvitationModel.insertMany(invitations, tx)
       })
     } catch (err) {
-      // Carrera: el correo consiguió una invitación entre el chequeo y el insert.
+      // Carrera: un correo consiguió una invitación entre el chequeo y el insert.
+      // Reconsultamos para reportar solo los que realmente chocaron.
       if (err.code === 'P2002') {
-        throw new EmailConflictError('Uno o más correos ya tienen una invitación pendiente', emails)
+        const raced = await prisma.invitaciones_registro.findMany({
+          where: { correo: { in: emails }, usado: false },
+          select: { correo: true },
+        })
+        throw new EmailConflictError(
+          'Uno o más correos ya tienen una invitación pendiente',
+          raced.map((i) => i.correo)
+        )
       }
       throw err
     }

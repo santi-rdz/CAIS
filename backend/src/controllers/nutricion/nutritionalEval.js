@@ -15,6 +15,13 @@ export class NutritionalEvalController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
+    if (fields !== undefined && typeof fields !== 'string') {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "fields" debe ser una cadena separada por comas',
+      })
+    }
+
     const parsedFields = fields
       ? fields
           .split(',')
