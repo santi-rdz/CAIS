@@ -8,16 +8,11 @@ import {
 } from '@cais/shared/schemas/nutricion/tpanNutrition'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
+import { parsePositiveIntId } from '#lib/parseId.js'
+import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
-import { z } from 'zod'
 
 const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha_eval'])
-const uuidSchema = z.uuid()
-
-function parsePositiveIntId(rawId) {
-  const n = Number(rawId)
-  return Number.isInteger(n) && n > 0 ? n : null
-}
 
 export class TpanNutritionController {
   static async create(req, res) {
@@ -57,14 +52,11 @@ export class TpanNutritionController {
     const { paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (paciente_id !== undefined) {
-      const parsedPacienteId = uuidSchema.safeParse(paciente_id)
-      if (!parsedPacienteId.success) {
-        return res.status(422).json({
-          error: 'ValidationError',
-          message: 'El parámetro "paciente_id" debe ser un UUID válido',
-        })
-      }
+    if (paciente_id !== undefined && !isUUID(paciente_id)) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "paciente_id" debe ser un UUID válido',
+      })
     }
 
     if (fields !== undefined && typeof fields !== 'string') {

@@ -71,7 +71,6 @@ function SuenoTab({ historia }) {
         <EvalSuenoForm
           key={editingEval?.id ?? 'new-sueno'}
           historiaId={historia.id}
-          historia={historia}
           eval={editingEval ?? undefined}
           title={editingEval?.id ? 'Editar evaluación de sueño' : 'Nueva evaluación de sueño'}
         />
@@ -122,7 +121,6 @@ function ActFisicaTab({ historia }) {
         <EvalActFisicaForm
           key={editingEval?.id ?? 'new-af'}
           historiaId={historia.id}
-          historia={historia}
           eval={editingEval ?? undefined}
           title={
             editingEval?.id
