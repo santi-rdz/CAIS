@@ -1,5 +1,7 @@
 import { z } from 'zod'
 import { optionalDateSchema, int, str, text } from '../fields.js'
+import { evalActFisicaSchema } from './evalActFisica.js'
+import { evalCalSuenoSchema as evalCalSuenoBaseSchema } from './evalCalSueno.js'
 
 // ─── Subschemas de relaciones one-to-many ────────────────────────────────────
 
@@ -11,27 +13,14 @@ export const historiasMedicasNutricionSchema = z.object({
   dosis: str(20),
 })
 
-// eval_act_fisica_nutricion — evaluación de actividad física
-export const evalActFisicaNutricionSchema = z.object({
-  fecha: optionalDateSchema,
-  tipo: str(50),
-  porque_no: text(),
-  frecuencia: str(20),
-  duracion: int({ max: 32767 }), // SmallInt
-  intensidad: int({ max: 100 }), // Int
-  clasif_tiempo_af: str(20),
-  tiempo_de_practica: str(20),
-  pensamientos_con_realizar_AF: str(50),
+// eval_act_fisica_nutricion y eval_cal_sueno son recursos atómicos con ruta
+// propia; aquí se anidan al crear la historia, sin la FK historia_paciente_id
+// (la resuelve la creación del padre). Fuente única en sus schemas atómicos.
+export const evalActFisicaNutricionSchema = evalActFisicaSchema.omit({
+  historia_paciente_id: true,
 })
 
-// eval_cal_sueno — calidad del sueño
-export const evalCalSuenoSchema = z.object({
-  fecha: optionalDateSchema,
-  horas_sueno: int({ max: 24 }),
-  clasif_horas_sueno: str(20),
-  insomnio: str(10),
-  medicacion: str(10),
-})
+export const evalCalSuenoSchema = evalCalSuenoBaseSchema.omit({ historia_paciente_id: true })
 
 // tratamiento_alt_nutricion — tratamientos alternativos
 export const tratamientoAltNutricionSchema = z.object({
