@@ -5,7 +5,7 @@ import { evolutionNotesRouter } from './medicina/evolutionNotes.js'
 import { medicalHistoryRouter } from './medicina/medicalHistory.js'
 import { medicalPatientRegistrationRouter } from './medicina/patientRegistration.js'
 import { AREAS } from '@cais/shared/constants/users'
-
+// Add router
 export const medicineRouter = Router()
 
 medicineRouter.use(requireAuth)

@@ -49,4 +49,11 @@ export default defineConfig([
   },
 
   prettier,
+  {
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
 ])
