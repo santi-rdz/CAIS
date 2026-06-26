@@ -1,5 +1,11 @@
 # Cómo crear rutas en el backend
 
+> **Nota:** El patrón de **validación** (sección Controller) y de **router** de esta
+> guía está desactualizado. Para el estándar actual —routers encadenados y middlewares
+> `validate` / `validateParam`— ve
+> [`rutas-encadenadas-y-middlewares.md`](./rutas-encadenadas-y-middlewares.md).
+> El resto (schema, model, `format()`, tests) sigue vigente.
+
 Cada feature tiene cuatro archivos:
 
 ```
