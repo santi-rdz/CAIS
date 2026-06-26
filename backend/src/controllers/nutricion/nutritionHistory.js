@@ -2,29 +2,15 @@ import { prisma } from '#config/prisma.js'
 import { NutritionHistoryModel } from '#models/nutricion/NutritionHistory.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validateNutritionHistory,
-  validatePartialNutritionHistory,
-} from '@cais/shared/schemas/nutricion/nutritionHistory'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 export class NutritionHistoryController {
   static async create(req, res) {
-    const result = validateNutritionHistory(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de historia de nutrición inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const history = await prisma.$transaction(async (tx) => {
-        const h = await NutritionHistoryModel.create(result.data, tx)
-        await PatientModel.touch(result.data.paciente_id, tx)
+        const h = await NutritionHistoryModel.create(req.body, tx)
+        await PatientModel.touch(req.body.paciente_id, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
@@ -125,18 +111,10 @@ export class NutritionHistoryController {
   }
 
   static async update(req, res) {
-    const result = validatePartialNutritionHistory(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedHistory = await prisma.$transaction(async (tx) => {
-        const h = await NutritionHistoryModel.update(id, result.data, tx)
+        const h = await NutritionHistoryModel.update(id, req.body, tx)
         if (!h) return null
         await PatientModel.touch(h.paciente_id, tx)
         await AuditModel.create(

@@ -7,3 +7,8 @@ export function parsePositiveIntId(rawId) {
   const n = Number(rawId)
   return Number.isInteger(n) && n > 0 ? n : null
 }
+
+/** Predicado para `validateParam`: true si `value` es un entero positivo. */
+export function isPositiveIntId(value) {
+  return parsePositiveIntId(value) !== null
+}

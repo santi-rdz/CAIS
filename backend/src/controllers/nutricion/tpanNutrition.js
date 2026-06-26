@@ -2,13 +2,7 @@ import { prisma } from '#config/prisma.js'
 import { TpanNutritionModel } from '#models/nutricion/TpanNutrition.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validateTpanNutrition,
-  validatePartialTpanNutrition,
-} from '@cais/shared/schemas/nutricion/tpanNutrition'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
-import { parsePositiveIntId } from '#lib/parseId.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
@@ -16,19 +10,10 @@ const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha_eval'])
 
 export class TpanNutritionController {
   static async create(req, res) {
-    const result = validateTpanNutrition(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de TPAN inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const tpan = await prisma.$transaction(async (tx) => {
-        const t = await TpanNutritionModel.create(result.data, tx)
-        await PatientModel.touch(result.data.paciente_id, tx)
+        const t = await TpanNutritionModel.create(req.body, tx)
+        await PatientModel.touch(req.body.paciente_id, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
@@ -98,14 +83,7 @@ export class TpanNutritionController {
   }
 
   static async getById(req, res) {
-    //const { id } = req.params
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const tpan = await TpanNutritionModel.getById(id)
       if (!tpan) return res.status(404).json({ message: 'TPAN no encontrado' })
@@ -150,18 +128,10 @@ export class TpanNutritionController {
   }
 
   static async update(req, res) {
-    const result = validatePartialTpanNutrition(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedTpan = await prisma.$transaction(async (tx) => {
-        const t = await TpanNutritionModel.update(id, result.data, tx)
+        const t = await TpanNutritionModel.update(id, req.body, tx)
         if (!t) return null
         await PatientModel.touch(t.paciente_id, tx)
         await AuditModel.create(

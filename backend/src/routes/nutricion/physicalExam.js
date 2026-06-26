@@ -1,13 +1,24 @@
 import { Router } from 'express'
 import { PhysicalExaminationController } from '#controllers/nutricion/physicalExam.js'
 import { requireAuth } from '#middleware/auth.js'
+import { validate, validateUuidParam } from '#middleware/validate.js'
+import {
+  validatePhysicalExamination,
+  validatePartialPhysicalExamination,
+} from '@cais/shared/schemas/nutricion/physicalExam'
 
 export const physicalExaminationRouter = Router()
 
 physicalExaminationRouter.use(requireAuth)
 
-physicalExaminationRouter.post('/', PhysicalExaminationController.create)
-physicalExaminationRouter.get('/', PhysicalExaminationController.getAll)
-physicalExaminationRouter.get('/:id', PhysicalExaminationController.getById)
-physicalExaminationRouter.patch('/:id', PhysicalExaminationController.update)
-physicalExaminationRouter.delete('/:id', PhysicalExaminationController.delete)
+physicalExaminationRouter
+  .route('/')
+  .get(PhysicalExaminationController.getAll)
+  .post(validate(validatePhysicalExamination), PhysicalExaminationController.create)
+
+physicalExaminationRouter
+  .route('/:id')
+  .all(validateUuidParam())
+  .get(PhysicalExaminationController.getById)
+  .patch(validate(validatePartialPhysicalExamination), PhysicalExaminationController.update)
+  .delete(PhysicalExaminationController.delete)

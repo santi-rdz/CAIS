@@ -2,11 +2,6 @@ import { prisma } from '#config/prisma.js'
 import { PhysicalExaminationModel } from '#models/nutricion/PhysicalExam.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validatePartialPhysicalExamination,
-  validatePhysicalExamination,
-} from '@cais/shared/schemas/nutricion/physicalExam'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 import { isUUID } from '@cais/shared/schemas/fields'
@@ -15,19 +10,10 @@ const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha'])
 
 export class PhysicalExaminationController {
   static async create(req, res) {
-    const result = validatePhysicalExamination(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de examen físico de orientación nutricional inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const exam = await prisma.$transaction(async (tx) => {
-        const e = await PhysicalExaminationModel.create(result.data, tx)
-        await PatientModel.touch(result.data.paciente_id, tx)
+        const e = await PhysicalExaminationModel.create(req.body, tx)
+        await PatientModel.touch(req.body.paciente_id, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
@@ -144,18 +130,10 @@ export class PhysicalExaminationController {
   }
 
   static async update(req, res) {
-    const result = validatePartialPhysicalExamination(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedExam = await prisma.$transaction(async (tx) => {
-        const e = await PhysicalExaminationModel.update(id, result.data, tx)
+        const e = await PhysicalExaminationModel.update(id, req.body, tx)
         if (!e) return null
         await PatientModel.touch(e.paciente_id, tx)
         await AuditModel.create(

@@ -1,22 +1,11 @@
 import { InvitationModel } from '#models/InvitationModel.js'
 import { UserService } from '#services/users.js'
-import { validateInvitedUser } from '@cais/shared/schemas/invitations'
-import { formatZodErrors } from '#lib/formatErrors.js'
 
 export class InvitationController {
   static async create(req, res) {
-    const result = validateInvitedUser(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de invitación inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const creadoPor = req.session.userId || null
-      const response = await UserService.preRegister(result.data, creadoPor)
+      const response = await UserService.preRegister(req.body, creadoPor)
       res.status(201).json(response)
     } catch (err) {
       if (err.name === 'EmailConflictError') {

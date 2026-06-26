@@ -1,27 +1,12 @@
 import { prisma } from '#config/prisma.js'
 import { NutritionalEvalModel } from '#models/nutricion/NutritionalEval.js'
-import {
-  validateNutritionalEval,
-  validatePartialNutritionalEval,
-} from '@cais/shared/schemas/nutricion/nutritionalEval'
-
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 
 export class NutritionalEvalController {
   static async create(req, res) {
-    const result = validateNutritionalEval(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de evaluación nutricional inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const evaluation = await prisma.$transaction(async (tx) => {
-        const h = await NutritionalEvalModel.create(result.data, tx)
+        const h = await NutritionalEvalModel.create(req.body, tx)
         return h
       })
       return res.status(201).json({ message: 'Evaluación nutricional registrada', evaluation })
@@ -92,24 +77,17 @@ export class NutritionalEvalController {
   }
 
   static async update(req, res) {
-    const result = validatePartialNutritionalEval(req.body)
-    if (Object.keys(result.data).length === 0) {
+    if (Object.keys(req.body).length === 0) {
       return res.status(422).json({
         error: 'ValidationError',
         message: 'Se requiere al menos un campo para actualizar',
-      })
-    }
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
       })
     }
 
     const { id } = req.params
     try {
       const updatedEvaluation = await prisma.$transaction(async (tx) => {
-        const h = await NutritionalEvalModel.update(id, result.data, tx)
+        const h = await NutritionalEvalModel.update(id, req.body, tx)
         if (!h) return null
         return h
       })

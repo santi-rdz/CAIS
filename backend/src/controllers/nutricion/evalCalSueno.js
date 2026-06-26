@@ -2,13 +2,7 @@ import { prisma } from '#config/prisma.js'
 import { EvalCalSuenoModel } from '#models/nutricion/EvalCalSueno.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import {
-  validateEvalCalSueno,
-  validatePartialEvalCalSueno,
-} from '@cais/shared/schemas/nutricion/evalCalSueno'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
-import { parsePositiveIntId } from '#lib/parseId.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
@@ -16,18 +10,9 @@ const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha'])
 
 export class EvalCalSuenoController {
   static async create(req, res) {
-    const result = validateEvalCalSueno(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'Datos de evaluación de sueño inválidos',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
-        const e = await EvalCalSuenoModel.create(result.data, tx)
+        const e = await EvalCalSuenoModel.create(req.body, tx)
         await PatientModel.touch(e.paciente_id, tx)
         await AuditModel.create(
           {
@@ -98,13 +83,7 @@ export class EvalCalSuenoController {
   }
 
   static async getById(req, res) {
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const evaluacion = await EvalCalSuenoModel.getById(id)
       if (!evaluacion) return res.status(404).json({ message: 'Evaluación de sueño no encontrada' })
@@ -119,13 +98,7 @@ export class EvalCalSuenoController {
   }
 
   static async delete(req, res) {
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
         const e = await EvalCalSuenoModel.delete(id, tx)
@@ -155,24 +128,10 @@ export class EvalCalSuenoController {
   }
 
   static async update(req, res) {
-    const result = validatePartialEvalCalSueno(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
-    const id = parsePositiveIntId(req.params.id)
-    if (id === null) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "id" debe ser un entero positivo',
-      })
-    }
+    const { id } = req.params
     try {
       const updated = await prisma.$transaction(async (tx) => {
-        const e = await EvalCalSuenoModel.update(id, result.data, tx)
+        const e = await EvalCalSuenoModel.update(id, req.body, tx)
         if (!e) return null
         await PatientModel.touch(e.paciente_id, tx)
         await AuditModel.create(

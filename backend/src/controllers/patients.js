@@ -1,7 +1,5 @@
 import { PatientModel } from '#models/PatientModel.js'
 import { AuditModel } from '#models/AuditModel.js'
-import { validatePatient, validatePartialPatient } from '@cais/shared/schemas/medicina/patient'
-import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES, ROLES } from '@cais/shared/constants/users'
 import { prisma } from '#config/prisma.js'
@@ -15,17 +13,9 @@ function canAccessPatient(patient, session) {
 
 export class PatientController {
   static async create(req, res) {
-    const result = validatePatient(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     try {
       const patient = await prisma.$transaction(async (tx) => {
-        const p = await PatientModel.create(result.data, req.session.userId, tx)
+        const p = await PatientModel.create(req.body, req.session.userId, tx)
         await AuditModel.create(
           {
             usuario_id: req.session.userId,
@@ -99,21 +89,13 @@ export class PatientController {
   }
 
   static async update(req, res) {
-    const result = validatePartialPatient(req.body)
-    if (result.error) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        fields: formatZodErrors(result.error),
-      })
-    }
-
     const { id } = req.params
     try {
       const updatedPatient = await prisma.$transaction(async (tx) => {
         const existing = await PatientModel.getById(id, tx)
         if (!canAccessPatient(existing, req.session)) return null
 
-        const p = await PatientModel.update(id, result.data, tx)
+        const p = await PatientModel.update(id, req.body, tx)
         if (!p) return null
         await AuditModel.create(
           {
