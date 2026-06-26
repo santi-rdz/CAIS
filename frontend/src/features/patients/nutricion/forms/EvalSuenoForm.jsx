@@ -11,13 +11,7 @@ import {
 } from '@features/patients/nutricion/forms/monitoreoRows'
 import { useEvalMonitoreo } from '@features/patients/nutricion/hooks/useEvalMonitoreo'
 
-export default function EvalSuenoForm({
-  historiaId,
-  historia,
-  eval: evalRow,
-  title,
-  onCloseModal,
-}) {
+export default function EvalSuenoForm({ historiaId, eval: evalRow, title, onCloseModal }) {
   const isEdit = !!evalRow
   const { saveSueno, isSavingSueno } = useEvalMonitoreo(historiaId)
 
@@ -32,11 +26,7 @@ export default function EvalSuenoForm({
   })
 
   async function onSubmit(data) {
-    await saveSueno({
-      currentRows: historia.eval_cal_sueno ?? [],
-      formData: data,
-      editId: evalRow?.id ?? null,
-    })
+    await saveSueno({ formData: data, editId: evalRow?.id ?? null })
     onCloseModal?.()
   }
 

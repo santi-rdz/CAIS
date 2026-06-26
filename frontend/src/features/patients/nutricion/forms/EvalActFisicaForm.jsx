@@ -11,13 +11,7 @@ import {
 } from '@features/patients/nutricion/forms/monitoreoRows'
 import { useEvalMonitoreo } from '@features/patients/nutricion/hooks/useEvalMonitoreo'
 
-export default function EvalActFisicaForm({
-  historiaId,
-  historia,
-  eval: evalRow,
-  title,
-  onCloseModal,
-}) {
+export default function EvalActFisicaForm({ historiaId, eval: evalRow, title, onCloseModal }) {
   const isEdit = !!evalRow
   const { saveActFisica, isSavingActFisica } = useEvalMonitoreo(historiaId)
 
@@ -32,11 +26,7 @@ export default function EvalActFisicaForm({
   })
 
   async function onSubmit(data) {
-    await saveActFisica({
-      currentRows: historia.eval_act_fisica_nutricion ?? [],
-      formData: data,
-      editId: evalRow?.id ?? null,
-    })
+    await saveActFisica({ formData: data, editId: evalRow?.id ?? null })
     onCloseModal?.()
   }
 
