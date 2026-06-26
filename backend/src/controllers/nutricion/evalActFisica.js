@@ -8,16 +8,11 @@ import {
 } from '@cais/shared/schemas/nutricion/evalActFisica'
 import { formatZodErrors } from '#lib/formatErrors.js'
 import { parsePagination } from '#lib/paginate.js'
+import { parsePositiveIntId } from '#lib/parseId.js'
+import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
-import { z } from 'zod'
 
 const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha'])
-const uuidSchema = z.uuid()
-
-function parsePositiveIntId(rawId) {
-  const n = Number(rawId)
-  return Number.isInteger(n) && n > 0 ? n : null
-}
 
 export class EvalActFisicaController {
   static async create(req, res) {
@@ -59,14 +54,11 @@ export class EvalActFisicaController {
     const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (historia_paciente_id !== undefined) {
-      const parsed = uuidSchema.safeParse(historia_paciente_id)
-      if (!parsed.success) {
-        return res.status(422).json({
-          error: 'ValidationError',
-          message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
-        })
-      }
+    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
+      })
     }
 
     if (fields !== undefined && typeof fields !== 'string') {
@@ -130,7 +122,13 @@ export class EvalActFisicaController {
   }
 
   static async delete(req, res) {
-    const { id } = req.params
+    const id = parsePositiveIntId(req.params.id)
+    if (id === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "id" debe ser un entero positivo',
+      })
+    }
     try {
       const evaluacion = await prisma.$transaction(async (tx) => {
         const e = await EvalActFisicaModel.delete(id, tx)
@@ -169,7 +167,13 @@ export class EvalActFisicaController {
       })
     }
 
-    const { id } = req.params
+    const id = parsePositiveIntId(req.params.id)
+    if (id === null) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "id" debe ser un entero positivo',
+      })
+    }
     try {
       const updated = await prisma.$transaction(async (tx) => {
         const e = await EvalActFisicaModel.update(id, result.data, tx)
