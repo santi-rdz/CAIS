@@ -144,54 +144,6 @@ CREATE TABLE IF NOT EXISTS eval_semiologia_nutricional(
     descripcion_sist_genito_urinario TEXT
 );
 
-CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    percentiles_imc FLOAT,
-    interpretacion_imc VARCHAR(255),
-    percentiles_cintura FLOAT,
-    percentiles_pb FLOAT,
-    percentiles_pct FLOAT,
-    percentiles_pcse FLOAT,
-    peso_para_talla FLOAT,
-    peso_ideal FLOAT,
-    desviacion_estandar_peso FLOAT,
-    interpretacion_nom_peso VARCHAR(50),
-    talla_para_edad FLOAT,
-    talla_ideal FLOAT,
-    desviacion_estandar_talla FLOAT,
-    interpretacion_nom_talla VARCHAR(50),
-    peso_para_edad FLOAT,
-    desviacion_estandar_peso_edad FLOAT,
-    interpretacion_nom_peso_edad VARCHAR(50),
-    diagnostico_general VARCHAR(50),
-    resistencia FLOAT,
-    reactancia FLOAT,
-    angulo_fase FLOAT,
-    tan_angulo_fase FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    codo FLOAT,
-    frisancho FLOAT,
-    complexion VARCHAR(20),
-    pi_kg FLOAT,
-    edema_liq FLOAT,
-    peso_sin_edema FLOAT,
-    peso_ajustado FLOAT,
-    peso_ideal_por FLOAT,
-    diagnostico_pi VARCHAR(20),
-    diagnostico_imc VARCHAR(20),
-    pcb FLOAT,
-    pcsi FLOAT,
-    riesgo_cv BOOLEAN,
-    cadera FLOAT,
-    indice_cintura_cadera FLOAT,
-    diagnostico_icc VARCHAR(20),
-    circuf_cuello FLOAT,
-    riesgo_eo_inf BOOLEAN
-);
-
 -- ===============================
 -- HISTORIA CLINICA
 -- ===============================
@@ -655,8 +607,6 @@ CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
 CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
     paciente_id BINARY(16) NOT NULL,
-    eval_antro_ad_kid_id INT,
-    eval_antro_ad_adulto_id INT,
     fecha DATE DEFAULT (CURRENT_DATE),
     peso_actual FLOAT,
     estatura FLOAT,
@@ -666,9 +616,59 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
     pb FLOAT,
     pct FLOAT,
     pcse FLOAT,
-    CONSTRAINT fk_paciente_eval_antro FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
-    CONSTRAINT fk_kid_eval_antro FOREIGN KEY (eval_antro_ad_kid_id) REFERENCES eval_antro_ad_kid_nutricion(id),
-    CONSTRAINT fk_adulto_eval_antro FOREIGN KEY (eval_antro_ad_adulto_id) REFERENCES eval_antro_ad_adulto_nutricion(id)
+    CONSTRAINT fk_paciente_eval_antro FOREIGN KEY (paciente_id) REFERENCES pacientes(id)
+);
+
+CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    eval_antro_id INT UNIQUE,
+    percentiles_imc FLOAT,
+    interpretacion_imc VARCHAR(255),
+    percentiles_cintura FLOAT,
+    percentiles_pb FLOAT,
+    percentiles_pct FLOAT,
+    percentiles_pcse FLOAT,
+    peso_para_talla FLOAT,
+    peso_ideal FLOAT,
+    desviacion_estandar_peso FLOAT,
+    interpretacion_nom_peso VARCHAR(50),
+    talla_para_edad FLOAT,
+    talla_ideal FLOAT,
+    desviacion_estandar_talla FLOAT,
+    interpretacion_nom_talla VARCHAR(50),
+    peso_para_edad FLOAT,
+    desviacion_estandar_peso_edad FLOAT,
+    interpretacion_nom_peso_edad VARCHAR(50),
+    diagnostico_general VARCHAR(50),
+    resistencia FLOAT,
+    reactancia FLOAT,
+    angulo_fase FLOAT,
+    tan_angulo_fase FLOAT,
+    CONSTRAINT fk_eval_antro_ad_kid FOREIGN KEY (eval_antro_id) REFERENCES eval_antro_ad_nutricion(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    eval_antro_id INT UNIQUE,
+    codo FLOAT,
+    frisancho FLOAT,
+    complexion VARCHAR(20),
+    pi_kg FLOAT,
+    edema_liq FLOAT,
+    peso_sin_edema FLOAT,
+    peso_ajustado FLOAT,
+    peso_ideal_por FLOAT,
+    diagnostico_pi VARCHAR(20),
+    diagnostico_imc VARCHAR(20),
+    pcb FLOAT,
+    pcsi FLOAT,
+    riesgo_cv BOOLEAN,
+    cadera FLOAT,
+    indice_cintura_cadera FLOAT,
+    diagnostico_icc VARCHAR(20),
+    circuf_cuello FLOAT,
+    riesgo_eo_inf BOOLEAN,
+    CONSTRAINT fk_eval_antro_ad_adulto FOREIGN KEY (eval_antro_id) REFERENCES eval_antro_ad_nutricion(id) ON DELETE CASCADE
 );
 
 -- ===============================
