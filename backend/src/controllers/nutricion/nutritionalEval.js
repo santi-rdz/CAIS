@@ -2,6 +2,8 @@ import { prisma } from '#config/prisma.js'
 import { NutritionalEvalModel } from '#models/nutricion/NutritionalEval.js'
 import { parsePagination } from '#lib/paginate.js'
 
+const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
+
 export class NutritionalEvalController {
   static async create(req, res) {
     const evaluation = await prisma.$transaction(async (tx) => {
@@ -28,6 +30,13 @@ export class NutritionalEvalController {
           .map((f) => f.trim())
           .filter(Boolean)
       : null
+
+    if (parsedFields && parsedFields.some((field) => !LISTABLE_FIELDS.has(field))) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'El parámetro "fields" contiene valores no permitidos',
+      })
+    }
 
     const result = await NutritionalEvalModel.getAll({
       paciente_id,

@@ -75,7 +75,8 @@ app.use((err, req, res, next) => {
     return res.status(409).json({ error: 'Conflict', message: 'El registro ya existe' })
   }
 
-  console.error(`${req.method} ${req.originalUrl} →`, err)
+  // Quita CR/LF de los valores del request para no permitir log forging.
+  console.error(`${req.method} ${req.originalUrl} →`.replace(/[\r\n]/g, ' '), err)
   res.status(500).json({ error: 'InternalError', message: 'Error inesperado' })
 })
 
