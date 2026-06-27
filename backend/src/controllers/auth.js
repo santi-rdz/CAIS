@@ -51,7 +51,7 @@ export class AuthController {
       }
 
       req.session.regenerate((err) => {
-        if (err) return res.status(500).json({ error: 'Server error' })
+        if (err) return res.status(500).json({ error: 'Error del servidor' })
         req.session.userId = bufferToUUID(user.id)
         req.session.role = user.roles?.codigo
         req.session.areaId = user.area_id ?? null
@@ -71,7 +71,7 @@ export class AuthController {
       })
     } catch (err) {
       console.error(err)
-      return res.status(500).json({ error: 'Server error' })
+      return res.status(500).json({ error: 'Error del servidor' })
     }
   }
 
@@ -92,7 +92,7 @@ export class AuthController {
       return res.json(formatUser(user))
     } catch (err) {
       console.error(err)
-      return res.status(500).json({ error: 'Server error' })
+      return res.status(500).json({ error: 'Error del servidor' })
     }
   }
 

@@ -13,26 +13,21 @@ function canAccessPatient(patient, session) {
 
 export class PatientController {
   static async create(req, res) {
-    try {
-      const patient = await prisma.$transaction(async (tx) => {
-        const p = await PatientModel.create(req.body, req.session.userId, tx)
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.CREAR,
-            entidad: ENTIDADES.PACIENTE,
-            objetivo_id: p.id,
-            paciente_id: p.id,
-          },
-          tx
-        )
-        return p
-      })
-      return res.status(201).json({ message: 'Paciente registrado', patient })
-    } catch (error) {
-      console.error('Error creating patient:', error)
-      return res.status(500).json({ error: 'Error al registrar al paciente' })
-    }
+    const patient = await prisma.$transaction(async (tx) => {
+      const p = await PatientModel.create(req.body, req.session.userId, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.PACIENTE,
+          objetivo_id: p.id,
+          paciente_id: p.id,
+        },
+        tx
+      )
+      return p
+    })
+    res.status(201).json({ message: 'Paciente registrado', patient })
   }
 
   static async getAll(req, res) {
@@ -62,61 +57,48 @@ export class PatientController {
 
   static async delete(req, res) {
     const { id } = req.params
-    try {
-      const success = await prisma.$transaction(async (tx) => {
-        const existing = await PatientModel.getById(id, tx)
-        if (!canAccessPatient(existing, req.session)) return false
+    const success = await prisma.$transaction(async (tx) => {
+      const existing = await PatientModel.getById(id, tx)
+      if (!canAccessPatient(existing, req.session)) return false
 
-        const result = await PatientModel.delete(id, tx)
-        if (!result) return false
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ELIMINAR,
-            entidad: ENTIDADES.PACIENTE,
-            objetivo_id: id,
-          },
-          tx
-        )
-        return true
-      })
-      if (!success) return res.status(404).json({ message: 'Paciente no encontrado' })
-      res.json({ message: 'Paciente borrado exitosamente' })
-    } catch (err) {
-      console.error('Error al eliminar paciente:', err)
-      res.status(500).json({ error: 'InternalError', message: 'Error al eliminar paciente' })
-    }
+      const result = await PatientModel.delete(id, tx)
+      if (!result) return false
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.PACIENTE,
+          objetivo_id: id,
+        },
+        tx
+      )
+      return true
+    })
+    if (!success) return res.status(404).json({ message: 'Paciente no encontrado' })
+    res.json({ message: 'Paciente borrado exitosamente' })
   }
 
   static async update(req, res) {
     const { id } = req.params
-    try {
-      const updatedPatient = await prisma.$transaction(async (tx) => {
-        const existing = await PatientModel.getById(id, tx)
-        if (!canAccessPatient(existing, req.session)) return null
+    const updatedPatient = await prisma.$transaction(async (tx) => {
+      const existing = await PatientModel.getById(id, tx)
+      if (!canAccessPatient(existing, req.session)) return null
 
-        const p = await PatientModel.update(id, req.body, tx)
-        if (!p) return null
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ACTUALIZAR,
-            entidad: ENTIDADES.PACIENTE,
-            objetivo_id: p.id,
-            paciente_id: p.id,
-          },
-          tx
-        )
-        return p
-      })
-      if (!updatedPatient) return res.status(404).json({ message: 'Paciente no encontrado' })
-      res.json(updatedPatient)
-    } catch (err) {
-      console.error('Error al actualizar al paciente:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al actualizar paciente',
-      })
-    }
+      const p = await PatientModel.update(id, req.body, tx)
+      if (!p) return null
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.PACIENTE,
+          objetivo_id: p.id,
+          paciente_id: p.id,
+        },
+        tx
+      )
+      return p
+    })
+    if (!updatedPatient) return res.status(404).json({ message: 'Paciente no encontrado' })
+    res.json(updatedPatient)
   }
 }

@@ -54,10 +54,29 @@ app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
 app.use('/dashboard', dashboardRouter)
 
-// Sin esto un throw async responde HTML con stack trace en vez de JSON.
-app.use((err, _req, res, next) => {
-  console.error('Unhandled error:', err)
+// Error middleware central. Express 5 reenvía aquí cualquier throw/rejection de
+// los handlers async, así que los controllers no necesitan su propio try/catch:
+// lanzan (o dejan propagar) y esto arma la respuesta.
+app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
+
+  // Errores con status intencional (HttpError y subclases como EmailConflictError).
+  // `meta` va primero para que nunca pise los campos fijos error/message.
+  if (typeof err?.status === 'number') {
+    return res.status(err.status).json({
+      ...err.meta,
+      error: err.error ?? 'Error',
+      message: err.message,
+    })
+  }
+
+  // Violación de restricción única de Prisma no traducida en el origen.
+  if (err?.code === 'P2002') {
+    return res.status(409).json({ error: 'Conflict', message: 'El registro ya existe' })
+  }
+
+  // Quita CR/LF de los valores del request para no permitir log forging.
+  console.error(`${req.method} ${req.originalUrl} →`.replace(/[\r\n]/g, ' '), err)
   res.status(500).json({ error: 'InternalError', message: 'Error inesperado' })
 })
 

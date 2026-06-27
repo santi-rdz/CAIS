@@ -8,17 +8,12 @@ const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
 
 export class BiochemicalEvalController {
   static async create(req, res) {
-    try {
-      const evaluation = await prisma.$transaction(async (tx) => {
-        const h = await BiochemicalEvalModel.create(req.body, req.session.userId, tx)
-        await PatientModel.touch(req.body.paciente_id, tx)
-        return h
-      })
-      return res.status(201).json({ message: 'Evaluación bioquímica registrada', evaluation })
-    } catch (error) {
-      console.error('Error al crear evaluación bioquímica:', error)
-      return res.status(500).json({ message: 'Error al registrar evaluación bioquímica' })
-    }
+    const evaluation = await prisma.$transaction(async (tx) => {
+      const h = await BiochemicalEvalModel.create(req.body, req.session.userId, tx)
+      await PatientModel.touch(req.body.paciente_id, tx)
+      return h
+    })
+    return res.status(201).json({ message: 'Evaluación bioquímica registrada', evaluation })
   }
 
   static async getAll(req, res) {
@@ -68,38 +63,21 @@ export class BiochemicalEvalController {
 
   static async delete(req, res) {
     const { id } = req.params
-    try {
-      const evaluation = await BiochemicalEvalModel.delete(id)
-      if (!evaluation)
-        return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
-      res.json(evaluation)
-    } catch (err) {
-      console.error('Error al eliminar evaluación bioquímica:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al eliminar evaluación bioquímica',
-      })
-    }
+    const evaluation = await BiochemicalEvalModel.delete(id)
+    if (!evaluation) return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
+    res.json(evaluation)
   }
 
   static async update(req, res) {
     const { id } = req.params
-    try {
-      const updatedEval = await prisma.$transaction(async (tx) => {
-        const h = await BiochemicalEvalModel.update(id, req.body, req.session.userId, tx)
-        if (!h) return null
-        await PatientModel.touch(h.paciente_id, tx)
-        return h
-      })
-      if (!updatedEval)
-        return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
-      res.json(updatedEval)
-    } catch (err) {
-      console.error('Error al actualizar evaluación bioquímica:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al actualizar evaluación bioquímica',
-      })
-    }
+    const updatedEval = await prisma.$transaction(async (tx) => {
+      const h = await BiochemicalEvalModel.update(id, req.body, req.session.userId, tx)
+      if (!h) return null
+      await PatientModel.touch(h.paciente_id, tx)
+      return h
+    })
+    if (!updatedEval)
+      return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
+    res.json(updatedEval)
   }
 }

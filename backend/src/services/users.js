@@ -5,12 +5,12 @@ import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { registerEmail } from '#lib/registerEmail.js'
 import { serverConfig } from '#config/env.js'
+import { HttpError } from '#lib/httpError.js'
 
-export class EmailConflictError extends Error {
+export class EmailConflictError extends HttpError {
   constructor(message, emails) {
-    super(message)
+    super(409, message, { error: 'Conflict', emails })
     this.name = 'EmailConflictError'
-    this.emails = emails
   }
 }
 
@@ -66,9 +66,25 @@ export class UserService {
       })
     }
 
-    await prisma.$transaction(async (tx) => {
-      await InvitationModel.insertMany(invitations, tx)
-    })
+    try {
+      await prisma.$transaction(async (tx) => {
+        await InvitationModel.insertMany(invitations, tx)
+      })
+    } catch (err) {
+      // Carrera: un correo consiguió una invitación entre el chequeo y el insert.
+      // Reconsultamos para reportar solo los que realmente chocaron.
+      if (err.code === 'P2002') {
+        const raced = await prisma.invitaciones_registro.findMany({
+          where: { correo: { in: emails }, usado: false },
+          select: { correo: true },
+        })
+        throw new EmailConflictError(
+          'Uno o más correos ya tienen una invitación pendiente',
+          raced.map((i) => i.correo)
+        )
+      }
+      throw err
+    }
 
     const emailErrors = []
     for (const inv of invitations) {

@@ -7,27 +7,22 @@ import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 export class NutritionHistoryController {
   static async create(req, res) {
-    try {
-      const history = await prisma.$transaction(async (tx) => {
-        const h = await NutritionHistoryModel.create(req.body, tx)
-        await PatientModel.touch(req.body.paciente_id, tx)
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.CREAR,
-            entidad: ENTIDADES.HISTORIA_NUTRICION,
-            objetivo_id: h.id,
-            paciente_id: h.paciente_id,
-          },
-          tx
-        )
-        return h
-      })
-      return res.status(201).json({ message: 'Historia de nutrición registrada', history })
-    } catch (error) {
-      console.error('Error al crear historia de nutrición:', error)
-      return res.status(500).json({ message: 'Error al registrar historia de nutrición' })
-    }
+    const history = await prisma.$transaction(async (tx) => {
+      const h = await NutritionHistoryModel.create(req.body, tx)
+      await PatientModel.touch(req.body.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.HISTORIA_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
+    return res.status(201).json({ message: 'Historia de nutrición registrada', history })
   }
 
   static async getAll(req, res) {
@@ -48,96 +43,64 @@ export class NutritionHistoryController {
           .filter(Boolean)
       : null
 
-    try {
-      const result = await NutritionHistoryModel.getAll({
-        paciente_id,
-        page,
-        limit,
-        fields: parsedFields,
-      })
-      return res.json(result)
-    } catch (err) {
-      console.error('Error al obtener historias de nutrición:', err)
-      return res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al obtener historias de nutrición',
-      })
-    }
+    const result = await NutritionHistoryModel.getAll({
+      paciente_id,
+      page,
+      limit,
+      fields: parsedFields,
+    })
+    return res.json(result)
   }
 
   static async getById(req, res) {
     const { id } = req.params
-    try {
-      const history = await NutritionHistoryModel.getById(id)
-      if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
-      return res.json(history)
-    } catch (err) {
-      console.error('Error al obtener historia de nutrición:', err)
-      return res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al obtener historia de nutrición',
-      })
-    }
+    const history = await NutritionHistoryModel.getById(id)
+    if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
+    return res.json(history)
   }
 
   static async delete(req, res) {
     const { id } = req.params
-    try {
-      const history = await prisma.$transaction(async (tx) => {
-        const h = await NutritionHistoryModel.delete(id, tx)
-        if (!h) return null
-        await PatientModel.touch(h.paciente_id, tx)
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ELIMINAR,
-            entidad: ENTIDADES.HISTORIA_NUTRICION,
-            objetivo_id: h.id,
-            paciente_id: h.paciente_id,
-          },
-          tx
-        )
-        return h
-      })
-      if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
-      res.json(history)
-    } catch (err) {
-      console.error('Error al eliminar historia de nutrición:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al eliminar historia de nutrición',
-      })
-    }
+    const history = await prisma.$transaction(async (tx) => {
+      const h = await NutritionHistoryModel.delete(id, tx)
+      if (!h) return null
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.HISTORIA_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
+    if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
+    res.json(history)
   }
 
   static async update(req, res) {
     const { id } = req.params
-    try {
-      const updatedHistory = await prisma.$transaction(async (tx) => {
-        const h = await NutritionHistoryModel.update(id, req.body, tx)
-        if (!h) return null
-        await PatientModel.touch(h.paciente_id, tx)
-        await AuditModel.create(
-          {
-            usuario_id: req.session.userId,
-            accion: ACCIONES.ACTUALIZAR,
-            entidad: ENTIDADES.HISTORIA_NUTRICION,
-            objetivo_id: h.id,
-            paciente_id: h.paciente_id,
-          },
-          tx
-        )
-        return h
-      })
-      if (!updatedHistory)
-        return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
-      res.json(updatedHistory)
-    } catch (err) {
-      console.error('Error al actualizar historia de nutrición:', err)
-      res.status(500).json({
-        error: 'InternalError',
-        message: 'Error al actualizar historia de nutrición',
-      })
-    }
+    const updatedHistory = await prisma.$transaction(async (tx) => {
+      const h = await NutritionHistoryModel.update(id, req.body, tx)
+      if (!h) return null
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.HISTORIA_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
+    if (!updatedHistory)
+      return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
+    res.json(updatedHistory)
   }
 }
