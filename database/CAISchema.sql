@@ -621,7 +621,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    eval_antro_id INT UNIQUE,
+    eval_antro_id INT UNIQUE NOT NULL,
     percentiles_imc FLOAT,
     interpretacion_imc VARCHAR(255),
     percentiles_cintura FLOAT,
@@ -649,7 +649,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    eval_antro_id INT UNIQUE,
+    eval_antro_id INT UNIQUE NOT NULL,
     codo FLOAT,
     frisancho FLOAT,
     complexion VARCHAR(20),
