@@ -4,8 +4,8 @@ Cambió cómo escribimos routers y dónde validamos.
 
 - Routers: se agrupan por path con `router.route(...)`.
 - Validación: es middleware en la ruta. El controller ya no valida.
-- Errores: el controller ya no usa `try/catch`. Lanza (o deja propagar) y el
-  error middleware de `app.js` responde.
+- Errores: controllers **y models** ya no usan `try/catch`. Se lanza un
+  `AppError` (o se deja propagar) y el error middleware de `app.js` responde.
 
 ---
 
@@ -61,11 +61,11 @@ router.route('/:id').all(validateIntParam()) //  id entero
 ¿Cuál? El `where` del modelo: `uuidToBuffer(id)` → UUID · `Number(id)` → entero.
 El controller ya no valida el id.
 
-## 4. Errores: sin `try/catch`
+## 4. Errores: sin `try/catch`, con `AppError`
 
 Express 5 reenvía solo cualquier throw/rejection de un handler async al error
-middleware de `app.js`. Así que el controller no atrapa nada: hace lo suyo y, si
-algo falla, deja que suba.
+middleware de `app.js`. Así que ni el controller ni el model atrapan nada: hacen
+lo suyo y, si algo falla, lanzan un `AppError` que el middleware traduce.
 
 ```js
 // ❌ antes
@@ -86,17 +86,46 @@ static async create(req, res) {
 }
 ```
 
-- **404/403** siguen igual: son flujo normal (`if (!x) return res.status(404)...`), no errores.
-- **Status específico** (409, etc.): se **lanza** un `HttpError` desde el model/service
-  y el middleware lo traduce. No armes el `res.status(...)` en un `catch`.
+### El model es la única fuente del 404
 
-  ```js
-  throw new HttpError(409, 'El correo ya está registrado', { error: 'Conflict' })
-  ```
+Ya no hay `if (!x) return res.status(404)` en el controller ni
+`catch (P2025) → return null` en el model. El model hace un guard y lanza:
 
-- La **atomicidad no depende del `try/catch`**: `prisma.$transaction` hace rollback solo
-  cuando el callback lanza, y re-lanza el error hacia el middleware.
-- Excepción: `auth.js` sí usa `try/catch` (APIs de sesión por callback + anti-enumeración).
+```js
+// model
+static async update(id, data, tx = prisma) {
+  const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+  if (!existing) throw new NotFoundError('el paciente') // → 404 "No se encontró el paciente"
+  await tx.pacientes.update({ where: { id: uuidToBuffer(id) }, data })
+  return this.getById(id, tx)
+}
+
+// controller: asume que existe
+static async update(req, res) {
+  res.json(await PatientModel.update(req.params.id, req.body))
+}
+```
+
+### `AppError` (`#lib/appError.js`)
+
+Subclases operacionales con su status: `BadRequestError` (400),
+`UnauthorizedError` (401), `ForbiddenError` (403), `NotFoundError` (404),
+`ConflictError` (409), `ValidationError` (422). El `NotFoundError` recibe el
+recurso **con artículo** (`'la emergencia'`) para que el género quede bien.
+
+```js
+throw new ConflictError('El correo ya está registrado') // → 409
+throw new ConflictError('...', { emails }) // meta se mergea al body
+```
+
+- **Códigos Prisma** que se escapan de un guard (carreras) los traduce
+  `#lib/prismaError.js` como red de seguridad (`P2002→409`, `P2025→404`,
+  `P2003→409`). No armes el `res.status(...)` a mano.
+- La **atomicidad no depende del `try/catch`**: `prisma.$transaction` hace rollback
+  solo cuando el callback lanza, y re-lanza el error hacia el middleware.
+- **`express-session`** usa callbacks; sus errores no se propagan solos. `auth.js`
+  usa `regenerateSession`/`destroySession` de `#lib/session.js` (promisificados y
+  `await`-eados) — sin `try/catch`.
 
 ---
 
@@ -119,8 +148,10 @@ Orden: `permiso → validate → controller`.
 
 ## Excepciones (validan en el controller)
 
-- `POST /auth/login` (validación manual).
 - `POST /usuarios/registro` (el schema depende del rol de la invitación, runtime).
-- Checks de un campo sin schema (`if (!correo)`).
+- Validación de query params sin schema (ej. `fields` en los listados de nutrición).
 - Reglas extra de negocio post-`validate` (ej. `nutritionalEval` rechaza un PATCH
   con body vacío con 422).
+
+`POST /auth/login` **ya no** es excepción: valida con `validate(validateLogin)`
+(`shared/schemas/auth.js`) como el resto.

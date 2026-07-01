@@ -50,16 +50,12 @@ export class NutritionalEvalController {
   static async getById(req, res) {
     const { id } = req.params
     const evaluation = await NutritionalEvalModel.getById(id)
-    if (!evaluation)
-      return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
     return res.json(evaluation)
   }
 
   static async delete(req, res) {
     const { id } = req.params
     const evaluation = await NutritionalEvalModel.delete(id)
-    if (!evaluation)
-      return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
     res.json(evaluation)
   }
 
@@ -72,13 +68,9 @@ export class NutritionalEvalController {
     }
 
     const { id } = req.params
-    const updatedEvaluation = await prisma.$transaction(async (tx) => {
-      const h = await NutritionalEvalModel.update(id, req.body, tx)
-      if (!h) return null
-      return h
-    })
-    if (!updatedEvaluation)
-      return res.status(404).json({ message: 'Evaluación nutricional no encontrada' })
+    const updatedEvaluation = await prisma.$transaction((tx) =>
+      NutritionalEvalModel.update(id, req.body, tx)
+    )
     res.json({ evaluation: updatedEvaluation })
   }
 }

@@ -72,7 +72,6 @@ export class EvalCalSuenoController {
   static async getById(req, res) {
     const { id } = req.params
     const evaluacion = await EvalCalSuenoModel.getById(id)
-    if (!evaluacion) return res.status(404).json({ message: 'Evaluación de sueño no encontrada' })
     return res.json(evaluacion)
   }
 
@@ -80,7 +79,6 @@ export class EvalCalSuenoController {
     const { id } = req.params
     const evaluacion = await prisma.$transaction(async (tx) => {
       const e = await EvalCalSuenoModel.delete(id, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -94,7 +92,6 @@ export class EvalCalSuenoController {
       )
       return e
     })
-    if (!evaluacion) return res.status(404).json({ message: 'Evaluación de sueño no encontrada' })
     res.json(evaluacion)
   }
 
@@ -102,7 +99,6 @@ export class EvalCalSuenoController {
     const { id } = req.params
     const updated = await prisma.$transaction(async (tx) => {
       const e = await EvalCalSuenoModel.update(id, req.body, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -116,7 +112,6 @@ export class EvalCalSuenoController {
       )
       return e
     })
-    if (!updated) return res.status(404).json({ message: 'Evaluación de sueño no encontrada' })
     res.json(updated)
   }
 }

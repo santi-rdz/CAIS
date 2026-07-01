@@ -3,7 +3,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { USER_SORT_DEFS, ESTADOS } from '@cais/shared/constants/users'
 import { formatDefs } from '#lib/formatDef.js'
-import { HttpError } from '#lib/httpError.js'
+import { NotFoundError, ConflictError } from '#lib/appError.js'
 
 const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
 
@@ -180,17 +180,14 @@ export class UserModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!user) throw new NotFoundError('el usuario')
     return formatUser(user)
   }
 
   static async delete(id) {
-    try {
-      await prisma.usuarios.delete({ where: { id: uuidToBuffer(id) } })
-      return true
-    } catch (err) {
-      if (err.code === 'P2025') return false
-      throw err
-    }
+    const existing = await prisma.usuarios.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('el usuario')
+    await prisma.usuarios.delete({ where: { id: uuidToBuffer(id) } })
   }
 
   static async update(id, data) {
@@ -216,50 +213,43 @@ export class UserModel {
       ...(estado && { estados: { connect: { codigo: estado } } }),
     }
 
-    try {
-      await prisma.usuarios.update({
-        where: { id: uuidToBuffer(id) },
-        data: prismaData,
-      })
-      return await this.getById(id)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await prisma.usuarios.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('el usuario')
+
+    await prisma.usuarios.update({
+      where: { id: uuidToBuffer(id) },
+      data: prismaData,
+    })
+    return this.getById(id)
   }
 
   static async create(userData, tx = prisma) {
+    const existing = await tx.usuarios.findUnique({ where: { correo: userData.correo } })
+    if (existing) throw new ConflictError('El correo ya está registrado')
+
     const userId = randomUUID()
+    await tx.usuarios.create({
+      data: {
+        id: uuidToBuffer(userId),
+        nombre: userData.nombre,
+        apellidos: userData.apellidos ?? null,
+        correo: userData.correo,
+        fecha_nacimiento: userData.fecha_nacimiento,
+        telefono: userData.telefono,
+        password_hash: userData.password_hash,
+        estados: { connect: { codigo: ESTADOS.ACTIVO } },
+        roles: { connect: { codigo: userData.rol } },
+        ...(userData.area ? { areas: { connect: { nombre: userData.area } } } : {}),
+        foto: userData.foto ?? null,
+        matricula: userData.matricula ?? null,
+        cedula: userData.cedula ?? null,
+        inicio_servicio:
+          buildServicio(userData.servicio_inicio_anio, userData.servicio_inicio_periodo) ?? null,
+        fin_servicio:
+          buildServicio(userData.servicio_fin_anio, userData.servicio_fin_periodo) ?? null,
+      },
+    })
 
-    try {
-      await tx.usuarios.create({
-        data: {
-          id: uuidToBuffer(userId),
-          nombre: userData.nombre,
-          apellidos: userData.apellidos ?? null,
-          correo: userData.correo,
-          fecha_nacimiento: userData.fecha_nacimiento,
-          telefono: userData.telefono,
-          password_hash: userData.password_hash,
-          estados: { connect: { codigo: ESTADOS.ACTIVO } },
-          roles: { connect: { codigo: userData.rol } },
-          ...(userData.area ? { areas: { connect: { nombre: userData.area } } } : {}),
-          foto: userData.foto ?? null,
-          matricula: userData.matricula ?? null,
-          cedula: userData.cedula ?? null,
-          inicio_servicio:
-            buildServicio(userData.servicio_inicio_anio, userData.servicio_inicio_periodo) ?? null,
-          fin_servicio:
-            buildServicio(userData.servicio_fin_anio, userData.servicio_fin_periodo) ?? null,
-        },
-      })
-    } catch (err) {
-      if (err.code === 'P2002') {
-        throw new HttpError(409, 'El correo ya está registrado', { error: 'Conflict' })
-      }
-      throw err
-    }
-
-    return await this.getById(userId, tx)
+    return this.getById(userId, tx)
   }
 }

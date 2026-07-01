@@ -9,8 +9,8 @@ export async function login({ email, password }) {
   })
 
   if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.error || 'Login failed')
+    const error = await res.json().catch(() => ({}))
+    throw new Error(error.message || error.error || 'Login failed')
   }
 
   return await res.json()
@@ -39,7 +39,7 @@ export async function changePassword(data) {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error(body.error || 'Error al cambiar la contraseña')
+    throw new Error(body.message || body.error || 'Error al cambiar la contraseña')
   }
 
   return await res.json()

@@ -5,14 +5,7 @@ import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { registerEmail } from '#lib/registerEmail.js'
 import { serverConfig } from '#config/env.js'
-import { HttpError } from '#lib/httpError.js'
-
-export class EmailConflictError extends HttpError {
-  constructor(message, emails) {
-    super(409, message, { error: 'Conflict', emails })
-    this.name = 'EmailConflictError'
-  }
-}
+import { ConflictError } from '#lib/appError.js'
 
 export class UserService {
   static async preRegister(usersData, creadoPor) {
@@ -22,7 +15,9 @@ export class UserService {
     if (uniqueEmails.length < emails.length) {
       const seen = new Set()
       const dupes = emails.filter((e) => (seen.has(e) ? true : !seen.add(e)))
-      throw new EmailConflictError('El payload contiene correos duplicados', [...new Set(dupes)])
+      throw new ConflictError('El payload contiene correos duplicados', {
+        emails: [...new Set(dupes)],
+      })
     }
 
     const existing = await prisma.usuarios.findMany({
@@ -31,10 +26,9 @@ export class UserService {
     })
 
     if (existing.length > 0) {
-      throw new EmailConflictError(
-        'Uno o más correos ya tienen una cuenta registrada',
-        existing.map((u) => u.correo)
-      )
+      throw new ConflictError('Uno o más correos ya tienen una cuenta registrada', {
+        emails: existing.map((u) => u.correo),
+      })
     }
 
     const pendingInvitations = await prisma.invitaciones_registro.findMany({
@@ -43,10 +37,9 @@ export class UserService {
     })
 
     if (pendingInvitations.length > 0) {
-      throw new EmailConflictError(
-        'Uno o más correos ya tienen una invitación pendiente',
-        pendingInvitations.map((i) => i.correo)
-      )
+      throw new ConflictError('Uno o más correos ya tienen una invitación pendiente', {
+        emails: pendingInvitations.map((i) => i.correo),
+      })
     }
 
     const invitations = []
@@ -78,10 +71,9 @@ export class UserService {
           where: { correo: { in: emails }, usado: false },
           select: { correo: true },
         })
-        throw new EmailConflictError(
-          'Uno o más correos ya tienen una invitación pendiente',
-          raced.map((i) => i.correo)
-        )
+        throw new ConflictError('Uno o más correos ya tienen una invitación pendiente', {
+          emails: raced.map((i) => i.correo),
+        })
       }
       throw err
     }

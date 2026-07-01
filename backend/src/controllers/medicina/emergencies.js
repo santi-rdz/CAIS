@@ -40,7 +40,6 @@ export class EmergencyController {
   static async getById(req, res) {
     const { id } = req.params
     const emergency = await EmergencyModel.getById(id)
-    if (!emergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
     res.json(emergency)
   }
 
@@ -48,7 +47,6 @@ export class EmergencyController {
     const { id } = req.params
     const emergency = await prisma.$transaction(async (tx) => {
       const e = await EmergencyModel.delete(id, tx)
-      if (!e) return null
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -60,7 +58,6 @@ export class EmergencyController {
       )
       return e
     })
-    if (!emergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
     res.json(emergency)
   }
 
@@ -68,7 +65,6 @@ export class EmergencyController {
     const { id } = req.params
     const updatedEmergency = await prisma.$transaction(async (tx) => {
       const e = await EmergencyModel.update(id, req.body, tx)
-      if (!e) return null
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -80,7 +76,6 @@ export class EmergencyController {
       )
       return e
     })
-    if (!updatedEmergency) return res.status(404).json({ message: 'Emergencia no encontrada' })
     res.json(updatedEmergency)
   }
 }

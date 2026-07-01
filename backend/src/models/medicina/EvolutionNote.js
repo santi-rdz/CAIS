@@ -9,6 +9,7 @@ import {
   planesEstudioUpsert,
   buildNestedRelations,
 } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: { select: { nombre: true, foto: true } },
@@ -107,6 +108,7 @@ export class EvolutionNoteModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!note) throw new NotFoundError('la nota de evolución')
     return formatEvolutionNote(note)
   }
 
@@ -137,47 +139,42 @@ export class EvolutionNoteModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const note = await tx.notas_evolucion.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatEvolutionNote(note)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.notas_evolucion.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la nota de evolución')
+    await tx.notas_evolucion.delete({ where: { id: uuidToBuffer(id) } })
+    return formatEvolutionNote(existing)
   }
 
   static async update(id, data, userId, tx = prisma) {
-    try {
-      await tx.notas_evolucion.update({
-        where: { id: uuidToBuffer(id) },
-        data: {
-          ...(data.creado_at != null && {
-            creado_at: new Date(data.creado_at),
-          }),
-          ...(data.paciente_id !== undefined && {
-            paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-          }),
-          ...(data.historia_medica_id !== undefined && {
-            historia_medica_id: data.historia_medica_id
-              ? uuidToBuffer(data.historia_medica_id)
-              : null,
-          }),
-          motivo_consulta: data.motivo_consulta,
-          ant_gine_andro: data.ant_gine_andro,
-          estudios_complementarios_efectuados: data.estudios_complementarios_efectuados,
-          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
-          ...(data.planes_estudio && {
-            planes_estudio: planesEstudioUpsert(data.planes_estudio),
-          }),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.notas_evolucion.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('la nota de evolución')
+
+    await tx.notas_evolucion.update({
+      where: { id: uuidToBuffer(id) },
+      data: {
+        ...(data.creado_at != null && {
+          creado_at: new Date(data.creado_at),
+        }),
+        ...(data.paciente_id !== undefined && {
+          paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
+        }),
+        ...(data.historia_medica_id !== undefined && {
+          historia_medica_id: data.historia_medica_id
+            ? uuidToBuffer(data.historia_medica_id)
+            : null,
+        }),
+        motivo_consulta: data.motivo_consulta,
+        ant_gine_andro: data.ant_gine_andro,
+        estudios_complementarios_efectuados: data.estudios_complementarios_efectuados,
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
+        ...(data.planes_estudio && {
+          planes_estudio: planesEstudioUpsert(data.planes_estudio),
+        }),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

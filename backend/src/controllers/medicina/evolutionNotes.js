@@ -41,7 +41,6 @@ export class EvolutionNoteController {
   static async getById(req, res) {
     const { id } = req.params
     const note = await EvolutionNoteModel.getById(id)
-    if (!note) return res.status(404).json({ message: 'Nota de evolución no encontrada' })
     res.json(note)
   }
 
@@ -49,7 +48,6 @@ export class EvolutionNoteController {
     const { id } = req.params
     const note = await prisma.$transaction(async (tx) => {
       const n = await EvolutionNoteModel.delete(id, tx)
-      if (!n) return null
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -62,7 +60,6 @@ export class EvolutionNoteController {
       )
       return n
     })
-    if (!note) return res.status(404).json({ message: 'Nota de evolución no encontrada' })
     res.json(note)
   }
 
@@ -70,7 +67,6 @@ export class EvolutionNoteController {
     const { id } = req.params
     const updatedNote = await prisma.$transaction(async (tx) => {
       const n = await EvolutionNoteModel.update(id, req.body, req.session.userId, tx)
-      if (!n) return null
       await PatientModel.touch(n.paciente_id, tx)
       await AuditModel.create(
         {
@@ -84,7 +80,6 @@ export class EvolutionNoteController {
       )
       return n
     })
-    if (!updatedNote) return res.status(404).json({ message: 'Nota de evolución no encontrada' })
     res.json(updatedNote)
   }
 }

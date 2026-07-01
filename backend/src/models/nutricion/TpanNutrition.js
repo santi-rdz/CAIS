@@ -1,6 +1,7 @@
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const selectBasic = {
   id: true,
@@ -58,6 +59,7 @@ export class TpanNutritionModel {
       where: { id: Number(id) },
       include: includeRelations,
     })
+    if (!tpan) throw new NotFoundError('el TPAN')
     return formatTpan(tpan)
   }
 
@@ -80,38 +82,33 @@ export class TpanNutritionModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const tpan = await tx.tpan_nutricion.delete({
-        where: { id: Number(id) },
-        include: includeRelations,
-      })
-      return formatTpan(tpan)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.tpan_nutricion.findUnique({
+      where: { id: Number(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('el TPAN')
+    await tx.tpan_nutricion.delete({ where: { id: Number(id) } })
+    return formatTpan(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.tpan_nutricion.update({
-        where: { id: Number(id) },
-        data: {
-          ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
-          ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
-          ...(data.observacion !== undefined && { observacion: data.observacion }),
-          ...(data.estandares_com !== undefined && { estandares_com: data.estandares_com }),
-          ...(data.decision !== undefined && { decision: data.decision }),
-          ...(data.problema_iden !== undefined && { problema_iden: data.problema_iden }),
-          ...(data.causa_probl !== undefined && { causa_probl: data.causa_probl }),
-          ...(data.evidencia_probl !== undefined && { evidencia_probl: data.evidencia_probl }),
-          ...(data.progreso !== undefined && { progreso: data.progreso }),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.tpan_nutricion.findUnique({ where: { id: Number(id) } })
+    if (!existing) throw new NotFoundError('el TPAN')
+
+    await tx.tpan_nutricion.update({
+      where: { id: Number(id) },
+      data: {
+        ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
+        ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
+        ...(data.observacion !== undefined && { observacion: data.observacion }),
+        ...(data.estandares_com !== undefined && { estandares_com: data.estandares_com }),
+        ...(data.decision !== undefined && { decision: data.decision }),
+        ...(data.problema_iden !== undefined && { problema_iden: data.problema_iden }),
+        ...(data.causa_probl !== undefined && { causa_probl: data.causa_probl }),
+        ...(data.evidencia_probl !== undefined && { evidencia_probl: data.evidencia_probl }),
+        ...(data.progreso !== undefined && { progreso: data.progreso }),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

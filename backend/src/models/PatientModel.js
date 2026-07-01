@@ -3,6 +3,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { formatDefs } from '#lib/formatDef.js'
 import { PATIENT_SORT_DEFS } from '@cais/shared/constants/patients'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: true,
@@ -66,37 +67,25 @@ export class PatientModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!patient) throw new NotFoundError('el paciente')
     return formatPatient(patient)
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      await tx.pacientes.delete({ where: { id: uuidToBuffer(id) } })
-      return true
-    } catch (err) {
-      if (err.code === 'P2025') return false
-      console.error('Error en PatientModel.delete:', err)
-      throw err
-    }
+    const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('el paciente')
+    await tx.pacientes.delete({ where: { id: uuidToBuffer(id) } })
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      const updateData = {
-        ...data,
-        actualizado_at: new Date(),
-      }
+    const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('el paciente')
 
-      await tx.pacientes.update({
-        where: { id: uuidToBuffer(id) },
-        data: updateData,
-      })
-      return await this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      console.error('Error en PatientModel.update:', err)
-      throw err
-    }
+    await tx.pacientes.update({
+      where: { id: uuidToBuffer(id) },
+      data: { ...data, actualizado_at: new Date() },
+    })
+    return this.getById(id, tx)
   }
 
   static async touch(id, tx = prisma) {

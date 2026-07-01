@@ -56,9 +56,9 @@ describe('POST /auth/login', () => {
     expect(res.body.error).toBeDefined()
   })
 
-  test('body vacío devuelve 400/401/500 (no es 2xx)', async () => {
+  test('422 — body vacío falla validación', async () => {
     const res = await api.post('/auth/login').send({})
-    expect([400, 401, 500]).toContain(res.status)
+    expect(res.status).toBe(422)
   })
 
   test('403 — cuenta desactivada no puede iniciar sesión', async () => {
@@ -67,7 +67,7 @@ describe('POST /auth/login', () => {
       .post('/auth/login')
       .send({ email: inactiveUser.correo, password: STRONG_TEST_PASSWORD })
     expect(res.status).toBe(403)
-    expect(res.body.error).toBe('Cuenta desactivada')
+    expect(res.body.message).toBe('Cuenta desactivada')
   })
 })
 

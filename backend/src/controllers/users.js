@@ -39,19 +39,16 @@ export class UserController {
 
   static async getById(req, res) {
     const user = await UserModel.getById(req.params.id)
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json(user)
   }
 
   static async delete(req, res) {
-    const success = await UserModel.delete(req.params.id)
-    if (!success) return res.status(404).json({ message: 'Usuario no encontrado' })
+    await UserModel.delete(req.params.id)
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
   static async update(req, res) {
     const updatedUser = await UserModel.update(req.params.id, req.body)
-    if (!updatedUser) return res.status(404).json({ message: 'Usuario no encontrado' })
     res.json(updatedUser)
   }
 

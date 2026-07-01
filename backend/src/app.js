@@ -13,6 +13,8 @@ import { medicineRouter } from '#routes/medicine.js'
 import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { dashboardRouter } from '#routes/dashboard.js'
+import { AppError } from '#lib/appError.js'
+import { prismaErrorToAppError } from '#lib/prismaError.js'
 
 const app = express()
 
@@ -60,19 +62,16 @@ app.use('/dashboard', dashboardRouter)
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
 
-  // Errores con status intencional (HttpError y subclases como EmailConflictError).
-  // `meta` va primero para que nunca pise los campos fijos error/message.
-  if (typeof err?.status === 'number') {
-    return res.status(err.status).json({
-      ...err.meta,
-      error: err.error ?? 'Error',
-      message: err.message,
+  // AppError de dominio (lanzado por el model/service) o su traducción desde un
+  // código Prisma que se escapó de un guard (red de seguridad). `meta` va primero
+  // para que nunca pise los campos fijos error/message.
+  const appError = err instanceof AppError ? err : prismaErrorToAppError(err)
+  if (appError) {
+    return res.status(appError.statusCode).json({
+      ...appError.meta,
+      error: appError.error,
+      message: appError.message,
     })
-  }
-
-  // Violación de restricción única de Prisma no traducida en el origen.
-  if (err?.code === 'P2002') {
-    return res.status(409).json({ error: 'Conflict', message: 'El registro ya existe' })
   }
 
   // Quita CR/LF de los valores del request para no permitir log forging.

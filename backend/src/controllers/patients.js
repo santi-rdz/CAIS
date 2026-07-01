@@ -3,13 +3,8 @@ import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES, ROLES } from '@cais/shared/constants/users'
 import { prisma } from '#config/prisma.js'
-
-// Devolver 404 en vez de 403 para no revelar la existencia del paciente.
-function canAccessPatient(patient, session) {
-  if (!patient) return false
-  if (session.role === ROLES.ADMIN) return true
-  return patient.doctor_area_id != null && patient.doctor_area_id === session.areaId
-}
+import { NotFoundError } from '#lib/appError.js'
+import { canAccessPatient } from '#lib/patientAccess.js'
 
 export class PatientController {
   static async create(req, res) {
@@ -50,19 +45,20 @@ export class PatientController {
     const { id } = req.params
     const patient = await PatientModel.getById(id)
     if (!canAccessPatient(patient, req.session)) {
-      return res.status(404).json({ message: 'Paciente no encontrado' })
+      throw new NotFoundError('el paciente')
     }
     res.json(patient)
   }
 
   static async delete(req, res) {
     const { id } = req.params
-    const success = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const existing = await PatientModel.getById(id, tx)
-      if (!canAccessPatient(existing, req.session)) return false
+      if (!canAccessPatient(existing, req.session)) {
+        throw new NotFoundError('el paciente')
+      }
 
-      const result = await PatientModel.delete(id, tx)
-      if (!result) return false
+      await PatientModel.delete(id, tx)
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -72,9 +68,7 @@ export class PatientController {
         },
         tx
       )
-      return true
     })
-    if (!success) return res.status(404).json({ message: 'Paciente no encontrado' })
     res.json({ message: 'Paciente borrado exitosamente' })
   }
 
@@ -82,10 +76,11 @@ export class PatientController {
     const { id } = req.params
     const updatedPatient = await prisma.$transaction(async (tx) => {
       const existing = await PatientModel.getById(id, tx)
-      if (!canAccessPatient(existing, req.session)) return null
+      if (!canAccessPatient(existing, req.session)) {
+        throw new NotFoundError('el paciente')
+      }
 
       const p = await PatientModel.update(id, req.body, tx)
-      if (!p) return null
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -98,7 +93,6 @@ export class PatientController {
       )
       return p
     })
-    if (!updatedPatient) return res.status(404).json({ message: 'Paciente no encontrado' })
     res.json(updatedPatient)
   }
 }

@@ -1,4 +1,6 @@
 import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
+import { BadRequestError } from '#lib/appError.js'
 
 export class AuthModel {
   static async findByEmail(correo) {
@@ -17,10 +19,50 @@ export class AuthModel {
     })
   }
 
+  static async findSessionUser(userId) {
+    return prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+      select: {
+        id: true,
+        nombre: true,
+        correo: true,
+        foto: true,
+        roles: { select: { codigo: true } },
+        areas: { select: { nombre: true } },
+      },
+    })
+  }
+
+  static async findByIdWithHash(userId) {
+    return prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+      select: { id: true, password_hash: true },
+    })
+  }
+
+  static async touchLastAccess(userId, tx = prisma) {
+    return tx.usuarios.update({
+      where: { id: uuidToBuffer(userId) },
+      data: { ultimo_acceso: new Date() },
+    })
+  }
+
   static async updatePassword(userId, passwordHash, tx = prisma) {
     return tx.usuarios.update({
       where: { id: userId },
       data: { password_hash: passwordHash },
+    })
+  }
+
+  // Cambia el password e invalida los tokens de reset atómicamente: si el borrado
+  // falla, el password no debe quedar cambiado con tokens de reset vivos.
+  // Recibe el UUID string de sesión (como findSessionUser/findByIdWithHash) y
+  // convierte una vez; los helpers internos operan sobre el Buffer.
+  static async changePassword(userId, passwordHash) {
+    const idBuffer = uuidToBuffer(userId)
+    return prisma.$transaction(async (tx) => {
+      await this.updatePassword(idBuffer, passwordHash, tx)
+      await this.deleteResetTokensByUser(idBuffer, tx)
     })
   }
 
@@ -61,7 +103,7 @@ export class AuthModel {
       })
 
       if (count !== 1) {
-        throw new Error('Token inválido, expirado o ya utilizado')
+        throw new BadRequestError('Token inválido, expirado o ya utilizado')
       }
 
       await tx.usuarios.update({
@@ -77,8 +119,8 @@ export class AuthModel {
     })
   }
 
-  static async deleteResetTokensByUser(userId) {
-    return prisma.password_reset_tokens.deleteMany({
+  static async deleteResetTokensByUser(userId, tx = prisma) {
+    return tx.password_reset_tokens.deleteMany({
       where: { usuario_id: userId },
     })
   }
