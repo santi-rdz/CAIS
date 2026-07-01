@@ -1,4 +1,6 @@
 import { prisma } from '#config/prisma.js'
+import { uuidToBuffer } from '#lib/uuid.js'
+import { BadRequestError } from '#lib/appError.js'
 
 export class AuthModel {
   static async findByEmail(correo) {
@@ -14,6 +16,34 @@ export class AuthModel {
         roles: { select: { codigo: true } },
         estados: { select: { codigo: true } },
       },
+    })
+  }
+
+  static async findSessionUser(userId) {
+    return prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+      select: {
+        id: true,
+        nombre: true,
+        correo: true,
+        foto: true,
+        roles: { select: { codigo: true } },
+        areas: { select: { nombre: true } },
+      },
+    })
+  }
+
+  static async findByIdWithHash(userId) {
+    return prisma.usuarios.findUnique({
+      where: { id: uuidToBuffer(userId) },
+      select: { id: true, password_hash: true },
+    })
+  }
+
+  static async touchLastAccess(userId, tx = prisma) {
+    return tx.usuarios.update({
+      where: { id: uuidToBuffer(userId) },
+      data: { ultimo_acceso: new Date() },
     })
   }
 
@@ -61,7 +91,7 @@ export class AuthModel {
       })
 
       if (count !== 1) {
-        throw new Error('Token inválido, expirado o ya utilizado')
+        throw new BadRequestError('Token inválido, expirado o ya utilizado')
       }
 
       await tx.usuarios.update({
