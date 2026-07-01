@@ -56,10 +56,13 @@ export class AuthModel {
 
   // Cambia el password e invalida los tokens de reset atómicamente: si el borrado
   // falla, el password no debe quedar cambiado con tokens de reset vivos.
+  // Recibe el UUID string de sesión (como findSessionUser/findByIdWithHash) y
+  // convierte una vez; los helpers internos operan sobre el Buffer.
   static async changePassword(userId, passwordHash) {
+    const idBuffer = uuidToBuffer(userId)
     return prisma.$transaction(async (tx) => {
-      await this.updatePassword(userId, passwordHash, tx)
-      await this.deleteResetTokensByUser(userId, tx)
+      await this.updatePassword(idBuffer, passwordHash, tx)
+      await this.deleteResetTokensByUser(idBuffer, tx)
     })
   }
 

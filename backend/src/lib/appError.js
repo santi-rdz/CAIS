@@ -8,7 +8,7 @@
  * `isOperational` distingue estos errores esperados de bugs de programación.
  * `meta` se mergea en el body — p.ej. `{ emails }` en conflictos de correo.
  *
- *   throw new NotFoundError('Paciente no encontrado')
+ *   throw new NotFoundError('el paciente') // → "No se encontró el paciente"
  *   throw new ConflictError('El correo ya está registrado')
  */
 export class AppError extends Error {
