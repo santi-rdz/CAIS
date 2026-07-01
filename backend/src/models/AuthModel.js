@@ -54,6 +54,15 @@ export class AuthModel {
     })
   }
 
+  // Cambia el password e invalida los tokens de reset atómicamente: si el borrado
+  // falla, el password no debe quedar cambiado con tokens de reset vivos.
+  static async changePassword(userId, passwordHash) {
+    return prisma.$transaction(async (tx) => {
+      await this.updatePassword(userId, passwordHash, tx)
+      await this.deleteResetTokensByUser(userId, tx)
+    })
+  }
+
   // ─── Reset tokens ─────────────────────────────────────────────────────────
 
   static tokenToBuffer(token) {
@@ -107,8 +116,8 @@ export class AuthModel {
     })
   }
 
-  static async deleteResetTokensByUser(userId) {
-    return prisma.password_reset_tokens.deleteMany({
+  static async deleteResetTokensByUser(userId, tx = prisma) {
+    return tx.password_reset_tokens.deleteMany({
       where: { usuario_id: userId },
     })
   }

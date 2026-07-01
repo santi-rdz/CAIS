@@ -82,8 +82,7 @@ export class AuthController {
     }
 
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
-    await AuthModel.updatePassword(user.id, passwordHash)
-    await AuthModel.deleteResetTokensByUser(user.id)
+    await AuthModel.changePassword(user.id, passwordHash)
 
     const { role, areaId, area } = req.session
     const userId = bufferToUUID(user.id)
