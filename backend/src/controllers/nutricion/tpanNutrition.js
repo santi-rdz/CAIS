@@ -72,7 +72,6 @@ export class TpanNutritionController {
   static async getById(req, res) {
     const { id } = req.params
     const tpan = await TpanNutritionModel.getById(id)
-    if (!tpan) return res.status(404).json({ message: 'TPAN no encontrado' })
     return res.json(tpan)
   }
 
@@ -80,7 +79,6 @@ export class TpanNutritionController {
     const { id } = req.params
     const tpan = await prisma.$transaction(async (tx) => {
       const t = await TpanNutritionModel.delete(id, tx)
-      if (!t) return null
       await PatientModel.touch(t.paciente_id, tx)
       await AuditModel.create(
         {
@@ -94,7 +92,6 @@ export class TpanNutritionController {
       )
       return t
     })
-    if (!tpan) return res.status(404).json({ message: 'TPAN no encontrado' })
     res.json(tpan)
   }
 
@@ -102,7 +99,6 @@ export class TpanNutritionController {
     const { id } = req.params
     const updatedTpan = await prisma.$transaction(async (tx) => {
       const t = await TpanNutritionModel.update(id, req.body, tx)
-      if (!t) return null
       await PatientModel.touch(t.paciente_id, tx)
       await AuditModel.create(
         {
@@ -116,7 +112,6 @@ export class TpanNutritionController {
       )
       return t
     })
-    if (!updatedTpan) return res.status(404).json({ message: 'TPAN no encontrado' })
     res.json(updatedTpan)
   }
 }

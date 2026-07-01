@@ -55,7 +55,6 @@ export class NutritionHistoryController {
   static async getById(req, res) {
     const { id } = req.params
     const history = await NutritionHistoryModel.getById(id)
-    if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
     return res.json(history)
   }
 
@@ -63,7 +62,6 @@ export class NutritionHistoryController {
     const { id } = req.params
     const history = await prisma.$transaction(async (tx) => {
       const h = await NutritionHistoryModel.delete(id, tx)
-      if (!h) return null
       await PatientModel.touch(h.paciente_id, tx)
       await AuditModel.create(
         {
@@ -77,7 +75,6 @@ export class NutritionHistoryController {
       )
       return h
     })
-    if (!history) return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
     res.json(history)
   }
 
@@ -85,7 +82,6 @@ export class NutritionHistoryController {
     const { id } = req.params
     const updatedHistory = await prisma.$transaction(async (tx) => {
       const h = await NutritionHistoryModel.update(id, req.body, tx)
-      if (!h) return null
       await PatientModel.touch(h.paciente_id, tx)
       await AuditModel.create(
         {
@@ -99,8 +95,6 @@ export class NutritionHistoryController {
       )
       return h
     })
-    if (!updatedHistory)
-      return res.status(404).json({ message: 'Historia de nutrición no encontrada' })
     res.json(updatedHistory)
   }
 }

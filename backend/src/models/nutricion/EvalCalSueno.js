@@ -1,6 +1,7 @@
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const selectBasic = {
   id: true,
@@ -62,6 +63,7 @@ export class EvalCalSuenoModel {
       where: { id: Number(id) },
       include: includeRelations,
     })
+    if (!evaluacion) throw new NotFoundError('la evaluación de sueño')
     return formatSueno(evaluacion)
   }
 
@@ -82,36 +84,31 @@ export class EvalCalSuenoModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const evaluacion = await tx.eval_cal_sueno.delete({
-        where: { id: Number(id) },
-        include: includeRelations,
-      })
-      return formatSueno(evaluacion)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.eval_cal_sueno.findUnique({
+      where: { id: Number(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la evaluación de sueño')
+    await tx.eval_cal_sueno.delete({ where: { id: Number(id) } })
+    return formatSueno(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.eval_cal_sueno.update({
-        where: { id: Number(id) },
-        data: {
-          ...(data.fecha !== undefined && { fecha: data.fecha }),
-          ...(data.horas_sueno !== undefined && { horas_sueno: data.horas_sueno }),
-          ...(data.clasif_horas_sueno !== undefined && {
-            clasif_horas_sueno: data.clasif_horas_sueno,
-          }),
-          ...(data.insomnio !== undefined && { insomnio: data.insomnio }),
-          ...(data.medicacion !== undefined && { medicacion: data.medicacion }),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.eval_cal_sueno.findUnique({ where: { id: Number(id) } })
+    if (!existing) throw new NotFoundError('la evaluación de sueño')
+
+    await tx.eval_cal_sueno.update({
+      where: { id: Number(id) },
+      data: {
+        ...(data.fecha !== undefined && { fecha: data.fecha }),
+        ...(data.horas_sueno !== undefined && { horas_sueno: data.horas_sueno }),
+        ...(data.clasif_horas_sueno !== undefined && {
+          clasif_horas_sueno: data.clasif_horas_sueno,
+        }),
+        ...(data.insomnio !== undefined && { insomnio: data.insomnio }),
+        ...(data.medicacion !== undefined && { medicacion: data.medicacion }),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

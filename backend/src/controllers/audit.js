@@ -18,7 +18,6 @@ export class AuditController {
   }
   static async getById(req, res) {
     const record = await AuditModel.getById(req.params.id)
-    if (!record) return res.status(404).json({ message: 'Registro de auditoría no encontrado' })
     res.json(record)
   }
 }

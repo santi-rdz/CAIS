@@ -72,8 +72,6 @@ export class PhysicalExaminationController {
   static async getById(req, res) {
     const { id } = req.params
     const exam = await PhysicalExaminationModel.getById(id)
-    if (!exam)
-      return res.status(404).json({ message: 'Examen físico de orientación no encontrado' })
     return res.json(exam)
   }
 
@@ -81,7 +79,6 @@ export class PhysicalExaminationController {
     const { id } = req.params
     const exam = await prisma.$transaction(async (tx) => {
       const e = await PhysicalExaminationModel.delete(id, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -95,8 +92,6 @@ export class PhysicalExaminationController {
       )
       return e
     })
-    if (!exam)
-      return res.status(404).json({ message: 'Examen físico de orientación no encontrado' })
     res.json(exam)
   }
 
@@ -104,7 +99,6 @@ export class PhysicalExaminationController {
     const { id } = req.params
     const updatedExam = await prisma.$transaction(async (tx) => {
       const e = await PhysicalExaminationModel.update(id, req.body, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -118,8 +112,6 @@ export class PhysicalExaminationController {
       )
       return e
     })
-    if (!updatedExam)
-      return res.status(404).json({ message: 'Examen físico de orientación no encontrado' })
     res.json(updatedExam)
   }
 }

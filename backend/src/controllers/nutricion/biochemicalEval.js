@@ -57,14 +57,12 @@ export class BiochemicalEvalController {
   static async getById(req, res) {
     const { id } = req.params
     const evaluation = await BiochemicalEvalModel.getById(id)
-    if (!evaluation) return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
     res.json(evaluation)
   }
 
   static async delete(req, res) {
     const { id } = req.params
     const evaluation = await BiochemicalEvalModel.delete(id)
-    if (!evaluation) return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
     res.json(evaluation)
   }
 
@@ -72,12 +70,9 @@ export class BiochemicalEvalController {
     const { id } = req.params
     const updatedEval = await prisma.$transaction(async (tx) => {
       const h = await BiochemicalEvalModel.update(id, req.body, req.session.userId, tx)
-      if (!h) return null
       await PatientModel.touch(h.paciente_id, tx)
       return h
     })
-    if (!updatedEval)
-      return res.status(404).json({ message: 'Evaluación bioquímica no encontrada' })
     res.json(updatedEval)
   }
 }

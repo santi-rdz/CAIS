@@ -9,6 +9,7 @@ import {
   planesEstudioUpsert,
   buildNestedRelations,
 } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: { select: { nombre: true, foto: true } },
@@ -100,6 +101,7 @@ export class MedicalHistoryModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!history) throw new NotFoundError('la historia médica')
     return formatMedicalHistory(history)
   }
 
@@ -127,40 +129,35 @@ export class MedicalHistoryModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const history = await tx.historias_medicas.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatMedicalHistory(history)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.historias_medicas.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la historia médica')
+    await tx.historias_medicas.delete({ where: { id: uuidToBuffer(id) } })
+    return formatMedicalHistory(existing)
   }
 
   static async update(id, data, userId, tx = prisma) {
-    try {
-      await tx.historias_medicas.update({
-        where: { id: uuidToBuffer(id) },
-        data: {
-          ...(data.creado_at !== undefined && {
-            creado_at: data.creado_at,
-          }),
-          tipo_sangre: data.tipo_sangre,
-          vacunas_infancia_completas: data.vacunas_infancia_completas,
-          motivo_consulta: data.motivo_consulta,
-          historia_enfermedad_actual: data.historia_enfermedad_actual,
-          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
-          ...(data.planes_estudio && {
-            planes_estudio: planesEstudioUpsert(data.planes_estudio),
-          }),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.historias_medicas.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('la historia médica')
+
+    await tx.historias_medicas.update({
+      where: { id: uuidToBuffer(id) },
+      data: {
+        ...(data.creado_at !== undefined && {
+          creado_at: data.creado_at,
+        }),
+        tipo_sangre: data.tipo_sangre,
+        vacunas_infancia_completas: data.vacunas_infancia_completas,
+        motivo_consulta: data.motivo_consulta,
+        historia_enfermedad_actual: data.historia_enfermedad_actual,
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
+        ...(data.planes_estudio && {
+          planes_estudio: planesEstudioUpsert(data.planes_estudio),
+        }),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

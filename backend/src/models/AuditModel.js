@@ -2,6 +2,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
 import { parsePagination } from '#lib/paginate.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: true,
@@ -101,6 +102,7 @@ export class AuditModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!record) throw new NotFoundError('el registro de auditoría')
     return formatAudit(record)
   }
 }

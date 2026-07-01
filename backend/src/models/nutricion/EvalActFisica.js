@@ -1,6 +1,7 @@
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const selectBasic = {
   id: true,
@@ -62,6 +63,7 @@ export class EvalActFisicaModel {
       where: { id: Number(id) },
       include: includeRelations,
     })
+    if (!evaluacion) throw new NotFoundError('la evaluación de actividad física')
     return formatActFisica(evaluacion)
   }
 
@@ -88,42 +90,37 @@ export class EvalActFisicaModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const evaluacion = await tx.eval_act_fisica_nutricion.delete({
-        where: { id: Number(id) },
-        include: includeRelations,
-      })
-      return formatActFisica(evaluacion)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.eval_act_fisica_nutricion.findUnique({
+      where: { id: Number(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la evaluación de actividad física')
+    await tx.eval_act_fisica_nutricion.delete({ where: { id: Number(id) } })
+    return formatActFisica(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.eval_act_fisica_nutricion.update({
-        where: { id: Number(id) },
-        data: {
-          ...(data.fecha !== undefined && { fecha: data.fecha }),
-          ...(data.tipo !== undefined && { tipo: data.tipo }),
-          ...(data.porque_no !== undefined && { porque_no: data.porque_no }),
-          ...(data.frecuencia !== undefined && { frecuencia: data.frecuencia }),
-          ...(data.duracion !== undefined && { duracion: data.duracion }),
-          ...(data.intensidad !== undefined && { intensidad: data.intensidad }),
-          ...(data.clasif_tiempo_af !== undefined && { clasif_tiempo_af: data.clasif_tiempo_af }),
-          ...(data.tiempo_de_practica !== undefined && {
-            tiempo_de_practica: data.tiempo_de_practica,
-          }),
-          ...(data.pensamientos_con_realizar_AF !== undefined && {
-            pensamientos_con_realizar_AF: data.pensamientos_con_realizar_AF,
-          }),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.eval_act_fisica_nutricion.findUnique({ where: { id: Number(id) } })
+    if (!existing) throw new NotFoundError('la evaluación de actividad física')
+
+    await tx.eval_act_fisica_nutricion.update({
+      where: { id: Number(id) },
+      data: {
+        ...(data.fecha !== undefined && { fecha: data.fecha }),
+        ...(data.tipo !== undefined && { tipo: data.tipo }),
+        ...(data.porque_no !== undefined && { porque_no: data.porque_no }),
+        ...(data.frecuencia !== undefined && { frecuencia: data.frecuencia }),
+        ...(data.duracion !== undefined && { duracion: data.duracion }),
+        ...(data.intensidad !== undefined && { intensidad: data.intensidad }),
+        ...(data.clasif_tiempo_af !== undefined && { clasif_tiempo_af: data.clasif_tiempo_af }),
+        ...(data.tiempo_de_practica !== undefined && {
+          tiempo_de_practica: data.tiempo_de_practica,
+        }),
+        ...(data.pensamientos_con_realizar_AF !== undefined && {
+          pensamientos_con_realizar_AF: data.pensamientos_con_realizar_AF,
+        }),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

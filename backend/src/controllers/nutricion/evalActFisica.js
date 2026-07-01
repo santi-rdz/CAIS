@@ -74,8 +74,6 @@ export class EvalActFisicaController {
   static async getById(req, res) {
     const { id } = req.params
     const evaluacion = await EvalActFisicaModel.getById(id)
-    if (!evaluacion)
-      return res.status(404).json({ message: 'Evaluación de actividad física no encontrada' })
     return res.json(evaluacion)
   }
 
@@ -83,7 +81,6 @@ export class EvalActFisicaController {
     const { id } = req.params
     const evaluacion = await prisma.$transaction(async (tx) => {
       const e = await EvalActFisicaModel.delete(id, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -97,8 +94,6 @@ export class EvalActFisicaController {
       )
       return e
     })
-    if (!evaluacion)
-      return res.status(404).json({ message: 'Evaluación de actividad física no encontrada' })
     res.json(evaluacion)
   }
 
@@ -106,7 +101,6 @@ export class EvalActFisicaController {
     const { id } = req.params
     const updated = await prisma.$transaction(async (tx) => {
       const e = await EvalActFisicaModel.update(id, req.body, tx)
-      if (!e) return null
       await PatientModel.touch(e.paciente_id, tx)
       await AuditModel.create(
         {
@@ -120,8 +114,6 @@ export class EvalActFisicaController {
       )
       return e
     })
-    if (!updated)
-      return res.status(404).json({ message: 'Evaluación de actividad física no encontrada' })
     res.json(updated)
   }
 }

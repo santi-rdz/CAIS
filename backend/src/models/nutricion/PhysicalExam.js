@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 // ─── Relaciones a incluir en queries completas ───────────────────────────────
 
@@ -76,6 +77,7 @@ export class PhysicalExaminationModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!exam) throw new NotFoundError('el examen físico de orientación')
     return formatExamFis(exam)
   }
 
@@ -120,97 +122,87 @@ export class PhysicalExaminationModel {
    * semiologia) apuntan desde el padre como FK → se borran después del padre.
    */
   static async delete(id, tx = prisma) {
-    try {
-      const idBuffer = uuidToBuffer(id)
+    const idBuffer = uuidToBuffer(id)
 
-      const exam = await tx.exam_fis_orien_nutricion.findUnique({
-        where: { id: idBuffer },
-        include: includeRelations,
-      })
-      if (!exam) return null
+    const exam = await tx.exam_fis_orien_nutricion.findUnique({
+      where: { id: idBuffer },
+      include: includeRelations,
+    })
+    if (!exam) throw new NotFoundError('el examen físico de orientación')
 
-      await tx.eval_sintomas_gastroin_nutricion.deleteMany({
-        where: { exam_fis_id: idBuffer },
-      })
-      await tx.exam_fis_orien_nutricion.delete({ where: { id: idBuffer } })
+    await tx.eval_sintomas_gastroin_nutricion.deleteMany({
+      where: { exam_fis_id: idBuffer },
+    })
+    await tx.exam_fis_orien_nutricion.delete({ where: { id: idBuffer } })
 
-      await Promise.all([
-        tx.eval_perdida_peso_nutricion.delete({ where: { id: exam.id_perdida_peso } }),
-        tx.signos_vitales_nutricion.delete({ where: { id: exam.id_signos_vitales } }),
-        tx.eval_semiologia_nutricional.delete({ where: { id: exam.id_semiologia } }),
-      ])
+    await Promise.all([
+      tx.eval_perdida_peso_nutricion.delete({ where: { id: exam.id_perdida_peso } }),
+      tx.signos_vitales_nutricion.delete({ where: { id: exam.id_signos_vitales } }),
+      tx.eval_semiologia_nutricional.delete({ where: { id: exam.id_semiologia } }),
+    ])
 
-      return formatExamFis(exam)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    return formatExamFis(exam)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      const idBuffer = uuidToBuffer(id)
+    const idBuffer = uuidToBuffer(id)
 
-      const exam = await tx.exam_fis_orien_nutricion.findUnique({
-        where: { id: idBuffer },
-        select: { id_perdida_peso: true, id_signos_vitales: true, id_semiologia: true },
-      })
-      if (!exam) return null
+    const exam = await tx.exam_fis_orien_nutricion.findUnique({
+      where: { id: idBuffer },
+      select: { id_perdida_peso: true, id_signos_vitales: true, id_semiologia: true },
+    })
+    if (!exam) throw new NotFoundError('el examen físico de orientación')
 
-      const childUpdates = []
+    const childUpdates = []
 
-      if (data.eval_perdida_peso !== undefined) {
-        childUpdates.push(
-          tx.eval_perdida_peso_nutricion.update({
-            where: { id: exam.id_perdida_peso },
-            data: data.eval_perdida_peso,
-          })
-        )
-      }
-      if (data.signos_vitales !== undefined) {
-        childUpdates.push(
-          tx.signos_vitales_nutricion.update({
-            where: { id: exam.id_signos_vitales },
-            data: data.signos_vitales,
-          })
-        )
-      }
-      if (data.semiologia !== undefined) {
-        childUpdates.push(
-          tx.eval_semiologia_nutricional.update({
-            where: { id: exam.id_semiologia },
-            data: data.semiologia,
-          })
-        )
-      }
-      if (data.eval_sintomas_gastroin !== undefined) {
-        childUpdates.push(
-          tx.eval_sintomas_gastroin_nutricion
-            .deleteMany({ where: { exam_fis_id: idBuffer } })
-            .then(() =>
-              data.eval_sintomas_gastroin.length
-                ? tx.eval_sintomas_gastroin_nutricion.createMany({
-                    data: data.eval_sintomas_gastroin.map((s) => ({ ...s, exam_fis_id: idBuffer })),
-                  })
-                : Promise.resolve()
-            )
-        )
-      }
-
-      const mainUpdate =
-        data.fecha !== undefined
-          ? tx.exam_fis_orien_nutricion.update({
-              where: { id: idBuffer },
-              data: { fecha: data.fecha },
-            })
-          : Promise.resolve()
-
-      await Promise.all([mainUpdate, ...childUpdates])
-
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
+    if (data.eval_perdida_peso !== undefined) {
+      childUpdates.push(
+        tx.eval_perdida_peso_nutricion.update({
+          where: { id: exam.id_perdida_peso },
+          data: data.eval_perdida_peso,
+        })
+      )
     }
+    if (data.signos_vitales !== undefined) {
+      childUpdates.push(
+        tx.signos_vitales_nutricion.update({
+          where: { id: exam.id_signos_vitales },
+          data: data.signos_vitales,
+        })
+      )
+    }
+    if (data.semiologia !== undefined) {
+      childUpdates.push(
+        tx.eval_semiologia_nutricional.update({
+          where: { id: exam.id_semiologia },
+          data: data.semiologia,
+        })
+      )
+    }
+    if (data.eval_sintomas_gastroin !== undefined) {
+      childUpdates.push(
+        tx.eval_sintomas_gastroin_nutricion
+          .deleteMany({ where: { exam_fis_id: idBuffer } })
+          .then(() =>
+            data.eval_sintomas_gastroin.length
+              ? tx.eval_sintomas_gastroin_nutricion.createMany({
+                  data: data.eval_sintomas_gastroin.map((s) => ({ ...s, exam_fis_id: idBuffer })),
+                })
+              : Promise.resolve()
+          )
+      )
+    }
+
+    const mainUpdate =
+      data.fecha !== undefined
+        ? tx.exam_fis_orien_nutricion.update({
+            where: { id: idBuffer },
+            data: { fecha: data.fecha },
+          })
+        : Promise.resolve()
+
+    await Promise.all([mainUpdate, ...childUpdates])
+
+    return this.getById(id, tx)
   }
 }

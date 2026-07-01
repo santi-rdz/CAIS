@@ -48,7 +48,6 @@ export class MedicalHistoryController {
   static async getById(req, res) {
     const { id } = req.params
     const history = await MedicalHistoryModel.getById(id)
-    if (!history) return res.status(404).json({ message: 'Historia médica no encontrada' })
     res.json(history)
   }
 
@@ -56,7 +55,6 @@ export class MedicalHistoryController {
     const { id } = req.params
     const history = await prisma.$transaction(async (tx) => {
       const h = await MedicalHistoryModel.delete(id, tx)
-      if (!h) return null
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -69,7 +67,6 @@ export class MedicalHistoryController {
       )
       return h
     })
-    if (!history) return res.status(404).json({ message: 'Historia médica no encontrada' })
     res.json(history)
   }
 
@@ -77,7 +74,6 @@ export class MedicalHistoryController {
     const { id } = req.params
     const updatedHistory = await prisma.$transaction(async (tx) => {
       const h = await MedicalHistoryModel.update(id, req.body, req.session.userId, tx)
-      if (!h) return null
       await PatientModel.touch(h.paciente_id, tx)
       await AuditModel.create(
         {
@@ -91,7 +87,6 @@ export class MedicalHistoryController {
       )
       return h
     })
-    if (!updatedHistory) return res.status(404).json({ message: 'Historia médica no encontrada' })
     res.json(updatedHistory)
   }
 }

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, nestedCreate, nestedUpsert, buildNestedRelations } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   eval_apetito_nutricion: true,
@@ -69,6 +70,7 @@ export class NutritionalEvalModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!evalNutr) throw new NotFoundError('la evaluación nutricional')
     return formatEvalNutr(evalNutr)
   }
 
@@ -92,35 +94,30 @@ export class NutritionalEvalModel {
   }
 
   static async delete(id) {
-    try {
-      const evalNutr = await prisma.eval_nutr_fh.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatEvalNutr(evalNutr)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await prisma.eval_nutr_fh.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la evaluación nutricional')
+    await prisma.eval_nutr_fh.delete({ where: { id: uuidToBuffer(id) } })
+    return formatEvalNutr(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.eval_nutr_fh.update({
-        where: { id: uuidToBuffer(id) },
-        data: {
-          ...(data.fecha !== undefined && { fecha: data.fecha }),
-          sigue_dieta: data.sigue_dieta,
-          tiene_alergia: data.tiene_alergia,
-          cual_alergia: data.cual_alergia,
-          alimentos_disgusta: data.alimentos_disgusta,
-          ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.eval_nutr_fh.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('la evaluación nutricional')
+
+    await tx.eval_nutr_fh.update({
+      where: { id: uuidToBuffer(id) },
+      data: {
+        ...(data.fecha !== undefined && { fecha: data.fecha }),
+        sigue_dieta: data.sigue_dieta,
+        tiene_alergia: data.tiene_alergia,
+        cual_alergia: data.cual_alergia,
+        alimentos_disgusta: data.alimentos_disgusta,
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

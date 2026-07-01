@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   perfil_anemia_nutricion: true,
@@ -105,6 +106,7 @@ export class BiochemicalEvalModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!evaluation) throw new NotFoundError('la evaluación bioquímica')
     return formatBiochemicalEval(evaluation)
   }
 
@@ -134,47 +136,37 @@ export class BiochemicalEvalModel {
   }
 
   static async delete(id) {
-    try {
-      const evaluation = await prisma.eval_bioq_nutricion.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatBiochemicalEval(evaluation)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await prisma.eval_bioq_nutricion.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la evaluación bioquímica')
+    await prisma.eval_bioq_nutricion.delete({ where: { id: uuidToBuffer(id) } })
+    return formatBiochemicalEval(existing)
   }
 
   static async update(id, data, userId, tx = prisma) {
-    try {
-      const evalBuffer = uuidToBuffer(id)
+    const evalBuffer = uuidToBuffer(id)
 
-      const exists = await tx.eval_bioq_nutricion.findUnique({
+    const exists = await tx.eval_bioq_nutricion.findUnique({ where: { id: evalBuffer } })
+    if (!exists) throw new NotFoundError('la evaluación bioquímica')
+
+    await Promise.all([
+      tx.eval_bioq_nutricion.update({
         where: { id: evalBuffer },
-      })
-      if (!exists) return null
+        data: {
+          ...(data.fecha !== undefined && { fecha: data.fecha }),
+        },
+      }),
+      ...NESTED_RELATIONS.filter((key) => data[key]).map((key) =>
+        tx[key].upsert({
+          where: { id_eval_bioq: evalBuffer },
+          create: { ...data[key], id_eval_bioq: evalBuffer },
+          update: { ...data[key] },
+        })
+      ),
+    ])
 
-      await Promise.all([
-        tx.eval_bioq_nutricion.update({
-          where: { id: evalBuffer },
-          data: {
-            ...(data.fecha !== undefined && { fecha: data.fecha }),
-          },
-        }),
-        ...NESTED_RELATIONS.filter((key) => data[key]).map((key) =>
-          tx[key].upsert({
-            where: { id_eval_bioq: evalBuffer },
-            create: { ...data[key], id_eval_bioq: evalBuffer },
-            update: { ...data[key] },
-          })
-        ),
-      ])
-
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    return this.getById(id, tx)
   }
 }

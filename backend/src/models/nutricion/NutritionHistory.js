@@ -9,6 +9,7 @@ import {
   manyCreate,
   manyReplace,
 } from '#lib/prismaHelpers.js'
+import { NotFoundError } from '#lib/appError.js'
 
 // ─── Relaciones a incluir en queries completas ───────────────────────────────
 
@@ -89,6 +90,7 @@ export class NutritionHistoryModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!history) throw new NotFoundError('la historia de nutrición')
     return formatNutritionHistory(history)
   }
 
@@ -122,55 +124,50 @@ export class NutritionHistoryModel {
    * hijas, este método puede simplificarse a un delete directo.
    */
   static async delete(id, tx = prisma) {
-    try {
-      const idBuffer = uuidToBuffer(id)
+    const idBuffer = uuidToBuffer(id)
 
-      const history = await tx.historias_pacientes_nutricion.findUnique({
-        where: { id: idBuffer },
-        include: includeRelations,
+    const history = await tx.historias_pacientes_nutricion.findUnique({
+      where: { id: idBuffer },
+      include: includeRelations,
+    })
+    if (!history) throw new NotFoundError('la historia de nutrición')
+
+    const where = { historia_paciente_id: idBuffer }
+    await Promise.all([
+      tx.historias_medicas_nutricion.deleteMany({ where }),
+      tx.eval_act_fisica_nutricion.deleteMany({ where }),
+      tx.eval_cal_sueno.deleteMany({ where }),
+      tx.tratamiento_alt_nutricion.deleteMany({ where }),
+    ])
+
+    await tx.historias_pacientes_nutricion.delete({ where: { id: idBuffer } })
+
+    // adicciones es 1:1 propiedad de la historia (FK adicciones_id en la
+    // historia); se borra después de la historia para no violar la FK.
+    if (history.adicciones?.id) {
+      await tx.adicciones.delete({ where: { id: history.adicciones.id } }).catch((err) => {
+        if (err.code !== 'P2025') throw err
       })
-      if (!history) return null
-
-      const where = { historia_paciente_id: idBuffer }
-      await Promise.all([
-        tx.historias_medicas_nutricion.deleteMany({ where }),
-        tx.eval_act_fisica_nutricion.deleteMany({ where }),
-        tx.eval_cal_sueno.deleteMany({ where }),
-        tx.tratamiento_alt_nutricion.deleteMany({ where }),
-      ])
-
-      await tx.historias_pacientes_nutricion.delete({ where: { id: idBuffer } })
-
-      // adicciones es 1:1 propiedad de la historia (FK adicciones_id en la
-      // historia); se borra después de la historia para no violar la FK.
-      if (history.adicciones?.id) {
-        await tx.adicciones.delete({ where: { id: history.adicciones.id } }).catch((err) => {
-          if (err.code !== 'P2025') throw err
-        })
-      }
-
-      return formatNutritionHistory(history)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
     }
+
+    return formatNutritionHistory(history)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.historias_pacientes_nutricion.update({
-        where: { id: uuidToBuffer(id) },
-        data: {
-          ...(data.fecha_ingreso !== undefined && { fecha_ingreso: data.fecha_ingreso }),
-          ...(data.motivo_consulta !== undefined && { motivo_consulta: data.motivo_consulta }),
-          ...(data.adicciones && { adicciones: nestedUpsert(data.adicciones) }),
-          ...buildNestedRelations(data, MANY_RELATIONS, manyReplace),
-        },
-      })
-      return this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.historias_pacientes_nutricion.findUnique({
+      where: { id: uuidToBuffer(id) },
+    })
+    if (!existing) throw new NotFoundError('la historia de nutrición')
+
+    await tx.historias_pacientes_nutricion.update({
+      where: { id: uuidToBuffer(id) },
+      data: {
+        ...(data.fecha_ingreso !== undefined && { fecha_ingreso: data.fecha_ingreso }),
+        ...(data.motivo_consulta !== undefined && { motivo_consulta: data.motivo_consulta }),
+        ...(data.adicciones && { adicciones: nestedUpsert(data.adicciones) }),
+        ...buildNestedRelations(data, MANY_RELATIONS, manyReplace),
+      },
+    })
+    return this.getById(id, tx)
   }
 }

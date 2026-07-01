@@ -3,6 +3,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { formatDefs } from '#lib/formatDef.js'
 import { EMERGENCY_SORT_DEFS } from '@cais/shared/constants/emergencies'
+import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: true,
@@ -65,6 +66,7 @@ export class EmergencyModel {
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
+    if (!emergency) throw new NotFoundError('la emergencia')
     return formatEmergency(emergency)
   }
 
@@ -92,28 +94,20 @@ export class EmergencyModel {
   }
 
   static async delete(id, tx = prisma) {
-    try {
-      const emergency = await tx.bitacora_emergencias.delete({
-        where: { id: uuidToBuffer(id) },
-        include: includeRelations,
-      })
-      return formatEmergency(emergency)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.bitacora_emergencias.findUnique({
+      where: { id: uuidToBuffer(id) },
+      include: includeRelations,
+    })
+    if (!existing) throw new NotFoundError('la emergencia')
+    await tx.bitacora_emergencias.delete({ where: { id: uuidToBuffer(id) } })
+    return formatEmergency(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    try {
-      await tx.bitacora_emergencias.update({
-        where: { id: uuidToBuffer(id) },
-        data,
-      })
-      return await this.getById(id, tx)
-    } catch (err) {
-      if (err.code === 'P2025') return null
-      throw err
-    }
+    const existing = await tx.bitacora_emergencias.findUnique({ where: { id: uuidToBuffer(id) } })
+    if (!existing) throw new NotFoundError('la emergencia')
+
+    await tx.bitacora_emergencias.update({ where: { id: uuidToBuffer(id) }, data })
+    return this.getById(id, tx)
   }
 }
