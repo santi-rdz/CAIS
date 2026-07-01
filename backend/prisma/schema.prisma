@@ -129,53 +129,55 @@ model eval_act_fisica_nutricion {
 }
 
 model eval_antro_ad_adulto_nutricion {
-  id                      Int                       @id @default(autoincrement())
-  codo                    Float?                    @db.Float
-  frisancho               Float?                    @db.Float
-  complexion              String?                   @db.VarChar(20)
-  pi_kg                   Float?                    @db.Float
-  edema_liq               Float?                    @db.Float
-  peso_sin_edema          Float?                    @db.Float
-  peso_ajustado           Float?                    @db.Float
-  peso_ideal_por          Float?                    @db.Float
-  diagnostico_pi          String?                   @db.VarChar(20)
-  diagnostico_imc         String?                   @db.VarChar(20)
-  pcb                     Float?                    @db.Float
-  pcsi                    Float?                    @db.Float
+  id                      Int                     @id @default(autoincrement())
+  eval_antro_id           Int                     @unique(map: "eval_antro_id")
+  codo                    Float?                  @db.Float
+  frisancho               Float?                  @db.Float
+  complexion              String?                 @db.VarChar(20)
+  pi_kg                   Float?                  @db.Float
+  edema_liq               Float?                  @db.Float
+  peso_sin_edema          Float?                  @db.Float
+  peso_ajustado           Float?                  @db.Float
+  peso_ideal_por          Float?                  @db.Float
+  diagnostico_pi          String?                 @db.VarChar(20)
+  diagnostico_imc         String?                 @db.VarChar(20)
+  pcb                     Float?                  @db.Float
+  pcsi                    Float?                  @db.Float
   riesgo_cv               Boolean?
-  cadera                  Float?                    @db.Float
-  indice_cintura_cadera   Float?                    @db.Float
-  diagnostico_icc         String?                   @db.VarChar(20)
-  circuf_cuello           Float?                    @db.Float
+  cadera                  Float?                  @db.Float
+  indice_cintura_cadera   Float?                  @db.Float
+  diagnostico_icc         String?                 @db.VarChar(20)
+  circuf_cuello           Float?                  @db.Float
   riesgo_eo_inf           Boolean?
-  eval_antro_ad_nutricion eval_antro_ad_nutricion[]
+  eval_antro_ad_nutricion eval_antro_ad_nutricion @relation(fields: [eval_antro_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_antro_ad_adulto")
 }
 
 model eval_antro_ad_kid_nutricion {
-  id                            Int                       @id @default(autoincrement())
-  percentiles_imc               Float?                    @db.Float
-  interpretacion_imc            String?                   @db.VarChar(255)
-  percentiles_cintura           Float?                    @db.Float
-  percentiles_pb                Float?                    @db.Float
-  percentiles_pct               Float?                    @db.Float
-  percentiles_pcse              Float?                    @db.Float
-  peso_para_talla               Float?                    @db.Float
-  peso_ideal                    Float?                    @db.Float
-  desviacion_estandar_peso      Float?                    @db.Float
-  interpretacion_nom_peso       String?                   @db.VarChar(50)
-  talla_para_edad               Float?                    @db.Float
-  talla_ideal                   Float?                    @db.Float
-  desviacion_estandar_talla     Float?                    @db.Float
-  interpretacion_nom_talla      String?                   @db.VarChar(50)
-  peso_para_edad                Float?                    @db.Float
-  desviacion_estandar_peso_edad Float?                    @db.Float
-  interpretacion_nom_peso_edad  String?                   @db.VarChar(50)
-  diagnostico_general           String?                   @db.VarChar(50)
-  resistencia                   Float?                    @db.Float
-  reactancia                    Float?                    @db.Float
-  angulo_fase                   Float?                    @db.Float
-  tan_angulo_fase               Float?                    @db.Float
-  eval_antro_ad_nutricion       eval_antro_ad_nutricion[]
+  id                            Int                     @id @default(autoincrement())
+  eval_antro_id                 Int                     @unique(map: "eval_antro_id")
+  percentiles_imc               Float?                  @db.Float
+  interpretacion_imc            String?                 @db.VarChar(255)
+  percentiles_cintura           Float?                  @db.Float
+  percentiles_pb                Float?                  @db.Float
+  percentiles_pct               Float?                  @db.Float
+  percentiles_pcse              Float?                  @db.Float
+  peso_para_talla               Float?                  @db.Float
+  peso_ideal                    Float?                  @db.Float
+  desviacion_estandar_peso      Float?                  @db.Float
+  interpretacion_nom_peso       String?                 @db.VarChar(50)
+  talla_para_edad               Float?                  @db.Float
+  talla_ideal                   Float?                  @db.Float
+  desviacion_estandar_talla     Float?                  @db.Float
+  interpretacion_nom_talla      String?                 @db.VarChar(50)
+  peso_para_edad                Float?                  @db.Float
+  desviacion_estandar_peso_edad Float?                  @db.Float
+  interpretacion_nom_peso_edad  String?                 @db.VarChar(50)
+  diagnostico_general           String?                 @db.VarChar(50)
+  resistencia                   Float?                  @db.Float
+  reactancia                    Float?                  @db.Float
+  angulo_fase                   Float?                  @db.Float
+  tan_angulo_fase               Float?                  @db.Float
+  eval_antro_ad_nutricion       eval_antro_ad_nutricion @relation(fields: [eval_antro_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_antro_ad_kid")
 }
 
 model eval_apetito_nutricion {
@@ -620,8 +622,6 @@ model diagnostico_nutricional_adulto {
 model eval_antro_ad_nutricion {
   id                             Int                             @id @default(autoincrement())
   paciente_id                    Bytes                           @db.Binary(16)
-  eval_antro_ad_kid_id           Int?
-  eval_antro_ad_adulto_id        Int?
   fecha                          DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
   peso_actual                    Float?                          @db.Float
   estatura                       Float?                          @db.Float
@@ -631,12 +631,10 @@ model eval_antro_ad_nutricion {
   pb                             Float?                          @db.Float
   pct                            Float?                          @db.Float
   pcse                           Float?                          @db.Float
-  eval_antro_ad_adulto_nutricion eval_antro_ad_adulto_nutricion? @relation(fields: [eval_antro_ad_adulto_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_adulto_eval_antro")
-  eval_antro_ad_kid_nutricion    eval_antro_ad_kid_nutricion?    @relation(fields: [eval_antro_ad_kid_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_kid_eval_antro")
+  eval_antro_ad_adulto_nutricion eval_antro_ad_adulto_nutricion?
+  eval_antro_ad_kid_nutricion    eval_antro_ad_kid_nutricion?
   pacientes                      pacientes                       @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_paciente_eval_antro")
 
-  @@index([eval_antro_ad_adulto_id], map: "fk_adulto_eval_antro")
-  @@index([eval_antro_ad_kid_id], map: "fk_kid_eval_antro")
   @@index([paciente_id], map: "fk_paciente_eval_antro")
 }
 
