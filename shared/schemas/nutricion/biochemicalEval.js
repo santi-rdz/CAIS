@@ -84,7 +84,7 @@ export const perfilRenalElectrolitosSchema = z.object({
 })
 
 export const evalBioqNutricionSchema = z.object({
-  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
+  historia_paciente_id: z.uuid('El ID de la historia debe ser un UUID válido'),
   fecha: optionalDateSchema,
   balance_acido_base: balanceAcidoBaseSchema.optional(),
   eval_estado_nutricion: evalEstadoNutricionSchema.optional(),
@@ -101,5 +101,5 @@ export function validateEvalBioqNutricion(input) {
 }
 
 export function validatePartialEvalBioqNutricion(input) {
-  return evalBioqNutricionSchema.partial().safeParse(input)
+  return evalBioqNutricionSchema.omit({ historia_paciente_id: true }).partial().safeParse(input)
 }

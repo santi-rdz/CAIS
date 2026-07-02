@@ -1,13 +1,17 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
-import { toUUID } from '#lib/prismaHelpers.js'
+import { toUUID, nestedCreate, manyCreate, manyReplace } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
 
 // ─── Relaciones a incluir en queries completas ───────────────────────────────
 
+// El examen enlaza a la historia; el paciente_id (y sus nombres) se resuelven
+// desde la historia para auditar y tocar el registro del paciente.
 const includeRelations = {
-  pacientes: { select: { nombre: true, apellidos: true } },
+  historias_pacientes_nutricion: {
+    select: { paciente_id: true, pacientes: { select: { nombre: true, apellidos: true } } },
+  },
   eval_perdida_peso_nutricion: true,
   signos_vitales_nutricion: true,
   eval_semiologia_nutricional: true,
@@ -18,7 +22,7 @@ const includeRelations = {
 
 const selectBasic = {
   id: true,
-  paciente_id: true,
+  historia_paciente_id: true,
   fecha: true,
 }
 
@@ -26,10 +30,13 @@ const selectBasic = {
 
 function formatExamFis(e) {
   if (!e) return null
+  const { historias_pacientes_nutricion, ...rest } = e
   return {
-    ...e,
+    ...rest,
     id: toUUID(e.id),
-    paciente_id: toUUID(e.paciente_id),
+    historia_paciente_id: toUUID(e.historia_paciente_id),
+    paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    pacientes: historias_pacientes_nutricion?.pacientes,
     eval_sintomas_gastroin_nutricion: e.eval_sintomas_gastroin_nutricion?.map((item) => ({
       ...item,
       exam_fis_id: toUUID(item.exam_fis_id),
@@ -39,16 +46,16 @@ function formatExamFis(e) {
 
 function formatMinimal(e) {
   const result = { ...e, id: toUUID(e.id) }
-  if ('paciente_id' in e) result.paciente_id = toUUID(e.paciente_id)
+  if ('historia_paciente_id' in e) result.historia_paciente_id = toUUID(e.historia_paciente_id)
   return result
 }
 
 // ─── Modelo ──────────────────────────────────────────────────────────────────
 
 export class PhysicalExaminationModel {
-  static async getAll({ paciente_id, page, limit, fields } = {}) {
+  static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
     const where = {}
-    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
+    if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
 
     const offset = (page - 1) * limit
 
@@ -81,32 +88,19 @@ export class PhysicalExaminationModel {
     return formatExamFis(exam)
   }
 
-  /**
-   * Crea el registro principal y sus tres tablas relacionadas por FK.
-   * Los tres hijos (perdida_peso, signos_vitales, semiologia) se crean primero
-   * porque el padre guarda sus IDs como FK.
-   */
   static async create(data, tx = prisma) {
     const examId = randomUUID()
 
-    // 1. Crear los tres registros hijos independientes
-    const [perdidaPeso, signosVitales, semiologia] = await Promise.all([
-      tx.eval_perdida_peso_nutricion.create({ data: data.eval_perdida_peso ?? {} }),
-      tx.signos_vitales_nutricion.create({ data: data.signos_vitales ?? {} }),
-      tx.eval_semiologia_nutricional.create({ data: data.semiologia ?? {} }),
-    ])
-
-    // 2. Crear el registro principal con UUID y FKs resueltas
     await tx.exam_fis_orien_nutricion.create({
       data: {
         id: uuidToBuffer(examId),
-        paciente_id: uuidToBuffer(data.paciente_id),
+        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         ...(data.fecha !== undefined && { fecha: data.fecha }),
-        id_perdida_peso: perdidaPeso.id,
-        id_signos_vitales: signosVitales.id,
-        id_semiologia: semiologia.id,
+        eval_perdida_peso_nutricion: nestedCreate(data.eval_perdida_peso ?? {}),
+        signos_vitales_nutricion: nestedCreate(data.signos_vitales ?? {}),
+        eval_semiologia_nutricional: nestedCreate(data.semiologia ?? {}),
         ...(data.eval_sintomas_gastroin?.length && {
-          eval_sintomas_gastroin_nutricion: { create: data.eval_sintomas_gastroin },
+          eval_sintomas_gastroin_nutricion: manyCreate(data.eval_sintomas_gastroin),
         }),
       },
     })
@@ -114,13 +108,8 @@ export class PhysicalExaminationModel {
     return this.getById(examId, tx)
   }
 
-  /**
-   * Elimina el registro y sus hijos.
-   *
-   * eval_sintomas_gastroin apunta al padre → se borra primero.
-   * Los tres registros hijos independientes (perdida_peso, signos_vitales,
-   * semiologia) apuntan desde el padre como FK → se borran después del padre.
-   */
+  // Las 4 sub-tablas guardan exam_fis_id con ON DELETE CASCADE → un delete plano
+  // las arrastra. Se lee antes con include para devolver el payload completo.
   static async delete(id, tx = prisma) {
     const idBuffer = uuidToBuffer(id)
 
@@ -130,16 +119,7 @@ export class PhysicalExaminationModel {
     })
     if (!exam) throw new NotFoundError('el examen físico de orientación')
 
-    await tx.eval_sintomas_gastroin_nutricion.deleteMany({
-      where: { exam_fis_id: idBuffer },
-    })
     await tx.exam_fis_orien_nutricion.delete({ where: { id: idBuffer } })
-
-    await Promise.all([
-      tx.eval_perdida_peso_nutricion.delete({ where: { id: exam.id_perdida_peso } }),
-      tx.signos_vitales_nutricion.delete({ where: { id: exam.id_signos_vitales } }),
-      tx.eval_semiologia_nutricional.delete({ where: { id: exam.id_semiologia } }),
-    ])
 
     return formatExamFis(exam)
   }
@@ -147,61 +127,28 @@ export class PhysicalExaminationModel {
   static async update(id, data, tx = prisma) {
     const idBuffer = uuidToBuffer(id)
 
-    const exam = await tx.exam_fis_orien_nutricion.findUnique({
+    const exists = await tx.exam_fis_orien_nutricion.findUnique({ where: { id: idBuffer } })
+    if (!exists) throw new NotFoundError('el examen físico de orientación')
+
+    await tx.exam_fis_orien_nutricion.update({
       where: { id: idBuffer },
-      select: { id_perdida_peso: true, id_signos_vitales: true, id_semiologia: true },
+      data: {
+        ...(data.fecha !== undefined && { fecha: data.fecha }),
+        // Las 3 sub-tablas to-one siempre existen (se crean con el examen) → update anidado.
+        ...(data.eval_perdida_peso !== undefined && {
+          eval_perdida_peso_nutricion: { update: data.eval_perdida_peso },
+        }),
+        ...(data.signos_vitales !== undefined && {
+          signos_vitales_nutricion: { update: data.signos_vitales },
+        }),
+        ...(data.semiologia !== undefined && {
+          eval_semiologia_nutricional: { update: data.semiologia },
+        }),
+        ...(data.eval_sintomas_gastroin !== undefined && {
+          eval_sintomas_gastroin_nutricion: manyReplace(data.eval_sintomas_gastroin),
+        }),
+      },
     })
-    if (!exam) throw new NotFoundError('el examen físico de orientación')
-
-    const childUpdates = []
-
-    if (data.eval_perdida_peso !== undefined) {
-      childUpdates.push(
-        tx.eval_perdida_peso_nutricion.update({
-          where: { id: exam.id_perdida_peso },
-          data: data.eval_perdida_peso,
-        })
-      )
-    }
-    if (data.signos_vitales !== undefined) {
-      childUpdates.push(
-        tx.signos_vitales_nutricion.update({
-          where: { id: exam.id_signos_vitales },
-          data: data.signos_vitales,
-        })
-      )
-    }
-    if (data.semiologia !== undefined) {
-      childUpdates.push(
-        tx.eval_semiologia_nutricional.update({
-          where: { id: exam.id_semiologia },
-          data: data.semiologia,
-        })
-      )
-    }
-    if (data.eval_sintomas_gastroin !== undefined) {
-      childUpdates.push(
-        tx.eval_sintomas_gastroin_nutricion
-          .deleteMany({ where: { exam_fis_id: idBuffer } })
-          .then(() =>
-            data.eval_sintomas_gastroin.length
-              ? tx.eval_sintomas_gastroin_nutricion.createMany({
-                  data: data.eval_sintomas_gastroin.map((s) => ({ ...s, exam_fis_id: idBuffer })),
-                })
-              : Promise.resolve()
-          )
-      )
-    }
-
-    const mainUpdate =
-      data.fecha !== undefined
-        ? tx.exam_fis_orien_nutricion.update({
-            where: { id: idBuffer },
-            data: { fecha: data.fecha },
-          })
-        : Promise.resolve()
-
-    await Promise.all([mainUpdate, ...childUpdates])
 
     return this.getById(id, tx)
   }

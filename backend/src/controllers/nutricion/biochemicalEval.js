@@ -4,26 +4,26 @@ import { PatientModel } from '#models/PatientModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 
-const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
+const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
 export class BiochemicalEvalController {
   static async create(req, res) {
     const evaluation = await prisma.$transaction(async (tx) => {
-      const h = await BiochemicalEvalModel.create(req.body, req.session.userId, tx)
-      await PatientModel.touch(req.body.paciente_id, tx)
+      const h = await BiochemicalEvalModel.create(req.body, tx)
+      await PatientModel.touch(h.paciente_id, tx)
       return h
     })
     return res.status(201).json({ message: 'Evaluación bioquímica registrada', evaluation })
   }
 
   static async getAll(req, res) {
-    const { paciente_id, fields } = req.query
+    const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (paciente_id && !isUUID(paciente_id)) {
+    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
       return res.status(422).json({
         error: 'ValidationError',
-        message: 'El parámetro "paciente_id" debe ser un UUID válido',
+        message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
       })
     }
 
@@ -46,7 +46,7 @@ export class BiochemicalEvalController {
     }
 
     const result = await BiochemicalEvalModel.getAll({
-      paciente_id,
+      historia_paciente_id,
       page,
       limit,
       fields: parsedFields,
@@ -69,7 +69,7 @@ export class BiochemicalEvalController {
   static async update(req, res) {
     const { id } = req.params
     const updatedEval = await prisma.$transaction(async (tx) => {
-      const h = await BiochemicalEvalModel.update(id, req.body, req.session.userId, tx)
+      const h = await BiochemicalEvalModel.update(id, req.body, tx)
       await PatientModel.touch(h.paciente_id, tx)
       return h
     })

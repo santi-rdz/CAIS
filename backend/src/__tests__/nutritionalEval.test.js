@@ -18,6 +18,7 @@ const tracker = createCleanupTracker()
 
 let agent
 let pacienteId
+let historiaId
 
 beforeAll(async () => {
   const auth = await authenticatedCoordinador({ area: 'NUTRICION', tracker })
@@ -25,12 +26,23 @@ beforeAll(async () => {
 
   const paciente = await createTestPaciente({ doctor: auth.user, tracker })
   pacienteId = paciente.id
+
+  // Las evaluaciones cuelgan de una historia de nutrición (FK
+  // historia_paciente_id); se limpian vía el pre-step de la historia tracked.
+  const histRes = await agent
+    .post('/nutricion/historias-nutricion')
+    .send({ paciente_id: pacienteId, motivo_consulta: 'Setup eval nutricional' })
+  historiaId = histRes.body.history?.id
+  if (!historiaId) throw new Error(`No se pudo crear historia. status=${histRes.status}`)
+  tracker.track('historias_pacientes_nutricion', uuidToBuffer(historiaId))
 })
 
 afterAll(() => tracker.cleanup())
 
-const minimal = (overrides) => buildNutritionalEvalMinimal({ pacienteId }, overrides)
-const completo = (overrides) => buildNutritionalEvalCompleto({ pacienteId }, overrides)
+const minimal = (overrides) =>
+  buildNutritionalEvalMinimal({ historiaPacienteId: historiaId }, overrides)
+const completo = (overrides) =>
+  buildNutritionalEvalCompleto({ historiaPacienteId: historiaId }, overrides)
 
 // ── GET /nutricion/evaluacion-nutricional ──────────────────────────
 
@@ -54,12 +66,14 @@ describe('GET /nutricion/evaluacion-nutricional', () => {
     expect(res.body.evals.length).toBeLessThanOrEqual(2)
   })
 
-  test('200 — filtra por paciente_id', async () => {
-    const res = await agent.get(`/nutricion/evaluacion-nutricional?paciente_id=${pacienteId}`)
+  test('200 — filtra por historia_paciente_id', async () => {
+    const res = await agent.get(
+      `/nutricion/evaluacion-nutricional?historia_paciente_id=${historiaId}`
+    )
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.evals)).toBe(true)
     for (const e of res.body.evals) {
-      expect(e.paciente_id).toBe(pacienteId)
+      expect(e.historia_paciente_id).toBe(historiaId)
     }
   })
 })
@@ -89,7 +103,7 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
   test('401 — sin sesión devuelve 401', async () => {
     const res = await api
       .post('/nutricion/evaluacion-nutricional')
-      .send({ paciente_id: pacienteId })
+      .send({ historia_paciente_id: historiaId })
     expect(res.status).toBe(401)
   })
 
@@ -99,10 +113,10 @@ describe('POST /nutricion/evaluacion-nutricional', () => {
     expect(res.body.error).toBe('ValidationError')
   })
 
-  test('422 — rechaza paciente_id inválido', async () => {
+  test('422 — rechaza historia_paciente_id inválido', async () => {
     const res = await agent
       .post('/nutricion/evaluacion-nutricional')
-      .send(minimal({ paciente_id: 'no-es-uuid' }))
+      .send(minimal({ historia_paciente_id: 'no-es-uuid' }))
     expect(res.status).toBe(422)
   })
 

@@ -86,9 +86,9 @@ export function buildEvolutionNote({ pacienteId }, overrides = {}) {
   }
 }
 
-export function buildNutritionalEvalMinimal({ pacienteId }, overrides = {}) {
+export function buildNutritionalEvalMinimal({ historiaPacienteId }, overrides = {}) {
   return {
-    paciente_id: pacienteId,
+    historia_paciente_id: historiaPacienteId,
     sigue_dieta: false,
     tiene_alergia: false,
     cual_alergia: null,
@@ -97,9 +97,9 @@ export function buildNutritionalEvalMinimal({ pacienteId }, overrides = {}) {
   }
 }
 
-export function buildNutritionalEvalCompleto({ pacienteId }, overrides = {}) {
+export function buildNutritionalEvalCompleto({ historiaPacienteId }, overrides = {}) {
   return {
-    ...buildNutritionalEvalMinimal({ pacienteId }),
+    ...buildNutritionalEvalMinimal({ historiaPacienteId }),
     eval_apetito_nutricion: {
       apetito: 'Normal',
       lleno: 'Rápido',

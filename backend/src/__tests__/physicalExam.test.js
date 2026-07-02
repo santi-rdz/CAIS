@@ -17,6 +17,7 @@ const tracker = createCleanupTracker()
 
 let agent
 let pacienteId
+let historiaId
 
 beforeAll(async () => {
   const auth = await authenticatedCoordinador({ area: 'NUTRICION', tracker })
@@ -24,6 +25,15 @@ beforeAll(async () => {
 
   const paciente = await createTestPaciente({ doctor: auth.user, tracker })
   pacienteId = paciente.id
+
+  // Los exámenes cuelgan de una historia de nutrición (FK historia_paciente_id);
+  // se limpian vía el pre-step de la historia tracked.
+  const histRes = await agent
+    .post('/nutricion/historias-nutricion')
+    .send({ paciente_id: pacienteId, motivo_consulta: 'Setup examen físico' })
+  historiaId = histRes.body.history?.id
+  if (!historiaId) throw new Error(`No se pudo crear historia. status=${histRes.status}`)
+  tracker.track('historias_pacientes_nutricion', uuidToBuffer(historiaId))
 })
 
 afterAll(() => tracker.cleanup())
@@ -31,7 +41,7 @@ afterAll(() => tracker.cleanup())
 // ── Factories locales ─────────────────────────────────────────────
 
 const buildMinimal = (overrides = {}) => ({
-  paciente_id: pacienteId,
+  historia_paciente_id: historiaId,
   eval_perdida_peso: {
     peso_habitual: 70,
     peso_perdido: 5,
@@ -115,17 +125,17 @@ describe('GET /nutricion/examinacion-fisica', () => {
     expect(res.body.exams.length).toBeLessThanOrEqual(2)
   })
 
-  test('200 — filtra por paciente_id', async () => {
+  test('200 — filtra por historia_paciente_id', async () => {
     const created = await agent.post('/nutricion/examinacion-fisica').send(buildMinimal())
     expect(created.status).toBe(201)
     tracker.track('exam_fis_orien_nutricion', uuidToBuffer(created.body.exam.id))
 
-    const res = await agent.get(`/nutricion/examinacion-fisica?paciente_id=${pacienteId}`)
+    const res = await agent.get(`/nutricion/examinacion-fisica?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.exams)).toBe(true)
     expect(res.body.exams.length).toBeGreaterThan(0)
     for (const e of res.body.exams) {
-      expect(e.paciente_id).toBe(pacienteId)
+      expect(e.historia_paciente_id).toBe(historiaId)
     }
   })
 })
@@ -161,10 +171,10 @@ describe('POST /nutricion/examinacion-fisica', () => {
     expect(res.body.error).toBe('ValidationError')
   })
 
-  test('422 — rechaza paciente_id inválido', async () => {
+  test('422 — rechaza historia_paciente_id inválido', async () => {
     const res = await agent
       .post('/nutricion/examinacion-fisica')
-      .send(buildMinimal({ paciente_id: 'no-es-uuid' }))
+      .send(buildMinimal({ historia_paciente_id: 'no-es-uuid' }))
     expect(res.status).toBe(422)
   })
 

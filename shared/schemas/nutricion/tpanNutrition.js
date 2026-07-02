@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { optionalDateSchema } from '../fields.js'
 
 export const tpanNutritionSchema = z.object({
-  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
+  historia_paciente_id: z.uuid('El ID de la historia debe ser un UUID válido'),
   fecha_eval: optionalDateSchema,
   eval_realizada: z.string().trim().nullish(),
   observacion: z.string().trim().nullish(),
@@ -14,7 +14,10 @@ export const tpanNutritionSchema = z.object({
   progreso: z.int().min(0).max(127).nullish(), // TinyInt
 })
 
-const tpanNutritionUpdateSchema = tpanNutritionSchema.omit({ paciente_id: true }).partial().strict()
+const tpanNutritionUpdateSchema = tpanNutritionSchema
+  .omit({ historia_paciente_id: true })
+  .partial()
+  .strict()
 
 export function validateTpanNutrition(input) {
   return tpanNutritionSchema.safeParse(input)

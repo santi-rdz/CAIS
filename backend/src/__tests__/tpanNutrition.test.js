@@ -7,6 +7,7 @@
 
 import request from 'supertest'
 import app from '#app'
+import { uuidToBuffer } from '#lib/uuid.js'
 import { authenticatedCoordinador } from './helpers/agents.js'
 import { createTestPaciente } from './helpers/db.js'
 import { createCleanupTracker } from './helpers/cleanup.js'
@@ -16,6 +17,7 @@ const tracker = createCleanupTracker()
 
 let agent
 let pacienteId
+let historiaId
 
 beforeAll(async () => {
   const auth = await authenticatedCoordinador({ area: 'NUTRICION', tracker })
@@ -23,17 +25,26 @@ beforeAll(async () => {
 
   const paciente = await createTestPaciente({ doctor: auth.user, tracker })
   pacienteId = paciente.id
+
+  // Los TPAN cuelgan de una historia de nutrición (FK historia_paciente_id);
+  // se limpian vía el pre-step de la historia tracked.
+  const histRes = await agent
+    .post('/nutricion/historias-nutricion')
+    .send({ paciente_id: pacienteId, motivo_consulta: 'Setup TPAN' })
+  historiaId = histRes.body.history?.id
+  if (!historiaId) throw new Error(`No se pudo crear historia. status=${histRes.status}`)
+  tracker.track('historias_pacientes_nutricion', uuidToBuffer(historiaId))
 })
 
 afterAll(() => tracker.cleanup())
 
 const buildMinimal = (overrides = {}) => ({
-  paciente_id: pacienteId,
+  historia_paciente_id: historiaId,
   ...overrides,
 })
 
 const buildCompleto = (overrides = {}) => ({
-  paciente_id: pacienteId,
+  historia_paciente_id: historiaId,
   fecha_eval: '2024-05-10',
   eval_realizada: 'Evaluación nutricional completa',
   observacion: 'Paciente con déficit calórico moderado',
@@ -66,22 +77,22 @@ describe('GET /nutricion/tpan', () => {
     expect(res.body.tpans.length).toBeLessThanOrEqual(2)
   })
 
-  test('200 — filtra por paciente_id', async () => {
+  test('200 — filtra por historia_paciente_id', async () => {
     const created = await agent.post('/nutricion/tpan').send(buildMinimal())
     expect(created.status).toBe(201)
     tracker.track('tpan_nutricion', created.body.tpan.id)
 
-    const res = await agent.get(`/nutricion/tpan?paciente_id=${pacienteId}`)
+    const res = await agent.get(`/nutricion/tpan?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.tpans)).toBe(true)
     expect(res.body.tpans.length).toBeGreaterThan(0)
     for (const t of res.body.tpans) {
-      expect(t.paciente_id).toBe(pacienteId)
+      expect(t.historia_paciente_id).toBe(historiaId)
     }
   })
 
-  test('422 — rechaza paciente_id inválido', async () => {
-    const res = await agent.get('/nutricion/tpan?paciente_id=no-es-uuid')
+  test('422 — rechaza historia_paciente_id inválido', async () => {
+    const res = await agent.get('/nutricion/tpan?historia_paciente_id=no-es-uuid')
     expect(res.status).toBe(422)
     expect(res.body.error).toBe('ValidationError')
   })
@@ -118,10 +129,10 @@ describe('POST /nutricion/tpan', () => {
     expect(res.body.error).toBe('ValidationError')
   })
 
-  test('422 — rechaza paciente_id inválido', async () => {
+  test('422 — rechaza historia_paciente_id inválido', async () => {
     const res = await agent
       .post('/nutricion/tpan')
-      .send(buildMinimal({ paciente_id: 'no-es-uuid' }))
+      .send(buildMinimal({ historia_paciente_id: 'no-es-uuid' }))
     expect(res.status).toBe(422)
   })
 
@@ -214,10 +225,10 @@ describe('PATCH /nutricion/tpan/:id', () => {
     expect(res.status).toBe(422)
   })
 
-  test('422 — rechaza paciente_id en PATCH', async () => {
+  test('422 — rechaza historia_paciente_id en PATCH', async () => {
     const res = await agent
       .patch(`/nutricion/tpan/${tpanId}`)
-      .send({ paciente_id: pacienteId, observacion: 'X' })
+      .send({ historia_paciente_id: historiaId, observacion: 'X' })
     expect(res.status).toBe(422)
   })
 
