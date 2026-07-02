@@ -60,7 +60,7 @@ describe('GET /nutricion/evaluacion-sueno', () => {
   })
 
   test('200 — retorna lista paginada', async () => {
-    const res = await agent.get('/nutricion/evaluacion-sueno')
+    const res = await agent.get(`/nutricion/evaluacion-sueno?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('evaluaciones')
     expect(res.body).toHaveProperty('count')
@@ -68,7 +68,9 @@ describe('GET /nutricion/evaluacion-sueno', () => {
   })
 
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await agent.get('/nutricion/evaluacion-sueno?page=1&limit=2')
+    const res = await agent.get(
+      `/nutricion/evaluacion-sueno?historia_paciente_id=${historiaId}&page=1&limit=2`
+    )
     expect(res.status).toBe(200)
     expect(res.body.evaluaciones.length).toBeLessThanOrEqual(2)
   })
@@ -93,7 +95,9 @@ describe('GET /nutricion/evaluacion-sueno', () => {
   })
 
   test('422 — rechaza fields con valores no permitidos', async () => {
-    const res = await agent.get('/nutricion/evaluacion-sueno?fields=insomnio,__proto__')
+    const res = await agent.get(
+      `/nutricion/evaluacion-sueno?historia_paciente_id=${historiaId}&fields=insomnio,__proto__`
+    )
     expect(res.status).toBe(422)
     expect(res.body.error).toBe('ValidationError')
   })

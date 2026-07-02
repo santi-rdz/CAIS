@@ -112,7 +112,7 @@ describe('GET /nutricion/examinacion-fisica', () => {
   })
 
   test('200 — retorna lista paginada', async () => {
-    const res = await agent.get('/nutricion/examinacion-fisica')
+    const res = await agent.get(`/nutricion/examinacion-fisica?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('exams')
     expect(res.body).toHaveProperty('count')
@@ -120,7 +120,9 @@ describe('GET /nutricion/examinacion-fisica', () => {
   })
 
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await agent.get('/nutricion/examinacion-fisica?page=1&limit=2')
+    const res = await agent.get(
+      `/nutricion/examinacion-fisica?historia_paciente_id=${historiaId}&page=1&limit=2`
+    )
     expect(res.status).toBe(200)
     expect(res.body.exams.length).toBeLessThanOrEqual(2)
   })

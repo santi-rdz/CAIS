@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { BiochemicalEvalController } from '#controllers/nutricion/biochemicalEval.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateUuidParam } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateEvalBioqNutricion,
   validatePartialEvalBioqNutricion,
@@ -13,7 +13,7 @@ biochemicalEvalRouter.use(requireAuth)
 
 biochemicalEvalRouter
   .route('/')
-  .get(BiochemicalEvalController.getAll)
+  .get(validateUuidQuery('historia_paciente_id'), BiochemicalEvalController.getAll)
   .post(validate(validateEvalBioqNutricion), BiochemicalEvalController.create)
 
 biochemicalEvalRouter

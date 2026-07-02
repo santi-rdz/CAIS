@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { NutritionalEvalController } from '#controllers/nutricion/nutritionalEval.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateUuidParam } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateNutritionalEval,
   validatePartialNutritionalEval,
@@ -13,7 +13,7 @@ nutritionalEvalRouter.use(requireAuth)
 
 nutritionalEvalRouter
   .route('/')
-  .get(NutritionalEvalController.getAll)
+  .get(validateUuidQuery('historia_paciente_id'), NutritionalEvalController.getAll)
   .post(validate(validateNutritionalEval), NutritionalEvalController.create)
 
 nutritionalEvalRouter

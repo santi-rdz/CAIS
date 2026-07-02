@@ -61,7 +61,9 @@ describe('GET /nutricion/evaluacion-bioquimica', () => {
   })
 
   test('200 — retorna lista paginada', async () => {
-    const res = await agent.get('/nutricion/evaluacion-bioquimica')
+    const res = await agent.get(
+      `/nutricion/evaluacion-bioquimica?historia_paciente_id=${historiaId}`
+    )
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('evaluations')
     expect(res.body).toHaveProperty('count')

@@ -2,7 +2,6 @@ import { prisma } from '#config/prisma.js'
 import { BiochemicalEvalModel } from '#models/nutricion/BiochemicalEval.js'
 import { PatientModel } from '#models/PatientModel.js'
 import { parsePagination } from '#lib/paginate.js'
-import { isUUID } from '@cais/shared/schemas/fields'
 
 const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
@@ -19,14 +18,6 @@ export class BiochemicalEvalController {
   static async getAll(req, res) {
     const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
-
-    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
-      })
-    }
-
     const rawFields = Array.isArray(fields) ? fields.join(',') : fields
     const parsedFields = rawFields
       ? rawFields

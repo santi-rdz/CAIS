@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { TpanNutritionController } from '#controllers/nutricion/tpanNutrition.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateIntParam } from '#middleware/validate.js'
+import { validate, validateIntParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateTpanNutrition,
   validatePartialTpanNutrition,
@@ -13,7 +13,7 @@ tpanNutritionRouter.use(requireAuth)
 
 tpanNutritionRouter
   .route('/')
-  .get(TpanNutritionController.getAll)
+  .get(validateUuidQuery('historia_paciente_id'), TpanNutritionController.getAll)
   .post(validate(validateTpanNutrition), TpanNutritionController.create)
 
 tpanNutritionRouter

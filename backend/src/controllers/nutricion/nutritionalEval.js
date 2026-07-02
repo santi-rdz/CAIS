@@ -1,7 +1,6 @@
 import { prisma } from '#config/prisma.js'
 import { NutritionalEvalModel } from '#models/nutricion/NutritionalEval.js'
 import { parsePagination } from '#lib/paginate.js'
-import { isUUID } from '@cais/shared/schemas/fields'
 
 const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
@@ -17,14 +16,6 @@ export class NutritionalEvalController {
   static async getAll(req, res) {
     const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
-
-    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
-      return res.status(422).json({
-        error: 'ValidationError',
-        message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
-      })
-    }
-
     if (fields !== undefined && typeof fields !== 'string') {
       return res.status(422).json({
         error: 'ValidationError',
