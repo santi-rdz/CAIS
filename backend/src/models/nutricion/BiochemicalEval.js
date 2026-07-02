@@ -114,7 +114,7 @@ export class BiochemicalEvalModel {
     return formatBiochemicalEval(evaluation)
   }
 
-  static async create(data, userId, tx = prisma) {
+  static async create(data, tx = prisma) {
     const evaluationId = randomUUID()
 
     await tx.eval_bioq_nutricion.create({
@@ -139,7 +139,7 @@ export class BiochemicalEvalModel {
     return formatBiochemicalEval(existing)
   }
 
-  static async update(id, data, userId, tx = prisma) {
+  static async update(id, data, tx = prisma) {
     const evalBuffer = uuidToBuffer(id)
 
     const exists = await tx.eval_bioq_nutricion.findUnique({ where: { id: evalBuffer } })

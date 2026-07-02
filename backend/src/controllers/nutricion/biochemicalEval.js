@@ -9,7 +9,7 @@ const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_a
 export class BiochemicalEvalController {
   static async create(req, res) {
     const evaluation = await prisma.$transaction(async (tx) => {
-      const h = await BiochemicalEvalModel.create(req.body, req.session.userId, tx)
+      const h = await BiochemicalEvalModel.create(req.body, tx)
       await PatientModel.touch(h.paciente_id, tx)
       return h
     })
@@ -20,7 +20,7 @@ export class BiochemicalEvalController {
     const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (historia_paciente_id && !isUUID(historia_paciente_id)) {
+    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
       return res.status(422).json({
         error: 'ValidationError',
         message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
@@ -69,7 +69,7 @@ export class BiochemicalEvalController {
   static async update(req, res) {
     const { id } = req.params
     const updatedEval = await prisma.$transaction(async (tx) => {
-      const h = await BiochemicalEvalModel.update(id, req.body, req.session.userId, tx)
+      const h = await BiochemicalEvalModel.update(id, req.body, tx)
       await PatientModel.touch(h.paciente_id, tx)
       return h
     })
