@@ -18,9 +18,13 @@ const DELETE_ORDER = [
   // Nivel 1: sub-evaluaciones nutricionales 1-1 con eval_nutr_fh
   ['eval_apetito_nutricion', 'frec_consumo_alimentos_nutricion', 'horarios_comida_nutricion'],
 
-  // Nivel 2: parents intermedios (hijos de pacientes / historias_medicas)
+  // Nivel 2: parents intermedios (hijos de pacientes / historias_medicas).
+  // eval_nutr_fh, eval_bioq_nutricion y exam_fis_orien_nutricion cascadean sus
+  // sub-tablas en la DB al borrarse.
   [
     'eval_nutr_fh',
+    'eval_bioq_nutricion',
+    'exam_fis_orien_nutricion',
     'notas_evolucion',
     'bitacora_emergencias',
     'aparatos_sistemas',
@@ -33,12 +37,9 @@ const DELETE_ORDER = [
     'tpan_nutricion',
   ],
 
-  // Nivel 3: hijos directos de pacientes
-  ['historias_medicas', 'historias_pacientes_nutricion', 'exam_fis_orien_nutricion'],
-
-  // Nivel 3.5: adicciones es padre de historias_pacientes_nutricion (FK
-  // adicciones_id), así que se borra después de las historias que la referencian.
-  ['adicciones'],
+  // Nivel 3: hijos directos de pacientes. historias_pacientes_nutricion cascadea
+  // todas sus sub-tablas (adicciones incluida) en la DB al borrarse.
+  ['historias_medicas', 'historias_pacientes_nutricion'],
 
   // Nivel 4: hijos de usuarios que no son audit
   ['invitaciones_registro', 'password_reset_tokens'],
@@ -104,44 +105,6 @@ export function createCleanupTracker() {
           ])
         } catch (err) {
           console.warn(`Cleanup hijos nutricion: ${err.message}`)
-        }
-      }
-
-      // Pre-step 3: borrar exam_fis_orien_nutricion y sus relaciones. Todos los
-      // FK son NoAction, así que el orden es estricto y secuencial:
-      //   1) eval_sintomas_gastroin (hijo del exam, vía exam_fis_id)
-      //   2) el exam (hijo de las 3 tablas 1:1 vía id_perdida_peso/...)
-      //   3) las 3 tablas padre 1:1, ya sin referencias (en paralelo)
-      const examFisIds = records.get('exam_fis_orien_nutricion')
-      if (examFisIds?.size) {
-        const idList = [...examFisIds]
-        try {
-          const exams = await prisma.exam_fis_orien_nutricion.findMany({
-            where: { id: { in: idList } },
-            select: {
-              id_perdida_peso: true,
-              id_signos_vitales: true,
-              id_semiologia: true,
-            },
-          })
-
-          await prisma.eval_sintomas_gastroin_nutricion.deleteMany({
-            where: { exam_fis_id: { in: idList } },
-          })
-          await prisma.exam_fis_orien_nutricion.deleteMany({ where: { id: { in: idList } } })
-          await Promise.all([
-            prisma.eval_perdida_peso_nutricion.deleteMany({
-              where: { id: { in: exams.map((e) => e.id_perdida_peso) } },
-            }),
-            prisma.signos_vitales_nutricion.deleteMany({
-              where: { id: { in: exams.map((e) => e.id_signos_vitales) } },
-            }),
-            prisma.eval_semiologia_nutricional.deleteMany({
-              where: { id: { in: exams.map((e) => e.id_semiologia) } },
-            }),
-          ])
-        } catch (err) {
-          console.warn(`Cleanup hijos exam_fis: ${err.message}`)
         }
       }
 
