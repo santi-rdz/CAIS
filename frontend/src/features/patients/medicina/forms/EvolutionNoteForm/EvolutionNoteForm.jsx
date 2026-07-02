@@ -85,15 +85,9 @@ function buildEditDefaults(note) {
   }
 }
 
-export default function EvolutionNoteForm({
-  pacienteId,
-  patientGenero,
-  historiaId,
-  note,
-  onCloseModal,
-}) {
-  const { createNote, isCreating } = useCreateEvolutionNote(pacienteId)
-  const { updateNote, isUpdating } = useUpdateEvolutionNote(pacienteId)
+export default function EvolutionNoteForm({ patientGenero, historiaId, note, onCloseModal }) {
+  const { createNote, isCreating } = useCreateEvolutionNote(historiaId)
+  const { updateNote, isUpdating } = useUpdateEvolutionNote(historiaId)
   const isEdit = !!note
   const defaultValues = isEdit ? buildEditDefaults(note) : getCreateDefaults()
   const stepForm = useStepForm(
@@ -133,8 +127,7 @@ export default function EvolutionNoteForm({
     } else {
       const cleaned = omitEmpty(data)
       const payload = {
-        paciente_id: pacienteId,
-        ...(historiaId && { historia_medica_id: historiaId }),
+        historia_medica_id: historiaId,
         creado_at: mergeFechaHora(data.fecha, data.hora),
         ...(cleaned.motivo_consulta && {
           motivo_consulta: cleaned.motivo_consulta,

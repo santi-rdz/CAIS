@@ -9,14 +9,14 @@ export class EvolutionNoteController {
   static async create(req, res) {
     const note = await prisma.$transaction(async (tx) => {
       const n = await EvolutionNoteModel.create(req.body, req.session.userId, tx)
-      await PatientModel.touch(req.body.paciente_id, tx)
+      await PatientModel.touch(n.paciente_id, tx)
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
           accion: ACCIONES.CREAR,
           entidad: ENTIDADES.NOTA_EVOLUCION,
           objetivo_id: n.id,
-          paciente_id: req.body.paciente_id,
+          paciente_id: n.paciente_id,
         },
         tx
       )
@@ -26,11 +26,10 @@ export class EvolutionNoteController {
   }
 
   static async getAll(req, res) {
-    const { paciente_id, historia_medica_id } = req.query
+    const { historia_medica_id } = req.query
     const { page, limit } = parsePagination(req.query)
 
     const result = await EvolutionNoteModel.getAll({
-      paciente_id,
       historia_medica_id,
       page,
       limit,

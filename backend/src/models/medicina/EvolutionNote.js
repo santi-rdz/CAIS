@@ -13,6 +13,7 @@ import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
   usuarios: { select: { nombre: true, foto: true } },
+  historias_medicas: { select: { paciente_id: true } },
   aparatos_sistemas: true,
   informacion_fisica: true,
   planes_estudio: { include: { planes_estudio_cie10: true } },
@@ -34,15 +35,15 @@ const NESTED_RELATIONS = ['aparatos_sistemas', 'informacion_fisica']
 
 function formatEvolutionNote(n) {
   if (!n) return null
-  const { planes_estudio, ...rest } = n
+  const { planes_estudio, historias_medicas, ...rest } = n
   const plan = Array.isArray(planes_estudio)
     ? (planes_estudio[0] ?? null)
     : (planes_estudio ?? null)
   return {
     ...rest,
     id: toUUID(n.id),
-    paciente_id: toUUID(n.paciente_id),
-    historia_medica_id: n.historia_medica_id ? toUUID(n.historia_medica_id) : null,
+    paciente_id: toUUID(historias_medicas?.paciente_id),
+    historia_medica_id: toUUID(n.historia_medica_id),
     usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
 
     planes_estudio: plan
@@ -82,9 +83,8 @@ function formatListNote(n) {
 }
 
 export class EvolutionNoteModel {
-  static async getAll({ paciente_id, historia_medica_id, page = 1, limit = 10 } = {}) {
+  static async getAll({ historia_medica_id, page = 1, limit = 10 } = {}) {
     const where = {}
-    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
     if (historia_medica_id) where.historia_medica_id = uuidToBuffer(historia_medica_id)
 
     const offset = (page - 1) * limit
@@ -121,8 +121,7 @@ export class EvolutionNoteModel {
     await tx.notas_evolucion.create({
       data: {
         id: uuidToBuffer(noteId),
-        paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-        historia_medica_id: data.historia_medica_id ? uuidToBuffer(data.historia_medica_id) : null,
+        historia_medica_id: uuidToBuffer(data.historia_medica_id),
         usuario_id: uuidToBuffer(userId),
         creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
         motivo_consulta: data.motivo_consulta ?? null,
@@ -157,14 +156,6 @@ export class EvolutionNoteModel {
       data: {
         ...(data.creado_at != null && {
           creado_at: new Date(data.creado_at),
-        }),
-        ...(data.paciente_id !== undefined && {
-          paciente_id: data.paciente_id ? uuidToBuffer(data.paciente_id) : null,
-        }),
-        ...(data.historia_medica_id !== undefined && {
-          historia_medica_id: data.historia_medica_id
-            ? uuidToBuffer(data.historia_medica_id)
-            : null,
         }),
         motivo_consulta: data.motivo_consulta,
         ant_gine_andro: data.ant_gine_andro,

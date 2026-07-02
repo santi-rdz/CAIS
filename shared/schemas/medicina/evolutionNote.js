@@ -2,10 +2,10 @@ import { z } from 'zod'
 import { isoDateTimeSchema, text, uuidSchema } from '../fields.js'
 import { aparatosSistemasSchema, informacionFisicaSchema, planEstudioSchema } from './shared.js'
 
-// Schema único para backend y form
+// Schema único para backend y form. Toda nota pertenece a una historia médica;
+// el paciente se deriva de ella, no se recibe en el body.
 export const evolutionNoteSchema = z.object({
-  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
-  historia_medica_id: uuidSchema.optional(),
+  historia_medica_id: uuidSchema,
   creado_at: isoDateTimeSchema,
   motivo_consulta: text(),
   ant_gine_andro: text(),
@@ -19,6 +19,7 @@ export function validateEvolutionNote(input) {
   return evolutionNoteSchema.safeParse(input)
 }
 
+// La historia es inmutable en update (la nota no se "mueve" de historia).
 export function validatePartialEvolutionNote(input) {
-  return evolutionNoteSchema.partial().safeParse(input)
+  return evolutionNoteSchema.omit({ historia_medica_id: true }).partial().safeParse(input)
 }
