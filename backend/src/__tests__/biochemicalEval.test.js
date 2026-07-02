@@ -8,6 +8,7 @@
 
 import request from 'supertest'
 import app from '#app'
+import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { authenticatedCoordinador } from './helpers/agents.js'
 import { createTestPaciente } from './helpers/db.js'
@@ -118,6 +119,7 @@ describe('POST /nutricion/evaluacion-bioquimica', () => {
     expect(res.status).toBe(201)
     const e = res.body.evaluation
     expect(e.id).toBeDefined()
+    expect(e.historia_paciente_id).toBe(historiaId)
     expect(e.paciente_id).toBe(pacienteId)
     expect(e.perfil_lipidos).toBeNull()
     expect(e.balance_acido_base).toBeNull()
@@ -129,6 +131,7 @@ describe('POST /nutricion/evaluacion-bioquimica', () => {
     const res = await agent.post('/nutricion/evaluacion-bioquimica').send(buildCompleto())
     expect(res.status).toBe(201)
     const e = res.body.evaluation
+    expect(e.historia_paciente_id).toBe(historiaId)
     expect(e.paciente_id).toBe(pacienteId)
     expect(e.perfil_lipidos).not.toBeNull()
     expect(e.perfil_lipidos.colesterol).toBe(180)
@@ -192,11 +195,22 @@ describe('DELETE /nutricion/evaluacion-bioquimica/:id', () => {
   })
 
   test('200 — elimina la evaluación y sus perfiles en cascada', async () => {
+    const evalBuffer = uuidToBuffer(evalId)
     const res = await agent.delete(`/nutricion/evaluacion-bioquimica/${evalId}`)
     expect(res.status).toBe(200)
     expect(res.body.id).toBeDefined()
 
     const check = await agent.get(`/nutricion/evaluacion-bioquimica/${evalId}`)
     expect(check.status).toBe(404)
+
+    // El cascade de la DB debe haber borrado los perfiles hijos, no solo el padre.
+    const [lipidos, balance, endocrino] = await Promise.all([
+      prisma.perfil_lipidos.findMany({ where: { id_eval_bioq: evalBuffer } }),
+      prisma.balance_acido_base.findMany({ where: { id_eval_bioq: evalBuffer } }),
+      prisma.perfil_endocrino.findMany({ where: { id_eval_bioq: evalBuffer } }),
+    ])
+    expect(lipidos).toHaveLength(0)
+    expect(balance).toHaveLength(0)
+    expect(endocrino).toHaveLength(0)
   })
 })
