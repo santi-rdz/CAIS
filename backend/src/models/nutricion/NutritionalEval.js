@@ -4,7 +4,10 @@ import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, nestedCreate, nestedUpsert, buildNestedRelations } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
 
+// La evaluación enlaza a la historia; el paciente_id se resuelve desde la
+// historia para auditar y tocar el registro del paciente en el controlador.
 const includeRelations = {
+  historias_pacientes_nutricion: { select: { paciente_id: true } },
   eval_apetito_nutricion: true,
   frec_consumo_alimentos_nutricion: true,
   horarios_comida_nutricion: true,
@@ -12,7 +15,7 @@ const includeRelations = {
 
 const selectBasic = {
   id: true,
-  paciente_id: true,
+  historia_paciente_id: true,
   fecha: true,
   creado_at: true,
 }
@@ -25,23 +28,25 @@ const NESTED_RELATIONS = [
 
 function formatEvalNutr(n) {
   if (!n) return null
+  const { historias_pacientes_nutricion, ...rest } = n
   return {
-    ...n,
+    ...rest,
     id: toUUID(n.id),
-    paciente_id: toUUID(n.paciente_id),
+    historia_paciente_id: toUUID(n.historia_paciente_id),
+    paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
   }
 }
 
 function formatMinimal(n) {
   const result = { ...n, id: toUUID(n.id) }
-  if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
+  if ('historia_paciente_id' in n) result.historia_paciente_id = toUUID(n.historia_paciente_id)
   return result
 }
 
 export class NutritionalEvalModel {
-  static async getAll({ paciente_id, page = 1, limit = 20, fields } = {}) {
+  static async getAll({ historia_paciente_id, page = 1, limit = 20, fields } = {}) {
     const where = {}
-    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
+    if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
 
     const offset = (page - 1) * limit
 
@@ -80,7 +85,7 @@ export class NutritionalEvalModel {
     await tx.eval_nutr_fh.create({
       data: {
         id: uuidToBuffer(evalId),
-        paciente_id: uuidToBuffer(data.paciente_id),
+        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         fecha: data.fecha,
         sigue_dieta: data.sigue_dieta,
         tiene_alergia: data.tiene_alergia,

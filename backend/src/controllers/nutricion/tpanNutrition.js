@@ -6,13 +6,13 @@ import { parsePagination } from '#lib/paginate.js'
 import { isUUID } from '@cais/shared/schemas/fields'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
-const LISTABLE_FIELDS = new Set(['id', 'paciente_id', 'fecha_eval'])
+const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha_eval'])
 
 export class TpanNutritionController {
   static async create(req, res) {
     const tpan = await prisma.$transaction(async (tx) => {
       const t = await TpanNutritionModel.create(req.body, tx)
-      await PatientModel.touch(req.body.paciente_id, tx)
+      await PatientModel.touch(t.paciente_id, tx)
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -29,13 +29,13 @@ export class TpanNutritionController {
   }
 
   static async getAll(req, res) {
-    const { paciente_id, fields } = req.query
+    const { historia_paciente_id, fields } = req.query
     const { page, limit } = parsePagination(req.query)
 
-    if (paciente_id !== undefined && !isUUID(paciente_id)) {
+    if (historia_paciente_id !== undefined && !isUUID(historia_paciente_id)) {
       return res.status(422).json({
         error: 'ValidationError',
-        message: 'El parámetro "paciente_id" debe ser un UUID válido',
+        message: 'El parámetro "historia_paciente_id" debe ser un UUID válido',
       })
     }
 
@@ -61,7 +61,7 @@ export class TpanNutritionController {
     }
 
     const result = await TpanNutritionModel.getAll({
-      paciente_id,
+      historia_paciente_id,
       page,
       limit,
       fields: parsedFields,

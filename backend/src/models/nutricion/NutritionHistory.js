@@ -100,9 +100,7 @@ export class NutritionHistoryModel {
     await tx.historias_pacientes_nutricion.create({
       data: {
         id: uuidToBuffer(historyId),
-        // connect (modo checked) para habilitar el create anidado de adicciones,
-        // que es una relación to-one padre (FK adicciones_id en esta fila).
-        pacientes: { connect: { id: uuidToBuffer(data.paciente_id) } },
+        paciente_id: uuidToBuffer(data.paciente_id),
         fecha_ingreso: data.fecha_ingreso,
         motivo_consulta: data.motivo_consulta,
         ...(data.adicciones && { adicciones: nestedCreate(data.adicciones) }),
@@ -113,16 +111,10 @@ export class NutritionHistoryModel {
     return this.getById(historyId, tx)
   }
 
-  /**
-   * Elimina una historia por su UUID.
-   *
-   * Prisma usa su propio query interpreter con el adapter de MariaDB, por lo que
-   * el ON DELETE CASCADE definido en el SQL no se aplica automáticamente al pasar
-   * por Prisma. Los hijos se eliminan manualmente antes que el padre.
-   *
-   * Cuando el schema.prisma se actualice con onDelete: Cascade en las 4 relaciones
-   * hijas, este método puede simplificarse a un delete directo.
-   */
+  // Todas las hijas (adicciones, historias_medicas_nutricion, eval_*, tratamiento,
+  // eval_bioq, eval_nutr, tpan, exam_fis) guardan historia_paciente_id con
+  // ON DELETE CASCADE → un delete plano las arrastra. Se lee antes con include
+  // para devolver el payload completo.
   static async delete(id, tx = prisma) {
     const idBuffer = uuidToBuffer(id)
 
@@ -132,23 +124,7 @@ export class NutritionHistoryModel {
     })
     if (!history) throw new NotFoundError('la historia de nutrición')
 
-    const where = { historia_paciente_id: idBuffer }
-    await Promise.all([
-      tx.historias_medicas_nutricion.deleteMany({ where }),
-      tx.eval_act_fisica_nutricion.deleteMany({ where }),
-      tx.eval_cal_sueno.deleteMany({ where }),
-      tx.tratamiento_alt_nutricion.deleteMany({ where }),
-    ])
-
     await tx.historias_pacientes_nutricion.delete({ where: { id: idBuffer } })
-
-    // adicciones es 1:1 propiedad de la historia (FK adicciones_id en la
-    // historia); se borra después de la historia para no violar la FK.
-    if (history.adicciones?.id) {
-      await tx.adicciones.delete({ where: { id: history.adicciones.id } }).catch((err) => {
-        if (err.code !== 'P2025') throw err
-      })
-    }
 
     return formatNutritionHistory(history)
   }

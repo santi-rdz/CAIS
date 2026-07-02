@@ -1,10 +1,13 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
-import { toUUID } from '#lib/prismaHelpers.js'
+import { toUUID, nestedCreate, nestedUpsert, buildNestedRelations } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
 
+// La evaluación enlaza a la historia; el paciente_id se resuelve desde la
+// historia para auditar y tocar el registro del paciente en el controlador.
 const includeRelations = {
+  historias_pacientes_nutricion: { select: { paciente_id: true } },
   perfil_anemia_nutricion: true,
   perfil_endocrino: true,
   perfil_renal_electrolitos: true,
@@ -17,7 +20,7 @@ const includeRelations = {
 
 const selectBasic = {
   id: true,
-  paciente_id: true,
+  historia_paciente_id: true,
   creado_at: true,
 }
 
@@ -32,7 +35,7 @@ const NESTED_RELATIONS = [
   'eval_estado_nutricion',
 ]
 
-const ALLOWED_FIELDS = new Set(['id', 'paciente_id', 'fecha', 'creado_at'])
+const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
 function formatNested(obj) {
   if (!obj) return null
@@ -44,7 +47,8 @@ function formatBiochemicalEval(n) {
   if (!n) return null
   return {
     id: toUUID(n.id),
-    paciente_id: toUUID(n.paciente_id),
+    historia_paciente_id: toUUID(n.historia_paciente_id),
+    paciente_id: toUUID(n.historias_pacientes_nutricion?.paciente_id),
     fecha: n.fecha,
     creado_at: n.creado_at,
     perfil_anemia_nutricion: formatNested(n.perfil_anemia_nutricion),
@@ -60,14 +64,14 @@ function formatBiochemicalEval(n) {
 
 function formatMinimal(n) {
   const result = { ...n, id: toUUID(n.id) }
-  if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
+  if ('historia_paciente_id' in n) result.historia_paciente_id = toUUID(n.historia_paciente_id)
   return result
 }
 
 export class BiochemicalEvalModel {
-  static async getAll({ paciente_id, page, limit, fields } = {}) {
+  static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
     const where = {}
-    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
+    if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
 
     const offset = (page - 1) * limit
 
@@ -112,25 +116,15 @@ export class BiochemicalEvalModel {
 
   static async create(data, userId, tx = prisma) {
     const evaluationId = randomUUID()
-    const evalBuffer = uuidToBuffer(evaluationId)
 
-    // 1. Crear la evaluación raíz primero
     await tx.eval_bioq_nutricion.create({
       data: {
-        id: evalBuffer,
-        paciente_id: uuidToBuffer(data.paciente_id),
+        id: uuidToBuffer(evaluationId),
+        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         ...(data.fecha !== undefined && { fecha: data.fecha }),
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
       },
     })
-
-    // 2. Crear los perfiles después (ya existe el padre)
-    await Promise.all(
-      NESTED_RELATIONS.filter((key) => data[key]).map((key) =>
-        tx[key].create({
-          data: { ...data[key], id_eval_bioq: evalBuffer },
-        })
-      )
-    )
 
     return this.getById(evaluationId, tx)
   }
@@ -151,21 +145,13 @@ export class BiochemicalEvalModel {
     const exists = await tx.eval_bioq_nutricion.findUnique({ where: { id: evalBuffer } })
     if (!exists) throw new NotFoundError('la evaluación bioquímica')
 
-    await Promise.all([
-      tx.eval_bioq_nutricion.update({
-        where: { id: evalBuffer },
-        data: {
-          ...(data.fecha !== undefined && { fecha: data.fecha }),
-        },
-      }),
-      ...NESTED_RELATIONS.filter((key) => data[key]).map((key) =>
-        tx[key].upsert({
-          where: { id_eval_bioq: evalBuffer },
-          create: { ...data[key], id_eval_bioq: evalBuffer },
-          update: { ...data[key] },
-        })
-      ),
-    ])
+    await tx.eval_bioq_nutricion.update({
+      where: { id: evalBuffer },
+      data: {
+        ...(data.fecha !== undefined && { fecha: data.fecha }),
+        ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
+      },
+    })
 
     return this.getById(id, tx)
   }

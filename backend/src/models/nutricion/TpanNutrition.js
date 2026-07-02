@@ -5,32 +5,39 @@ import { NotFoundError } from '#lib/appError.js'
 
 const selectBasic = {
   id: true,
-  paciente_id: true,
+  historia_paciente_id: true,
   fecha_eval: true,
 }
 
+// El TPAN enlaza a la historia; el paciente_id (y sus nombres) se resuelven
+// desde la historia para auditar y tocar el registro del paciente.
 const includeRelations = {
-  pacientes: { select: { nombre: true, apellidos: true } },
+  historias_pacientes_nutricion: {
+    select: { paciente_id: true, pacientes: { select: { nombre: true, apellidos: true } } },
+  },
 }
 
 function formatTpan(t) {
   if (!t) return null
+  const { historias_pacientes_nutricion, ...rest } = t
   return {
-    ...t,
-    paciente_id: toUUID(t.paciente_id),
+    ...rest,
+    historia_paciente_id: toUUID(t.historia_paciente_id),
+    paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    pacientes: historias_pacientes_nutricion?.pacientes,
   }
 }
 
 function formatMinimal(t) {
   const result = { ...t }
-  if ('paciente_id' in t) result.paciente_id = toUUID(t.paciente_id)
+  if ('historia_paciente_id' in t) result.historia_paciente_id = toUUID(t.historia_paciente_id)
   return result
 }
 
 export class TpanNutritionModel {
-  static async getAll({ paciente_id, page, limit, fields } = {}) {
+  static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
     const where = {}
-    if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
+    if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
 
     const offset = (page - 1) * limit
 
@@ -66,7 +73,7 @@ export class TpanNutritionModel {
   static async create(data, tx = prisma) {
     const tpan = await tx.tpan_nutricion.create({
       data: {
-        paciente_id: uuidToBuffer(data.paciente_id),
+        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
         ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
         ...(data.observacion !== undefined && { observacion: data.observacion }),
