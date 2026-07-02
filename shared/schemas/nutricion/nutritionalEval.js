@@ -83,7 +83,7 @@ export const nutritionalEvalBaseSchema = z.object({
 })
 
 export const nutritionalEvalSchema = z.object({
-  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
+  historia_paciente_id: z.uuid('El ID de la historia debe ser un UUID válido'),
   ...nutritionalEvalBaseSchema.shape,
   eval_apetito_nutricion: evalApetitoNutricionSchema.optional(),
   frec_consumo_alimentos_nutricion: frecConsumosAlimentosNutricionSchema.optional(),
@@ -95,5 +95,5 @@ export function validateNutritionalEval(input) {
 }
 
 export function validatePartialNutritionalEval(input) {
-  return nutritionalEvalSchema.partial().safeParse(input)
+  return nutritionalEvalSchema.omit({ historia_paciente_id: true }).partial().safeParse(input)
 }

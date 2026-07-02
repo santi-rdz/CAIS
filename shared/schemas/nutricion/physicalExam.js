@@ -49,7 +49,7 @@ export const evalSintomasGastroinSchema = z.object({
 // ─── Schema principal ────────────────────────────────────────────────────────
 
 export const physicalExaminationSchema = z.object({
-  paciente_id: z.uuid('El ID del paciente debe ser un UUID válido'),
+  historia_paciente_id: z.uuid('El ID de la historia debe ser un UUID válido'),
   fecha: optionalDateSchema,
 
   // Objetos requeridos: se crean junto con el registro principal
@@ -68,5 +68,5 @@ export function validatePhysicalExamination(input) {
 }
 
 export function validatePartialPhysicalExamination(input) {
-  return physicalExaminationSchema.partial().safeParse(input)
+  return physicalExaminationSchema.omit({ historia_paciente_id: true }).partial().safeParse(input)
 }
