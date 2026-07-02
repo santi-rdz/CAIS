@@ -32,7 +32,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
   const mostRecentId = histories[0]?.id ?? null
   const historiaId = selectedId ?? mostRecentId
 
-  const { notes, isPending } = useEvolutionNotes(pacienteId, historiaId)
+  const { notes, isPending } = useEvolutionNotes(historiaId)
   const selectedNoteId = searchParams.get('nota') ?? null
   const openModalRef = useRef(null)
 
@@ -134,7 +134,6 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <Modal.Content name="create-note" size="xl" noPadding>
           <EvolutionNoteForm
             key={`evolution-note-form-${noteToEdit?.id ?? 'new'}-${historiaId ?? 'none'}`}
-            pacienteId={pacienteId}
             patientGenero={patientGenero}
             historiaId={historiaId}
             note={noteToEdit}

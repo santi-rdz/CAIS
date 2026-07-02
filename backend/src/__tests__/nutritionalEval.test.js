@@ -53,7 +53,9 @@ describe('GET /nutricion/evaluacion-nutricional', () => {
   })
 
   test('200 — retorna lista paginada', async () => {
-    const res = await agent.get('/nutricion/evaluacion-nutricional')
+    const res = await agent.get(
+      `/nutricion/evaluacion-nutricional?historia_paciente_id=${historiaId}`
+    )
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('evals')
     expect(res.body).toHaveProperty('count')
@@ -61,7 +63,9 @@ describe('GET /nutricion/evaluacion-nutricional', () => {
   })
 
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await agent.get('/nutricion/evaluacion-nutricional?page=1&limit=2')
+    const res = await agent.get(
+      `/nutricion/evaluacion-nutricional?historia_paciente_id=${historiaId}&page=1&limit=2`
+    )
     expect(res.status).toBe(200)
     expect(res.body.evals.length).toBeLessThanOrEqual(2)
   })

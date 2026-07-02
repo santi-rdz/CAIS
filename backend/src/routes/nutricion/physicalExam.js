@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { PhysicalExaminationController } from '#controllers/nutricion/physicalExam.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateUuidParam } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validatePhysicalExamination,
   validatePartialPhysicalExamination,
@@ -13,7 +13,7 @@ physicalExaminationRouter.use(requireAuth)
 
 physicalExaminationRouter
   .route('/')
-  .get(PhysicalExaminationController.getAll)
+  .get(validateUuidQuery('historia_paciente_id'), PhysicalExaminationController.getAll)
   .post(validate(validatePhysicalExamination), PhysicalExaminationController.create)
 
 physicalExaminationRouter

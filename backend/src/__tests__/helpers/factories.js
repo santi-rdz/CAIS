@@ -76,9 +76,9 @@ export function buildEmergency(overrides = {}) {
   }
 }
 
-export function buildEvolutionNote({ pacienteId }, overrides = {}) {
+export function buildEvolutionNote({ historiaMedicaId }, overrides = {}) {
   return {
-    paciente_id: pacienteId,
+    historia_medica_id: historiaMedicaId,
     creado_at: new Date().toISOString(),
     motivo_consulta: 'Dolor de cabeza',
     ant_gine_andro: 'Sin antecedentes',

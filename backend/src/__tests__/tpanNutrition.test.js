@@ -64,7 +64,7 @@ describe('GET /nutricion/tpan', () => {
   })
 
   test('200 — retorna lista paginada', async () => {
-    const res = await agent.get('/nutricion/tpan')
+    const res = await agent.get(`/nutricion/tpan?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('tpans')
     expect(res.body).toHaveProperty('count')
@@ -72,7 +72,7 @@ describe('GET /nutricion/tpan', () => {
   })
 
   test('200 — respeta parámetros de paginación', async () => {
-    const res = await agent.get('/nutricion/tpan?page=1&limit=2')
+    const res = await agent.get(`/nutricion/tpan?historia_paciente_id=${historiaId}&page=1&limit=2`)
     expect(res.status).toBe(200)
     expect(res.body.tpans.length).toBeLessThanOrEqual(2)
   })
@@ -98,7 +98,9 @@ describe('GET /nutricion/tpan', () => {
   })
 
   test('422 — rechaza fields con valores no permitidos', async () => {
-    const res = await agent.get('/nutricion/tpan?fields=decision,__proto__')
+    const res = await agent.get(
+      `/nutricion/tpan?historia_paciente_id=${historiaId}&fields=decision,__proto__`
+    )
     expect(res.status).toBe(422)
     expect(res.body.error).toBe('ValidationError')
   })

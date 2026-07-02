@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { EvolutionNoteController } from '#controllers/medicina/evolutionNotes.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateUuidParam } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateEvolutionNote,
   validatePartialEvolutionNote,
@@ -13,7 +13,7 @@ evolutionNotesRouter.use(requireAuth)
 
 evolutionNotesRouter
   .route('/')
-  .get(EvolutionNoteController.getAll)
+  .get(validateUuidQuery('historia_medica_id'), EvolutionNoteController.getAll)
   .post(validate(validateEvolutionNote), EvolutionNoteController.create)
 
 evolutionNotesRouter

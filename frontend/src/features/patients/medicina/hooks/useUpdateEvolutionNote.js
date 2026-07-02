@@ -2,13 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updateEvolutionNote } from '@services/apiEvolutionNotes'
 import { toast } from 'sonner'
 
-export function useUpdateEvolutionNote(pacienteId) {
+export function useUpdateEvolutionNote(historiaId) {
   const queryClient = useQueryClient()
   const { mutateAsync, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, data }) => updateEvolutionNote(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
-        queryKey: ['evolution-notes', pacienteId],
+        queryKey: ['evolution-notes', historiaId],
       })
       queryClient.invalidateQueries({ queryKey: ['evolution-note', id] })
     },

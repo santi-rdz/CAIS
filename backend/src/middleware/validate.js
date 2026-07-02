@@ -52,6 +52,25 @@ export const validateUuidParam = (name = 'id') =>
   validateParam(name, isUUID, `El parámetro "${name}" debe ser un UUID válido`)
 
 /**
+ * Valida el query param UUID con el que se scopea un listado (ej.
+ * `?historia_paciente_id=...`). Se monta sobre `.get()` para no repetir el guard
+ * en cada controller. Siempre es obligatorio: por la estructura del schema todo
+ * recurso cuelga de una historia, así que un listado sin scope expondría filas
+ * de todos los pacientes. Ausencia o formato inválido → 422.
+ *
+ * @param {string} name - nombre del query param (ej. 'historia_medica_id')
+ */
+export const validateUuidQuery = (name) => (req, res, next) => {
+  if (!isUUID(req.query[name])) {
+    return res.status(422).json({
+      error: 'ValidationError',
+      message: `El parámetro "${name}" es requerido y debe ser un UUID válido`,
+    })
+  }
+  next()
+}
+
+/**
  * `validateParam` para ids enteros autoincrement. Además de validar, normaliza
  * `req.params[name]` al número parseado para que el controller no dependa de que
  * el modelo haga la conversión.

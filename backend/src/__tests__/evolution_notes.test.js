@@ -12,6 +12,7 @@ const tracker = createCleanupTracker()
 
 let agent
 let pacienteId
+let historiaMedicaId
 
 beforeAll(async () => {
   const auth = await authenticatedCoordinador({ area: 'MEDICINA', tracker })
@@ -19,6 +20,15 @@ beforeAll(async () => {
 
   const paciente = await createTestPaciente({ doctor: auth.user, tracker })
   pacienteId = paciente.id
+
+  // Toda nota cuelga de una historia médica (FK historia_medica_id); se limpia
+  // vía el cascade de la historia tracked.
+  const histRes = await agent
+    .post('/medicina/historias-medicas')
+    .send({ paciente_id: pacienteId, motivo_consulta: 'Setup notas de evolución' })
+  historiaMedicaId = histRes.body.history?.id
+  if (!historiaMedicaId) throw new Error(`No se pudo crear historia. status=${histRes.status}`)
+  tracker.track('historias_medicas', uuidToBuffer(historiaMedicaId))
 })
 
 afterAll(() => tracker.cleanup())
@@ -30,27 +40,40 @@ describe('GET /medicina/notas-evolucion', () => {
   })
 
   test('200 — retorna lista paginada { notes, count }', async () => {
-    const res = await agent.get('/medicina/notas-evolucion')
+    const res = await agent.get(`/medicina/notas-evolucion?historia_medica_id=${historiaMedicaId}`)
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.notes)).toBe(true)
     expect(typeof res.body.count).toBe('number')
   })
 
   test('200 — respeta limit', async () => {
-    const res = await agent.get('/medicina/notas-evolucion?page=1&limit=2')
+    const res = await agent.get(
+      `/medicina/notas-evolucion?historia_medica_id=${historiaMedicaId}&page=1&limit=2`
+    )
     expect(res.status).toBe(200)
     expect(res.body.notes.length).toBeLessThanOrEqual(2)
   })
 
-  test('200 — filtra por paciente_id', async () => {
+  test('422 — rechaza listado sin historia_medica_id', async () => {
+    const res = await agent.get('/medicina/notas-evolucion')
+    expect(res.status).toBe(422)
+    expect(res.body.error).toBe('ValidationError')
+  })
+
+  test('422 — rechaza historia_medica_id inválido', async () => {
+    const res = await agent.get('/medicina/notas-evolucion?historia_medica_id=no-es-uuid')
+    expect(res.status).toBe(422)
+  })
+
+  test('200 — filtra por historia_medica_id', async () => {
     const created = await agent
       .post('/medicina/notas-evolucion')
-      .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Filtro paciente_id' }))
+      .send(buildEvolutionNote({ historiaMedicaId }, { motivo_consulta: 'Filtro historia' }))
     const noteId = created.body.note?.id
     tracker.track('notas_evolucion', uuidToBuffer(noteId))
 
     const res = await agent.get(
-      `/medicina/notas-evolucion?paciente_id=${pacienteId}&page=1&limit=20`
+      `/medicina/notas-evolucion?historia_medica_id=${historiaMedicaId}&page=1&limit=20`
     )
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body.notes)).toBe(true)
@@ -73,7 +96,9 @@ describe('GET /medicina/notas-evolucion/:id', () => {
 
 describe('POST /medicina/notas-evolucion', () => {
   test('401 — sin sesión', async () => {
-    const res = await api.post('/medicina/notas-evolucion').send(buildEvolutionNote({ pacienteId }))
+    const res = await api
+      .post('/medicina/notas-evolucion')
+      .send(buildEvolutionNote({ historiaMedicaId }))
     expect(res.status).toBe(401)
   })
 
@@ -83,18 +108,21 @@ describe('POST /medicina/notas-evolucion', () => {
     expect(res.body.error).toBe('ValidationError')
   })
 
-  test('422 — paciente_id no es UUID', async () => {
-    const res = await agent.post('/medicina/notas-evolucion').send({ paciente_id: 'no-es-uuid' })
+  test('422 — historia_medica_id no es UUID', async () => {
+    const res = await agent
+      .post('/medicina/notas-evolucion')
+      .send({ historia_medica_id: 'no-es-uuid' })
     expect(res.status).toBe(422)
   })
 
   test('201 — crea nota de evolución', async () => {
     const res = await agent
       .post('/medicina/notas-evolucion')
-      .send(buildEvolutionNote({ pacienteId }))
+      .send(buildEvolutionNote({ historiaMedicaId }))
 
     expect(res.status).toBe(201)
     expect(res.body.note.id).toBeDefined()
+    expect(res.body.note.historia_medica_id).toBe(historiaMedicaId)
     expect(res.body.note.paciente_id).toBe(pacienteId)
     tracker.track('notas_evolucion', uuidToBuffer(res.body.note.id))
   })
@@ -106,7 +134,7 @@ describe('PATCH /medicina/notas-evolucion/:id', () => {
   beforeAll(async () => {
     const res = await agent
       .post('/medicina/notas-evolucion')
-      .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Nota para patch' }))
+      .send(buildEvolutionNote({ historiaMedicaId }, { motivo_consulta: 'Nota para patch' }))
     noteId = res.body.note?.id
     if (!noteId) throw new Error(`No se pudo crear nota para PATCH. status=${res.status}`)
     tracker.track('notas_evolucion', uuidToBuffer(noteId))
@@ -141,7 +169,7 @@ describe('DELETE /medicina/notas-evolucion/:id', () => {
   beforeAll(async () => {
     const res = await agent
       .post('/medicina/notas-evolucion')
-      .send(buildEvolutionNote({ pacienteId }, { motivo_consulta: 'Nota para delete' }))
+      .send(buildEvolutionNote({ historiaMedicaId }, { motivo_consulta: 'Nota para delete' }))
     noteId = res.body.note?.id
     if (!noteId) throw new Error(`No se pudo crear nota para DELETE. status=${res.status}`)
     tracker.track('notas_evolucion', uuidToBuffer(noteId))

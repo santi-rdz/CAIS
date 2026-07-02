@@ -37,7 +37,7 @@ const NE_IDS = {
   ne2: '6ba7b811-9dad-11d1-80b4-00c04fd430c9',
   ne3: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
   ne4: 'c1fed0aa-0adc-4483-b678-7cca71863e42',
-  ne5: 'd2aebbaa-1bed-5594-c789-8ddb82974f53',
+  ne5: 'd2aebbaa-1bed-5594-a789-8ddb82974f53',
 }
 
 async function main() {
@@ -519,7 +519,6 @@ async function main() {
   const notasData = [
     {
       id: uuidToBuf(NE_IDS.ne1),
-      paciente_id: pacCarlosId,
       historia_medica_id: uuidToBuf(HM_IDS.carlos),
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Revisión anual. Paciente sin quejas.',
@@ -529,7 +528,6 @@ async function main() {
     },
     {
       id: uuidToBuf(NE_IDS.ne2),
-      paciente_id: pacAnaId,
       historia_medica_id: uuidToBuf(HM_IDS.ana),
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Control de diabetes. Refiere mejora parcial con medicamento.',
@@ -539,7 +537,6 @@ async function main() {
     },
     {
       id: uuidToBuf(NE_IDS.ne3),
-      paciente_id: pacCarlosId,
       historia_medica_id: uuidToBuf(HM_IDS.carlos),
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Seguimiento post-revisión. Resultados de laboratorio normales.',
@@ -549,7 +546,6 @@ async function main() {
     },
     {
       id: uuidToBuf(NE_IDS.ne4),
-      paciente_id: pacJorgeId,
       historia_medica_id: uuidToBuf(HM_IDS.jorge),
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Evaluación integral. Profesional médico en buen estado de salud.',
@@ -559,7 +555,6 @@ async function main() {
     },
     {
       id: uuidToBuf(NE_IDS.ne5),
-      paciente_id: pacLuciaId,
       historia_medica_id: uuidToBuf(HM_IDS.lucia),
       usuario_id: primerUsuarioId,
       motivo_consulta: 'Examen preventivo anual. Estudiante sin síntomas. Vida sana.',

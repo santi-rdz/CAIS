@@ -150,14 +150,12 @@ CREATE TABLE IF NOT EXISTS antecedentes_no_patologicos (
 
 CREATE TABLE IF NOT EXISTS notas_evolucion (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    historia_medica_id BINARY(16),
-    paciente_id BINARY(16),
+    historia_medica_id BINARY(16) NOT NULL,
     usuario_id BINARY(16) NOT NULL,
     motivo_consulta TEXT,
     ant_gine_andro TEXT,
     estudios_complementarios_efectuados TEXT,
     creado_at DATETIME DEFAULT NOW(),
-    CONSTRAINT fk_nota_paciente FOREIGN KEY (paciente_id) REFERENCES pacientes(id),
     CONSTRAINT fk_nota_historia FOREIGN KEY (historia_medica_id) REFERENCES historias_medicas(id) ON DELETE CASCADE,
     CONSTRAINT fk_nota_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );

@@ -399,8 +399,7 @@ model inmunizaciones {
 
 model notas_evolucion {
   id                                  Bytes               @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
-  historia_medica_id                  Bytes?              @db.Binary(16)
-  paciente_id                         Bytes?              @db.Binary(16)
+  historia_medica_id                  Bytes               @db.Binary(16)
   usuario_id                          Bytes               @db.Binary(16)
   motivo_consulta                     String?             @db.Text
   ant_gine_andro                      String?             @db.Text
@@ -408,13 +407,11 @@ model notas_evolucion {
   creado_at                           DateTime?           @default(now()) @db.DateTime(0)
   aparatos_sistemas                   aparatos_sistemas?
   informacion_fisica                  informacion_fisica?
-  historias_medicas                   historias_medicas?  @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_nota_historia")
-  pacientes                           pacientes?          @relation(fields: [paciente_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_paciente")
+  historias_medicas                   historias_medicas   @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_nota_historia")
   usuarios                            usuarios            @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_nota_usuario")
   planes_estudio                      planes_estudio?
 
   @@index([historia_medica_id], map: "fk_nota_historia")
-  @@index([paciente_id], map: "fk_nota_paciente")
   @@index([usuario_id], map: "fk_nota_usuario")
 }
 
@@ -445,7 +442,6 @@ model pacientes {
   actualizado_at                DateTime?                       @db.DateTime(0)
   historias_medicas             historias_medicas[]
   historias_pacientes_nutricion historias_pacientes_nutricion[]
-  notas_evolucion               notas_evolucion[]
   usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
   registro_auditoria            registro_auditoria[]
 
