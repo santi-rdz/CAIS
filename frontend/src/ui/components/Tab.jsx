@@ -1,5 +1,6 @@
 import { createContext, useCallback, use, useLayoutEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useUrlState } from '@hooks/useUrlState'
 import Heading from './Heading'
 
 const TabContext = createContext()
@@ -7,7 +8,13 @@ const TabContext = createContext()
 /**
  * Contenedor principal. Maneja el tab activo y metadatos de cada trigger.
  * @param {string} defaultTab - value del tab activo por defecto
- * @param {boolean} [syncUrl] - sincroniza el tab activo con ?tab= en la URL
+ * @param {boolean|string} [syncUrl] - sincroniza el tab activo con la URL.
+ *   `true` usa `?tab=`; un string usa ese nombre de query param (necesario
+ *   cuando hay tabs anidados en la misma vista y `?tab=` colisionaría).
+ * @param {Record<string, string[]>} [paramGroups] - query params "propios" de
+ *   cada tab (ej. `{ historia: ['historia','historiaTab'], notas: ['nota'] }`).
+ *   Al cambiar de tab, se borran los params de los grupos que no son el activo
+ *   — evita que la URL arrastre estado de una vista que ya no se muestra.
  * @param {'primary'|'secondary'} variant - estilo de los botones
  * @param {string} [value] - tab activo controlado (junto con onValueChange)
  * @param {(tab: string) => void} [onValueChange] - callback en modo controlado
@@ -16,40 +23,46 @@ export default function Tab({
   children,
   defaultTab = '',
   syncUrl = false,
+  paramGroups,
   variant = 'primary',
   value,
   onValueChange,
 }) {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const urlKey = syncUrl ? (typeof syncUrl === 'string' ? syncUrl : 'tab') : undefined
+  const [urlTab, setUrlTab] = useUrlState(urlKey, defaultTab)
+  const [, setSearchParams] = useSearchParams()
   const [localTab, setLocalTab] = useState(defaultTab)
   const [tabMeta, setTabMeta] = useState({})
 
   const isControlled = value != null
-  // Controlado > syncUrl (?tab=) > estado local.
-  const activeTab = isControlled
-    ? value
-    : syncUrl
-      ? (searchParams.get('tab') ?? defaultTab)
-      : localTab
+  // Controlado > syncUrl (?tab= o key custom) > estado local.
+  const activeTab = isControlled ? value : syncUrl ? urlTab : localTab
 
   const handleSetActiveTab = useCallback(
     (tab) => {
       if (isControlled) {
         onValueChange?.(tab)
-      } else if (syncUrl) {
+      } else if (syncUrl && paramGroups) {
+        // Set + limpieza en un solo setSearchParams para no perder ninguno de
+        // los dos updates por una carrera entre llamadas síncronas separadas.
         setSearchParams(
           (prev) => {
             const next = new URLSearchParams(prev)
-            next.set('tab', tab)
+            next.set(urlKey, tab)
+            Object.entries(paramGroups).forEach(([groupTab, keys]) => {
+              if (groupTab !== tab) keys.forEach((k) => next.delete(k))
+            })
             return next
           },
           { replace: true }
         )
+      } else if (syncUrl) {
+        setUrlTab(tab)
       } else {
         setLocalTab(tab)
       }
     },
-    [isControlled, onValueChange, syncUrl, setSearchParams]
+    [isControlled, onValueChange, syncUrl, setUrlTab, paramGroups, urlKey, setSearchParams]
   )
 
   const registerTrigger = useCallback((value, meta) => {

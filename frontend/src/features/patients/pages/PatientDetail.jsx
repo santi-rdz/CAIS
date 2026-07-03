@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HiOutlineTrash } from 'react-icons/hi2'
 
@@ -17,12 +18,16 @@ export default function PatientDetail() {
   const { deletePatient, isDeleting } = useDeletePatient()
   const { area } = usePermissions()
   const navigate = useNavigate()
+  const { tabs, editForm } = getPatientArea(area)
+  const paramGroups = useMemo(
+    () => Object.fromEntries(tabs.map((t) => [t.value, t.ownedParams ?? []])),
+    [tabs]
+  )
 
   if (isPending) return <PatientSkeleton />
   if (!patient) return null
 
   const { id } = patient
-  const { tabs, editForm } = getPatientArea(area)
 
   return (
     <Modal>
@@ -31,7 +36,7 @@ export default function PatientDetail() {
           patientName={[patient.nombre, patient.apellidos].filter(Boolean).join(' ')}
           isDeleting={isDeleting}
         />
-        <Tab defaultTab={tabs[0]?.value} syncUrl>
+        <Tab defaultTab={tabs[0]?.value} syncUrl paramGroups={paramGroups}>
           <PatientHeader patient={patient} tabs={tabs} />
           <div className="mt-4 space-y-4">
             {tabs.map((tab) => (

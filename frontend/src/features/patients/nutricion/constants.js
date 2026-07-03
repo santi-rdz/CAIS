@@ -107,6 +107,21 @@ export const PENSAMIENTOS_AF_OPTIONS = [
   'Lo hago de manera regular',
 ]
 
+// ── Step — Evaluación bioquímica: Perfil de Orina ───────────────────────────
+
+export const ALTERACIONES_URINARIAS_OPTIONS = ['Negativo', 'IVU', 'Hematuria']
+export const LITOS_OPTIONS = [
+  'Negativo',
+  'AU <600',
+  'AU <800',
+  'Oxalato <40',
+  'Citrato >350',
+  'Fitato >1.0',
+  'Cistina <150',
+  'Mixto',
+]
+export const CETONAS_OPTIONS = ['Negativo', 'Cetona +', 'Cetona ++', 'Cetona +++']
+
 // ── Visualización de la historia nutricional ─────────────────────────────────
 
 // Columnas de las tablas de relaciones one-to-many (reutilizadas por RecordTable).
@@ -142,6 +157,19 @@ export const ACT_FISICA_COLUMNS = [
   { key: 'intensidad', label: 'Intensidad (%)' },
   { key: 'tiempo_de_practica', label: 'Tiempo práctica' },
   { key: 'pensamientos_con_realizar_AF', label: '¿Qué ha pensado?' },
+]
+
+// Mapea cada sub-perfil de eval_bioq_nutricion a su label corto — usado por
+// BioqCard para mostrar qué perfiles capturó la evaluación.
+export const BIOQ_PROFILE_LABELS = [
+  { key: 'perfil_anemia_nutricion', label: 'Anemia' },
+  { key: 'perfil_endocrino', label: 'Endócrino' },
+  { key: 'perfil_renal_electrolitos', label: 'Renal' },
+  { key: 'perfil_lipidos', label: 'Lípidos' },
+  { key: 'balance_acido_base', label: 'Ácido-Base' },
+  { key: 'perfil_orina', label: 'Orina' },
+  { key: 'perfil_inflamatorio', label: 'Inflamatorio' },
+  { key: 'eval_estado_nutricion', label: 'Nutrición' },
 ]
 
 export const ADICCIONES_COLUMNS = [

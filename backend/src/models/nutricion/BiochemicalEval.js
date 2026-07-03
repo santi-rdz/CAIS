@@ -21,6 +21,7 @@ const includeRelations = {
 const selectBasic = {
   id: true,
   historia_paciente_id: true,
+  fecha: true,
   creado_at: true,
 }
 
@@ -34,6 +35,12 @@ const NESTED_RELATIONS = [
   'perfil_inflamatorio',
   'eval_estado_nutricion',
 ]
+
+// Para el listado: solo confirma si cada sub-perfil tiene datos (select mínimo
+// de la FK 1:1), sin traer los valores clínicos completos.
+const RELATION_PRESENCE_SELECT = Object.fromEntries(
+  NESTED_RELATIONS.map((key) => [key, { select: { id_eval_bioq: true } }])
+)
 
 const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
@@ -65,6 +72,9 @@ function formatBiochemicalEval(n) {
 function formatMinimal(n) {
   const result = { ...n, id: toUUID(n.id) }
   if ('historia_paciente_id' in n) result.historia_paciente_id = toUUID(n.historia_paciente_id)
+  for (const key of NESTED_RELATIONS) {
+    if (key in n) result[key] = Boolean(n[key])
+  }
   return result
 }
 
@@ -88,7 +98,7 @@ export class BiochemicalEvalModel {
               fields.filter((f) => ALLOWED_FIELDS.has(f)).map((f) => [f, true])
             ),
           }
-        : selectBasic,
+        : { ...selectBasic, ...RELATION_PRESENCE_SELECT },
     }
 
     const [evaluations, total] = await prisma.$transaction([
@@ -129,13 +139,13 @@ export class BiochemicalEvalModel {
     return this.getById(evaluationId, tx)
   }
 
-  static async delete(id) {
-    const existing = await prisma.eval_bioq_nutricion.findUnique({
+  static async delete(id, tx = prisma) {
+    const existing = await tx.eval_bioq_nutricion.findUnique({
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la evaluación bioquímica')
-    await prisma.eval_bioq_nutricion.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.eval_bioq_nutricion.delete({ where: { id: uuidToBuffer(id) } })
     return formatBiochemicalEval(existing)
   }
 

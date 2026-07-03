@@ -1,7 +1,9 @@
 import { prisma } from '#config/prisma.js'
 import { BiochemicalEvalModel } from '#models/nutricion/BiochemicalEval.js'
 import { PatientModel } from '#models/PatientModel.js'
+import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
+import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
@@ -10,6 +12,16 @@ export class BiochemicalEvalController {
     const evaluation = await prisma.$transaction(async (tx) => {
       const h = await BiochemicalEvalModel.create(req.body, tx)
       await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.EVAL_BIOQ_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
       return h
     })
     return res.status(201).json({ message: 'Evaluación bioquímica registrada', evaluation })
@@ -53,7 +65,21 @@ export class BiochemicalEvalController {
 
   static async delete(req, res) {
     const { id } = req.params
-    const evaluation = await BiochemicalEvalModel.delete(id)
+    const evaluation = await prisma.$transaction(async (tx) => {
+      const h = await BiochemicalEvalModel.delete(id, tx)
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.EVAL_BIOQ_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
     res.json(evaluation)
   }
 
@@ -62,6 +88,16 @@ export class BiochemicalEvalController {
     const updatedEval = await prisma.$transaction(async (tx) => {
       const h = await BiochemicalEvalModel.update(id, req.body, tx)
       await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.EVAL_BIOQ_NUTRICION,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
       return h
     })
     res.json(updatedEval)

@@ -64,6 +64,10 @@ async function main() {
     'USUARIO',
     'EMERGENCIA',
     'HISTORIA_NUTRICION',
+    'EVAL_BIOQ_NUTRICION',
+    'EVAL_NUTRICIONAL',
+    'EVAL_ACT_FISICA_NUTRICION',
+    'EVAL_CAL_SUENO',
   ]
 
   for (const codigo of estadosData) {

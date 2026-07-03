@@ -98,13 +98,13 @@ export class NutritionalEvalModel {
     return this.getById(evalId, tx)
   }
 
-  static async delete(id) {
-    const existing = await prisma.eval_nutr_fh.findUnique({
+  static async delete(id, tx = prisma) {
+    const existing = await tx.eval_nutr_fh.findUnique({
       where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la evaluación nutricional')
-    await prisma.eval_nutr_fh.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.eval_nutr_fh.delete({ where: { id: uuidToBuffer(id) } })
     return formatEvalNutr(existing)
   }
 

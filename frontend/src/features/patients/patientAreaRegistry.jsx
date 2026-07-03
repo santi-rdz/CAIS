@@ -31,12 +31,17 @@ const PATIENT_AREA = {
         value: 'historia',
         label: 'Historia médica',
         icon: <HiOutlineClipboardDocument size={13} />,
+        // NO incluye 'historia' (el período seleccionado): ese lo comparten
+        // "Historia médica" y "Notas" a propósito, para que al cambiar de tab
+        // sigas viendo el mismo período. Solo se limpia el tab interno.
+        ownedParams: ['historiaTab'],
         render: (patient) => <PatientHistoria patient={patient} />,
       },
       {
         value: 'notas',
         label: 'Notas de evolución',
         icon: <HiOutlinePencilSquare size={13} />,
+        ownedParams: ['nota', 'notaTab'],
         render: (patient) => <NotesPanel pacienteId={patient.id} patientGenero={patient.genero} />,
       },
       makeDatosTab(PersonalDataPanel),
@@ -49,6 +54,8 @@ const PATIENT_AREA = {
         value: 'historia',
         label: 'Historia nutricional',
         icon: <HiOutlineClipboardDocument size={13} />,
+        // No incluye 'historia' (compartido a propósito, ver nota en medicina).
+        ownedParams: ['historiaTab', 'bioqEval', 'bioqTab'],
         render: (patient) => <PatientHistoriaNutricion patient={patient} />,
       },
       makeDatosTab(NutritionPersonalDataPanel),

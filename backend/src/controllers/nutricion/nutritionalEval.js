@@ -1,6 +1,9 @@
 import { prisma } from '#config/prisma.js'
 import { NutritionalEvalModel } from '#models/nutricion/NutritionalEval.js'
+import { PatientModel } from '#models/PatientModel.js'
+import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
+import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
 const LISTABLE_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
 
@@ -8,6 +11,17 @@ export class NutritionalEvalController {
   static async create(req, res) {
     const evaluation = await prisma.$transaction(async (tx) => {
       const h = await NutritionalEvalModel.create(req.body, tx)
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.CREAR,
+          entidad: ENTIDADES.EVAL_NUTRICIONAL,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
       return h
     })
     return res.status(201).json({ message: 'Evaluación nutricional registrada', evaluation })
@@ -54,7 +68,21 @@ export class NutritionalEvalController {
 
   static async delete(req, res) {
     const { id } = req.params
-    const evaluation = await NutritionalEvalModel.delete(id)
+    const evaluation = await prisma.$transaction(async (tx) => {
+      const h = await NutritionalEvalModel.delete(id, tx)
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ELIMINAR,
+          entidad: ENTIDADES.EVAL_NUTRICIONAL,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
     res.json(evaluation)
   }
 
@@ -67,9 +95,21 @@ export class NutritionalEvalController {
     }
 
     const { id } = req.params
-    const updatedEvaluation = await prisma.$transaction((tx) =>
-      NutritionalEvalModel.update(id, req.body, tx)
-    )
+    const updatedEvaluation = await prisma.$transaction(async (tx) => {
+      const h = await NutritionalEvalModel.update(id, req.body, tx)
+      await PatientModel.touch(h.paciente_id, tx)
+      await AuditModel.create(
+        {
+          usuario_id: req.session.userId,
+          accion: ACCIONES.ACTUALIZAR,
+          entidad: ENTIDADES.EVAL_NUTRICIONAL,
+          objetivo_id: h.id,
+          paciente_id: h.paciente_id,
+        },
+        tx
+      )
+      return h
+    })
     res.json({ evaluation: updatedEvaluation })
   }
 }

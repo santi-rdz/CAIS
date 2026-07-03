@@ -12,14 +12,23 @@ import { formatFecha } from '@lib/dateHelpers'
  * @param {(id: string) => { historia, isPending, isError }} cfg.useHistory
  * @param {string} cfg.periodField - campo de fecha con que se etiqueta cada período
  * @param {Record<string, number>} cfg.tabToStep - tab de la vista → step de la modal
+ * @param {string[]} [cfg.dependentParams] - query params de sub-vistas anidadas
+ *   en esta historia (ej. bioqEval/bioqTab) que hay que limpiar al cambiar de
+ *   período — si no, quedan apuntando a un registro de otro período.
  */
-export function usePatientHistoria({ useHistories, useHistory, periodField, tabToStep }) {
+export function usePatientHistoria({
+  useHistories,
+  useHistory,
+  periodField,
+  tabToStep,
+  dependentParams = [],
+}) {
   const { id: pacienteId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
+  const selectedId = searchParams.get('historia')
 
   const { histories, isPending: isLoadingList, isError: isListError } = useHistories(pacienteId)
 
-  const selectedId = searchParams.get('historia')
   const mostRecentId = histories[0]?.id ?? null
   const activeId = selectedId ?? mostRecentId
 
@@ -41,14 +50,14 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
     ? isCloneBasePending
     : activeId != null && isLoadingDetail
 
-  const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep)
+  const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep, undefined, 'historiaTab')
 
-  // Conserva los demás query params (ej. el ?tab= de los tabs externos url-sync'd).
   function handleSelectHistory(id) {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
         next.set('historia', id)
+        dependentParams.forEach((key) => next.delete(key))
         return next
       },
       { replace: true }
