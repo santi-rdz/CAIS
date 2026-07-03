@@ -11,7 +11,7 @@ import {
 } from '@features/patients/medicina/forms/shared/formDefaults'
 import dayjs from 'dayjs'
 import { mergeFechaHora } from '@lib/dateHelpers'
-import { omitEmpty, pickDirty, nullifyEmpty } from '@lib/utils'
+import { omitEmpty, pickDirty, nullifyEmpty, fillDefaults } from '@lib/utils'
 import { useCreateEvolutionNote } from '@features/patients/medicina/hooks/useCreateEvolutionNote'
 import { useUpdateEvolutionNote } from '@features/patients/medicina/hooks/useUpdateEvolutionNote'
 import MotivoConsultaStep from '@features/patients/medicina/forms/EvolutionNoteForm/steps/MotivoConsultaStep'
@@ -49,25 +49,6 @@ function getCreateDefaults() {
   }
 }
 
-function fillDefaults(defaults, source) {
-  const result = {}
-  for (const [key, defaultVal] of Object.entries(defaults)) {
-    const srcVal = source?.[key]
-    if (
-      defaultVal !== null &&
-      typeof defaultVal === 'object' &&
-      !Array.isArray(defaultVal) &&
-      !(defaultVal instanceof Date) &&
-      !dayjs.isDayjs(defaultVal)
-    ) {
-      result[key] = fillDefaults(defaultVal, srcVal)
-    } else {
-      result[key] = srcVal ?? defaultVal
-    }
-  }
-  return result
-}
-
 function buildEditDefaults(note) {
   const createdAt = note?.creado_at ? dayjs(note.creado_at) : dayjs()
   const source = {
@@ -85,7 +66,13 @@ function buildEditDefaults(note) {
   }
 }
 
-export default function EvolutionNoteForm({ patientGenero, historiaId, note, onCloseModal }) {
+export default function EvolutionNoteForm({
+  patientGenero,
+  historiaId,
+  note,
+  initialStep = 0,
+  onCloseModal,
+}) {
   const { createNote, isCreating } = useCreateEvolutionNote(historiaId)
   const { updateNote, isUpdating } = useUpdateEvolutionNote(historiaId)
   const isEdit = !!note
@@ -94,7 +81,8 @@ export default function EvolutionNoteForm({ patientGenero, historiaId, note, onC
     STEPS,
     STEPS_FIELDS,
     defaultValues,
-    zodResolver(evolutionNoteFormSchema)
+    zodResolver(evolutionNoteFormSchema),
+    initialStep
   )
   const {
     currStep,

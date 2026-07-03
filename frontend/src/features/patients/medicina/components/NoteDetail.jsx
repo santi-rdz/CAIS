@@ -5,10 +5,15 @@ import MotivoConsultaSection from '@features/patients/medicina/sections/MotivoCo
 import PlanEstudioSection from '@features/patients/medicina/sections/PlanEstudioSection'
 import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
 import FieldsSection from '@features/patients/shared/sections/FieldsSection'
+import { useTabStep } from '@hooks/useTabStep'
 import { buildAparSistFields } from '@features/patients/medicina/constants'
 import { formatFecha, formatHora } from '@lib/dateHelpers'
 
+// Tab del detalle → step de EvolutionNoteForm (mismo orden que STEPS ahí).
+const TAB_TO_STEP = { consulta: 0, aparatos: 1, exploracion: 2, plan: 3 }
+
 export default function NoteDetail({ note, onBack, onEdit }) {
+  const { activeTab, setActiveTab, initialStep } = useTabStep(TAB_TO_STEP, undefined, 'notaTab')
   const {
     motivo_consulta,
     ant_gine_andro,
@@ -60,14 +65,19 @@ export default function NoteDetail({ note, onBack, onEdit }) {
             </>
           )}
         </div>
-        <Button variant="secondary" size="md" className="gap-1.5" onClick={onEdit}>
+        <Button
+          variant="secondary"
+          size="md"
+          className="gap-1.5"
+          onClick={() => onEdit?.(initialStep)}
+        >
           <HiOutlinePencilSquare size={14} />
           Editar nota
         </Button>
       </div>
 
       {/* Tabs — variant underline, igual que PatientHistoria */}
-      <Tab variant="underline" defaultTab="consulta">
+      <Tab variant="underline" value={activeTab} onValueChange={setActiveTab}>
         <Tab.List>
           <Tab.Trigger value="consulta">Consulta</Tab.Trigger>
           <Tab.Trigger value="aparatos">Aparatos y sistemas</Tab.Trigger>

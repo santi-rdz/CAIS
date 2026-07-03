@@ -1,5 +1,6 @@
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useTabStep } from '@hooks/useTabStep'
+import { useUrlState } from '@hooks/useUrlState'
 import { formatFecha } from '@lib/dateHelpers'
 
 /**
@@ -15,11 +16,10 @@ import { formatFecha } from '@lib/dateHelpers'
  */
 export function usePatientHistoria({ useHistories, useHistory, periodField, tabToStep }) {
   const { id: pacienteId } = useParams()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedId, setSelectedId] = useUrlState('historia', null)
 
   const { histories, isPending: isLoadingList, isError: isListError } = useHistories(pacienteId)
 
-  const selectedId = searchParams.get('historia')
   const mostRecentId = histories[0]?.id ?? null
   const activeId = selectedId ?? mostRecentId
 
@@ -41,18 +41,10 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
     ? isCloneBasePending
     : activeId != null && isLoadingDetail
 
-  const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep)
+  const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep, undefined, 'historiaTab')
 
-  // Conserva los demás query params (ej. el ?tab= de los tabs externos url-sync'd).
   function handleSelectHistory(id) {
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev)
-        next.set('historia', id)
-        return next
-      },
-      { replace: true }
-    )
+    setSelectedId(id)
   }
 
   const periodos = histories.map((h) => ({

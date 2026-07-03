@@ -8,6 +8,7 @@ import {
 } from 'react-icons/hi2'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
+import { useUrlState } from '@hooks/useUrlState'
 import { useEvolutionNotes } from '@features/patients/medicina/hooks/useEvolutionNotes'
 import { useEvolutionNote } from '@features/patients/medicina/hooks/useEvolutionNote'
 import { useMedicalHistories } from '@features/patients/medicina/hooks/useMedicalHistories'
@@ -23,17 +24,22 @@ function formatHistoriaOption(h) {
 }
 
 export default function NotesPanel({ pacienteId, patientGenero }) {
-  const [searchParams, setSearchParams] = useSearchParams()
+  // Cambiar de historia resetea la nota seleccionada (podría no existir en el
+  // nuevo período) — es un update compuesto de 3 params en una sola llamada
+  // (evita perder alguno por una carrera entre setSearchParams separados), así
+  // que se queda con setSearchParams crudo en vez de useUrlState.
+  const [, setSearchParams] = useSearchParams()
   const { histories } = useMedicalHistories(pacienteId)
   const [layout, setLayout] = useState('grid')
   const [noteToEditId, setNoteToEditId] = useState(null)
+  const [editingStep, setEditingStep] = useState(0)
 
-  const selectedId = searchParams.get('historia')
+  const [selectedId] = useUrlState('historia', null)
   const mostRecentId = histories[0]?.id ?? null
   const historiaId = selectedId ?? mostRecentId
 
   const { notes, isPending } = useEvolutionNotes(historiaId)
-  const selectedNoteId = searchParams.get('nota') ?? null
+  const [selectedNoteId, setSelectedNoteId] = useUrlState('nota', null)
   const openModalRef = useRef(null)
 
   const { note: selectedNote, isPending: isSelectedPending } = useEvolutionNote(selectedNoteId)
@@ -41,30 +47,29 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
 
   const periodos = histories.map(formatHistoriaOption)
 
-  function setSelectedNoteId(id) {
+  function handleSelectHistory(id) {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
-        if (id) next.set('nota', id)
-        else next.delete('nota')
+        next.set('historia', id)
+        next.delete('nota')
+        next.delete('notaTab')
         return next
       },
       { replace: true }
     )
   }
 
-  function handleSelectHistory(id) {
-    setSearchParams({ historia: id }, { replace: true })
-  }
-
-  function handleOpenEdit(note, { showDetail = false } = {}) {
+  function handleOpenEdit(note, { showDetail = false, step = 0 } = {}) {
     if (showDetail) setSelectedNoteId(note.id)
     setNoteToEditId(note.id)
+    setEditingStep(step)
     openModalRef.current?.click()
   }
 
   function handleCloseNoteModal() {
     setNoteToEditId(null)
+    setEditingStep(0)
   }
 
   return (
@@ -137,6 +142,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
             patientGenero={patientGenero}
             historiaId={historiaId}
             note={noteToEdit}
+            initialStep={editingStep}
             onCloseModal={handleCloseNoteModal}
           />
         </Modal.Content>
@@ -164,7 +170,7 @@ export default function NotesPanel({ pacienteId, patientGenero }) {
         <NoteDetail
           note={selectedNote}
           onBack={() => setSelectedNoteId(null)}
-          onEdit={() => handleOpenEdit({ id: selectedNoteId }, { showDetail: true })}
+          onEdit={(step) => handleOpenEdit({ id: selectedNoteId }, { showDetail: true, step })}
         />
       ) : selectedNoteId && isSelectedPending ? (
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
