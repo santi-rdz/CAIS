@@ -16,8 +16,8 @@ export class EvalCalSuenoController {
         {
           usuario_id: req.session.userId,
           accion: ACCIONES.CREAR,
-          entidad: ENTIDADES.HISTORIA_NUTRICION,
-          objetivo_id: null,
+          entidad: ENTIDADES.EVAL_CAL_SUENO,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx
@@ -75,8 +75,8 @@ export class EvalCalSuenoController {
         {
           usuario_id: req.session.userId,
           accion: ACCIONES.ELIMINAR,
-          entidad: ENTIDADES.HISTORIA_NUTRICION,
-          objetivo_id: null,
+          entidad: ENTIDADES.EVAL_CAL_SUENO,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx
@@ -95,8 +95,8 @@ export class EvalCalSuenoController {
         {
           usuario_id: req.session.userId,
           accion: ACCIONES.ACTUALIZAR,
-          entidad: ENTIDADES.HISTORIA_NUTRICION,
-          objetivo_id: null,
+          entidad: ENTIDADES.EVAL_CAL_SUENO,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx
