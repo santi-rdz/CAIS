@@ -1,6 +1,6 @@
 import { Children } from 'react'
 
-export default function FormRow({ children, label, htmlFor, className, required, error }) {
+export default function FormRow({ children, label, htmlFor, className, required, error, hint }) {
   const firstChild = Children.toArray(children)[0]
   const childHasError = firstChild?.props?.hasError
   const errorMessage = error ?? (typeof childHasError === 'string' ? childHasError : undefined)
@@ -10,6 +10,7 @@ export default function FormRow({ children, label, htmlFor, className, required,
       <label htmlFor={htmlFor} className="text-5 mb-2 block">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
+        {hint && <span className="text-6 block font-normal text-zinc-400">{hint}</span>}
       </label>
       {children}
       {errorMessage && (
