@@ -1,5 +1,6 @@
 import { clsx } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
+import dayjs from 'dayjs'
 
 const twMerge = extendTailwindMerge({
   extend: {
@@ -45,14 +46,47 @@ export function pickDirty(data, dirtyFields) {
   return result
 }
 
-/** Convierte recursivamente strings vacíos a null (usado en edición para limpiar campos). */
+/**
+ * Convierte recursivamente strings vacíos a null (usado en edición para limpiar
+ * campos). También convierte `undefined` a null: los campos numéricos (`num`/
+ * `int` en shared/schemas/fields.js) preprocesan un input vacío a `undefined`
+ * en vez de `''` — si se dejara pasar, `JSON.stringify` lo descarta del body y
+ * el PATCH nunca llega a limpiar ese campo en el backend.
+ */
 export function nullifyEmpty(obj) {
   const result = {}
   for (const [k, v] of Object.entries(obj)) {
     if (v !== null && typeof v === 'object' && Object.getPrototypeOf(v) === Object.prototype) {
       result[k] = nullifyEmpty(v)
+    } else if (v === undefined || (typeof v === 'string' && v.trim() === '')) {
+      result[k] = null
     } else {
-      result[k] = typeof v === 'string' && v.trim() === '' ? null : v
+      result[k] = v
+    }
+  }
+  return result
+}
+
+/**
+ * Rellena un template de default values con los valores de `source`, campo por
+ * campo (incluso dentro de sub-objetos anidados), preservando el default si el
+ * campo no vino en `source`. Usado para construir defaultValues de edición en
+ * forms multi-step sin perder shape ante campos ausentes en la respuesta del API.
+ */
+export function fillDefaults(defaults, source) {
+  const result = {}
+  for (const [key, defaultVal] of Object.entries(defaults)) {
+    const srcVal = source?.[key]
+    if (
+      defaultVal !== null &&
+      typeof defaultVal === 'object' &&
+      !Array.isArray(defaultVal) &&
+      !(defaultVal instanceof Date) &&
+      !dayjs.isDayjs(defaultVal)
+    ) {
+      result[key] = fillDefaults(defaultVal, srcVal)
+    } else {
+      result[key] = srcVal ?? defaultVal
     }
   }
   return result
