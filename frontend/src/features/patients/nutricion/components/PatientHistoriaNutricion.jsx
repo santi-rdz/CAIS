@@ -154,9 +154,17 @@ function BioquimicaTab({ historia }) {
   const [deletingEval, setDeletingEval] = useState(null)
   const openRef = useRef(null)
   const deleteOpenRef = useRef(null)
-  const { evaluations, isPending } = useBiochemicalEvals(historia.id)
-  const { evaluation: selectedEval, isPending: isSelectedPending } = useBiochemicalEval(selectedId)
-  const { evaluation: editingEval, isPending: isEditingPending } = useBiochemicalEval(editingId)
+  const { evaluations, isPending, isError } = useBiochemicalEvals(historia.id)
+  const {
+    evaluation: selectedEval,
+    isPending: isSelectedPending,
+    isError: isSelectedError,
+  } = useBiochemicalEval(selectedId)
+  const {
+    evaluation: editingEval,
+    isPending: isEditingPending,
+    isError: isEditingError,
+  } = useBiochemicalEval(editingId)
   const { deleteEval, isDeleting } = useDeleteBiochemicalEval(historia.id)
 
   function handleAdd() {
@@ -198,8 +206,14 @@ function BioquimicaTab({ historia }) {
       </Modal.Open>
 
       {selectedId ? (
-        isSelectedPending || !selectedEval ? (
+        isSelectedPending ? (
           <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
+        ) : isSelectedError || !selectedEval ? (
+          <EmptyState
+            icon={<HiOutlineBeaker size={24} />}
+            message="No se pudo cargar la evaluación"
+            hint="Intenta de nuevo más tarde."
+          />
         ) : (
           <BioqDetail
             evaluation={selectedEval}
@@ -224,6 +238,12 @@ function BioquimicaTab({ historia }) {
                 <div key={i} className="h-[92px] animate-pulse rounded-xl bg-zinc-100" />
               ))}
             </div>
+          ) : isError ? (
+            <EmptyState
+              icon={<HiOutlineBeaker size={24} />}
+              message="No se pudieron cargar las evaluaciones bioquímicas"
+              hint="Intenta de nuevo más tarde."
+            />
           ) : evaluations.length === 0 ? (
             <EmptyState
               icon={<HiOutlineBeaker size={24} />}
@@ -249,6 +269,12 @@ function BioquimicaTab({ historia }) {
       <Modal.Content name="bioq-form" size="xl" noPadding>
         {editingId && isEditingPending ? (
           <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
+        ) : editingId && isEditingError ? (
+          <EmptyState
+            icon={<HiOutlineBeaker size={24} />}
+            message="No se pudo cargar la evaluación a editar"
+            hint="Cierra el modal e intenta de nuevo."
+          />
         ) : (
           <EvalBioquimicaForm
             key={editingEval?.id ?? 'new-bioq'}
@@ -340,6 +366,7 @@ export default function PatientHistoriaNutricion({ patient }) {
     useHistory: useNutritionHistory,
     periodField: 'fecha_ingreso',
     tabToStep: TAB_TO_STEP,
+    dependentParams: ['bioqEval', 'bioqTab'],
   })
 
   return (

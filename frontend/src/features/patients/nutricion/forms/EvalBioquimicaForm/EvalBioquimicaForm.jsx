@@ -21,6 +21,15 @@ import {
   PERFIL_INFLAMATORIO_DEFAULTS,
   EVAL_ESTADO_NUTRICION_DEFAULTS,
 } from '@features/patients/nutricion/forms/EvalBioquimicaForm/formDefaults'
+import {
+  PERFIL_ANEMIA_FIELDS,
+  PERFIL_ENDOCRINO_FIELDS,
+  PERFIL_RENAL_FIELDS,
+  PERFIL_LIPIDOS_FIELDS,
+  BALANCE_ACIDO_BASE_FIELDS,
+  PERFIL_ORINA_FIELDS,
+  PERFIL_INFLAMATORIO_Y_NUTRICION_FIELDS,
+} from '@features/patients/nutricion/forms/EvalBioquimicaForm/fieldConfig'
 
 const STEPS = [
   'Hematología y Endócrino',
@@ -29,7 +38,27 @@ const STEPS = [
   'Perfil de Orina',
   'Estado Inflamatorio',
 ]
-const STEPS_FIELDS = [[], [], [], [], []]
+
+// Traduce la config declarativa de cada step a los field paths que useStepForm
+// necesita para validar SOLO ese step antes de avanzar (si no, trigger([])
+// no valida nada y se puede navegar con datos inválidos hasta el submit final).
+function fieldPaths(fields, prefix) {
+  return fields.map((f) => `${f.prefix ?? prefix}.${f.name}`)
+}
+
+const STEPS_FIELDS = [
+  [
+    ...fieldPaths(PERFIL_ANEMIA_FIELDS, 'perfil_anemia_nutricion'),
+    ...fieldPaths(PERFIL_ENDOCRINO_FIELDS, 'perfil_endocrino'),
+  ],
+  fieldPaths(PERFIL_RENAL_FIELDS, 'perfil_renal_electrolitos'),
+  [
+    ...fieldPaths(PERFIL_LIPIDOS_FIELDS, 'perfil_lipidos'),
+    ...fieldPaths(BALANCE_ACIDO_BASE_FIELDS, 'balance_acido_base'),
+  ],
+  fieldPaths(PERFIL_ORINA_FIELDS, 'perfil_orina'),
+  fieldPaths(PERFIL_INFLAMATORIO_Y_NUTRICION_FIELDS),
+]
 
 const STEP_COMPONENTS = [
   HematologiaEndocrinoStep,

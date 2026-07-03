@@ -38,7 +38,10 @@ export const PERFIL_RENAL_FIELDS = [
   { name: 'acido_urico', label: 'Ácido úrico', hint: 'F 1.5-7; M 2.5-8.5' },
   { name: 'sodio', label: 'Sodio', hint: 'NL: 135-145; SRA: >145' },
   { name: 'peso_sin_edema', label: 'Peso sin edema (kg)', hint: 'Peso sin retención de líquidos' },
-  { name: 'agua', label: '% Agua corporal', hint: '>148 mmol/L, hiper Na, neuro' },
+  // NOTA: el schema compartido tipa `agua` como percent (num max 100), pero es
+  // un marcador en mmol/L (umbral clínico >148) — el máximo de 100 clippearía
+  // valores reales. Pendiente de corregir en shared/schemas si se confirma.
+  { name: 'agua', label: 'Agua', hint: 'mmol/L; hiper Na, neuro >148' },
   { name: 'potasio', label: 'Potasio', hint: 'NL: 3.5-5.1; Diál 4.6-6.0; SRA >5.5' },
   { name: 'fosforo', label: 'Fósforo', hint: 'NL: 2.5-4.5; Diál 3.5-5.5; SRA >4.5' },
   { name: 'calcio_serico', label: 'Calcio sérico', hint: '8.5-10.2' },

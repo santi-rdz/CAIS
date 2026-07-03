@@ -1,6 +1,5 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useTabStep } from '@hooks/useTabStep'
-import { useUrlState } from '@hooks/useUrlState'
 import { formatFecha } from '@lib/dateHelpers'
 
 /**
@@ -13,10 +12,20 @@ import { formatFecha } from '@lib/dateHelpers'
  * @param {(id: string) => { historia, isPending, isError }} cfg.useHistory
  * @param {string} cfg.periodField - campo de fecha con que se etiqueta cada período
  * @param {Record<string, number>} cfg.tabToStep - tab de la vista → step de la modal
+ * @param {string[]} [cfg.dependentParams] - query params de sub-vistas anidadas
+ *   en esta historia (ej. bioqEval/bioqTab) que hay que limpiar al cambiar de
+ *   período — si no, quedan apuntando a un registro de otro período.
  */
-export function usePatientHistoria({ useHistories, useHistory, periodField, tabToStep }) {
+export function usePatientHistoria({
+  useHistories,
+  useHistory,
+  periodField,
+  tabToStep,
+  dependentParams = [],
+}) {
   const { id: pacienteId } = useParams()
-  const [selectedId, setSelectedId] = useUrlState('historia', null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedId = searchParams.get('historia')
 
   const { histories, isPending: isLoadingList, isError: isListError } = useHistories(pacienteId)
 
@@ -44,7 +53,15 @@ export function usePatientHistoria({ useHistories, useHistory, periodField, tabT
   const { activeTab, setActiveTab, initialStep } = useTabStep(tabToStep, undefined, 'historiaTab')
 
   function handleSelectHistory(id) {
-    setSelectedId(id)
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('historia', id)
+        dependentParams.forEach((key) => next.delete(key))
+        return next
+      },
+      { replace: true }
+    )
   }
 
   const periodos = histories.map((h) => ({

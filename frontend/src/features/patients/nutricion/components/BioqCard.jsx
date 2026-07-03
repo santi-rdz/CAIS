@@ -13,6 +13,9 @@ export default function BioqCard({ evaluation, onView, onEdit, onDelete }) {
     <div
       onClick={() => onView?.(evaluation)}
       onKeyDown={(e) => {
+        // Ignora Enter/Space que burbujean desde los botones de Editar/Eliminar
+        // anidados — solo activa onView si el foco está en la card misma.
+        if (e.target !== e.currentTarget) return
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           onView?.(evaluation)
