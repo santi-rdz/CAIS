@@ -597,7 +597,7 @@ CREATE TABLE IF NOT EXISTS eval_sintomas_gastroin_nutricion(
 -- EVALUACION ANTROPOMETRICA
 -- ===============================
 CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY NOT NULL,
     historia_paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     peso_actual FLOAT,
@@ -613,7 +613,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    eval_antro_id INT UNIQUE NOT NULL,
+    eval_antro_id BINARY(16) UNIQUE NOT NULL,
     percentiles_imc FLOAT,
     interpretacion_imc VARCHAR(255),
     percentiles_cintura FLOAT,
@@ -641,7 +641,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_kid_nutricion(
 
 CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    eval_antro_id INT UNIQUE NOT NULL,
+    eval_antro_id BINARY(16) UNIQUE NOT NULL,
     codo FLOAT,
     frisancho FLOAT,
     complexion VARCHAR(20),
