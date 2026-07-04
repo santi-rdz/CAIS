@@ -1,16 +1,3 @@
-/**
- * @file Tests de integración para el CRUD de evaluaciones antropométricas.
- *
- * Verifica listado, filtro por historia, creación condicionada a la edad del
- * paciente (perfil kid vs adulto), actualización del perfil correspondiente
- * y eliminación en cascada de los perfiles en
- * /nutricion/evaluacion-antropometrica.
- *
- * A diferencia de biochemicalEval, aquí el body de creación debe incluir
- * `kid` o `adulto` según la edad del paciente dueño de la historia — el
- * modelo lo valida server-side (ver AnthropometricEvalModel.create).
- */
-
 import request from 'supertest'
 import app from '#app'
 import { prisma } from '#config/prisma.js'
@@ -257,25 +244,22 @@ describe('POST /nutricion/evaluacion-antropometrica', () => {
     tracker.track('eval_antro_ad_nutricion', uuidToBuffer(e.id))
   })
 
-  // NOTA: el status exacto depende de cómo tu errorHandler global serialice
-  // ValidationError lanzado desde el modelo (no desde el schema Zod). Se
-  // asume 400; ajusta si en tu app las reglas de negocio también usan 422.
-  test('400 — rechaza perfil "kid" para un paciente adulto', async () => {
+  test('422 — rechaza perfil "kid" para un paciente adulto', async () => {
     const res = await agent.post('/nutricion/evaluacion-antropometrica').send(
       buildMinimalAdulto({
         adulto: undefined,
         kid: { diagnostico_general: 'Eutrófico' },
       })
     )
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 
-  test('400 — rechaza perfil "adulto" para un paciente menor de edad', async () => {
+  test('422 — rechaza perfil "adulto" para un paciente menor de edad', async () => {
     const res = await agent.post('/nutricion/evaluacion-antropometrica').send({
       historia_paciente_id: historiaKidId,
       adulto: { complexion: 'Mediana' },
     })
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(422)
   })
 })
 
@@ -306,9 +290,6 @@ describe('PATCH /nutricion/evaluacion-antropometrica/:id', () => {
     expect(res.body.peso_actual).toBe(72)
   })
 
-  // El modelo solo actualiza el perfil que ya existe (kid XOR adulto); no
-  // hace upsert cruzado. Enviar `kid` a una evaluación de adulto no debe
-  // crear un perfil kid nuevo.
   test('200 — ignora un perfil "kid" en una evaluación de adulto', async () => {
     const res = await agent
       .patch(`/nutricion/evaluacion-antropometrica/${evalAdultoId}`)
@@ -351,7 +332,6 @@ describe('DELETE /nutricion/evaluacion-antropometrica/:id', () => {
     const check = await agent.get(`/nutricion/evaluacion-antropometrica/${evalAdultoId}`)
     expect(check.status).toBe(404)
 
-    // El cascade de la DB debe haber borrado el perfil de adulto, no solo el padre.
     const adulto = await prisma.eval_antro_ad_adulto_nutricion.findMany({
       where: { eval_antro_id: evalBuffer },
     })
