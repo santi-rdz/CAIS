@@ -16,6 +16,9 @@ import { createCleanupTracker } from './helpers/cleanup.js'
 const api = request(app)
 const tracker = createCleanupTracker()
 
+// UUID válido pero inexistente, para probar el 404 (id ahora es BINARY(16)).
+const NONEXISTENT_ID = '00000000-0000-4000-8000-000000000000'
+
 let agent
 let pacienteId
 let historiaId
@@ -109,13 +112,13 @@ describe('GET /nutricion/evaluacion-sueno/:id', () => {
     expect(res.status).toBe(401)
   })
 
-  test('422 — rechaza id no entero positivo', async () => {
-    const res = await agent.get('/nutricion/evaluacion-sueno/0')
+  test('422 — rechaza id no UUID', async () => {
+    const res = await agent.get('/nutricion/evaluacion-sueno/no-es-uuid')
     expect(res.status).toBe(422)
   })
 
   test('404 — evaluación no existe', async () => {
-    const res = await agent.get('/nutricion/evaluacion-sueno/999999')
+    const res = await agent.get(`/nutricion/evaluacion-sueno/${NONEXISTENT_ID}`)
     expect(res.status).toBe(404)
     expect(res.body).toHaveProperty('message')
   })
@@ -215,7 +218,9 @@ describe('PATCH /nutricion/evaluacion-sueno/:id', () => {
   })
 
   test('404 — evaluación no existe', async () => {
-    const res = await agent.patch('/nutricion/evaluacion-sueno/999999').send({ insomnio: 'NO' })
+    const res = await agent
+      .patch(`/nutricion/evaluacion-sueno/${NONEXISTENT_ID}`)
+      .send({ insomnio: 'NO' })
     expect(res.status).toBe(404)
   })
 })
@@ -235,7 +240,7 @@ describe('DELETE /nutricion/evaluacion-sueno/:id', () => {
   })
 
   test('404 — evaluación no existe', async () => {
-    const res = await agent.delete('/nutricion/evaluacion-sueno/999999')
+    const res = await agent.delete(`/nutricion/evaluacion-sueno/${NONEXISTENT_ID}`)
     expect(res.status).toBe(404)
   })
 
