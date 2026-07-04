@@ -15,3 +15,10 @@ export async function updateEvalActFisica(id, data) {
     errorMsg: 'Error al actualizar evaluación de actividad física',
   })
 }
+
+export async function deleteEvalActFisica(id) {
+  return fetchApi(`/nutricion/evaluacion-actividad-fisica/${id}`, {
+    method: 'DELETE',
+    errorMsg: 'Error al eliminar evaluación de actividad física',
+  })
+}

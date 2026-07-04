@@ -1,16 +1,27 @@
 import { useRef, useState } from 'react'
-import { HiOutlinePlus, HiOutlineBeaker, HiOutlineTrash } from 'react-icons/hi2'
+import {
+  HiOutlinePlus,
+  HiOutlineBeaker,
+  HiOutlineTrash,
+  HiOutlineMoon,
+  HiOutlineHeart,
+  HiOutlineClipboardDocumentList,
+  HiOutlineSparkles,
+} from 'react-icons/hi2'
 import { useUrlState } from '@hooks/useUrlState'
 import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
 import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useNutritionHistories } from '@features/patients/nutricion/hooks/useNutritionHistories'
 import { useNutritionHistory } from '@features/patients/nutricion/hooks/useNutritionHistory'
+import { useEvalMonitoreo } from '@features/patients/nutricion/hooks/useEvalMonitoreo'
 import NutritionalPatientForm from '@features/patients/nutricion/forms/NutritionalPatientForm/NutritionalPatientForm'
 import EvalSuenoForm from '@features/patients/nutricion/forms/EvalSuenoForm'
 import EvalActFisicaForm from '@features/patients/nutricion/forms/EvalActFisicaForm'
 import EvalBioquimicaForm from '@features/patients/nutricion/forms/EvalBioquimicaForm/EvalBioquimicaForm'
 import BioqDetail from '@features/patients/nutricion/forms/EvalBioquimicaForm/BioqDetail'
 import BioqCard from '@features/patients/nutricion/components/BioqCard'
+import MonitoreoCard from '@features/patients/nutricion/components/MonitoreoCard'
+import MonitoreoDetail from '@features/patients/nutricion/components/MonitoreoDetail'
 import { useBiochemicalEvals } from '@features/patients/nutricion/hooks/useBiochemicalEvals'
 import { useBiochemicalEval } from '@features/patients/nutricion/hooks/useBiochemicalEval'
 import { useDeleteBiochemicalEval } from '@features/patients/nutricion/hooks/useDeleteBiochemicalEval'
@@ -30,116 +41,182 @@ import {
   buildAdiccionesRows,
 } from '@features/patients/nutricion/constants'
 
+// Subconjunto de columnas a mostrar en el cuerpo resumido de la card.
+const pickCols = (columns, keys) => columns.filter((c) => keys.includes(c.key))
+
 // Tab de la vista → step de la modal principal (HISTORIA_STEPS).
 // HISTORIA_STEPS = STEPS.slice(1): 0=Historia Médica, 1=Tratamiento, 2=Adicciones, 3=Sueño, 4=AF
 const TAB_TO_STEP = { enfermedades: 0, tratamientos: 1, adicciones: 2, sueno: 3, af: 4 }
 
-// ─── Tab calidad del sueño ────────────────────────────────────────────────────
-// Tiene su propio <Modal> para no interferir con el context de PatientDetail.
-// El botón oculto actúa como puente entre el estado local y el sistema de
-// nombres del Modal.
+// ─── Tab genérico de monitoreo (sueño / actividad física) ──────────────────────
+// Mismo flujo que BioquimicaTab (grid de cards → detalle → editar/eliminar), pero
+// leyendo la data ya embebida en la historia. `config` lo parametriza por recurso.
+// La data (id UUID) permite seleccionar el registro por URL (?suenoEval / ?afEval).
 
-function SuenoTab({ historia }) {
-  const [editingEval, setEditingEval] = useState(null)
+function MonitoreoTab({ historia, config }) {
+  const Icon = config.icon
+  const FormComponent = config.FormComponent
+  const rows = historia[config.rowsKey] ?? []
+  const [selectedId, setSelectedId] = useUrlState(config.urlParam, null)
+  const [editingRow, setEditingRow] = useState(null)
+  const [deletingRow, setDeletingRow] = useState(null)
   const openRef = useRef(null)
+  const deleteOpenRef = useRef(null)
+  const monitoreo = useEvalMonitoreo(historia.id)
+  const deleteEval = monitoreo[config.deleteFn]
+  const isDeleting = monitoreo[config.isDeletingFlag]
+
+  const selectedRow = selectedId ? (rows.find((r) => r.id === selectedId) ?? null) : null
 
   function handleAdd() {
-    setEditingEval(null)
+    setEditingRow(null)
     openRef.current?.click()
   }
 
   function handleEdit(row) {
-    setEditingEval(row)
+    setEditingRow(row)
     openRef.current?.click()
+  }
+
+  function handleDeleteRequest(row) {
+    setDeletingRow(row)
+    deleteOpenRef.current?.click()
+  }
+
+  async function handleConfirmDelete() {
+    const wasSelected = selectedId === deletingRow.id
+    if (wasSelected) setSelectedId(null)
+    try {
+      await deleteEval(deletingRow.id)
+    } catch {
+      if (wasSelected) setSelectedId(deletingRow.id)
+    }
   }
 
   return (
     <Modal>
-      {/* Trigger oculto — se activa programáticamente */}
-      <Modal.Open opens="sueno-form">
+      <Modal.Open opens={config.formName}>
         <button ref={openRef} type="button" hidden aria-hidden="true" />
       </Modal.Open>
+      <Modal.Open opens={config.deleteName}>
+        <button ref={deleteOpenRef} type="button" hidden aria-hidden="true" />
+      </Modal.Open>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Heading as="h4">Calidad del Sueño</Heading>
-          <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
-            <HiOutlinePlus size={13} strokeWidth={2.5} />
-            Agregar
-          </Button>
-        </div>
-        <RecordTable
-          columns={SUENO_COLUMNS}
-          rows={historia.eval_cal_sueno}
-          emptyMessage="Sin evaluaciones de sueño registradas."
+      {selectedId && selectedRow ? (
+        <MonitoreoDetail
+          row={selectedRow}
+          title={config.title}
+          backLabel={config.backLabel}
+          columns={config.columns}
+          onBack={() => setSelectedId(null)}
           onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
         />
-      </div>
+      ) : selectedId ? (
+        <EmptyState
+          icon={<Icon size={24} />}
+          message="No se encontró la evaluación"
+          hint="Puede que haya sido eliminada."
+        />
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Heading as="h4">{config.title}</Heading>
+            <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
+              <HiOutlinePlus size={13} strokeWidth={2.5} />
+              Agregar
+            </Button>
+          </div>
 
-      <Modal.Content name="sueno-form" size="md" noPadding>
-        <EvalSuenoForm
-          key={editingEval?.id ?? 'new-sueno'}
+          {rows.length === 0 ? (
+            <EmptyState
+              icon={<Icon size={24} />}
+              message={config.emptyMessage}
+              hint="Registra la primera evaluación de esta historia."
+            />
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+              {rows.map((row) => (
+                <MonitoreoCard
+                  key={row.id}
+                  row={row}
+                  icon={Icon}
+                  summary={config.summary}
+                  onView={(r) => setSelectedId(r.id)}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteRequest}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Modal.Content name={config.formName} size={config.modalSize} noPadding>
+        <FormComponent
+          key={editingRow?.id ?? `new-${config.urlParam}`}
           historiaId={historia.id}
-          eval={editingEval ?? undefined}
-          title={editingEval?.id ? 'Editar evaluación de sueño' : 'Nueva evaluación de sueño'}
+          eval={editingRow ?? undefined}
+          title={editingRow?.id ? config.formTitleEdit : config.formTitleNew}
+        />
+      </Modal.Content>
+
+      <Modal.Content
+        name={config.deleteName}
+        noPadding
+        variant="alert"
+        icon={<HiOutlineTrash size={26} />}
+      >
+        <DangerConfirm
+          title={config.deleteTitle}
+          description="¿Estás seguro? Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          onConfirm={handleConfirmDelete}
+          isPending={isDeleting}
         />
       </Modal.Content>
     </Modal>
   )
 }
 
-// ─── Tab actividad física ─────────────────────────────────────────────────────
+const SUENO_CONFIG = {
+  rowsKey: 'eval_cal_sueno',
+  urlParam: 'suenoEval',
+  icon: HiOutlineMoon,
+  title: 'Calidad del Sueño',
+  backLabel: 'Sueño',
+  columns: SUENO_COLUMNS,
+  summary: pickCols(SUENO_COLUMNS, ['horas_sueno', 'clasif_horas_sueno']),
+  FormComponent: EvalSuenoForm,
+  formName: 'sueno-form',
+  deleteName: 'delete-sueno',
+  modalSize: 'md',
+  formTitleNew: 'Nueva evaluación de sueño',
+  formTitleEdit: 'Editar evaluación de sueño',
+  deleteTitle: 'Eliminar evaluación de sueño',
+  emptyMessage: 'Sin evaluaciones de sueño registradas',
+  deleteFn: 'deleteSueno',
+  isDeletingFlag: 'isDeletingSueno',
+}
 
-function ActFisicaTab({ historia }) {
-  const [editingEval, setEditingEval] = useState(null)
-  const openRef = useRef(null)
-
-  function handleAdd() {
-    setEditingEval(null)
-    openRef.current?.click()
-  }
-
-  function handleEdit(row) {
-    setEditingEval(row)
-    openRef.current?.click()
-  }
-
-  return (
-    <Modal>
-      <Modal.Open opens="af-form">
-        <button ref={openRef} type="button" hidden aria-hidden="true" />
-      </Modal.Open>
-
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Heading as="h4">Actividad Física</Heading>
-          <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
-            <HiOutlinePlus size={13} strokeWidth={2.5} />
-            Agregar
-          </Button>
-        </div>
-        <RecordTable
-          columns={ACT_FISICA_COLUMNS}
-          rows={historia.eval_act_fisica_nutricion}
-          emptyMessage="Sin evaluaciones de actividad física registradas."
-          onEdit={handleEdit}
-        />
-      </div>
-
-      <Modal.Content name="af-form" size="lg" noPadding>
-        <EvalActFisicaForm
-          key={editingEval?.id ?? 'new-af'}
-          historiaId={historia.id}
-          eval={editingEval ?? undefined}
-          title={
-            editingEval?.id
-              ? 'Editar evaluación de actividad física'
-              : 'Nueva evaluación de actividad física'
-          }
-        />
-      </Modal.Content>
-    </Modal>
-  )
+const ACT_FISICA_CONFIG = {
+  rowsKey: 'eval_act_fisica_nutricion',
+  urlParam: 'afEval',
+  icon: HiOutlineHeart,
+  title: 'Actividad Física',
+  backLabel: 'Actividad física',
+  columns: ACT_FISICA_COLUMNS,
+  summary: pickCols(ACT_FISICA_COLUMNS, ['tipo', 'frecuencia', 'duracion']),
+  FormComponent: EvalActFisicaForm,
+  formName: 'af-form',
+  deleteName: 'delete-af',
+  modalSize: 'lg',
+  formTitleNew: 'Nueva evaluación de actividad física',
+  formTitleEdit: 'Editar evaluación de actividad física',
+  deleteTitle: 'Eliminar evaluación de actividad física',
+  emptyMessage: 'Sin evaluaciones de actividad física registradas',
+  deleteFn: 'deleteActFisica',
+  isDeletingFlag: 'isDeletingActFisica',
 }
 
 // ─── Tab evaluación bioquímica ────────────────────────────────────────────────
@@ -315,11 +392,15 @@ const TABS = [
           fields={[{ label: 'Motivo de consulta', value: historia.motivo_consulta }]}
           cols={1}
         />
-        <RecordTable
-          columns={ENFERMEDAD_COLUMNS}
-          rows={historia.historias_medicas_nutricion}
-          emptyMessage="Sin enfermedades registradas."
-        />
+        <div className="space-y-3">
+          <Heading as="h4">Enfermedades</Heading>
+          <RecordTable
+            columns={ENFERMEDAD_COLUMNS}
+            rows={historia.historias_medicas_nutricion}
+            emptyMessage="Sin enfermedades registradas."
+            emptyIcon={<HiOutlineClipboardDocumentList size={24} />}
+          />
+        </div>
       </div>
     ),
   },
@@ -327,29 +408,36 @@ const TABS = [
     value: 'tratamientos',
     label: 'Tratamientos alternativos',
     render: (historia) => (
-      <RecordTable
-        columns={TRATAMIENTO_COLUMNS}
-        rows={historia.tratamiento_alt_nutricion}
-        emptyMessage="Sin tratamientos alternativos registrados."
-      />
+      <div className="space-y-3">
+        <Heading as="h4">Tratamientos alternativos</Heading>
+        <RecordTable
+          columns={TRATAMIENTO_COLUMNS}
+          rows={historia.tratamiento_alt_nutricion}
+          emptyMessage="Sin tratamientos alternativos registrados."
+          emptyIcon={<HiOutlineSparkles size={24} />}
+        />
+      </div>
     ),
   },
   {
     value: 'adicciones',
     label: 'Adicciones',
     render: (historia) => (
-      <RecordTable columns={ADICCIONES_COLUMNS} rows={buildAdiccionesRows(historia.adicciones)} />
+      <div className="space-y-3">
+        <Heading as="h4">Adicciones</Heading>
+        <RecordTable columns={ADICCIONES_COLUMNS} rows={buildAdiccionesRows(historia.adicciones)} />
+      </div>
     ),
   },
   {
     value: 'sueno',
     label: 'Sueño',
-    render: (historia) => <SuenoTab historia={historia} />,
+    render: (historia) => <MonitoreoTab historia={historia} config={SUENO_CONFIG} />,
   },
   {
     value: 'af',
     label: 'Actividad física',
-    render: (historia) => <ActFisicaTab historia={historia} />,
+    render: (historia) => <MonitoreoTab historia={historia} config={ACT_FISICA_CONFIG} />,
   },
   {
     value: 'bioquimica',
@@ -366,7 +454,7 @@ export default function PatientHistoriaNutricion({ patient }) {
     useHistory: useNutritionHistory,
     periodField: 'fecha_ingreso',
     tabToStep: TAB_TO_STEP,
-    dependentParams: ['bioqEval', 'bioqTab'],
+    dependentParams: ['bioqEval', 'bioqTab', 'suenoEval', 'afEval'],
   })
 
   return (
