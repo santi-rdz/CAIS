@@ -165,6 +165,12 @@ describe('GET /nutricion/evaluacion-antropometrica', () => {
     }
   })
 
+  test('422 — rechaza si falta historia_paciente_id', async () => {
+    const res = await agent.get('/nutricion/evaluacion-antropometrica')
+    expect(res.status).toBe(422)
+    expect(res.body.error).toBe('ValidationError')
+  })
+
   test('422 — rechaza historia_paciente_id inválido', async () => {
     const res = await agent.get(
       '/nutricion/evaluacion-antropometrica?historia_paciente_id=no-es-uuid'
@@ -203,6 +209,16 @@ describe('POST /nutricion/evaluacion-antropometrica', () => {
       historia_paciente_id: historiaAdultoId,
       peso_actual: 70,
     })
+    expect(res.status).toBe(422)
+    expect(res.body.error).toBe('ValidationError')
+  })
+
+  test('422 — rechaza si envía kid y adulto a la vez', async () => {
+    const res = await agent.post('/nutricion/evaluacion-antropometrica').send(
+      buildCompletoAdulto({
+        kid: { diagnostico_general: 'Eutrófico' },
+      })
+    )
     expect(res.status).toBe(422)
     expect(res.body.error).toBe('ValidationError')
   })
@@ -290,6 +306,9 @@ describe('PATCH /nutricion/evaluacion-antropometrica/:id', () => {
     expect(res.body.peso_actual).toBe(72)
   })
 
+  // El modelo solo actualiza el perfil que ya existe (kid XOR adulto); no
+  // hace upsert cruzado. Enviar `kid` a una evaluación de adulto no debe
+  // crear un perfil kid nuevo.
   test('200 — ignora un perfil "kid" en una evaluación de adulto', async () => {
     const res = await agent
       .patch(`/nutricion/evaluacion-antropometrica/${evalAdultoId}`)
@@ -332,6 +351,7 @@ describe('DELETE /nutricion/evaluacion-antropometrica/:id', () => {
     const check = await agent.get(`/nutricion/evaluacion-antropometrica/${evalAdultoId}`)
     expect(check.status).toBe(404)
 
+    // El cascade de la DB debe haber borrado el perfil de adulto, no solo el padre.
     const adulto = await prisma.eval_antro_ad_adulto_nutricion.findMany({
       where: { eval_antro_id: evalBuffer },
     })

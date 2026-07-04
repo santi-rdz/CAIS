@@ -3,8 +3,6 @@ import { AnthropometricEvalModel } from '#models/nutricion/AnthropometricEval.js
 import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
-import { isUUID } from '@cais/shared/schemas/fields'
-import { ValidationError } from '#lib/appError.js'
 
 export class AnthropometricEvalController {
   static async create(req, res) {
@@ -27,9 +25,6 @@ export class AnthropometricEvalController {
 
   static async getAll(req, res) {
     const { historia_paciente_id } = req.query
-    if (historia_paciente_id && !isUUID(historia_paciente_id)) {
-      throw new ValidationError('El historia_paciente_id debe ser un UUID válido')
-    }
     const { page, limit } = parsePagination(req.query)
 
     const result = await AnthropometricEvalModel.getAll({

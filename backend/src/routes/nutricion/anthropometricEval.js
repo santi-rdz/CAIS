@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { AnthropometricEvalController } from '#controllers/nutricion/anthropometricEval.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateUuidParam } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateAnthropometricEval,
   validatePartialAnthropometricEval,
@@ -13,7 +13,7 @@ anthropometricEvalRouter.use(requireAuth)
 
 anthropometricEvalRouter
   .route('/')
-  .get(AnthropometricEvalController.getAll)
+  .get(validateUuidQuery('historia_paciente_id'), AnthropometricEvalController.getAll)
   .post(validate(validateAnthropometricEval), AnthropometricEvalController.create)
 
 anthropometricEvalRouter
