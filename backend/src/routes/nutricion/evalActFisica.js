@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { EvalActFisicaController } from '#controllers/nutricion/evalActFisica.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateIntParam, validateUuidQuery } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateEvalActFisica,
   validatePartialEvalActFisica,
@@ -18,7 +18,7 @@ evalActFisicaRouter
 
 evalActFisicaRouter
   .route('/:id')
-  .all(validateIntParam())
+  .all(validateUuidParam())
   .get(EvalActFisicaController.getById)
   .patch(validate(validatePartialEvalActFisica), EvalActFisicaController.update)
   .delete(EvalActFisicaController.delete)

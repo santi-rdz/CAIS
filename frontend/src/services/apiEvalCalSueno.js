@@ -15,3 +15,10 @@ export async function updateEvalCalSueno(id, data) {
     errorMsg: 'Error al actualizar evaluación de sueño',
   })
 }
+
+export async function deleteEvalCalSueno(id) {
+  return fetchApi(`/nutricion/evaluacion-sueno/${id}`, {
+    method: 'DELETE',
+    errorMsg: 'Error al eliminar evaluación de sueño',
+  })
+}

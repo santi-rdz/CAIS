@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS tratamiento_alt_nutricion(
 );
 
 CREATE TABLE IF NOT EXISTS eval_cal_sueno(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     horas_sueno TINYINT,
@@ -302,7 +302,7 @@ CREATE TABLE IF NOT EXISTS eval_cal_sueno(
 );
 
 CREATE TABLE IF NOT EXISTS eval_act_fisica_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_paciente_id BINARY(16) NOT NULL,
     fecha DATE DEFAULT (CURRENT_DATE),
     tipo VARCHAR(50),

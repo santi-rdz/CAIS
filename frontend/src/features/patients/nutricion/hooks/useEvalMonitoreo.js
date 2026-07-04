@@ -1,8 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import dayjs from 'dayjs'
-import { createEvalCalSueno, updateEvalCalSueno } from '@services/apiEvalCalSueno'
-import { createEvalActFisica, updateEvalActFisica } from '@services/apiEvalActFisica'
+import {
+  createEvalCalSueno,
+  updateEvalCalSueno,
+  deleteEvalCalSueno,
+} from '@services/apiEvalCalSueno'
+import {
+  createEvalActFisica,
+  updateEvalActFisica,
+  deleteEvalActFisica,
+} from '@services/apiEvalActFisica'
 import { toastApiError } from '@lib/ApiError'
 
 // Quita campos de la DB (id, historia_paciente_id), convierte fecha dayjs → ISO
@@ -53,10 +61,32 @@ export function useEvalMonitoreo(historiaId) {
     onError: toastApiError,
   })
 
+  const suenoDeleteMutation = useMutation({
+    mutationFn: (id) => deleteEvalCalSueno(id),
+    onSuccess: () => {
+      toast.success('Evaluación de sueño eliminada')
+      invalidate()
+    },
+    onError: toastApiError,
+  })
+
+  const actFisicaDeleteMutation = useMutation({
+    mutationFn: (id) => deleteEvalActFisica(id),
+    onSuccess: () => {
+      toast.success('Evaluación de actividad física eliminada')
+      invalidate()
+    },
+    onError: toastApiError,
+  })
+
   return {
     saveSueno: suenoMutation.mutateAsync,
     isSavingSueno: suenoMutation.isPending,
     saveActFisica: actFisicaMutation.mutateAsync,
     isSavingActFisica: actFisicaMutation.isPending,
+    deleteSueno: suenoDeleteMutation.mutateAsync,
+    isDeletingSueno: suenoDeleteMutation.isPending,
+    deleteActFisica: actFisicaDeleteMutation.mutateAsync,
+    isDeletingActFisica: actFisicaDeleteMutation.isPending,
   }
 }

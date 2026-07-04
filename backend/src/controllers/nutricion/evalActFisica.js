@@ -17,7 +17,7 @@ export class EvalActFisicaController {
           usuario_id: req.session.userId,
           accion: ACCIONES.CREAR,
           entidad: ENTIDADES.EVAL_ACT_FISICA_NUTRICION,
-          objetivo_id: null,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx
@@ -78,7 +78,7 @@ export class EvalActFisicaController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ELIMINAR,
           entidad: ENTIDADES.EVAL_ACT_FISICA_NUTRICION,
-          objetivo_id: null,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx
@@ -98,7 +98,7 @@ export class EvalActFisicaController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ACTUALIZAR,
           entidad: ENTIDADES.EVAL_ACT_FISICA_NUTRICION,
-          objetivo_id: null,
+          objetivo_id: e.id,
           paciente_id: e.paciente_id,
         },
         tx

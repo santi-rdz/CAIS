@@ -102,10 +102,12 @@ export function buildActivityNavPath(item) {
         ? `/pacientes/${item.paciente_id}?tab=historia&historiaTab=bioquimica&bioqEval=${item.objetivo_id}`
         : null
     case 'EVAL_ACT_FISICA_NUTRICION':
-      return item.paciente_id ? `/pacientes/${item.paciente_id}?tab=historia&historiaTab=af` : null
+      return item.paciente_id
+        ? `/pacientes/${item.paciente_id}?tab=historia&historiaTab=af&afEval=${item.objetivo_id}`
+        : null
     case 'EVAL_CAL_SUENO':
       return item.paciente_id
-        ? `/pacientes/${item.paciente_id}?tab=historia&historiaTab=sueno`
+        ? `/pacientes/${item.paciente_id}?tab=historia&historiaTab=sueno&suenoEval=${item.objetivo_id}`
         : null
     case 'PACIENTE':
       return `/pacientes/${item.objetivo_id}`

@@ -113,7 +113,7 @@ model estados {
 }
 
 model eval_act_fisica_nutricion {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   tipo                          String?                       @db.VarChar(50)
@@ -194,7 +194,7 @@ model eval_apetito_nutricion {
 }
 
 model eval_cal_sueno {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   horas_sueno                   Int?                          @db.TinyInt

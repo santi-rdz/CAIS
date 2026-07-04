@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { EvalCalSuenoController } from '#controllers/nutricion/evalCalSueno.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateIntParam, validateUuidQuery } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateEvalCalSueno,
   validatePartialEvalCalSueno,
@@ -18,7 +18,7 @@ evalCalSuenoRouter
 
 evalCalSuenoRouter
   .route('/:id')
-  .all(validateIntParam())
+  .all(validateUuidParam())
   .get(EvalCalSuenoController.getById)
   .patch(validate(validatePartialEvalCalSueno), EvalCalSuenoController.update)
   .delete(EvalCalSuenoController.delete)

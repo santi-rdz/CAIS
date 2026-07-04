@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
@@ -20,13 +21,14 @@ function formatSueno(s) {
   const { historias_pacientes_nutricion, ...rest } = s
   return {
     ...rest,
+    id: toUUID(s.id),
     historia_paciente_id: toUUID(s.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
   }
 }
 
 function formatMinimal(s) {
-  const result = { ...s }
+  const result = { ...s, id: toUUID(s.id) }
   if ('historia_paciente_id' in s) result.historia_paciente_id = toUUID(s.historia_paciente_id)
   return result
 }
@@ -60,7 +62,7 @@ export class EvalCalSuenoModel {
 
   static async getById(id, tx = prisma) {
     const evaluacion = await tx.eval_cal_sueno.findUnique({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!evaluacion) throw new NotFoundError('la evaluación de sueño')
@@ -68,8 +70,10 @@ export class EvalCalSuenoModel {
   }
 
   static async create(data, tx = prisma) {
-    const evaluacion = await tx.eval_cal_sueno.create({
+    const evaluacionId = randomUUID()
+    await tx.eval_cal_sueno.create({
       data: {
+        id: uuidToBuffer(evaluacionId),
         historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         ...(data.fecha !== undefined && { fecha: data.fecha }),
         ...(data.horas_sueno !== undefined && { horas_sueno: data.horas_sueno }),
@@ -80,25 +84,25 @@ export class EvalCalSuenoModel {
         ...(data.medicacion !== undefined && { medicacion: data.medicacion }),
       },
     })
-    return this.getById(evaluacion.id, tx)
+    return this.getById(evaluacionId, tx)
   }
 
   static async delete(id, tx = prisma) {
     const existing = await tx.eval_cal_sueno.findUnique({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la evaluación de sueño')
-    await tx.eval_cal_sueno.delete({ where: { id: Number(id) } })
+    await tx.eval_cal_sueno.delete({ where: { id: uuidToBuffer(id) } })
     return formatSueno(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    const existing = await tx.eval_cal_sueno.findUnique({ where: { id: Number(id) } })
+    const existing = await tx.eval_cal_sueno.findUnique({ where: { id: uuidToBuffer(id) } })
     if (!existing) throw new NotFoundError('la evaluación de sueño')
 
     await tx.eval_cal_sueno.update({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       data: {
         ...(data.fecha !== undefined && { fecha: data.fecha }),
         ...(data.horas_sueno !== undefined && { horas_sueno: data.horas_sueno }),

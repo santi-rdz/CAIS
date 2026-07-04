@@ -41,12 +41,27 @@ const MANY_RELATIONS = [
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
 
+// eval_cal_sueno y eval_act_fisica_nutricion usan id BINARY(16); al venir
+// embebidos hay que castear su id (y la FK) a UUID string, si no llegan como
+// Buffer crudo al FE (key de React rota + edición del wizard).
+function formatChildIds(row) {
+  return {
+    ...row,
+    id: toUUID(row.id),
+    historia_paciente_id: toUUID(row.historia_paciente_id),
+  }
+}
+
 function formatNutritionHistory(n) {
   if (!n) return null
   return {
     ...n,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
+    ...(n.eval_cal_sueno && { eval_cal_sueno: n.eval_cal_sueno.map(formatChildIds) }),
+    ...(n.eval_act_fisica_nutricion && {
+      eval_act_fisica_nutricion: n.eval_act_fisica_nutricion.map(formatChildIds),
+    }),
   }
 }
 
