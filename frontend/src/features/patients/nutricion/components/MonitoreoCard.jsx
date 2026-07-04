@@ -22,7 +22,7 @@ export default function MonitoreoCard({ row, icon: Icon, summary, onView, onEdit
       data-testid={`monitoreo-card-${row.id}`}
       className="group relative flex cursor-pointer flex-col gap-3 rounded-xl border border-zinc-100 bg-white p-4 transition-all duration-150 hover:border-teal-300 hover:shadow-sm"
     >
-      <div className="absolute top-2.5 right-2.5 flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="absolute top-2.5 right-2.5 flex gap-0.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
         <Button
           variant="ghost"
           size="sm"
