@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { HiOutlinePencilSquare } from 'react-icons/hi2'
+import { HiOutlinePencilSquare, HiOutlineInbox } from 'react-icons/hi2'
+import EmptyState from '@components/EmptyState'
 
 const TRUNCATE_AT = 80
 
@@ -35,70 +36,76 @@ function TruncatedCell({ value }) {
 // Tabla genérica para relaciones one-to-many.
 // columns: [{ key, label, format? }]
 // onEdit(row): añade columna de acción con ícono editar.
-export default function RecordTable({ columns, rows, emptyMessage = 'Sin registros.', onEdit }) {
+// emptyIcon / emptyMessage: estado vacío (centrado, sin chrome de tabla).
+export default function RecordTable({
+  columns,
+  rows,
+  emptyMessage = 'Sin registros.',
+  emptyIcon,
+  onEdit,
+}) {
   const hasRows = rows?.length > 0
 
+  if (!hasRows) {
+    return <EmptyState icon={emptyIcon ?? <HiOutlineInbox size={24} />} message={emptyMessage} />
+  }
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-hidden rounded-xl border border-zinc-100">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="border-b border-zinc-100 text-left">
+          <tr className="border-b border-zinc-100 bg-zinc-50/60 text-left">
             {columns.map((col) => (
               <th
                 key={col.key}
-                className="text-6 px-3 py-2 font-medium tracking-wide text-zinc-400 uppercase"
+                className="text-7 px-4 py-2.5 font-semibold tracking-wider text-zinc-400 uppercase"
               >
                 {col.label}
               </th>
             ))}
-            {onEdit && <th className="w-8" />}
+            {onEdit && <th className="w-12" />}
           </tr>
         </thead>
         <tbody>
-          {hasRows ? (
-            rows.map((row, i) => (
-              <tr
-                key={row.id ?? i}
-                className="border-b border-zinc-50 transition-colors last:border-0 hover:bg-zinc-50/70"
-              >
-                {columns.map((col) => {
-                  const raw = row[col.key]
-                  const display = col.format ? col.format(raw) : raw
-                  const hasValue = display != null && String(display).trim() !== ''
-                  return (
-                    <td key={col.key} className="text-5 px-3 py-2.5 text-zinc-700">
-                      {hasValue ? (
-                        <TruncatedCell value={display} />
-                      ) : (
-                        <span className="text-zinc-300">—</span>
-                      )}
-                    </td>
-                  )
-                })}
-                {onEdit && (
-                  <td className="px-2 py-2.5">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(row)}
-                      className="rounded p-1 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
-                      aria-label="Editar fila"
-                    >
-                      <HiOutlinePencilSquare size={15} />
-                    </button>
+          {rows.map((row, i) => (
+            <tr
+              key={row.id ?? i}
+              className="border-b border-zinc-50 transition-colors last:border-0 hover:bg-zinc-50/60"
+            >
+              {columns.map((col, idx) => {
+                const raw = row[col.key]
+                const display = col.format ? col.format(raw) : raw
+                const hasValue = display != null && String(display).trim() !== ''
+                const isFirst = idx === 0
+                return (
+                  <td
+                    key={col.key}
+                    className={`text-5 px-4 py-3 ${
+                      isFirst ? 'font-medium text-zinc-800' : 'text-zinc-600'
+                    }`}
+                  >
+                    {hasValue ? (
+                      <TruncatedCell value={display} />
+                    ) : (
+                      <span className="text-zinc-300">—</span>
+                    )}
                   </td>
-                )}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan={columns.length + (onEdit ? 1 : 0)}
-                className="text-6 px-3 py-3 text-zinc-300"
-              >
-                {emptyMessage}
-              </td>
+                )
+              })}
+              {onEdit && (
+                <td className="px-2 py-3">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(row)}
+                    className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-700"
+                    aria-label="Editar fila"
+                  >
+                    <HiOutlinePencilSquare size={15} />
+                  </button>
+                </td>
+              )}
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
