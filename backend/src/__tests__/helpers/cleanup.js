@@ -24,6 +24,7 @@ const DELETE_ORDER = [
   [
     'eval_nutr_fh',
     'eval_bioq_nutricion',
+    'eval_antro_ad_nutricion',
     'exam_fis_orien_nutricion',
     'notas_evolucion',
     'bitacora_emergencias',

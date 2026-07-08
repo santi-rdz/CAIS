@@ -9,6 +9,7 @@ import { physicalExaminationRouter } from './nutricion/physicalExam.js'
 import { tpanNutritionRouter } from './nutricion/tpanNutrition.js'
 import { evalCalSuenoRouter } from './nutricion/evalCalSueno.js'
 import { evalActFisicaRouter } from './nutricion/evalActFisica.js'
+import { anthropometricEvalRouter } from './nutricion/anthropometricEval.js'
 
 export const nutritionRouter = Router()
 
@@ -23,3 +24,4 @@ nutritionRouter.use('/examinacion-fisica', physicalExaminationRouter)
 nutritionRouter.use('/tpan', tpanNutritionRouter)
 nutritionRouter.use('/evaluacion-sueno', evalCalSuenoRouter)
 nutritionRouter.use('/evaluacion-actividad-fisica', evalActFisicaRouter)
+nutritionRouter.use('/evaluacion-antropometrica', anthropometricEvalRouter)

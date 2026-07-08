@@ -131,7 +131,7 @@ model eval_act_fisica_nutricion {
 
 model eval_antro_ad_adulto_nutricion {
   id                      Int                     @id @default(autoincrement())
-  eval_antro_id           Int                     @unique(map: "eval_antro_id")
+  eval_antro_id           Bytes                   @unique(map: "eval_antro_id") @db.Binary(16)
   codo                    Float?                  @db.Float
   frisancho               Float?                  @db.Float
   complexion              String?                 @db.VarChar(20)
@@ -155,7 +155,7 @@ model eval_antro_ad_adulto_nutricion {
 
 model eval_antro_ad_kid_nutricion {
   id                            Int                     @id @default(autoincrement())
-  eval_antro_id                 Int                     @unique(map: "eval_antro_id")
+  eval_antro_id                 Bytes                   @unique(map: "eval_antro_id") @db.Binary(16)
   percentiles_imc               Float?                  @db.Float
   interpretacion_imc            String?                 @db.VarChar(255)
   percentiles_cintura           Float?                  @db.Float
@@ -618,7 +618,7 @@ model diagnostico_nutricional_adulto {
 }
 
 model eval_antro_ad_nutricion {
-  id                             Int                             @id @default(autoincrement())
+  id                             Bytes                           @id @db.Binary(16)
   historia_paciente_id           Bytes                           @db.Binary(16)
   fecha                          DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
   peso_actual                    Float?                          @db.Float
