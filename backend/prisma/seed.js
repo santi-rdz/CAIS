@@ -59,6 +59,7 @@ async function main() {
     'NOTA_EVOLUCION',
     'EXAMINACION_FISICA',
     'TPAN',
+    'REC_24H',
     'EVAL_ANTROPOMETRICA',
     'HISTORIA_MEDICA',
     'PACIENTE',

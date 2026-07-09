@@ -829,7 +829,7 @@ model perfil_renal_electrolitos {
 
 model rec_24h_comidas {
   id                Int               @id @default(autoincrement())
-  rec_24h_id        Int
+  rec_24h_id        Bytes             @db.Binary(16)
   fecha             DateTime?         @db.Date
   comida            String?           @db.VarChar(100)
   alimento          String?           @db.VarChar(100)
@@ -841,13 +841,13 @@ model rec_24h_comidas {
   proteinas         Float?            @db.Float
   azucar            Float?            @db.Float
   fibra             Float?            @db.Float
-  rec_24h_nutricion rec_24h_nutricion @relation(fields: [rec_24h_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_comidas_rec_24h")
+  rec_24h_nutricion rec_24h_nutricion @relation(fields: [rec_24h_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_comidas_rec_24h")
 
   @@index([rec_24h_id], map: "fk_comidas_rec_24h")
 }
 
 model rec_24h_nutricion {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   rec_24h_comidas               rec_24h_comidas[]

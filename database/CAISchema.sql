@@ -667,7 +667,7 @@ CREATE TABLE IF NOT EXISTS eval_antro_ad_adulto_nutricion(
 -- RECORDATORIO 24H
 -- ===============================
 CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) NOT NULL PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_paciente_id BINARY(16) NOT NULL,
     fecha_eval DATE DEFAULT (CURRENT_DATE),
     CONSTRAINT fk_rec_24h_historia FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
@@ -675,7 +675,7 @@ CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
 
 CREATE TABLE IF NOT EXISTS rec_24h_comidas(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    rec_24h_id INT NOT NULL,
+    rec_24h_id BINARY(16) NOT NULL,
     fecha DATE,
     comida VARCHAR(100),
     alimento VARCHAR(100),
@@ -687,7 +687,7 @@ CREATE TABLE IF NOT EXISTS rec_24h_comidas(
     proteinas FLOAT,
     azucar FLOAT,
     fibra FLOAT,
-    CONSTRAINT fk_comidas_rec_24h FOREIGN KEY (rec_24h_id) REFERENCES rec_24h_nutricion(id)
+    CONSTRAINT fk_comidas_rec_24h FOREIGN KEY (rec_24h_id) REFERENCES rec_24h_nutricion(id) ON DELETE CASCADE
 );
 
 -- ===============================
