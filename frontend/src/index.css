@@ -139,6 +139,10 @@
   --radius: 0.625rem;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 .error {
   @apply outline-[1.5px] outline-offset-2 outline-red-400;
 }
