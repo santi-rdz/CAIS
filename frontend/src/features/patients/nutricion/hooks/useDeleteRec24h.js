@@ -11,7 +11,7 @@ export function useDeleteRec24h(historiaId) {
     onSuccess: (_, id) => {
       toast.success('Recordatorio de 24 horas eliminado')
       queryClient.invalidateQueries({ queryKey: ['rec-24h-list', historiaId] })
-      queryClient.invalidateQueries({ queryKey: ['rec-24h', id] })
+      queryClient.removeQueries({ queryKey: ['rec-24h', id] })
     },
     onError: toastApiError,
   })
