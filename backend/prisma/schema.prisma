@@ -832,6 +832,7 @@ model rec_24h_comidas {
   rec_24h_id        Bytes             @db.Binary(16)
   fecha             DateTime?         @db.Date
   comida            String?           @db.VarChar(100)
+  grupo             String?           @db.VarChar(50)
   alimento          String?           @db.VarChar(100)
   calorias          Float?            @db.Float
   grasa             Float?            @db.Float
@@ -850,6 +851,14 @@ model rec_24h_nutricion {
   id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  obj_calorias                  Float?                        @db.Float
+  obj_grasa                     Float?                        @db.Float
+  obj_colesterol                Float?                        @db.Float
+  obj_sodio                     Float?                        @db.Float
+  obj_carb                      Float?                        @db.Float
+  obj_proteinas                 Float?                        @db.Float
+  obj_azucar                    Float?                        @db.Float
+  obj_fibra                     Float?                        @db.Float
   rec_24h_comidas               rec_24h_comidas[]
   historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_rec_24h_historia")
 
