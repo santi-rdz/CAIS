@@ -40,9 +40,11 @@ export default function SintomasSignosSummary({ sintomas: filas, signos }) {
           </div>
         ) : (
           <p className="text-5 text-zinc-500">
-            {presenta_sgi === false
-              ? 'El paciente no presenta síntomas gastrointestinales.'
-              : 'Sin registro de síntomas gastrointestinales.'}
+            {presenta_sgi === true
+              ? 'El paciente presenta síntomas gastrointestinales, sin detalle registrado.'
+              : presenta_sgi === false
+                ? 'El paciente no presenta síntomas gastrointestinales.'
+                : 'Sin registro de síntomas gastrointestinales.'}
           </p>
         )}
       </section>

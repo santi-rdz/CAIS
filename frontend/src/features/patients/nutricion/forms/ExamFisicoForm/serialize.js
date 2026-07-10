@@ -13,11 +13,14 @@ export function buildPeso(peso) {
 
 // Aux (presenta_sgi + lista de síntomas) → filas de eval_sintomas_gastroin.
 // - Sí + síntomas: una fila por síntoma (presenta_sgi=true, presencia=síntoma).
+// - Sí sin síntomas: una fila marcador (presenta_sgi=true, presencia=null) para
+//   no perder la respuesta afirmativa cuando aún no se detalla ningún síntoma.
 // - No: una sola fila que registra explícitamente la ausencia.
 // - Sin contestar: null (se omite del payload).
 export function serializeSintomas({ presenta_sgi, sintomas } = {}) {
   if (presenta_sgi === true) {
     const lista = (sintomas ?? []).filter(Boolean)
+    if (!lista.length) return [{ presenta_sgi: true, presencia: null }]
     return lista.map((s) => ({ presenta_sgi: true, presencia: s }))
   }
   if (presenta_sgi === false) return [{ presenta_sgi: false, presencia: null }]
