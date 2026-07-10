@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { HiCheck, HiChevronRight } from 'react-icons/hi2'
+import { HiCheck, HiChevronRight, HiXMark } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
 import useHoverOpen from '@hooks/useHoverOpen'
 import DropdownPanel from './DropdownPanel'
@@ -47,6 +47,7 @@ export function Select({
   align = 'auto',
   fullWidth = false,
   allowCustom = false,
+  clearable = true,
   className = '',
   hasError,
 }) {
@@ -120,6 +121,7 @@ export function Select({
       handleValueChange,
       isOpen,
       hasError,
+      clearable,
       openAbove,
       positionStyle,
       registerLabel,
@@ -137,6 +139,7 @@ export function Select({
       handleValueChange,
       isOpen,
       hasError,
+      clearable,
       openAbove,
       positionStyle,
       registerLabel,
@@ -215,19 +218,33 @@ export function SelectTrigger({
 export function SelectValue({ placeholder = 'Seleccionar' }) {
   const { value, values, multiple, getLabelForValue } = useSelect()
 
+  // El placeholder va en gris tenue para distinguirlo de un valor elegido (que
+  // hereda el color/peso oscuro del trigger); sin esto ambos se ven idénticos.
+  const placeholderEl = <span className="font-normal text-gray-400">{placeholder}</span>
+
   if (multiple) {
-    if (!values.length) return <span>{placeholder}</span>
+    if (!values.length) return placeholderEl
     return <span>{values.map((v) => getLabelForValue(v) ?? v).join(', ')}</span>
   }
 
-  const label = value ? (getLabelForValue(value) ?? value) : null
-  return <span>{label ?? placeholder}</span>
+  // Comparación explícita (no truthy) para no tratar 0/false como "sin valor".
+  const hasValue = value != null && value !== ''
+  return hasValue ? <span>{getLabelForValue(value) ?? value}</span> : placeholderEl
 }
 
 // ─── Dropdown ─────────────────────────────────────────────────────────────────
 
 export function SelectContent({ children, portal = false, maxHeight = 220 }) {
-  const { isOpen, openAbove, positionStyle, searchQuery, handleCustomAdd } = useSelect()
+  const {
+    isOpen,
+    openAbove,
+    positionStyle,
+    searchQuery,
+    handleCustomAdd,
+    value,
+    multiple,
+    clearable,
+  } = useSelect()
 
   const childArray = Children.toArray(children)
   const searchChild = childArray.find((c) => c.type === SelectSearch)
@@ -240,6 +257,12 @@ export function SelectContent({ children, portal = false, maxHeight = 220 }) {
       .some((c) => String(c.props.children).toLowerCase() === searchQuery.toLowerCase())
 
   const showAddOption = handleCustomAdd && searchQuery.trim() && !hasExactMatch
+
+  // Auto-inyecta "Limpiar selección" cuando hay un valor activo (no placeholder)
+  // en un single-select, salvo que el consumidor ya provea su propio SelectFooter
+  // (SortBy / Filter tienen un limpiar a la medida y no deben duplicarlo).
+  const hasCustomFooter = childArray.some((c) => c.type === SelectFooter)
+  const showClear = clearable && !multiple && !hasCustomFooter && value != null && value !== ''
 
   return (
     <DropdownPanel
@@ -266,7 +289,28 @@ export function SelectContent({ children, portal = false, maxHeight = 220 }) {
           </button>
         )}
       </div>
+      {showClear && (
+        <SelectFooter>
+          <ClearSelection />
+        </SelectFooter>
+      )}
     </DropdownPanel>
+  )
+}
+
+// Botón por defecto para limpiar el valor de un single-select. Cierra el
+// dropdown tras limpiar (handleValueChange('') ya lo cierra en modo single).
+function ClearSelection() {
+  const { handleValueChange } = useSelect()
+  return (
+    <button
+      type="button"
+      onClick={() => handleValueChange('')}
+      className="text-5 flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2 font-medium text-red-500 transition-colors hover:bg-red-50"
+    >
+      <HiXMark size={15} />
+      Limpiar selección
+    </button>
   )
 }
 

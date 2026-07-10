@@ -220,3 +220,123 @@ export function buildAdiccionesRows(a = {}) {
     ),
   ]
 }
+
+// ── Evaluación Nutricional (Frecuencia y Hábitos) ────────────────────────────
+
+// Step 1 — Problemas de alimentación / pensamientos sobre dieta.
+export const TIPO_ALIMENTACION_OPTIONS = ['Oral', 'Sonda']
+export const PENSAMIENTOS_DIETA_OPTIONS = [
+  'No lo he pensado',
+  'Estoy pensando en hacerlo',
+  'Planeo iniciar en los próximos 6 m',
+  'Empecé hace 6 m',
+  'Lo hago de manera regular',
+]
+
+// Step 2 — Evaluación de apetito. Cada opción lleva sus puntos: se guarda el
+// `value` corto (cabe en VARCHAR(20)) y se muestra el `label`; el puntaje y la
+// clasificación se derivan de los puntos (no los captura el usuario).
+export const APETITO_OPTIONS = [
+  { value: 'muy_escaso', label: 'Muy escaso', points: 1 },
+  { value: 'escaso', label: 'Escaso', points: 2 },
+  { value: 'regular', label: 'Regular', points: 3 },
+  { value: 'bueno', label: 'Bueno', points: 4 },
+  { value: 'muy_bueno', label: 'Muy bueno', points: 5 },
+]
+export const SACIEDAD_OPTIONS = [
+  { value: 'poco_bocado', label: 'Al comer poco bocado', points: 1 },
+  { value: 'un_tercio', label: 'Al comer 1/3 del plato', points: 2 },
+  { value: 'medio_plato', label: 'Al comer >1/2 plato', points: 3 },
+  { value: 'mayor_parte', label: 'Al comer la mayor parte', points: 4 },
+  { value: 'casi_nunca', label: 'Casi nunca me siento lleno', points: 5 },
+]
+export const SABOR_COMIDA_OPTIONS = [
+  { value: 'muy_mala', label: 'Muy mala', points: 1 },
+  { value: 'mala', label: 'Mala', points: 2 },
+  { value: 'regular', label: 'Regular', points: 3 },
+  { value: 'buena', label: 'Buena', points: 4 },
+  { value: 'muy_buena', label: 'Muy buena', points: 5 },
+]
+export const COMIDAS_DIA_OPTIONS = [
+  { value: 'menos_1', label: '<1 comida/día', points: 1 },
+  { value: 'una', label: '1 comida/día', points: 2 },
+  { value: 'dos', label: '2 comidas/día', points: 3 },
+  { value: 'tres', label: '3 comidas/día', points: 4 },
+  { value: 'mas_3', label: '>3 comidas/día', points: 5 },
+]
+
+// Config declarativa de los 4 selects puntuados (nombre de campo DB → opciones).
+export const APETITO_SCORE_FIELDS = [
+  { name: 'apetito', label: 'Apetito', options: APETITO_OPTIONS },
+  { name: 'lleno', label: 'Sensación de saciedad', options: SACIEDAD_OPTIONS },
+  { name: 'sabor_comida', label: 'Sabor de los alimentos', options: SABOR_COMIDA_OPTIONS },
+  { name: 'comidas_al_dia', label: 'Comidas por día', options: COMIDAS_DIA_OPTIONS },
+]
+
+export const APETITO_UMBRAL = 14
+export const CLASIF_SIN_RIESGO = 'Sin riesgo'
+export const CLASIF_RIESGO = 'Riesgo significativo'
+
+// Lookup value → label para la vista de detalle (los 4 selects puntuados).
+export const APETITO_VALUE_LABELS = Object.fromEntries(
+  APETITO_SCORE_FIELDS.flatMap((f) => f.options.map((o) => [o.value, o.label]))
+)
+
+// Puntos máximos posibles (4 selects × 5 pts) — para mostrar "n / 20".
+export const APETITO_PUNTAJE_MAX = APETITO_SCORE_FIELDS.length * 5
+
+// Devuelve la opción { value, label, points } elegida en un campo puntuado.
+export function getApetitoOption(name, value) {
+  const field = APETITO_SCORE_FIELDS.find((f) => f.name === name)
+  return field?.options.find((o) => o.value === value) ?? null
+}
+
+// Suma los puntos de los selects contestados y clasifica el riesgo. La
+// clasificación solo aplica con los 4 campos contestados: comparar un puntaje
+// parcial contra el umbral de escala completa marcaría "Riesgo significativo"
+// de forma engañosa. `clasif` es null hasta completar; `hasValues` (≥1 campo)
+// permite al form decidir si incluir el bloque de apetito en el payload.
+export function computeApetitoScore(apetito) {
+  let puntaje = 0
+  let contestados = 0
+  for (const { name, options } of APETITO_SCORE_FIELDS) {
+    const opt = options.find((o) => o.value === apetito?.[name])
+    if (opt) {
+      puntaje += opt.points
+      contestados++
+    }
+  }
+  const completo = contestados === APETITO_SCORE_FIELDS.length
+  return {
+    puntaje,
+    clasif: completo ? (puntaje >= APETITO_UMBRAL ? CLASIF_SIN_RIESGO : CLASIF_RIESGO) : null,
+    hasValues: contestados > 0,
+  }
+}
+
+// Step 3 — Frecuencia de consumo y líquidos.
+export const FRECUENCIA_CONSUMO_OPTIONS = [
+  'Nunca',
+  '1 vez/mes',
+  'Cada 15 día',
+  '1-2 v/sem',
+  '3-5 v/sem',
+  'Diario',
+  '>2 v/día',
+]
+export const CANTIDAD_LIQUIDOS_OPTIONS = [
+  '<0.5 L/día',
+  '0.5-1.0 L/día',
+  '1.1-1.5 L/día',
+  '1.6-2.0 L/día',
+  '>2.0 L/día',
+]
+export const AZUCAR_TIPO_OPTIONS = [
+  'Nunca',
+  'Varios',
+  'Miel',
+  'Sacarosa',
+  'Stevia',
+  'Sucralosa',
+  'Acesulfame K',
+]

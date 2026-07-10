@@ -20,11 +20,17 @@ import EvalActFisicaForm from '@features/patients/nutricion/forms/EvalActFisicaF
 import EvalBioquimicaForm from '@features/patients/nutricion/forms/EvalBioquimicaForm/EvalBioquimicaForm'
 import BioqDetail from '@features/patients/nutricion/forms/EvalBioquimicaForm/BioqDetail'
 import BioqCard from '@features/patients/nutricion/components/BioqCard'
+import EvalNutricionalForm from '@features/patients/nutricion/forms/EvalNutricionalForm/EvalNutricionalForm'
+import NutrDetail from '@features/patients/nutricion/forms/EvalNutricionalForm/NutrDetail'
+import NutrCard from '@features/patients/nutricion/components/NutrCard'
 import MonitoreoCard from '@features/patients/nutricion/components/MonitoreoCard'
 import MonitoreoDetail from '@features/patients/nutricion/components/MonitoreoDetail'
 import { useBiochemicalEvals } from '@features/patients/nutricion/hooks/useBiochemicalEvals'
 import { useBiochemicalEval } from '@features/patients/nutricion/hooks/useBiochemicalEval'
 import { useDeleteBiochemicalEval } from '@features/patients/nutricion/hooks/useDeleteBiochemicalEval'
+import { useNutritionalEvals } from '@features/patients/nutricion/hooks/useNutritionalEvals'
+import { useNutritionalEval } from '@features/patients/nutricion/hooks/useNutritionalEval'
+import { useDeleteNutritionalEval } from '@features/patients/nutricion/hooks/useDeleteNutritionalEval'
 import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import RecordTable from '@features/patients/shared/sections/RecordTable'
 import EmptyState from '@components/EmptyState'
@@ -380,6 +386,164 @@ function BioquimicaTab({ historia }) {
   )
 }
 
+// ─── Tab evaluación nutricional (frecuencia y hábitos) ──────────────────────────
+// Mismo flujo que BioquimicaTab: lista y detalle se cargan por endpoint propio
+// (no vienen embebidos en la historia), así el fetch solo ocurre al entrar aquí.
+
+function NutricionalTab({ historia }) {
+  const [selectedId, setSelectedId] = useUrlState('nutrEval', null)
+  const [editingId, setEditingId] = useState(null)
+  const [editingStep, setEditingStep] = useState(0)
+  const [deletingEval, setDeletingEval] = useState(null)
+  const openRef = useRef(null)
+  const deleteOpenRef = useRef(null)
+  const { evaluations, isPending, isError } = useNutritionalEvals(historia.id)
+  const {
+    evaluation: selectedEval,
+    isPending: isSelectedPending,
+    isError: isSelectedError,
+  } = useNutritionalEval(selectedId)
+  const {
+    evaluation: editingEval,
+    isPending: isEditingPending,
+    isError: isEditingError,
+  } = useNutritionalEval(editingId)
+  const { deleteEval, isDeleting } = useDeleteNutritionalEval(historia.id)
+
+  function handleAdd() {
+    setEditingId(null)
+    setEditingStep(0)
+    openRef.current?.click()
+  }
+
+  function handleEdit(row, step = 0) {
+    setEditingId(row.id)
+    setEditingStep(step)
+    openRef.current?.click()
+  }
+
+  function handleDeleteRequest(row) {
+    setDeletingEval(row)
+    deleteOpenRef.current?.click()
+  }
+
+  async function handleConfirmDelete() {
+    const wasSelected = selectedId === deletingEval.id
+    if (wasSelected) setSelectedId(null)
+    try {
+      await deleteEval(deletingEval.id)
+    } catch {
+      if (wasSelected) setSelectedId(deletingEval.id)
+    }
+  }
+
+  return (
+    <Modal>
+      <Modal.Open opens="nutr-form">
+        <button ref={openRef} type="button" hidden aria-hidden="true" />
+      </Modal.Open>
+      <Modal.Open opens="delete-nutr-eval">
+        <button ref={deleteOpenRef} type="button" hidden aria-hidden="true" />
+      </Modal.Open>
+
+      {selectedId ? (
+        isSelectedPending ? (
+          <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
+        ) : isSelectedError || !selectedEval ? (
+          <EmptyState
+            icon={<HiOutlineClipboardDocumentList size={24} />}
+            message="No se pudo cargar la evaluación"
+            hint="Intenta de nuevo más tarde."
+          />
+        ) : (
+          <NutrDetail
+            evaluation={selectedEval}
+            onBack={() => setSelectedId(null)}
+            onEdit={(step) => handleEdit(selectedEval, step)}
+            onDelete={handleDeleteRequest}
+          />
+        )
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Heading as="h4">Evaluación Nutricional</Heading>
+            <Button type="button" size="sm" variant="primary" onClick={handleAdd}>
+              <HiOutlinePlus size={13} strokeWidth={2.5} />
+              Agregar
+            </Button>
+          </div>
+
+          {isPending ? (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+              {Array.from({ length: 3 }, (_, i) => (
+                <div key={i} className="h-[84px] animate-pulse rounded-xl bg-zinc-100" />
+              ))}
+            </div>
+          ) : isError ? (
+            <EmptyState
+              icon={<HiOutlineClipboardDocumentList size={24} />}
+              message="No se pudieron cargar las evaluaciones nutricionales"
+              hint="Intenta de nuevo más tarde."
+            />
+          ) : evaluations.length === 0 ? (
+            <EmptyState
+              icon={<HiOutlineClipboardDocumentList size={24} />}
+              message="Sin evaluaciones nutricionales"
+              hint="Registra la primera evaluación de esta historia."
+            />
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+              {evaluations.map((evaluation) => (
+                <NutrCard
+                  key={evaluation.id}
+                  evaluation={evaluation}
+                  onView={(row) => setSelectedId(row.id)}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteRequest}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <Modal.Content name="nutr-form" size="xl" noPadding>
+        {editingId && isEditingPending ? (
+          <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
+        ) : editingId && isEditingError ? (
+          <EmptyState
+            icon={<HiOutlineClipboardDocumentList size={24} />}
+            message="No se pudo cargar la evaluación a editar"
+            hint="Cierra el modal e intenta de nuevo."
+          />
+        ) : (
+          <EvalNutricionalForm
+            key={editingEval?.id ?? 'new-nutr'}
+            historiaId={historia.id}
+            evaluation={editingId ? editingEval : null}
+            initialStep={editingStep}
+          />
+        )}
+      </Modal.Content>
+
+      <Modal.Content
+        name="delete-nutr-eval"
+        noPadding
+        variant="alert"
+        icon={<HiOutlineTrash size={26} />}
+      >
+        <DangerConfirm
+          title="Eliminar evaluación nutricional"
+          description="¿Estás seguro? Esta acción no se puede deshacer."
+          confirmLabel="Eliminar"
+          onConfirm={handleConfirmDelete}
+          isPending={isDeleting}
+        />
+      </Modal.Content>
+    </Modal>
+  )
+}
+
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -444,6 +608,11 @@ const TABS = [
     label: 'Bioquímica',
     render: (historia) => <BioquimicaTab historia={historia} />,
   },
+  {
+    value: 'frecuencia',
+    label: 'Evaluación nutricional',
+    render: (historia) => <NutricionalTab historia={historia} />,
+  },
 ]
 
 // ─── Componente principal ─────────────────────────────────────────────────────
@@ -454,7 +623,7 @@ export default function PatientHistoriaNutricion({ patient }) {
     useHistory: useNutritionHistory,
     periodField: 'fecha_ingreso',
     tabToStep: TAB_TO_STEP,
-    dependentParams: ['bioqEval', 'bioqTab', 'suenoEval', 'afEval'],
+    dependentParams: ['bioqEval', 'bioqTab', 'suenoEval', 'afEval', 'nutrEval', 'nutrTab'],
   })
 
   return (
