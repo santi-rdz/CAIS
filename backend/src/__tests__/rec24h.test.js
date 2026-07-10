@@ -40,6 +40,7 @@ afterAll(() => tracker.cleanup())
 const buildComida = (overrides = {}) => ({
   fecha: '2024-05-10',
   comida: 'Desayuno',
+  grupo: 'Cereal SIN grasa',
   alimento: 'Avena con fruta',
   calorias: 350,
   grasa: 8,
@@ -57,9 +58,21 @@ const buildMinimal = (overrides = {}) => ({
   ...overrides,
 })
 
+const OBJETIVOS = {
+  obj_calorias: 2000,
+  obj_grasa: 67,
+  obj_colesterol: 300,
+  obj_sodio: 2300,
+  obj_carb: 300,
+  obj_proteinas: 50,
+  obj_azucar: 50,
+  obj_fibra: 25,
+}
+
 const buildCompleto = (overrides = {}) => ({
   historia_paciente_id: historiaId,
   fecha_eval: '2024-05-10',
+  ...OBJETIVOS,
   comidas: [
     buildComida(),
     buildComida({ comida: 'Comida', alimento: 'Pollo con arroz', calorias: 550 }),
@@ -161,6 +174,16 @@ describe('POST /nutricion/rec-24h', () => {
 
     tracker.track('rec_24h_nutricion', uuidToBuffer(r.id))
   })
+
+  test('201 — persiste objetivos nutricionales y el grupo de cada alimento', async () => {
+    const res = await agent.post('/nutricion/rec-24h').send(buildCompleto())
+    expect(res.status).toBe(201)
+    const r = res.body.rec
+    expect(r).toMatchObject(OBJETIVOS)
+    expect(r.rec_24h_comidas[0].grupo).toBe('Cereal SIN grasa')
+
+    tracker.track('rec_24h_nutricion', uuidToBuffer(r.id))
+  })
 })
 
 describe('PATCH /nutricion/rec-24h/:id', () => {
@@ -176,6 +199,13 @@ describe('PATCH /nutricion/rec-24h/:id', () => {
   test('200 — actualiza fecha_eval sin tocar las comidas', async () => {
     const res = await agent.patch(`/nutricion/rec-24h/${recId}`).send({ fecha_eval: '2024-06-01' })
     expect(res.status).toBe(200)
+    expect(res.body.rec_24h_comidas).toHaveLength(3)
+  })
+
+  test('200 — actualiza los objetivos nutricionales', async () => {
+    const res = await agent.patch(`/nutricion/rec-24h/${recId}`).send({ obj_calorias: 1800 })
+    expect(res.status).toBe(200)
+    expect(res.body.obj_calorias).toBe(1800)
     expect(res.body.rec_24h_comidas).toHaveLength(3)
   })
 

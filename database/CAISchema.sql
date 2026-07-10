@@ -670,6 +670,14 @@ CREATE TABLE IF NOT EXISTS rec_24h_nutricion(
     id BINARY(16) NOT NULL PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_paciente_id BINARY(16) NOT NULL,
     fecha_eval DATE DEFAULT (CURRENT_DATE),
+    obj_calorias FLOAT,
+    obj_grasa FLOAT,
+    obj_colesterol FLOAT,
+    obj_sodio FLOAT,
+    obj_carb FLOAT,
+    obj_proteinas FLOAT,
+    obj_azucar FLOAT,
+    obj_fibra FLOAT,
     CONSTRAINT fk_rec_24h_historia FOREIGN KEY (historia_paciente_id) REFERENCES historias_pacientes_nutricion(id) ON DELETE CASCADE ON UPDATE NO ACTION
 );
 
@@ -678,6 +686,7 @@ CREATE TABLE IF NOT EXISTS rec_24h_comidas(
     rec_24h_id BINARY(16) NOT NULL,
     fecha DATE,
     comida VARCHAR(100),
+    grupo VARCHAR(50),
     alimento VARCHAR(100),
     calorias FLOAT,
     grasa FLOAT,

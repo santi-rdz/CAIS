@@ -51,6 +51,9 @@ export default function EndpointEvalTab({ historia, config }) {
   const [selectedId, setSelectedId] = useUrlState(urlParam, null)
   const [editingId, setEditingId] = useState(null)
   const [editingStep, setEditingStep] = useState(0)
+  // Contexto opcional que el Detail puede pasar al abrir el form (ej. el índice de
+  // sub-registro a editar). Los forms que no lo usan lo ignoran.
+  const [editingContext, setEditingContext] = useState(null)
   const [deletingRow, setDeletingRow] = useState(null)
   const openRef = useRef(null)
   const deleteOpenRef = useRef(null)
@@ -73,12 +76,14 @@ export default function EndpointEvalTab({ historia, config }) {
   function handleAdd() {
     setEditingId(null)
     setEditingStep(0)
+    setEditingContext(null)
     openRef.current?.click()
   }
 
-  function handleEdit(row, step = 0) {
+  function handleEdit(row, step = 0, context = null) {
     setEditingId(row.id)
     setEditingStep(step)
+    setEditingContext(context)
     openRef.current?.click()
   }
 
@@ -121,7 +126,7 @@ export default function EndpointEvalTab({ historia, config }) {
           <Detail
             {...itemPropFor(selectedItem)}
             onBack={() => setSelectedId(null)}
-            onEdit={(step) => handleEdit(selectedItem, step)}
+            onEdit={(step, context) => handleEdit(selectedItem, step, context)}
             onDelete={handleDeleteRequest}
           />
         )
@@ -187,6 +192,7 @@ export default function EndpointEvalTab({ historia, config }) {
             historiaId={historia.id}
             {...itemPropFor(editingId ? editingItem : null)}
             initialStep={editingStep}
+            editContext={editingContext}
           />
         )}
       </Modal.Content>

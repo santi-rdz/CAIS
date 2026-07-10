@@ -8,6 +8,21 @@ const includeRelations = {
   rec_24h_comidas: true,
 }
 
+// Objetivos nutricionales del día: columnas planas del padre.
+const OBJECTIVE_FIELDS = [
+  'obj_calorias',
+  'obj_grasa',
+  'obj_colesterol',
+  'obj_sodio',
+  'obj_carb',
+  'obj_proteinas',
+  'obj_azucar',
+  'obj_fibra',
+]
+
+const pickObjectives = (data) =>
+  Object.fromEntries(OBJECTIVE_FIELDS.filter((f) => data[f] !== undefined).map((f) => [f, data[f]]))
+
 function formatRec24h(n, paciente_id) {
   if (!n) return null
   return {
@@ -66,6 +81,7 @@ export class Rec24hModel {
         id: uuidToBuffer(recId),
         historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         fecha_eval: data.fecha_eval,
+        ...pickObjectives(data),
         ...(data.comidas?.length && {
           rec_24h_comidas: { create: data.comidas },
         }),
@@ -98,6 +114,7 @@ export class Rec24hModel {
       where: { id: uuidToBuffer(id) },
       data: {
         ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
+        ...pickObjectives(data),
       },
     })
 

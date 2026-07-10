@@ -411,3 +411,91 @@ const buildLabelLookup = (options) => Object.fromEntries(options.map((o) => [o.v
 export const SEMIOLOGIA_SEVERIDAD_LABELS = buildLabelLookup(SEMIOLOGIA_SEVERIDAD_OPTIONS)
 export const RESERVA_MUSCULAR_LABELS = buildLabelLookup(RESERVA_MUSCULAR_OPTIONS)
 export const EDEMA_LABELS = buildLabelLookup(EDEMA_OPTIONS)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Recordatorio de 24 horas (Rec. 24h)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Los 8 nutrientes que se capturan por alimento (rec_24h_comidas) y como objetivo
+// diario (obj_<key> en rec_24h_nutricion). `key` = sufijo de columna en ambos
+// lados; `objName` = columna del objetivo. Única fuente de verdad para los campos,
+// los totales de ingesta real y la tabla objetivo-vs-real.
+export const REC24H_NUTRIENTES = [
+  { key: 'calorias', label: 'Calorías', unit: 'kcal', objName: 'obj_calorias' },
+  { key: 'grasa', label: 'Grasas', unit: 'g', objName: 'obj_grasa' },
+  { key: 'colesterol', label: 'Colesterol', unit: 'mg', objName: 'obj_colesterol' },
+  { key: 'sodio', label: 'Sodio', unit: 'mg', objName: 'obj_sodio' },
+  { key: 'carb', label: 'Carbohidratos', unit: 'g', objName: 'obj_carb' },
+  { key: 'proteinas', label: 'Proteínas', unit: 'g', objName: 'obj_proteinas' },
+  { key: 'azucar', label: 'Azúcar', unit: 'g', objName: 'obj_azucar' },
+  { key: 'fibra', label: 'Fibra', unit: 'g', objName: 'obj_fibra' },
+]
+
+// Valores de referencia (solo placeholders del objetivo; no se prellenan para no
+// inventar metas clínicas por paciente).
+export const REC24H_OBJETIVO_PLACEHOLDERS = {
+  obj_calorias: '2000',
+  obj_grasa: '67',
+  obj_colesterol: '300',
+  obj_sodio: '2300',
+  obj_carb: '300',
+  obj_proteinas: '50',
+  obj_azucar: '50',
+  obj_fibra: '25',
+}
+
+// Tiempos de comida del día (se guardan como etiqueta en `comida`, VarChar(100)).
+export const TIEMPO_COMIDA_OPTIONS = [
+  'Desayuno',
+  'Colación 1',
+  'Comida',
+  'Colación 2',
+  'Cena',
+  'Colación 3',
+]
+
+// Sistema Mexicano de Alimentos Equivalentes (SMAE). Aporte promedio por
+// equivalente de cada grupo. La tabla solo modela energía y macros, así que al
+// elegir un grupo se autocompletan `calorias/proteinas/grasa/carb` como valores
+// editables; colesterol, sodio, azúcar y fibra quedan en captura manual.
+export const SMAE_GRUPOS = [
+  { grupo: 'Verdura', calorias: 25, proteinas: 2, grasa: 0, carb: 4 },
+  { grupo: 'Fruta', calorias: 60, proteinas: 0, grasa: 0, carb: 15 },
+  { grupo: 'Cereal SIN grasa', calorias: 70, proteinas: 2, grasa: 0, carb: 15 },
+  { grupo: 'Cereal CON grasa', calorias: 115, proteinas: 2, grasa: 5, carb: 15 },
+  { grupo: 'Leguminosas', calorias: 120, proteinas: 8, grasa: 1, carb: 20 },
+  { grupo: 'AOA A (muy bajo en grasa)', calorias: 40, proteinas: 7, grasa: 1, carb: 0 },
+  { grupo: 'AOA B (bajo en grasa)', calorias: 55, proteinas: 7, grasa: 3, carb: 0 },
+  { grupo: 'AOA C (moderado en grasa)', calorias: 75, proteinas: 7, grasa: 5, carb: 0 },
+  { grupo: 'AOA D (alto en grasa)', calorias: 100, proteinas: 7, grasa: 7, carb: 0 },
+  { grupo: 'Leche A (descremada)', calorias: 95, proteinas: 9, grasa: 2, carb: 12 },
+  { grupo: 'Leche B (semidescremada)', calorias: 110, proteinas: 9, grasa: 4, carb: 12 },
+  { grupo: 'Leche C (entera)', calorias: 150, proteinas: 9, grasa: 8, carb: 12 },
+  { grupo: 'Grasa A (sin proteína)', calorias: 45, proteinas: 0, grasa: 5, carb: 0 },
+  { grupo: 'Grasa B (con proteína)', calorias: 70, proteinas: 3, grasa: 5, carb: 0 },
+  { grupo: 'Azúcares', calorias: 40, proteinas: 0, grasa: 0, carb: 10 },
+]
+
+export const SMAE_GRUPO_OPTIONS = SMAE_GRUPOS.map((g) => g.grupo)
+export const SMAE_GRUPO_MAP = Object.fromEntries(SMAE_GRUPOS.map((g) => [g.grupo, g]))
+// Nutrientes que el SMAE sí modela por grupo (los que se autocompletan).
+export const SMAE_AUTOFILL_KEYS = ['calorias', 'proteinas', 'grasa', 'carb']
+
+// Ingesta real: suma de un nutriente sobre la lista de alimentos.
+export function sumNutrient(comidas = [], key) {
+  return comidas.reduce((acc, c) => {
+    const v = Number(c?.[key])
+    return acc + (Number.isFinite(v) ? v : 0)
+  }, 0)
+}
+
+// Agrupa la lista de alimentos por grupo del SMAE → [{ grupo, count }].
+export function groupByFoodGroup(comidas = []) {
+  const counts = new Map()
+  for (const c of comidas) {
+    const g = c?.grupo?.trim()
+    if (!g) continue
+    counts.set(g, (counts.get(g) ?? 0) + 1)
+  }
+  return [...counts.entries()].map(([grupo, count]) => ({ grupo, count }))
+}
