@@ -340,3 +340,74 @@ export const AZUCAR_TIPO_OPTIONS = [
   'Sucralosa',
   'Acesulfame K',
 ]
+
+// ── Examen Físico Nutricional (Examinación Física) ───────────────────────────
+
+// Step 1 — Monitoreo de peso. El % de pérdida se deriva (no lo captura el
+// usuario): (peso_perdido × 100) / peso_habitual; hay riesgo si supera el 5%.
+export const PESO_PERDIDA_UMBRAL = 5
+// Escala del medidor de riesgo (0 → 20%): una pérdida ≥20% ya es extrema, así el
+// umbral del 5% queda legible cerca del inicio de la barra.
+export const PESO_PERDIDA_MAX = 20
+
+// Suma derivada del monitoreo de peso: % de pérdida + si cruza el umbral de
+// riesgo. El % solo existe con ambos pesos y un habitual > 0 (evita la división
+// por cero que en la hoja de cálculo original produce #DIV/0! y no inventa un 0%
+// cuando falta el peso perdido). `hasValues` decide si el bloque va en el payload.
+const isNum = (v) => v !== '' && v != null && !Number.isNaN(Number(v))
+export function computePesoLoss({ peso_habitual, peso_perdido } = {}) {
+  const habitual = Number(peso_habitual)
+  const perdido = Number(peso_perdido)
+  const ambos = isNum(peso_habitual) && isNum(peso_perdido)
+  const porcentaje = ambos && habitual > 0 ? (perdido * 100) / habitual : null
+  return {
+    porcentaje,
+    enRiesgo: porcentaje != null && porcentaje > PESO_PERDIDA_UMBRAL,
+    hasValues: isNum(peso_habitual) || isNum(peso_perdido),
+  }
+}
+
+// Step 2 — Síntomas gastrointestinales (catálogo cerrado; se guarda la etiqueta
+// tal cual en `presencia`, VarChar(50)) y signos vitales.
+export const SGI_SINTOMAS_OPTIONS = [
+  'Ageusia',
+  'Anosmia',
+  'Colitis',
+  'Gastritis',
+  'Diarrea',
+  'Reflujo',
+  'Dolor abdominal',
+  'Estreñimiento',
+  'Distensión abdominal',
+  'Meteorismo',
+  'Náuseas',
+  'Vómito',
+]
+
+// Step 3 — Evaluación semiológica. Se guarda el `value` corto (código estable) y
+// se muestra el `label` con la referencia clínica; el rango cabe holgado en el
+// VarChar de cada columna.
+export const SEMIOLOGIA_SEVERIDAD_OPTIONS = [
+  { value: 'NORMAL', label: 'Normal (0)' },
+  { value: 'LEVE', label: 'Leve (1)' },
+  { value: 'MODERADO', label: 'Moderado (2)' },
+  { value: 'SEVERO', label: 'Severo (3)' },
+]
+export const RESERVA_MUSCULAR_OPTIONS = [
+  { value: 'NORMAL', label: 'Normal (0-1)' },
+  { value: 'LEVE', label: 'Leve (2-4)' },
+  { value: 'MODERADO', label: 'Moderado (5-7)' },
+  { value: 'SEVERO', label: 'Severo (>7)' },
+]
+export const EDEMA_OPTIONS = [
+  { value: 'SIN_ALT', label: 'Sin alteración' },
+  { value: 'LEVE', label: 'Leve + (1-3 kg)' },
+  { value: 'MOD', label: 'Mod. ++ (3-5 kg)' },
+  { value: 'GRAVE', label: 'Grave +++ (>5 kg)' },
+]
+
+// Lookup value → label para la vista de detalle de los selects semiológicos.
+const buildLabelLookup = (options) => Object.fromEntries(options.map((o) => [o.value, o.label]))
+export const SEMIOLOGIA_SEVERIDAD_LABELS = buildLabelLookup(SEMIOLOGIA_SEVERIDAD_OPTIONS)
+export const RESERVA_MUSCULAR_LABELS = buildLabelLookup(RESERVA_MUSCULAR_OPTIONS)
+export const EDEMA_LABELS = buildLabelLookup(EDEMA_OPTIONS)
