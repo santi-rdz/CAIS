@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
 
@@ -11,6 +11,7 @@ const MARGIN = 8
 export default function InfoTooltip({ text, label = 'Más información' }) {
   const [coords, setCoords] = useState(null)
   const ref = useRef(null)
+  const tooltipId = useId()
   if (!text) return null
 
   function open() {
@@ -26,6 +27,7 @@ export default function InfoTooltip({ text, label = 'Más información' }) {
         ref={ref}
         type="button"
         aria-label={label}
+        aria-describedby={coords ? tooltipId : undefined}
         className="cursor-help text-zinc-500 transition-colors hover:text-teal-600 focus-visible:text-teal-600 focus-visible:outline-none"
         onMouseEnter={open}
         onMouseLeave={() => setCoords(null)}
@@ -38,6 +40,7 @@ export default function InfoTooltip({ text, label = 'Más información' }) {
       {coords &&
         createPortal(
           <span
+            id={tooltipId}
             role="tooltip"
             style={{ top: coords.top, left: coords.left, width: WIDTH }}
             className="text-6 fixed z-[60] rounded-lg bg-zinc-800 px-3 py-2 leading-relaxed font-normal text-zinc-50 shadow-lg"

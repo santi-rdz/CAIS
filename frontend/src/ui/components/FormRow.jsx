@@ -23,7 +23,12 @@ export default function FormRow({
             {label}
             {required && <span className="ml-0.5 text-red-500">*</span>}
           </span>
-          {tooltip && <InfoTooltip text={tooltip} label={`Ayuda: ${label}`} />}
+          {tooltip && (
+            <InfoTooltip
+              text={tooltip}
+              label={typeof label === 'string' ? `Ayuda: ${label}` : 'Más información'}
+            />
+          )}
         </span>
         {hint && <span className="text-6 block font-normal text-zinc-400">{hint}</span>}
       </label>
