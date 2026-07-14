@@ -499,3 +499,31 @@ export function groupByFoodGroup(comidas = []) {
   }
   return [...counts.entries()].map(([grupo, count]) => ({ grupo, count }))
 }
+
+// TPAN — Tratamiento del Proceso de Atención Nutricional.
+// `progreso` se persiste como TinyInt: el `value` es el índice guardado en la DB.
+export const TPAN_PROGRESO_OPTIONS = [
+  { value: 0, label: 'Nuevo' },
+  { value: 1, label: 'Activo (progreso)' },
+  { value: 2, label: 'Activo (recaída)' },
+  { value: 3, label: 'Activo (sin cambios)' },
+  { value: 4, label: 'Resuelto' },
+  { value: 5, label: 'Descontinuado' },
+]
+
+export const TPAN_PROGRESO_MAP = Object.fromEntries(
+  TPAN_PROGRESO_OPTIONS.map((o) => [o.value, o.label])
+)
+
+// Ayudas contextuales (tooltip) por campo, tomadas de la guía del proceso de
+// atención nutricional.
+export const TPAN_HINTS = {
+  observacion:
+    'De los 4 dominios, anote todo lo alterado que observó en la evaluación que realizó.',
+  estandares_com:
+    'Con qué referencia, instrumento, NOM o guía se basó para decir que estaba alterado en el paciente.',
+  causa_probl:
+    'Priorice los problemas nutricionales e identifique si una misma causa provoca diferentes problemas.',
+  evidencia_probl: '¿Qué datos evaluados le ayudan a pensar en ese problema nutricio?',
+  progreso: 'Si el problema se resolvió o no en el monitoreo.',
+}

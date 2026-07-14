@@ -9,6 +9,7 @@ import ActFisicaTab from '@features/patients/nutricion/tabs/ActFisicaTab'
 import BioquimicaTab from '@features/patients/nutricion/tabs/BioquimicaTab'
 import ExamFisicaTab from '@features/patients/nutricion/tabs/ExamFisicaTab'
 import Rec24hTab from '@features/patients/nutricion/tabs/Rec24hTab'
+import TpanTab from '@features/patients/nutricion/tabs/TpanTab'
 import NutricionalTab from '@features/patients/nutricion/tabs/NutricionalTab'
 import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import RecordTable from '@features/patients/shared/sections/RecordTable'
@@ -92,14 +93,19 @@ const TABS = [
     render: (historia) => <ExamFisicaTab historia={historia} />,
   },
   {
+    value: 'frecuencia',
+    label: 'Evaluación nutricional',
+    render: (historia) => <NutricionalTab historia={historia} />,
+  },
+  {
     value: 'rec24h',
     label: 'Recordatorio 24h',
     render: (historia) => <Rec24hTab historia={historia} />,
   },
   {
-    value: 'frecuencia',
-    label: 'Evaluación nutricional',
-    render: (historia) => <NutricionalTab historia={historia} />,
+    value: 'tpan',
+    label: 'TPAN',
+    render: (historia) => <TpanTab historia={historia} />,
   },
 ]
 
@@ -120,6 +126,7 @@ export default function PatientHistoriaNutricion({ patient }) {
       'examTab',
       'recEval',
       'recTab',
+      'tpanEval',
     ],
   })
 
