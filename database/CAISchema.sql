@@ -738,7 +738,7 @@ CREATE TABLE IF NOT EXISTS diagnostico_nutricional_adulto(
 -- TPAN
 -- ===============================
 CREATE TABLE IF NOT EXISTS tpan_nutricion(
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id BINARY(16) NOT NULL PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     historia_paciente_id BINARY(16) NOT NULL,
     fecha_eval DATE DEFAULT (CURRENT_DATE),
     eval_realizada TEXT,

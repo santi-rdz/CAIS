@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { TpanNutritionController } from '#controllers/nutricion/tpanNutrition.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate, validateIntParam, validateUuidQuery } from '#middleware/validate.js'
+import { validate, validateUuidParam, validateUuidQuery } from '#middleware/validate.js'
 import {
   validateTpanNutrition,
   validatePartialTpanNutrition,
@@ -18,7 +18,7 @@ tpanNutritionRouter
 
 tpanNutritionRouter
   .route('/:id')
-  .all(validateIntParam())
+  .all(validateUuidParam())
   .get(TpanNutritionController.getById)
   .patch(validate(validatePartialTpanNutrition), TpanNutritionController.update)
   .delete(TpanNutritionController.delete)

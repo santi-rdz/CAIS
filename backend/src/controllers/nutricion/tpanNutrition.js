@@ -17,7 +17,7 @@ export class TpanNutritionController {
           usuario_id: req.session.userId,
           accion: ACCIONES.CREAR,
           entidad: ENTIDADES.TPAN,
-          objetivo_id: null,
+          objetivo_id: t.id,
           paciente_id: t.paciente_id,
         },
         tx
@@ -76,7 +76,7 @@ export class TpanNutritionController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ELIMINAR,
           entidad: ENTIDADES.TPAN,
-          objetivo_id: null,
+          objetivo_id: t.id,
           paciente_id: t.paciente_id,
         },
         tx
@@ -96,7 +96,7 @@ export class TpanNutritionController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ACTUALIZAR,
           entidad: ENTIDADES.TPAN,
-          objetivo_id: null,
+          objetivo_id: t.id,
           paciente_id: t.paciente_id,
         },
         tx
