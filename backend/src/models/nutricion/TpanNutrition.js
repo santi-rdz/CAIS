@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
@@ -22,6 +23,7 @@ function formatTpan(t) {
   const { historias_pacientes_nutricion, ...rest } = t
   return {
     ...rest,
+    id: toUUID(t.id),
     historia_paciente_id: toUUID(t.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
     pacientes: historias_pacientes_nutricion?.pacientes,
@@ -30,6 +32,7 @@ function formatTpan(t) {
 
 function formatMinimal(t) {
   const result = { ...t }
+  if ('id' in t) result.id = toUUID(t.id)
   if ('historia_paciente_id' in t) result.historia_paciente_id = toUUID(t.historia_paciente_id)
   return result
 }
@@ -63,7 +66,7 @@ export class TpanNutritionModel {
 
   static async getById(id, tx = prisma) {
     const tpan = await tx.tpan_nutricion.findUnique({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!tpan) throw new NotFoundError('el TPAN')
@@ -71,8 +74,11 @@ export class TpanNutritionModel {
   }
 
   static async create(data, tx = prisma) {
-    const tpan = await tx.tpan_nutricion.create({
+    const tpanId = randomUUID()
+    const created = await tx.tpan_nutricion.create({
+      include: includeRelations,
       data: {
+        id: uuidToBuffer(tpanId),
         historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
         ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
         ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
@@ -85,25 +91,25 @@ export class TpanNutritionModel {
         ...(data.progreso !== undefined && { progreso: data.progreso }),
       },
     })
-    return this.getById(tpan.id, tx)
+    return formatTpan(created)
   }
 
   static async delete(id, tx = prisma) {
     const existing = await tx.tpan_nutricion.findUnique({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('el TPAN')
-    await tx.tpan_nutricion.delete({ where: { id: Number(id) } })
+    await tx.tpan_nutricion.delete({ where: { id: uuidToBuffer(id) } })
     return formatTpan(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    const existing = await tx.tpan_nutricion.findUnique({ where: { id: Number(id) } })
+    const existing = await tx.tpan_nutricion.findUnique({ where: { id: uuidToBuffer(id) } })
     if (!existing) throw new NotFoundError('el TPAN')
 
     await tx.tpan_nutricion.update({
-      where: { id: Number(id) },
+      where: { id: uuidToBuffer(id) },
       data: {
         ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
         ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),

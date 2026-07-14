@@ -1,6 +1,16 @@
 import { Children } from 'react'
+import InfoTooltip from '@components/InfoTooltip'
 
-export default function FormRow({ children, label, htmlFor, className, required, error, hint }) {
+export default function FormRow({
+  children,
+  label,
+  htmlFor,
+  className,
+  required,
+  error,
+  hint,
+  tooltip,
+}) {
   const firstChild = Children.toArray(children)[0]
   const childHasError = firstChild?.props?.hasError
   const errorMessage = error ?? (typeof childHasError === 'string' ? childHasError : undefined)
@@ -8,8 +18,18 @@ export default function FormRow({ children, label, htmlFor, className, required,
   return (
     <div className={className}>
       <label htmlFor={htmlFor} className="text-5 mb-2 block">
-        {label}
-        {required && <span className="ml-0.5 text-red-500">*</span>}
+        <span className="inline-flex items-center gap-1.5 align-middle">
+          <span>
+            {label}
+            {required && <span className="ml-0.5 text-red-500">*</span>}
+          </span>
+          {tooltip && (
+            <InfoTooltip
+              text={tooltip}
+              label={typeof label === 'string' ? `Ayuda: ${label}` : 'Más información'}
+            />
+          )}
+        </span>
         {hint && <span className="text-6 block font-normal text-zinc-400">{hint}</span>}
       </label>
       {children}

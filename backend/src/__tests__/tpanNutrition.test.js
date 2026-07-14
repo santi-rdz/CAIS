@@ -15,6 +15,8 @@ import { createCleanupTracker } from './helpers/cleanup.js'
 const api = request(app)
 const tracker = createCleanupTracker()
 
+const NONEXISTENT_ID = '00000000-0000-0000-0000-000000000000'
+
 let agent
 let pacienteId
 let historiaId
@@ -80,7 +82,7 @@ describe('GET /nutricion/tpan', () => {
   test('200 — filtra por historia_paciente_id', async () => {
     const created = await agent.post('/nutricion/tpan').send(buildMinimal())
     expect(created.status).toBe(201)
-    tracker.track('tpan_nutricion', created.body.tpan.id)
+    tracker.track('tpan_nutricion', uuidToBuffer(created.body.tpan.id))
 
     const res = await agent.get(`/nutricion/tpan?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
@@ -108,12 +110,12 @@ describe('GET /nutricion/tpan', () => {
 
 describe('GET /nutricion/tpan/:id', () => {
   test('401 — sin sesión devuelve 401', async () => {
-    const res = await api.get('/nutricion/tpan/0')
+    const res = await api.get(`/nutricion/tpan/${NONEXISTENT_ID}`)
     expect(res.status).toBe(401)
   })
 
   test('404 — TPAN no existe', async () => {
-    const res = await agent.get('/nutricion/tpan/999999')
+    const res = await agent.get(`/nutricion/tpan/${NONEXISTENT_ID}`)
     expect(res.status).toBe(404)
     expect(res.body).toHaveProperty('message')
   })
@@ -152,7 +154,7 @@ describe('POST /nutricion/tpan', () => {
     expect(t.id).toBeDefined()
     expect(t.paciente_id).toBe(pacienteId)
 
-    tracker.track('tpan_nutricion', t.id)
+    tracker.track('tpan_nutricion', uuidToBuffer(t.id))
   })
 
   test('201 — crea TPAN con todos los campos', async () => {
@@ -171,7 +173,7 @@ describe('POST /nutricion/tpan', () => {
     expect(t.evidencia_probl).toBe('Pérdida del 10% del peso en 3 meses')
     expect(t.progreso).toBe(2)
 
-    tracker.track('tpan_nutricion', t.id)
+    tracker.track('tpan_nutricion', uuidToBuffer(t.id))
   })
 })
 
@@ -182,7 +184,7 @@ describe('PATCH /nutricion/tpan/:id', () => {
     const res = await agent.post('/nutricion/tpan').send(buildCompleto())
     tpanId = res.body.tpan?.id
     if (!tpanId) throw new Error(`No se pudo crear TPAN para PATCH. status=${res.status}`)
-    tracker.track('tpan_nutricion', tpanId)
+    tracker.track('tpan_nutricion', uuidToBuffer(tpanId))
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -235,7 +237,7 @@ describe('PATCH /nutricion/tpan/:id', () => {
   })
 
   test('404 — TPAN no existe', async () => {
-    const res = await agent.patch('/nutricion/tpan/999999').send({ observacion: 'X' })
+    const res = await agent.patch(`/nutricion/tpan/${NONEXISTENT_ID}`).send({ observacion: 'X' })
     expect(res.status).toBe(404)
   })
 })
@@ -247,7 +249,7 @@ describe('DELETE /nutricion/tpan/:id', () => {
     const res = await agent.post('/nutricion/tpan').send(buildCompleto())
     tpanId = res.body.tpan?.id
     if (!tpanId) throw new Error(`No se pudo crear TPAN para DELETE. status=${res.status}`)
-    tracker.track('tpan_nutricion', tpanId)
+    tracker.track('tpan_nutricion', uuidToBuffer(tpanId))
   })
 
   test('401 — sin sesión devuelve 401', async () => {
@@ -256,7 +258,7 @@ describe('DELETE /nutricion/tpan/:id', () => {
   })
 
   test('404 — TPAN no existe', async () => {
-    const res = await agent.delete('/nutricion/tpan/999999')
+    const res = await agent.delete(`/nutricion/tpan/${NONEXISTENT_ID}`)
     expect(res.status).toBe(404)
   })
 

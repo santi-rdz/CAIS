@@ -919,7 +919,7 @@ model sessions {
 }
 
 model tpan_nutricion {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   eval_realizada                String?                       @db.Text
