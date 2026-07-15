@@ -12,6 +12,7 @@ import FieldsSection from '@features/patients/shared/sections/FieldsSection'
 import SignosVitalesSection from '@features/patients/medicina/sections/SignosVitalesSection'
 import NoPatologicosSection from '@features/patients/medicina/sections/NoPatologicosSection'
 import ConsultaYPlanSection from '@features/patients/medicina/sections/ConsultaYPlanSection'
+import NotesPanel from '@features/patients/medicina/components/NotesPanel'
 
 // Tab de la vista → step de la modal (CLONE_STEPS: omite Identificación →
 // Heredofamiliares es el step 0).
@@ -26,16 +27,19 @@ const TAB_TO_STEP = {
 
 const TABS = [
   {
+    group: 'Antecedentes',
     value: 'heredofamiliares',
     label: 'Heredofamiliares',
     render: (h) => <FieldsSection fields={buildAntFamFields(h.antecedentes_familiares)} />,
   },
   {
+    group: 'Antecedentes',
     value: 'no-patologicos',
     label: 'No Patológicos',
     render: (h) => <NoPatologicosSection historia={h} />,
   },
   {
+    group: 'Antecedentes',
     value: 'patologicos',
     label: 'Patológicos',
     render: (h) => (
@@ -43,19 +47,30 @@ const TABS = [
     ),
   },
   {
+    group: 'Exploración',
     value: 'aparatos',
     label: 'Aparatos y sistemas',
     render: (h) => <FieldsSection fields={buildAparSistFields(h.aparatos_sistemas)} cols={3} />,
   },
   {
+    group: 'Exploración',
     value: 'exploracion',
     label: 'Exploración física',
     render: (h) => <SignosVitalesSection info={h.informacion_fisica} />,
   },
   {
+    group: 'Consulta',
     value: 'consulta-plan',
     label: 'Consulta y Plan',
     render: (h) => <ConsultaYPlanSection historia={h} />,
+  },
+  {
+    group: 'Seguimiento',
+    value: 'notas',
+    label: 'Notas de evolución',
+    // Sus notas ya son cards; se muestra sin la card de contenido.
+    bare: true,
+    render: (h, patient) => <NotesPanel historia={h} patient={patient} />,
   },
 ]
 
@@ -65,6 +80,9 @@ export default function PatientHistoria({ patient }) {
     useHistory: useMedicalHistory,
     periodField: 'creado_at',
     tabToStep: TAB_TO_STEP,
+    // Las notas viven en el sidebar de la historia: al cambiar de período hay
+    // que soltar la nota/tab seleccionados (podrían no existir en el otro).
+    dependentParams: ['nota', 'notaTab'],
   })
 
   return (
