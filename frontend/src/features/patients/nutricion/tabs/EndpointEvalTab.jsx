@@ -24,7 +24,7 @@ import DangerConfirm from '@components/DangerConfirm'
 //   deleteTitle              título del confirm de borrado
 //   listSkeletonHeight       alto del skeleton de las cards
 //   messages                 { loadError, listError, emptyMessage, emptyHint, editError }
-export default function EndpointEvalTab({ historia, config }) {
+export default function EndpointEvalTab({ historia, patient, config }) {
   const {
     urlParam,
     itemProp,
@@ -125,6 +125,7 @@ export default function EndpointEvalTab({ historia, config }) {
         ) : (
           <Detail
             {...itemPropFor(selectedItem)}
+            patient={patient}
             onBack={() => setSelectedId(null)}
             onEdit={(step, context) => handleEdit(selectedItem, step, context)}
             onDelete={handleDeleteRequest}
@@ -190,6 +191,7 @@ export default function EndpointEvalTab({ historia, config }) {
           <Form
             key={editingItem?.id ?? `new-${urlParam}`}
             historiaId={historia.id}
+            patient={patient}
             {...itemPropFor(editingId ? editingItem : null)}
             initialStep={editingStep}
             editContext={editingContext}

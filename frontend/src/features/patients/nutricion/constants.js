@@ -527,3 +527,126 @@ export const TPAN_HINTS = {
   evidencia_probl: '¿Qué datos evaluados le ayudan a pensar en ese problema nutricio?',
   progreso: 'Si el problema se resolvió o no en el monitoreo.',
 }
+
+// Evaluación antropométrica — catálogos de los selects (valores tal cual se
+// guardan en la DB) y los umbrales clínicos de las sugerencias automáticas.
+export const EDAD_ADULTO = 18
+
+// Interpretación NOM-031 (indicadores de crecimiento pediátrico).
+export const NOM031_OPTIONS = [
+  'Peso muy bajo',
+  'Peso bajo',
+  'Peso adecuado',
+  'Sobrepeso',
+  'Obesidad',
+]
+
+// Diagnóstico antropométrico integral (pediátrico).
+export const DIAGNOSTICO_INTEGRAL_OPTIONS = [
+  'Desnutrición aguda',
+  'Desnutrición crónica',
+  'Eutrófico',
+  'OB-SP',
+]
+
+// Complexión por método Frisancho (segmentado por género).
+export const COMPLEXION_OPTIONS = [
+  'M CH <39.3',
+  'M ME 39.3-42.5',
+  'M GR >42.5',
+  'F CH <36.7',
+  'F ME 36.7-40.2',
+  'F GR >40.2',
+]
+
+// Diagnóstico IMC (adulto).
+export const DIAGNOSTICO_IMC_OPTIONS = ['DES < 18.5', 'SAL 18.5-24.9', 'SP 25.0-29.9', 'OB > 30']
+
+// Diagnóstico índice cintura-cadera (segmentado por género).
+export const DIAGNOSTICO_ICC_OPTIONS = [
+  'H normal 0.78-0.84',
+  'H androide >0.94',
+  'M normal 0.71-0.84',
+  'M androide >0.84',
+  'M ginecoide <0.71',
+]
+
+// Indicadores de riesgo booleanos (se guardan como 0/1).
+export const RIESGO_OPTIONS = [
+  { value: 'true', label: 'Sí' },
+  { value: 'false', label: 'No' },
+]
+
+export function esFemenino(genero) {
+  return genero === 'Femenino'
+}
+
+// Conociendo el género del paciente solo mostramos las opciones que le aplican.
+// Ojo: Frisancho usa 'M'/'F' (Masculino/Femenino) e ICC usa 'H'/'M' (Hombre/Mujer).
+export function complexionOptions(femenino) {
+  const prefix = femenino ? 'F ' : 'M '
+  return COMPLEXION_OPTIONS.filter((o) => o.startsWith(prefix))
+}
+
+export function diagnosticoIccOptions(femenino) {
+  const prefix = femenino ? 'M ' : 'H '
+  return DIAGNOSTICO_ICC_OPTIONS.filter((o) => o.startsWith(prefix))
+}
+
+// Sugerencias auto-seleccionadas (editables). Devuelven la etiqueta exacta del
+// catálogo o '' cuando no hay dato suficiente. Los valores pueden llegar como
+// string vacío desde el form, así que se normalizan a número antes de comparar.
+function toNumOrNull(v) {
+  if (v === '' || v == null) return null
+  const n = Number(v)
+  return Number.isFinite(n) ? n : null
+}
+
+export function suggestDiagnosticoImc(value) {
+  const imc = toNumOrNull(value)
+  if (imc == null) return ''
+  if (imc < 18.5) return 'DES < 18.5'
+  if (imc < 25) return 'SAL 18.5-24.9'
+  if (imc < 30) return 'SP 25.0-29.9'
+  return 'OB > 30'
+}
+
+// Riesgo CV por circunferencia de cintura: mujer >80 cm, hombre >94 cm.
+export function suggestRiesgoCintura(value, femenino) {
+  const cintura = toNumOrNull(value)
+  if (cintura == null) return ''
+  return cintura > (femenino ? 80 : 94) ? 'true' : 'false'
+}
+
+// Riesgo EO/INF por circunferencia de cuello: mujer >34 cm, hombre >37 cm.
+export function suggestRiesgoCuello(value, femenino) {
+  const cuello = toNumOrNull(value)
+  if (cuello == null) return ''
+  return cuello > (femenino ? 34 : 37) ? 'true' : 'false'
+}
+
+export function suggestDiagnosticoIcc(value, femenino) {
+  const icc = toNumOrNull(value)
+  if (icc == null) return ''
+  if (femenino) {
+    // Catálogo femenino contiguo: cubre todo el rango.
+    if (icc < 0.71) return 'M ginecoide <0.71'
+    if (icc > 0.84) return 'M androide >0.84'
+    return 'M normal 0.71-0.84'
+  }
+  // Catálogo masculino con huecos (<0.78 y 0.85-0.94 sin etiqueta): fuera de un
+  // rango definido no se sugiere nada y lo decide el clínico.
+  if (icc > 0.94) return 'H androide >0.94'
+  if (icc >= 0.78 && icc <= 0.84) return 'H normal 0.78-0.84'
+  return ''
+}
+
+export const ANTRO_HINTS = {
+  imc: 'Se calcula automáticamente con el peso sin edema y la estatura (kg/m²).',
+  peso_sin_edema: 'Peso actual menos el líquido retenido por edema.',
+  peso_ideal_por: 'Peso sin edema como porcentaje del peso ideal.',
+  indice_cintura_cadera: 'Circunferencia de cintura entre la de cadera.',
+  riesgo_cv: 'Riesgo cardiovascular por circunferencia de cintura (♀ >80 cm · ♂ >94 cm).',
+  riesgo_eo_inf: 'Riesgo por circunferencia de cuello (♀ >34 cm · ♂ >37 cm).',
+  angulo_fase: 'Se deriva de la resistencia y la reactancia de la bioimpedancia.',
+}
