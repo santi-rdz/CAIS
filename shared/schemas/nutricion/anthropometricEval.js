@@ -31,7 +31,7 @@ export const evalAntroKidSchema = z.object({
 
 // eval_antro_ad_adulto_nutricion: evaluación de adulto (18 años en adelante)
 export const evalAntroAdultoSchema = z.object({
-  codo: num({ min: 0, max: 20 }), // diámetro de codo, cm
+  codo: num({ min: 0, max: 100 }), // ancho de codo (biepicondíleo), mm
   frisancho: num({ min: 0, max: 100 }), // percentil de complexión
   complexion: str(20),
   pi_kg: num({ min: 0, max: 300 }), // peso ideal, kg

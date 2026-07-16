@@ -8,6 +8,22 @@ import Tab from '@components/Tab'
 import Button from '@components/Button'
 import Modal from '@components/Modal'
 import HistoriaPeriodSelect from '@features/patients/components/HistoriaPeriodSelect'
+import { cn } from '@lib/utils'
+
+// Agrupa las tabs por su `group` preservando el orden de primera aparición.
+function buildGroups(tabs) {
+  const order = []
+  const byGroup = new Map()
+  for (const t of tabs) {
+    const g = t.group ?? ''
+    if (!byGroup.has(g)) {
+      byGroup.set(g, [])
+      order.push(g)
+    }
+    byGroup.get(g).push(t)
+  }
+  return order.map((label) => ({ label, tabs: byGroup.get(label) }))
+}
 
 // Estructura compartida de la pestaña de historia (selector de período + modales
 // editar/nueva + tabs clínicas + estados de carga/error/vacío). Lo área-específico
@@ -34,9 +50,37 @@ export default function PatientHistoriaShell({
   setActiveTab,
   initialStep,
 }) {
+  const grouped = tabs.some((t) => t.group)
+  // Un tab `bare` muestra su contenido sin la card (ej. Notas, que ya son cards).
+  const activeBare = tabs.find((t) => t.value === activeTab)?.bare
+
+  const tabContent = isLoading ? (
+    <div className="space-y-3 py-2">
+      {['85%', '70%', '92%', '55%'].map((w, i) => (
+        <div key={i} className="h-5 animate-pulse rounded bg-zinc-100" style={{ width: w }} />
+      ))}
+    </div>
+  ) : isError ? (
+    <div className="flex flex-col items-center gap-2 py-12 text-center">
+      <HiOutlineExclamationCircle size={26} className="text-red-300" />
+      <p className="text-5 text-zinc-500">{errorMessage}</p>
+    </div>
+  ) : !historia ? (
+    <div className="flex flex-col items-center gap-2 py-12 text-center">
+      <HiOutlineClipboardDocument size={26} className="text-zinc-300" />
+      <p className="text-5 text-zinc-500">{emptyMessage}</p>
+    </div>
+  ) : (
+    tabs.map((t) => (
+      <Tab.Panel key={t.value} value={t.value} scrollable={false}>
+        {t.render(historia, patient)}
+      </Tab.Panel>
+    ))
+  )
+
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
         <div className="flex items-center gap-2">
           {!isLoadingList && periodos.length > 0 && (
             <>
@@ -82,68 +126,105 @@ export default function PatientHistoriaShell({
         </div>
       </div>
 
-      <div className="shadow-card rounded-2xl border border-gray-100 bg-white">
-        <Modal.Content name="edit-history" size="xl" noPadding>
-          {historia && patient && (
-            <FormComponent
-              patient={patient}
-              historia={historia}
-              historiaOnly
-              initialStep={initialStep}
-            />
-          )}
-        </Modal.Content>
+      <Modal.Content name="edit-history" size="xl" noPadding>
+        {historia && patient && (
+          <FormComponent
+            patient={patient}
+            historia={historia}
+            historiaOnly
+            initialStep={initialStep}
+          />
+        )}
+      </Modal.Content>
 
-        <Modal.Content name="new-history" size="xl" noPadding>
-          {patient && !isLoadingCloneBase && (
-            <FormComponent
-              patient={patient}
-              cloneHistoria={cloneBase ?? {}}
-              onCreated={handleSelectHistory}
-            />
-          )}
-        </Modal.Content>
+      <Modal.Content name="new-history" size="xl" noPadding>
+        {patient && !isLoadingCloneBase && (
+          <FormComponent
+            patient={patient}
+            cloneHistoria={cloneBase ?? {}}
+            onCreated={handleSelectHistory}
+          />
+        )}
+      </Modal.Content>
 
-        <Tab variant="underline" value={activeTab} onValueChange={setActiveTab}>
-          <Tab.List>
-            {tabs.map((t) => (
-              <Tab.Trigger key={t.value} value={t.value}>
-                {t.label}
-              </Tab.Trigger>
-            ))}
-          </Tab.List>
-
-          <div className="p-5">
-            {isLoading ? (
-              <div className="space-y-3 py-2">
-                {['85%', '70%', '92%', '55%'].map((w, i) => (
-                  <div
-                    key={i}
-                    className="h-5 animate-pulse rounded bg-zinc-100"
-                    style={{ width: w }}
-                  />
+      <Tab variant="underline" value={activeTab} onValueChange={setActiveTab}>
+        {grouped ? (
+          <div className="flex items-start gap-4 max-md:flex-col max-md:items-stretch">
+            <aside className="shadow-card sticky top-4 w-56 shrink-0 self-start rounded-2xl border border-gray-100 bg-white p-3 max-md:static max-md:w-full max-md:p-2">
+              {/* Desktop: nav vertical agrupada */}
+              <nav className="space-y-6 max-md:hidden">
+                {buildGroups(tabs).map((g) => (
+                  <div key={g.label}>
+                    <p className="text-7 mb-1.5 px-3 font-semibold tracking-wider text-zinc-400 uppercase">
+                      {g.label}
+                    </p>
+                    <div className="space-y-0.5">
+                      {g.tabs.map((t) => (
+                        <button
+                          key={t.value}
+                          type="button"
+                          aria-current={activeTab === t.value ? 'page' : undefined}
+                          onClick={() => setActiveTab(t.value)}
+                          data-testid={`tab-${t.value}`}
+                          className={cn(
+                            'text-5 flex w-full items-center rounded-lg px-3 py-2 text-left whitespace-nowrap transition-colors',
+                            activeTab === t.value
+                              ? 'bg-green-50 text-green-700'
+                              : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800'
+                          )}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </div>
-            ) : isError ? (
-              <div className="flex flex-col items-center gap-2 py-12 text-center">
-                <HiOutlineExclamationCircle size={26} className="text-red-300" />
-                <p className="text-5 text-zinc-500">{errorMessage}</p>
-              </div>
-            ) : !historia ? (
-              <div className="flex flex-col items-center gap-2 py-12 text-center">
-                <HiOutlineClipboardDocument size={26} className="text-zinc-300" />
-                <p className="text-5 text-zinc-500">{emptyMessage}</p>
-              </div>
-            ) : (
-              tabs.map((t) => (
-                <Tab.Panel key={t.value} value={t.value} scrollable={false}>
-                  {t.render(historia)}
-                </Tab.Panel>
-              ))
-            )}
+              </nav>
+              {/* Tablet/mobile: tira horizontal scrollable con todos los items */}
+              <nav className="hidden max-md:flex max-md:gap-1 max-md:overflow-x-auto max-md:pb-0.5">
+                {tabs.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    aria-current={activeTab === t.value ? 'page' : undefined}
+                    onClick={() => setActiveTab(t.value)}
+                    data-testid={`tab-${t.value}`}
+                    className={cn(
+                      'text-5 shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-colors',
+                      activeTab === t.value
+                        ? 'bg-green-50 text-green-700'
+                        : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800'
+                    )}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </nav>
+            </aside>
+            <div
+              className={cn(
+                'min-w-0 flex-1',
+                !activeBare && 'shadow-card rounded-2xl border border-gray-100 bg-white p-5'
+              )}
+            >
+              {tabContent}
+            </div>
           </div>
-        </Tab>
-      </div>
+        ) : (
+          <div
+            className={cn(!activeBare && 'shadow-card rounded-2xl border border-gray-100 bg-white')}
+          >
+            <Tab.List>
+              {tabs.map((t) => (
+                <Tab.Trigger key={t.value} value={t.value}>
+                  {t.label}
+                </Tab.Trigger>
+              ))}
+            </Tab.List>
+            <div className={activeBare ? undefined : 'p-5'}>{tabContent}</div>
+          </div>
+        )}
+      </Tab>
     </div>
   )
 }

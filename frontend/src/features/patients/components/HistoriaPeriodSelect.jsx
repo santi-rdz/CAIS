@@ -2,7 +2,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 export default function HistoriaPeriodSelect({ value, onChange, periodos }) {
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={onChange} clearable={false}>
       <SelectTrigger className="">
         <SelectValue />
       </SelectTrigger>
