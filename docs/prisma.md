@@ -17,7 +17,7 @@ warnings de múltiples instancias.
 
 El schema en `prisma/schema.prisma` describe el datasource y el generator. Prisma lo
 lee para generar el cliente (`pnpm exec prisma generate`). Cuando la DB cambia, se
-resincroniza con `pnpm run prisma:pull` (introspección).
+regenera el cliente con `pnpm prisma:generate` tras editar el schema.
 
 ---
 

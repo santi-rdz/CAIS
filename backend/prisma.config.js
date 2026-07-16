@@ -1,4 +1,4 @@
-import { defineConfig, env } from 'prisma/config'
+import { defineConfig } from 'prisma/config'
 
 // En dev local carga ../.env; en CI/Docker las vars ya están en el entorno.
 try {
@@ -14,6 +14,6 @@ export default defineConfig({
     seed: 'node prisma/seed.js',
   },
   datasource: {
-    url: env('DATABASE_URL'),
+    url: process.env.DATABASE_URL ?? '',
   },
 })
