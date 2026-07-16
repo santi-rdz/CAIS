@@ -6,7 +6,6 @@ on:
     paths:
       - 'backend/**'
       - 'shared/**'
-      - 'database/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -16,7 +15,6 @@ on:
     paths:
       - 'backend/**'
       - 'shared/**'
-      - 'database/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
@@ -68,8 +66,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Load DB schema
-        run: mysql -h 127.0.0.1 -P 3306 -uuser -puser cais < database/CAISchema.sql
+      - name: Apply migrations
+        run: pnpm --filter backend run prisma:deploy
 
       - name: Generate Prisma client
         run: pnpm --filter backend run prisma:generate

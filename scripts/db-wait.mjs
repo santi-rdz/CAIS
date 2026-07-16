@@ -33,34 +33,8 @@ function dbResponds() {
   return res.status === 0
 }
 
-// mysqladmin ping pasa antes de que docker-entrypoint-initdb.d termine de
-// ejecutar los SQL de init. Verificamos que la tabla usuarios exista para
-// confirmar que el schema ya se aplicó.
-function schemaReady() {
-  const res = spawnSync(
-    'docker',
-    [
-      'compose',
-      '-f',
-      COMPOSE_FILE,
-      'exec',
-      '-T',
-      'db',
-      'mysql',
-      '-u',
-      'user',
-      '-puser',
-      'cais',
-      '-e',
-      'SELECT 1 FROM usuarios LIMIT 1;',
-    ],
-    { stdio: 'ignore' }
-  )
-  return res.status === 0
-}
-
 for (let i = 1; i <= MAX_TRIES; i++) {
-  if (dbResponds() && schemaReady()) {
+  if (dbResponds()) {
     console.log('Base de datos lista.')
     process.exit(0)
   }

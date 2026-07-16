@@ -38,16 +38,11 @@ COPY backend ./backend
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm config set store-dir /pnpm/store && \
     pnpm --filter backend deploy --prod --legacy /out
-# El cliente generado vive en el .pnpm virtual store del repo, no se arrastra
-# con pnpm deploy. Lo regeneramos dentro de /out con prisma instalado temporal.
-RUN mkdir -p /tmp/prisma-cli && cd /tmp/prisma-cli && \
-    echo '{"name":"prisma-cli-host","version":"1.0.0","private":true}' > package.json && \
-    npm install --no-audit --no-fund prisma@7.4.2 && \
-    cd /out && \
+# prisma está en dependencies → disponible en /out/node_modules.
+# DATABASE_URL placeholder solo para generate (no conecta a la DB).
+RUN cd /out && \
     DATABASE_URL='mysql://placeholder:placeholder@localhost:3306/placeholder' \
-      NODE_PATH=/tmp/prisma-cli/node_modules \
-      node /tmp/prisma-cli/node_modules/prisma/build/index.js generate && \
-    rm -rf /tmp/prisma-cli /root/.npm
+    node node_modules/prisma/build/index.js generate
 
 # =========================================================
 # prod — imagen final mínima, non-root, healthcheck real
@@ -65,4 +60,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:8000/health >/dev/null 2>&1 || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "src/server.js"]
+# migrate deploy aplica migraciones pendientes; exec reemplaza el shell con node
+# para que tini gestione las señales correctamente.
+CMD ["sh", "-c", "node node_modules/.bin/prisma migrate deploy && exec node src/server.js"]
