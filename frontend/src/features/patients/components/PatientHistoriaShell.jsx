@@ -149,9 +149,10 @@ export default function PatientHistoriaShell({
 
       <Tab variant="underline" value={activeTab} onValueChange={setActiveTab}>
         {grouped ? (
-          <div className="flex items-start gap-4 max-sm:flex-col max-sm:items-stretch">
-            <aside className="shadow-card sticky top-4 w-56 shrink-0 self-start rounded-2xl border border-gray-100 bg-white p-3 max-sm:static max-sm:w-full">
-              <nav className="space-y-6">
+          <div className="flex items-start gap-4 max-md:flex-col max-md:items-stretch">
+            <aside className="shadow-card sticky top-4 w-56 shrink-0 self-start rounded-2xl border border-gray-100 bg-white p-3 max-md:static max-md:w-full max-md:p-2">
+              {/* Desktop: nav vertical agrupada */}
+              <nav className="space-y-6 max-md:hidden">
                 {buildGroups(tabs).map((g) => (
                   <div key={g.label}>
                     <p className="text-7 mb-1.5 px-3 font-semibold tracking-wider text-zinc-400 uppercase">
@@ -177,6 +178,26 @@ export default function PatientHistoriaShell({
                       ))}
                     </div>
                   </div>
+                ))}
+              </nav>
+              {/* Tablet/mobile: tira horizontal scrollable con todos los items */}
+              <nav className="hidden max-md:flex max-md:gap-1 max-md:overflow-x-auto max-md:pb-0.5">
+                {tabs.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    aria-current={activeTab === t.value ? 'page' : undefined}
+                    onClick={() => setActiveTab(t.value)}
+                    data-testid={`tab-${t.value}`}
+                    className={cn(
+                      'text-5 shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-colors',
+                      activeTab === t.value
+                        ? 'bg-green-50 text-green-700'
+                        : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800'
+                    )}
+                  >
+                    {t.label}
+                  </button>
                 ))}
               </nav>
             </aside>
