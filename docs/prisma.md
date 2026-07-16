@@ -261,10 +261,10 @@ Evita bloques `catch {}` vacíos — ocultan errores reales. Como mínimo loguea
 
 ## Comandos del CLI
 
-Ejecutar desde `backend/`:
+Ver flujo completo de migraciones en [`prisma-workflow.md`](./prisma-workflow.md).
 
 ```bash
-pnpm exec prisma generate    # Regenera el cliente tras cambiar el schema
-pnpm run prisma:pull         # Sincroniza el schema con la DB actual (introspección)
-pnpm run prisma:studio       # Abre UI visual de la DB en el navegador
+pnpm prisma:migrate    # Crea y aplica una migración nueva (tras editar schema.prisma)
+pnpm prisma:generate   # Regenera el cliente
+pnpm prisma:studio     # Abre UI visual de la DB en el navegador
 ```
