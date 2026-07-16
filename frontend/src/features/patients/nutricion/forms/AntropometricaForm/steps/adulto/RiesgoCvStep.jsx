@@ -13,6 +13,12 @@ import {
   suggestRiesgoCuello,
   suggestDiagnosticoIcc,
   ANTRO_HINTS,
+  CINTURA_RIESGO_F,
+  CINTURA_RIESGO_M,
+  CUELLO_RIESGO_F,
+  CUELLO_RIESGO_M,
+  ICC_ANDROIDE_F,
+  ICC_ANDROIDE_M,
 } from '@features/patients/nutricion/constants'
 
 function Reference({ children }) {
@@ -61,7 +67,8 @@ export default function RiesgoCvStep({ femenino }) {
           suggested={suggestDiagnosticoIcc(icc, femenino)}
         />
         <Reference>
-          Cintura {sexo} &gt;{femenino ? 80 : 94} cm · ICC {sexo} &gt;{femenino ? 0.84 : 0.94}
+          Cintura {sexo} &gt;{femenino ? CINTURA_RIESGO_F : CINTURA_RIESGO_M} cm · ICC {sexo} &gt;
+          {femenino ? ICC_ANDROIDE_F : ICC_ANDROIDE_M}
         </Reference>
       </section>
 
@@ -80,7 +87,7 @@ export default function RiesgoCvStep({ femenino }) {
           />
         </div>
         <Reference>
-          Cuello {sexo} &gt;{femenino ? 34 : 37} cm
+          Cuello {sexo} &gt;{femenino ? CUELLO_RIESGO_F : CUELLO_RIESGO_M} cm
         </Reference>
       </section>
     </div>

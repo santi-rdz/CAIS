@@ -64,15 +64,19 @@ export function TextField({ name, label, placeholder, tooltip }) {
 }
 
 export function SelectField({ name, label, options, placeholder = 'Seleccionar', tooltip }) {
-  const { control } = useFormContext()
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext()
+  const error = errorAt(errors, name)
   return (
-    <FormRow label={label} tooltip={tooltip}>
+    <FormRow label={label} tooltip={tooltip} error={error}>
       <Controller
         name={name}
         control={control}
         render={({ field }) => (
           <Select value={field.value ?? ''} onValueChange={field.onChange} fullWidth>
-            <SelectTrigger size="md">
+            <SelectTrigger size="md" hasError={error}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -99,10 +103,14 @@ export function AutoSelectField({
   placeholder = 'Seleccionar',
   tooltip,
 }) {
-  const { control } = useFormContext()
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext()
   const release = useAutoSuggest(name, suggested)
+  const error = errorAt(errors, name)
   return (
-    <FormRow label={label} tooltip={tooltip}>
+    <FormRow label={label} tooltip={tooltip} error={error}>
       <Controller
         name={name}
         control={control}
@@ -115,7 +123,7 @@ export function AutoSelectField({
             }}
             fullWidth
           >
-            <SelectTrigger size="md">
+            <SelectTrigger size="md" hasError={error}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>

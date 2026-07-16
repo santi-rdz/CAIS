@@ -593,6 +593,19 @@ export function diagnosticoIccOptions(femenino) {
   return DIAGNOSTICO_ICC_OPTIONS.filter((o) => o.startsWith(prefix))
 }
 
+// Umbrales clínicos de riesgo antropométrico — fuente única de verdad para las
+// funciones suggest* y para las referencias visuales en el formulario.
+export const CINTURA_RIESGO_F = 80
+export const CINTURA_RIESGO_M = 94
+export const CUELLO_RIESGO_F = 34
+export const CUELLO_RIESGO_M = 37
+export const ICC_GINECOIDE_F = 0.71
+export const ICC_NORMAL_F_MAX = 0.84
+export const ICC_ANDROIDE_F = 0.84
+export const ICC_NORMAL_M_MIN = 0.78
+export const ICC_NORMAL_M_MAX = 0.84
+export const ICC_ANDROIDE_M = 0.94
+
 // Sugerencias auto-seleccionadas (editables). Devuelven la etiqueta exacta del
 // catálogo o '' cuando no hay dato suficiente. Los valores pueden llegar como
 // string vacío desde el form, así que se normalizan a número antes de comparar.
@@ -611,18 +624,18 @@ export function suggestDiagnosticoImc(value) {
   return 'OB > 30'
 }
 
-// Riesgo CV por circunferencia de cintura: mujer >80 cm, hombre >94 cm.
+// Riesgo CV por circunferencia de cintura.
 export function suggestRiesgoCintura(value, femenino) {
   const cintura = toNumOrNull(value)
   if (cintura == null) return ''
-  return cintura > (femenino ? 80 : 94) ? 'true' : 'false'
+  return cintura > (femenino ? CINTURA_RIESGO_F : CINTURA_RIESGO_M) ? 'true' : 'false'
 }
 
-// Riesgo EO/INF por circunferencia de cuello: mujer >34 cm, hombre >37 cm.
+// Riesgo EO/INF por circunferencia de cuello.
 export function suggestRiesgoCuello(value, femenino) {
   const cuello = toNumOrNull(value)
   if (cuello == null) return ''
-  return cuello > (femenino ? 34 : 37) ? 'true' : 'false'
+  return cuello > (femenino ? CUELLO_RIESGO_F : CUELLO_RIESGO_M) ? 'true' : 'false'
 }
 
 export function suggestDiagnosticoIcc(value, femenino) {
@@ -630,14 +643,14 @@ export function suggestDiagnosticoIcc(value, femenino) {
   if (icc == null) return ''
   if (femenino) {
     // Catálogo femenino contiguo: cubre todo el rango.
-    if (icc < 0.71) return 'M ginecoide <0.71'
-    if (icc > 0.84) return 'M androide >0.84'
+    if (icc < ICC_GINECOIDE_F) return 'M ginecoide <0.71'
+    if (icc > ICC_ANDROIDE_F) return 'M androide >0.84'
     return 'M normal 0.71-0.84'
   }
   // Catálogo masculino con huecos (<0.78 y 0.85-0.94 sin etiqueta): fuera de un
   // rango definido no se sugiere nada y lo decide el clínico.
-  if (icc > 0.94) return 'H androide >0.94'
-  if (icc >= 0.78 && icc <= 0.84) return 'H normal 0.78-0.84'
+  if (icc > ICC_ANDROIDE_M) return 'H androide >0.94'
+  if (icc >= ICC_NORMAL_M_MIN && icc <= ICC_NORMAL_M_MAX) return 'H normal 0.78-0.84'
   return ''
 }
 
