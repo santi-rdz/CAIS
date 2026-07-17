@@ -12,7 +12,7 @@ export function useCreateNutritionHistory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['nutrition-histories'] })
       queryClient.invalidateQueries({ queryKey: ['nutrition-history'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
       toast.success('Historia nutricional creada correctamente')
     },
   })

@@ -9,7 +9,7 @@ export function useDeletePatient() {
     mutationFn: (id) => apiDeletePatient(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
     },
   })
 

@@ -14,7 +14,7 @@ export function useCreatePatientWithHistory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })
       queryClient.invalidateQueries({ queryKey: ['medical-histories'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
       toast.success('Paciente registrado correctamente')
     },
   })

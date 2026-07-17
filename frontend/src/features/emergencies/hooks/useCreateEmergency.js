@@ -10,7 +10,7 @@ export function useCreateEmergency() {
     onSuccess: () => {
       toast.success('Emergencia creada exitosamente')
       queryClient.invalidateQueries({ queryKey: ['emergencies'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
     },
     onError: toastApiError,
   })

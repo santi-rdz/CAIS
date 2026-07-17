@@ -11,6 +11,11 @@ const AGE_ITEMS = [
   { key: '>= 60', label: '>= 60 años', color: '#f59e0b' }, // Amber-500
 ]
 
+const PROCEDENCIA_ITEMS = [
+  { key: 'interno', label: 'Internos (UABC)', color: '#6366f1' }, // Indigo-500
+  { key: 'externo', label: 'Externos', color: '#f97316' }, // Orange-500
+]
+
 function LegendItem({ color, label, count }) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-lg bg-gray-50/50 px-3 py-2 transition-colors hover:bg-gray-50">
@@ -133,5 +138,14 @@ export function AgePieChart({ data, loading }) {
       items={items}
       loading={loading}
     />
+  )
+}
+
+export function ProcedenciaPieChart({ data, loading }) {
+  const byKey = Object.fromEntries((data ?? []).map((d) => [d.procedencia, d.count]))
+  const items = PROCEDENCIA_ITEMS.map((p) => ({ ...p, count: byKey[p.key] ?? 0 }))
+
+  return (
+    <DistributionCard title={'Procedencia de\nlos pacientes'} items={items} loading={loading} />
   )
 }

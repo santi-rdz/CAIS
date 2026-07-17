@@ -8,7 +8,7 @@ export function useCreateEvolutionNote(historiaId) {
     mutationFn: (data) => createEvolutionNote(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evolution-notes', historiaId] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
     },
   })
 

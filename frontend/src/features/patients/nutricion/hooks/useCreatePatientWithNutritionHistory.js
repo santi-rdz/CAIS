@@ -14,7 +14,7 @@ export function useCreatePatientWithNutritionHistory() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })
       queryClient.invalidateQueries({ queryKey: ['nutrition-histories'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
+      queryClient.invalidateQueries({ queryKey: ['stats'] })
       toast.success('Paciente registrado correctamente')
     },
   })

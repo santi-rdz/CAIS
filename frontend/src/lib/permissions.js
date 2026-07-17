@@ -4,12 +4,14 @@ export const PERMISSIONS = {
   SEE_USER_AREA_COLUMN: 'SEE_USER_AREA_COLUMN',
   EDIT_PASANTE: 'EDIT_PASANTE',
   SEE_MEDICINA_STATS: 'SEE_MEDICINA_STATS',
+  SEE_NUTRICION_STATS: 'SEE_NUTRICION_STATS',
 }
 
 const RULES = {
   [PERMISSIONS.SEE_USER_AREA_COLUMN]: (user) => user?.rol?.toUpperCase() === ROLES.ADMIN,
   [PERMISSIONS.EDIT_PASANTE]: (user) => user?.rol?.toUpperCase() === ROLES.COORDINADOR,
   [PERMISSIONS.SEE_MEDICINA_STATS]: (user) => user?.area?.toUpperCase() === AREAS.MEDICINA,
+  [PERMISSIONS.SEE_NUTRICION_STATS]: (user) => user?.area?.toUpperCase() === AREAS.NUTRICION,
 }
 
 export function can(user, permission) {

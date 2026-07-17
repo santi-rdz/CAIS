@@ -12,6 +12,7 @@ import Patients from '@pages/Patients'
 import PatientDetail from '@pages/PatientDetail'
 import UserDetail from '@pages/UserDetail'
 import Profile from '@pages/Profile'
+import Estadisticas from '@pages/Estadisticas'
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="usuarios/:id" element={<UserDetail />} />
           <Route path="emergencias" element={<Emergencies />} />
           <Route path="emergencias/:id" element={<EmergencyDetail />} />
+          <Route path="estadisticas" element={<Estadisticas />} />
           <Route path="perfil" element={<Profile />} />
         </Route>
         <Route element={<Auth />}>
