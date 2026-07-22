@@ -3,13 +3,16 @@ import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES, ROLES } from '@cais/shared/constants/users'
 import { prisma } from '#config/prisma.js'
-import { NotFoundError } from '#lib/appError.js'
+import { NotFoundError, ForbiddenError, ConflictError } from '#lib/appError.js'
 import { canAccessPatient } from '#lib/patientAccess.js'
 
 export class PatientController {
   static async create(req, res) {
+    if (req.session.areaId == null) {
+      throw new ForbiddenError('Área no definida para este usuario')
+    }
     const patient = await prisma.$transaction(async (tx) => {
-      const p = await PatientModel.create(req.body, req.session.userId, tx)
+      const p = await PatientModel.create(req.body, req.session.userId, req.session.areaId, tx)
       await AuditModel.create(
         {
           usuario_id: req.session.userId,
@@ -23,6 +26,17 @@ export class PatientController {
       return p
     })
     res.status(201).json({ message: 'Paciente registrado', patient })
+  }
+
+  static async getSimilar(req, res) {
+    if (req.session.areaId == null) {
+      throw new ForbiddenError('Área no definida para este usuario')
+    }
+    const similares = await PatientModel.findSimilar({
+      ...req.validatedQuery,
+      excludeAreaId: req.session.areaId,
+    })
+    res.json({ similares })
   }
 
   static async getAll(req, res) {
@@ -56,6 +70,10 @@ export class PatientController {
       const existing = await PatientModel.getById(id, tx)
       if (!canAccessPatient(existing, req.session)) {
         throw new NotFoundError('el paciente')
+      }
+      // Compartido: solo admin puede el borrado completo.
+      if (existing.areas.length > 1 && req.session.role !== ROLES.ADMIN) {
+        throw new ConflictError('El paciente está sincronizado con otra área')
       }
 
       await PatientModel.delete(id, tx)

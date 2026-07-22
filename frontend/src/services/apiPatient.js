@@ -21,6 +21,13 @@ export async function getPatient(id) {
   return fetchApi(`/pacientes/${id}`, { errorMsg: 'Error al obtener paciente' })
 }
 
+export async function getSimilarPatients({ nombre, apellidos, fecha_nacimiento, genero }) {
+  const params = new URLSearchParams({ nombre, apellidos, fecha_nacimiento, genero })
+  return fetchApi(`/pacientes/similares?${params}`, {
+    errorMsg: 'Error al buscar pacientes similares',
+  })
+}
+
 export async function createPatient(data) {
   return fetchApi('/pacientes', {
     method: 'POST',

@@ -95,9 +95,26 @@ model aparatos_sistemas {
 }
 
 model areas {
-  id       Int        @id @default(autoincrement())
-  nombre   String     @unique(map: "nombre") @db.VarChar(100)
-  usuarios usuarios[]
+  id              Int               @id @default(autoincrement())
+  nombre          String            @unique(map: "nombre") @db.VarChar(100)
+  usuarios        usuarios[]
+  pacientes_areas pacientes_areas[]
+}
+
+// Membresía de un paciente en un área (fuente de verdad, permite multi-área).
+// `doctor_id` es el responsable del paciente EN esa área.
+model pacientes_areas {
+  paciente_id Bytes     @db.Binary(16)
+  area_id     Int
+  doctor_id   Bytes     @db.Binary(16)
+  creado_at   DateTime? @default(now()) @db.DateTime(0)
+  pacientes   pacientes @relation(fields: [paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pa_paciente")
+  areas       areas     @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pa_area")
+  usuarios    usuarios  @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pa_doctor")
+
+  @@id([paciente_id, area_id])
+  @@index([area_id], map: "fk_pa_area")
+  @@index([doctor_id], map: "fk_pa_doctor")
 }
 
 model entidades {
@@ -442,6 +459,7 @@ model pacientes {
   actualizado_at                DateTime?                       @db.DateTime(0)
   historias_medicas             historias_medicas[]
   historias_pacientes_nutricion historias_pacientes_nutricion[]
+  pacientes_areas               pacientes_areas[]
   usuarios                      usuarios                        @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pacientes_usuario")
   registro_auditoria            registro_auditoria[]
 
@@ -534,6 +552,7 @@ model usuarios {
   invitaciones_registro invitaciones_registro[]
   notas_evolucion       notas_evolucion[]
   pacientes             pacientes[]
+  pacientes_areas       pacientes_areas[]
   password_reset_tokens password_reset_tokens[]
   registro_auditoria    registro_auditoria[]
   areas                 areas?                  @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_area")

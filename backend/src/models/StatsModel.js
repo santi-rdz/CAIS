@@ -64,7 +64,7 @@ export class StatsModel {
 
   static async #countPacientes(scope, period) {
     return prisma.pacientes.count({
-      where: { usuarios: scope.usuariosFilter, creado_at: { gte: period.since } },
+      where: { ...scope.pacientesFilter, creado_at: { gte: period.since } },
     })
   }
 
@@ -78,7 +78,7 @@ export class StatsModel {
     const result = await prisma.pacientes.groupBy({
       by: ['genero'],
       _count: { id: true },
-      where: { usuarios: scope.usuariosFilter, genero: { not: null } },
+      where: { ...scope.pacientesFilter, genero: { not: null } },
     })
     return result.map((r) => ({ genero: r.genero, count: r._count.id }))
   }
@@ -91,7 +91,7 @@ export class StatsModel {
       _count: { id: true },
       // Excluye datos viejos sin capturar (null): no se clasifican como interno
       // para no inflar esa estadística.
-      where: { usuarios: scope.usuariosFilter, es_externo: { not: null } },
+      where: { ...scope.pacientesFilter, es_externo: { not: null } },
     })
     const buckets = { interno: 0, externo: 0 }
     for (const r of result) buckets[r.es_externo ? 'externo' : 'interno'] += r._count.id
@@ -108,9 +108,7 @@ export class StatsModel {
         END AS rango,
         COUNT(*) AS count
       FROM pacientes p
-      JOIN usuarios u ON p.doctor_id = u.id
-      JOIN areas a ON u.area_id = a.id
-      WHERE ${scope.sql('a')}
+      WHERE ${scope.pacientesSql}
         AND p.fecha_nacimiento IS NOT NULL
       GROUP BY rango
       ORDER BY
@@ -219,9 +217,10 @@ function entidadesForScope(scope) {
   return scope.personal ? [] : Object.values(AREA_CONFIG).flat()
 }
 
-// Resuelve el alcance de las stats: filtro de Prisma (`usuariosFilter`) y fragmento
-// SQL crudo (`sql(alias)`) reutilizables por cada query. `alias` es el alias de la
-// tabla `areas` en el query crudo.
+// Resuelve el alcance de las stats. Para queries de auditoría/usuarios:
+// `usuariosFilter` (Prisma) y `sql(alias)` (crudo, alias de la tabla `areas`).
+// Para queries de pacientes: `pacientesFilter` y `pacientesSql` (alias `p`),
+// basados en la membresía `pacientes_areas`.
 function buildScope({ area, userId, role }) {
   if (role === ROLES.PASANTE) {
     const userBuffer = uuidToBuffer(userId)
@@ -230,6 +229,8 @@ function buildScope({ area, userId, role }) {
       personal: true,
       usuariosFilter: { id: userBuffer },
       sql: () => Prisma.sql`u.id = ${userBuffer}`,
+      pacientesFilter: { pacientes_areas: { some: { doctor_id: userBuffer } } },
+      pacientesSql: Prisma.sql`EXISTS (SELECT 1 FROM pacientes_areas pa WHERE pa.paciente_id = p.id AND pa.doctor_id = ${userBuffer})`,
     }
   }
   // El admin no tiene área: ve las stats globales de todas las áreas.
@@ -239,6 +240,8 @@ function buildScope({ area, userId, role }) {
       personal: false,
       usuariosFilter: {},
       sql: () => Prisma.sql`1 = 1`,
+      pacientesFilter: {},
+      pacientesSql: Prisma.sql`1 = 1`,
     }
   }
   return {
@@ -246,6 +249,8 @@ function buildScope({ area, userId, role }) {
     personal: false,
     usuariosFilter: { areas: { nombre: area } },
     sql: (alias) => Prisma.sql`${Prisma.raw(alias)}.nombre = ${area}`,
+    pacientesFilter: { pacientes_areas: { some: { areas: { nombre: area } } } },
+    pacientesSql: Prisma.sql`EXISTS (SELECT 1 FROM pacientes_areas pa JOIN areas ar ON pa.area_id = ar.id WHERE pa.paciente_id = p.id AND ar.nombre = ${area})`,
   }
 }
 

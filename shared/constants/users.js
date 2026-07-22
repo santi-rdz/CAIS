@@ -9,6 +9,12 @@ export const AREAS = {
   NUTRICION: 'NUTRICION',
 }
 
+// Etiquetas legibles por área para la UI (chips, badges).
+export const AREA_LABELS = {
+  [AREAS.MEDICINA]: 'Medicina',
+  [AREAS.NUTRICION]: 'Nutrición',
+}
+
 export const ESTADOS = {
   ACTIVO: 'ACTIVO',
   INACTIVO: 'INACTIVO',

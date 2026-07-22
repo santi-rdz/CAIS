@@ -29,6 +29,25 @@ export function validate(validateFn) {
 }
 
 /**
+ * Como `validate` pero para `req.query`. En Express 5 `req.query` es de solo
+ * lectura, así que el resultado parseado queda en `req.validatedQuery`.
+ */
+export function validateQuery(validateFn) {
+  return (req, res, next) => {
+    const result = validateFn(req.query)
+    if (result.error) {
+      return res.status(422).json({
+        error: 'ValidationError',
+        message: 'Parámetros inválidos',
+        fields: formatZodErrors(result.error),
+      })
+    }
+    req.validatedQuery = result.data
+    next()
+  }
+}
+
+/**
  * Valida un parámetro de ruta (`req.params[name]`) con un predicado. Responde
  * 422 si no pasa. Se monta con `.all()` sobre `.route('/:id')` para cubrir GET,
  * PATCH y DELETE de un recurso con una sola declaración (antes cada controller
