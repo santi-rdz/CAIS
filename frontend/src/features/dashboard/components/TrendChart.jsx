@@ -10,23 +10,34 @@ import {
 } from 'recharts'
 import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { STATS_RANGES } from '@cais/shared/constants/stats'
 
 const SERIES = [
+  // Medicina
   { key: 'notas_evolucion', label: 'Notas de evolución', color: '#10b981' },
   { key: 'historias_medicas', label: 'Historias médicas', color: '#3b82f6' },
   { key: 'emergencias', label: 'Emergencias', color: '#ef4444' },
+  // Nutrición
+  { key: 'historias_nutricion', label: 'Historias de nutrición', color: '#3b82f6' },
+  { key: 'eval_antropometricas', label: 'Eval. antropométricas', color: '#8b5cf6' },
+  { key: 'eval_nutricionales', label: 'Eval. nutricionales', color: '#14b8a6' },
+  // Común
   { key: 'pacientes', label: 'Pacientes', color: '#f59e0b' },
 ]
 
-function formatDay(dateStr) {
+// Año agrupa por mes ('YYYY-MM'); semana/mes por día ('YYYY-MM-DD').
+function formatBucket(bucket, range) {
   try {
-    return format(parseISO(dateStr), 'EEE d', { locale: es })
+    if (range === STATS_RANGES.YEAR) {
+      return format(parseISO(`${bucket}-01`), 'LLL', { locale: es })
+    }
+    return format(parseISO(bucket), 'd MMM', { locale: es })
   } catch {
-    return dateStr
+    return bucket
   }
 }
 
-export default function WeeklyTrendChart({ data, loading }) {
+export default function TrendChart({ data, loading, range }) {
   if (loading) {
     return <div className="h-56 animate-pulse rounded-xl bg-gray-100" />
   }
@@ -35,7 +46,7 @@ export default function WeeklyTrendChart({ data, loading }) {
     return <p className="text-5 py-4 text-neutral-400">Sin datos de tendencia</p>
   }
 
-  const chartData = data.map((d) => ({ ...d, fecha: formatDay(d.fecha) }))
+  const chartData = data.map((d) => ({ ...d, fecha: formatBucket(d.fecha, range) }))
   const activeSeries = SERIES.filter(({ key }) =>
     data.some((item) => Object.prototype.hasOwnProperty.call(item, key))
   )
@@ -57,6 +68,8 @@ export default function WeeklyTrendChart({ data, loading }) {
           tick={{ fontSize: 11, fill: '#9ca3af' }}
           axisLine={false}
           tickLine={false}
+          interval="preserveStartEnd"
+          minTickGap={16}
         />
         <YAxis
           tick={{ fontSize: 11, fill: '#9ca3af' }}

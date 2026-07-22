@@ -6,7 +6,7 @@ const ACCENT_COLORS = [
   { bg: 'bg-violet-50', text: 'text-violet-600' },
 ]
 
-export default function StatCard({ icon, label, value, loading, colorIndex = 0 }) {
+export default function StatCard({ icon, label, value, loading, colorIndex = 0, caption, live }) {
   const accent = ACCENT_COLORS[colorIndex % ACCENT_COLORS.length]
 
   return (
@@ -30,10 +30,14 @@ export default function StatCard({ icon, label, value, loading, colorIndex = 0 }
         )}
       </div>
 
-      <div className="mt-4 flex items-center gap-1.5">
-        <span className="flex h-1.5 w-1.5 rounded-full bg-green-500" />
-        <p className="text-xs font-medium text-gray-400">Últimos 30 días</p>
-      </div>
+      {caption && (
+        <div className="mt-4 flex items-center gap-1.5">
+          <span
+            className={`flex h-1.5 w-1.5 rounded-full ${live ? 'animate-pulse bg-emerald-500' : 'bg-gray-300'}`}
+          />
+          <p className="text-xs font-medium text-gray-400">{caption}</p>
+        </div>
+      )}
     </div>
   )
 }
