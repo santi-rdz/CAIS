@@ -53,12 +53,12 @@ export default function Dashboard() {
       <StatCardsGrid counts={counts} loading={isPending} rangeCaption={rangeCaption} />
 
       {/* Middle: activity + pie charts (el pasante no ve distribuciones globales) */}
-      <div className="grid h-full grid-cols-3 grid-rows-[500px] gap-4">
+      <div className="grid h-full grid-cols-1 gap-4 lg:grid-cols-3 lg:grid-rows-[500px]">
         {/* Actividad reciente */}
         <section
           className={cn(
             'shadow-card flex min-h-0 flex-col rounded-2xl border border-gray-100 bg-white p-5',
-            isPasante ? 'col-span-3' : 'col-span-2'
+            isPasante ? 'lg:col-span-3' : 'lg:col-span-2'
           )}
         >
           <Heading as="h4" className="mb-3 shrink-0">

@@ -89,9 +89,10 @@ export class StatsModel {
     const result = await prisma.pacientes.groupBy({
       by: ['es_externo'],
       _count: { id: true },
-      where: { usuarios: scope.usuariosFilter },
+      // Excluye datos viejos sin capturar (null): no se clasifican como interno
+      // para no inflar esa estadística.
+      where: { usuarios: scope.usuariosFilter, es_externo: { not: null } },
     })
-    // Normaliza el null (dato viejo sin capturar) a interno, que es el default.
     const buckets = { interno: 0, externo: 0 }
     for (const r of result) buckets[r.es_externo ? 'externo' : 'interno'] += r._count.id
     return Object.entries(buckets).map(([procedencia, count]) => ({ procedencia, count }))
@@ -151,7 +152,7 @@ export class StatsModel {
   }
 
   static async #getTendencia(scope, period) {
-    const areaEntidades = AREA_CONFIG[scope.area] ?? []
+    const areaEntidades = entidadesForScope(scope)
     const allEntidades = [...areaEntidades, { key: 'pacientes', entidad: 'PACIENTE' }]
 
     const results = await Promise.all(
@@ -189,7 +190,7 @@ export class StatsModel {
   }
 
   static async #getAreaSpecificCounts(scope, period) {
-    const entidades = AREA_CONFIG[scope.area] ?? []
+    const entidades = entidadesForScope(scope)
     if (entidades.length === 0) return {}
 
     const counts = await Promise.all(
@@ -209,6 +210,13 @@ export class StatsModel {
 
     return Object.fromEntries(counts)
   }
+}
+
+// Entidades a contar según el alcance: un área concreta usa sus entidades; el
+// admin (sin área) agrega las de todas las áreas; el pasante ve las de su área.
+function entidadesForScope(scope) {
+  if (scope.area) return AREA_CONFIG[scope.area] ?? []
+  return scope.personal ? [] : Object.values(AREA_CONFIG).flat()
 }
 
 // Resuelve el alcance de las stats: filtro de Prisma (`usuariosFilter`) y fragmento

@@ -31,7 +31,7 @@
     "//— Setup (primera vez) —": "",
     "setup": "pnpm install && pnpm db:up && pnpm db:wait && pnpm --filter backend run prisma:generate && pnpm --filter backend run prisma:deploy && pnpm seed",
     "//— Desarrollo (host nativo + DB en Docker) —": "",
-    "dev": "pnpm db:up && pnpm --parallel --filter frontend --filter backend run dev",
+    "dev": "pnpm db:up && pnpm db:wait && pnpm --parallel --filter frontend --filter backend run dev",
     "seed": "pnpm --filter backend run prisma:seed",
     "//— Prisma —": "",
     "prisma:migrate": "pnpm --filter backend run prisma:migrate",

@@ -62,7 +62,8 @@ export default function Estadisticas() {
         </Heading>
         <div className="flex items-center gap-3">
           <RangeSelect value={range} onChange={setRange} />
-          <Button variant="primary" size="md">
+          {/* TODO: exportación de estadísticas pendiente (PR siguiente). */}
+          <Button variant="primary" size="md" disabled>
             <HiOutlineArrowDownTray size={16} />
             Exportar
           </Button>

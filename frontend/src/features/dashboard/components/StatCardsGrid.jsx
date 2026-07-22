@@ -96,7 +96,7 @@ export default function StatCardsGrid({
   return (
     <div
       className="grid gap-4"
-      style={{ gridTemplateColumns: `repeat(${allCards.length}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
     >
       {allCards.map((card, i) => (
         <StatCard
