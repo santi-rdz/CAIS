@@ -57,9 +57,9 @@ const styles = StyleSheet.create({
 })
 
 // Primera columna flexible; las de datos, fijas y alineadas a la derecha.
-function colStyle(index, total) {
+function colStyle(index) {
   if (index === 0) return { flex: 1 }
-  return { width: 78, textAlign: total > 2 ? 'right' : 'left' }
+  return { width: 78, textAlign: 'right' }
 }
 
 function Table({ columns, rows }) {
@@ -67,7 +67,7 @@ function Table({ columns, rows }) {
     <View style={styles.table}>
       <View style={styles.headerRow}>
         {columns.map((col, i) => (
-          <Text key={col} style={[styles.cell, styles.headerCell, colStyle(i, columns.length)]}>
+          <Text key={col} style={[styles.cell, styles.headerCell, colStyle(i)]}>
             {col}
           </Text>
         ))}
@@ -86,7 +86,7 @@ function Table({ columns, rows }) {
             ]}
           >
             {row.map((val, c) => (
-              <Text key={c} style={[styles.cell, colStyle(c, columns.length)]}>
+              <Text key={c} style={[styles.cell, colStyle(c)]}>
                 {String(val)}
               </Text>
             ))}
