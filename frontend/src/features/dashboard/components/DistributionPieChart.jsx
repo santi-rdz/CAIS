@@ -1,20 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
-
-const GENDER_ITEMS = [
-  { key: 'Masculino', label: 'Hombres', color: '#3b82f6' }, // Blue-500
-  { key: 'Femenino', label: 'Mujeres', color: '#ec4899' }, // Pink-500
-]
-
-const AGE_ITEMS = [
-  { key: '< 18', label: '< 18 años', color: '#14b8a6' }, // Emerald-500
-  { key: '18 - 59', label: '18 - 59 años', color: '#0ea5e9' }, // Teal-500
-  { key: '>= 60', label: '>= 60 años', color: '#f59e0b' }, // Amber-500
-]
-
-const PROCEDENCIA_ITEMS = [
-  { key: 'interno', label: 'Internos (UABC)', color: '#6366f1' }, // Indigo-500
-  { key: 'externo', label: 'Externos', color: '#f97316' }, // Orange-500
-]
+import { GENDER_ITEMS, AGE_ITEMS, PROCEDENCIA_ITEMS } from '@features/dashboard/distributionConfig'
 
 function LegendItem({ color, label, count }) {
   return (
