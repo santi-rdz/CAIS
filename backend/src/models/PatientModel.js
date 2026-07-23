@@ -130,7 +130,6 @@ export class PatientModel {
           none: { area_id: excludeAreaId },
         },
       },
-      take: SIMILAR_PATIENT_LIMIT,
       select: {
         id: true,
         nombre: true,
@@ -154,6 +153,7 @@ export class PatientModel {
       }))
       .filter((c) => c.score >= SIMILAR_PATIENT_THRESHOLD)
       .sort((a, b) => b.score - a.score)
+      .slice(0, SIMILAR_PATIENT_LIMIT)
   }
 
   // Datos complementarios al sincronizar: solo escribe campos que la ficha

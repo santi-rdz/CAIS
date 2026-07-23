@@ -13,6 +13,9 @@ export function makeRegistrationSchema(patientSchema, historiaSchema) {
     patient: patientSchema.partial().optional(),
     historia,
   })
+  // Discrimina por presencia de la clave (no por truthiness): así un
+  // `paciente_id: ''` cae en syncSchema y uuidSchema lo rechaza, en vez de
+  // colarse a createSchema y crear un paciente nuevo.
   return (input) =>
-    input?.paciente_id ? syncSchema.safeParse(input) : createSchema.safeParse(input)
+    input && 'paciente_id' in input ? syncSchema.safeParse(input) : createSchema.safeParse(input)
 }

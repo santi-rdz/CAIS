@@ -33,5 +33,8 @@ export function useSimilarPatients({ nombre, apellidos, fecha_nacimiento, genero
     enabled: Boolean(debouncedKey),
   })
 
-  return { similares: debouncedKey ? (data?.similares ?? []) : [] }
+  // Solo expone candidatos de la identidad ACTUAL: mientras corre el debounce,
+  // debouncedKey aún apunta a la identidad previa y no debe ofrecerse para sync.
+  const isCurrent = Boolean(anchorKey) && anchorKey === debouncedKey
+  return { similares: isCurrent ? (data?.similares ?? []) : [] }
 }

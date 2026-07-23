@@ -17,6 +17,5 @@ export const medicalPatientFormSchema = z.object({
 export const medicalSyncFormSchema = z.object({
   ...syncPatientShape,
   ...medicalHistorySchema.omit({ paciente_id: true }).shape,
-  fecha_nacimiento: dayjsDateSchema.optional(),
   creado_at: dayjsDateSchema,
 })
