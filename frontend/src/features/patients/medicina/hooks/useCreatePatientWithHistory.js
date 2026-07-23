@@ -8,14 +8,19 @@ export function useCreatePatientWithHistory() {
 
   const { mutateAsync, isPending } = useMutation({
     // Registro atómico server-side: el backend crea paciente + historia en una
-    // sola transacción, así que no hay rollback ni paciente huérfano que manejar.
-    mutationFn: ({ patientData, historyData }) =>
-      registerMedicalPatient({ patient: patientData, historia: historyData }),
-    onSuccess: () => {
+    // sola transacción. Con `pacienteId` sincroniza un paciente existente de
+    // otra área en vez de crear uno nuevo.
+    mutationFn: ({ patientData, historyData, pacienteId }) =>
+      registerMedicalPatient(
+        pacienteId
+          ? { paciente_id: pacienteId, patient: patientData, historia: historyData }
+          : { patient: patientData, historia: historyData }
+      ),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] })
       queryClient.invalidateQueries({ queryKey: ['medical-histories'] })
       queryClient.invalidateQueries({ queryKey: ['stats'] })
-      toast.success('Paciente registrado correctamente')
+      toast.success(data?.message ?? 'Paciente registrado correctamente')
     },
   })
 

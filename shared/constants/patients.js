@@ -1,3 +1,10 @@
+// Búsqueda de pacientes similares en la otra área (sincronización).
+export const SIMILAR_PATIENT_THRESHOLD = 0.75
+export const SIMILAR_PATIENT_MIN_CHARS = 2
+// Cota superior de candidatos que el backend evalúa/devuelve (el ancla ya filtra
+// fuerte; esto acota el escaneo difuso ante fechas+género muy comunes).
+export const SIMILAR_PATIENT_LIMIT = 25
+
 export const PATIENT_SORT_KEYS = {
   NOMBRE_ASC: 'nombre-asc',
   NOMBRE_DESC: 'nombre-desc',

@@ -849,7 +849,32 @@ async function main() {
   console.log('✓ Pacientes de nutrición insertados')
 
   // ═══════════════════════════════════════════
-  // 13. REGISTRO DE AUDITORÍA
+  // 13. MEMBRESÍAS PACIENTE ↔ ÁREA
+  // ═══════════════════════════════════════════
+  const pacientesConDoctor = await prisma.pacientes.findMany({
+    select: { id: true, doctor_id: true, usuarios: { select: { area_id: true } } },
+  })
+  for (const p of pacientesConDoctor) {
+    if (p.usuarios.area_id == null) continue
+    await prisma.pacientes_areas.upsert({
+      where: { paciente_id_area_id: { paciente_id: p.id, area_id: p.usuarios.area_id } },
+      update: {},
+      create: { paciente_id: p.id, area_id: p.usuarios.area_id, doctor_id: p.doctor_id },
+    })
+  }
+
+  // Jorge queda sincronizado en ambas áreas (medicina + nutrición)
+  const areaNutricion = await prisma.areas.findFirst({ where: { nombre: 'NUTRICION' } })
+  await prisma.pacientes_areas.upsert({
+    where: { paciente_id_area_id: { paciente_id: pacJorgeId, area_id: areaNutricion.id } },
+    update: {},
+    create: { paciente_id: pacJorgeId, area_id: areaNutricion.id, doctor_id: anaToTorresId },
+  })
+
+  console.log('✓ Membresías paciente-área insertadas')
+
+  // ═══════════════════════════════════════════
+  // 14. REGISTRO DE AUDITORÍA
   // ═══════════════════════════════════════════
   const auditCount = await prisma.registro_auditoria.count()
   if (auditCount === 0) {

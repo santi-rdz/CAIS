@@ -16,6 +16,9 @@ export function cn(...inputs) {
 
 export const isValidEmail = (email) => /^[\w.-]+@([\w-]+\.)+[a-zA-Z]{2,}$/.test(email)
 
+export const getInitials = (nombre, apellidos) =>
+  `${nombre?.[0] ?? ''}${apellidos?.[0] ?? ''}`.toUpperCase()
+
 /**
  * Omite recursivamente keys con valor vacío ('', null, undefined).
  * Si un objeto anidado queda sin keys, también se omite.

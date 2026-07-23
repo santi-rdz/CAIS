@@ -1,11 +1,15 @@
+import { useState } from 'react'
 import dayjs from 'dayjs'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { medicalPatientFormSchema } from '@schemas/medicalPatient'
+import { medicalPatientFormSchema, medicalSyncFormSchema } from '@schemas/medicalPatient'
 import { useStepForm } from '@hooks/useStepForm'
 import { pickDirty } from '@lib/utils'
 import { useCreatePatientWithHistory } from '@features/patients/medicina/hooks/useCreatePatientWithHistory'
 import { useCreateMedicalHistory } from '@features/patients/medicina/hooks/useCreateMedicalHistory'
 import { useUpdatePatientWithHistory } from '@features/patients/medicina/hooks/useUpdatePatientWithHistory'
+import { useSimilarPatients } from '@features/patients/hooks/useSimilarPatients'
+import SimilarPatientsBanner from '@features/patients/components/SimilarPatientsBanner'
+import SyncedPatientBanner from '@features/patients/components/SyncedPatientBanner'
 import StepFormShell from '@features/patients/shared/forms/StepFormShell'
 import {
   CLONE_STEPS,
@@ -24,6 +28,7 @@ import {
 import { getFormCopy } from '@features/patients/medicina/forms/MedicalPatientForm/formCopy'
 
 const resolver = zodResolver(medicalPatientFormSchema)
+const syncResolver = zodResolver(medicalSyncFormSchema)
 
 function resolveSteps({ patientOnly, skipPatientStep }) {
   if (patientOnly) return [[STEPS[0]], [STEPS_FIELDS[0]], [STEP_COMPONENTS[0]]]
@@ -43,6 +48,9 @@ export default function MedicalPatientForm({
 }) {
   const isEdit = !!patient && (!!historia || patientOnly)
   const isClone = !isEdit && !!patient && !!cloneHistoria
+  const isNew = !isEdit && !isClone && !patientOnly
+
+  const [syncedPatient, setSyncedPatient] = useState(null)
 
   const { register: registerPatient, isRegistering } = useCreatePatientWithHistory()
   const { createHistory, isCreating } = useCreateMedicalHistory()
@@ -61,10 +69,27 @@ export default function MedicalPatientForm({
   })
 
   const startStep = Math.min(initialStep, activeSteps.length - 1)
-  const stepForm = useStepForm(activeSteps, activeStepsFields, defaultValues, resolver, startStep)
+  const stepForm = useStepForm(
+    activeSteps,
+    activeStepsFields,
+    defaultValues,
+    syncedPatient ? syncResolver : resolver,
+    startStep
+  )
   const { currStep, methods } = stepForm
   const { isDirty } = methods.formState
   const StepComponent = activeStepComponents[currStep]
+
+  const [nombre, apellidos, fechaNacimiento, genero] = methods.watch([
+    'nombre',
+    'apellidos',
+    'fecha_nacimiento',
+    'genero',
+  ])
+  const { similares } = useSimilarPatients(
+    { nombre, apellidos, fecha_nacimiento: fechaNacimiento, genero },
+    isNew && !syncedPatient && currStep === 0
+  )
 
   async function onSubmit(data) {
     if (isEdit) {
@@ -84,6 +109,9 @@ export default function MedicalPatientForm({
       const { historyData } = splitFormData(data)
       const result = await createHistory({ pacienteId: patient.id, historyData })
       onCreated?.(result?.history?.id)
+    } else if (syncedPatient) {
+      const { patientData, historyData } = splitFormData(data)
+      await registerPatient({ pacienteId: syncedPatient.id, patientData, historyData })
     } else {
       const { patientData, historyData } = splitFormData(data)
       await registerPatient({ patientData, historyData })
@@ -114,7 +142,13 @@ export default function MedicalPatientForm({
       onCloseModal={onCloseModal}
       {...stepForm}
     >
-      <StepComponent />
+      {syncedPatient && (
+        <SyncedPatientBanner patient={syncedPatient} onUndo={() => setSyncedPatient(null)} />
+      )}
+      {!syncedPatient && similares.length > 0 && (
+        <SimilarPatientsBanner candidates={similares} onSync={setSyncedPatient} />
+      )}
+      <StepComponent syncMode={!!syncedPatient} />
     </StepFormShell>
   )
 }
