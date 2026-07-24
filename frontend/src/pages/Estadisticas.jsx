@@ -5,10 +5,13 @@ import {
   STATS_RANGE_CAPTIONS,
 } from '@cais/shared/constants/stats'
 import { useDashboardStats } from '@features/dashboard/hooks/useDashboardStats'
+import usePermissions from '@hooks/usePermissions'
 import StatCardsGrid from '@features/dashboard/components/StatCardsGrid'
 import RangeSelect from '@features/dashboard/components/RangeSelect'
 import ScopeBadge from '@features/dashboard/components/ScopeBadge'
+import ExportModal from '@features/estadisticas/export/ExportModal'
 import Button from '@ui/components/Button'
+import Modal from '@ui/components/Modal'
 import Heading from '@ui/components/Heading'
 import { HiOutlineArrowDownTray } from 'react-icons/hi2'
 
@@ -48,10 +51,21 @@ function DistributionPanel({ children }) {
 export default function Estadisticas() {
   const [range, setRange] = useState(DEFAULT_STATS_RANGE)
   const { stats, isPending } = useDashboardStats(range)
+  const { area, user } = usePermissions()
 
   const counts = stats?.counts
   const rangeLabel = STATS_RANGE_LABELS[range]
   const rangeCaption = STATS_RANGE_CAPTIONS[range]
+
+  const exportContext = {
+    stats,
+    meta: {
+      area,
+      rangeLabel,
+      rangeCaption,
+      generatedBy: user?.nombre ?? user?.correo ?? '—',
+    },
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -62,11 +76,17 @@ export default function Estadisticas() {
         </Heading>
         <div className="flex items-center gap-3">
           <RangeSelect value={range} onChange={setRange} />
-          {/* TODO: exportación de estadísticas pendiente (PR siguiente). */}
-          <Button variant="primary" size="md" disabled>
-            <HiOutlineArrowDownTray size={16} />
-            Exportar
-          </Button>
+          <Modal>
+            <Modal.Open opens="export-stats">
+              <Button variant="primary" size="md" disabled={isPending}>
+                <HiOutlineArrowDownTray size={16} />
+                Exportar
+              </Button>
+            </Modal.Open>
+            <Modal.Content name="export-stats" variant="alert">
+              <ExportModal context={exportContext} />
+            </Modal.Content>
+          </Modal>
         </div>
       </div>
 

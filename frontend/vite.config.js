@@ -9,6 +9,11 @@ const __dirname = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // @react-pdf/renderer importa `tslib` como bare module que el optimizador de
+  // Vite no descubre solo; forzar su pre-bundle evita el fallo de resolución.
+  optimizeDeps: {
+    include: ['tslib'],
+  },
   test: {
     globals: true,
     environment: 'jsdom',
