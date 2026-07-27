@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { requiredEnv } from '#config/env.js'
+import { withCalGetNutrTotales } from '#config/CalGetNutrExtension.js'
 
 function databaseConfig() {
   const url = new URL(requiredEnv('DATABASE_URL'))
@@ -21,4 +22,6 @@ const adapter = new PrismaMariaDb({
   ...(process.env.NODE_ENV === 'test' && { connectionLimit: 5 }),
 })
 
-export const prisma = new PrismaClient({ adapter })
+const basePrisma = new PrismaClient({ adapter })
+
+export const prisma = withCalGetNutrTotales(basePrisma)
