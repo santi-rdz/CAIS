@@ -41,5 +41,5 @@ export function validateCalGetNutr(input) {
 }
 
 export function validatePartialCalGetNutr(input) {
-  return calGetNutrObjectSchema.partial().safeParse(input)
+  return calGetNutrObjectSchema.omit({ historia_paciente_id: true }).partial().safeParse(input)
 }

@@ -2,18 +2,9 @@
  * @file Extiende el modelo cal_get_nutr con campos "result" derivados
  * (calorías, proteínas, carbohidratos, grasas totales), calculados a partir
  * de las cantidades guardadas — sin necesidad de una tabla de resultados.
- *
- * Prisma Client Extensions (`$extends` con el componente `result`) permite
- * definir campos virtuales que se calculan al leer el registro, usando otros
- * campos ya presentes (`needs`). No se guardan en la DB, no se pueden usar en
- * `where`/`orderBy` (son post-proceso en JS, no columnas SQL) — pero para
- * mostrar totales en una pantalla eso no importa.
- *
- * Aplica este extend UNA VEZ sobre el PrismaClient base, en la misma
- * instancia que ya exportas desde #config/prisma.js.
  */
 
-import { calcularTotalesNutricionales } from '#lib/nutritionalExchanges.js'
+import { calcularTotalesNutricionales } from '#lib/NutritionalExchanges.js'
 
 const CAMPOS_EQUIVALENTES = [
   'verdura',
