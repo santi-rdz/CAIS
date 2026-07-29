@@ -37,6 +37,7 @@ const DELETE_ORDER = [
     'antecedentes_patologicos',
     'planes_estudio',
     'tpan_nutricion',
+    'cal_get_nutr',
   ],
 
   // Nivel 3: hijos directos de pacientes. historias_pacientes_nutricion cascadea

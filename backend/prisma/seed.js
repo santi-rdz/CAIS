@@ -60,6 +60,7 @@ async function main() {
     'EXAMINACION_FISICA',
     'TPAN',
     'REC_24H',
+    'CAL_GET_NUTR',
     'EVAL_ANTROPOMETRICA',
     'HISTORIA_MEDICA',
     'PACIENTE',
