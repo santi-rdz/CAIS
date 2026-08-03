@@ -624,7 +624,7 @@ model cal_get_nutr {
 
 model diagnostico_nutricional_adulto {
   id                           Int                          @id @default(autoincrement())
-  reporte_een_id               Int
+  reporte_een_id               Bytes
   pes                          String?                      @db.Text
   intervencion                 String?                      @db.VarChar(50)
   objetivos                    String?                      @db.Text
@@ -905,7 +905,7 @@ model registro_auditoria {
 }
 
 model reporte_een_adulto_nutricion {
-  id                             Int                              @id @default(autoincrement())
+  id                             Bytes                            @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id           Bytes                            @db.Binary(16)
   habitos_ali_obs                String?                          @db.Text
   alteraciones_gastroin          String?                          @db.Text
@@ -916,7 +916,7 @@ model reporte_een_adulto_nutricion {
 }
 
 model reporte_een_kids_nutricion {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   eval_diag_edo_nutr            String?                       @db.Text
   solicito_orient               Boolean?
