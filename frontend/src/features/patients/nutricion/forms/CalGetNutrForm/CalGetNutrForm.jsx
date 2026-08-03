@@ -54,7 +54,9 @@ export default function CalGetNutrForm({ historiaId, registro, initialStep = 0, 
   const StepComponent = STEP_COMPONENTS[currStep]
 
   async function onSubmit(data) {
-    const fechaStr = data.fecha_eval ? dayjs(data.fecha_eval).format('YYYY-MM-DD') : undefined
+    // Fecha inválida del DatePicker → se omite en vez de mandar 'Invalid Date'.
+    const fecha = data.fecha_eval ? dayjs(data.fecha_eval) : null
+    const fechaStr = fecha?.isValid() ? fecha.format('YYYY-MM-DD') : undefined
     const { campos } = splitCampos(data)
 
     if (isEdit) {
