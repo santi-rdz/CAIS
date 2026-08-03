@@ -624,7 +624,7 @@ model cal_get_nutr {
 
 model diagnostico_nutricional_adulto {
   id                           Int                          @id @default(autoincrement())
-  reporte_een_id               Bytes
+  reporte_een_id               Bytes                        @db.Binary(16)
   pes                          String?                      @db.Text
   intervencion                 String?                      @db.VarChar(50)
   objetivos                    String?                      @db.Text
