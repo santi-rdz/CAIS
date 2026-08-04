@@ -1,35 +1,29 @@
 /**
- * @file Extiende el modelo cal_get_nutr con campos "result" derivados
- * (calorías, proteínas, carbohidratos, grasas totales), calculados a partir
- * de las cantidades guardadas — sin necesidad de una tabla de resultados.
+ * @file Extiende el modelo cal_get_nutr con campos derivados — sin tabla de
+ * resultados. Dos bloques:
+ *
+ * - Totales *obtenidos* (kcal, proteínas, carbohidratos, grasas), a partir de
+ *   las cantidades de EQ guardadas.
+ * - Objetivos *teóricos* de la fórmula rápida (`objetivos`), a partir del peso
+ *   y los inputs de prescripción guardados. El balance (obtenido vs teórico)
+ *   lo arma el frontend con ambos bloques.
  */
 
-import { calcularTotalesNutricionales } from '#lib/NutritionalExchanges.js'
+import { GRUPOS_EQUIVALENTES } from '@cais/shared/constants/nutricion'
+import {
+  calcularTotalesNutricionales,
+  calcularObjetivosGET,
+} from '@cais/shared/calculations/nutricion'
 
-const CAMPOS_EQUIVALENTES = [
-  'verdura',
-  'fruta',
-  'cereal_sin_grasa',
-  'cereal_con_grasa',
-  'leguminosas',
-  'aoa_a',
-  'aoa_b',
-  'aoa_c',
-  'aoa_d',
-  'leche_a',
-  'leche_b',
-  'leche_c',
-  'grasa_a',
-  'grasa_b',
-  'azucares',
-  'rice_dream',
-  'silk',
-  'soyactive',
-  'almond_breeze',
-  'aube_baja',
-  'nan_one',
-  'aube_alta',
-]
+const eqNeeds = Object.fromEntries(GRUPOS_EQUIVALENTES.map((c) => [c, true]))
+
+const objetivoNeeds = {
+  peso: true,
+  kcal_kg: true,
+  proteina_g_kg: true,
+  hc_porcentaje: true,
+  lipidos_porcentaje: true,
+}
 
 export function withCalGetNutrTotales(prismaClient) {
   return prismaClient.$extends({
@@ -37,28 +31,24 @@ export function withCalGetNutrTotales(prismaClient) {
     result: {
       cal_get_nutr: {
         total_kcal: {
-          needs: Object.fromEntries(CAMPOS_EQUIVALENTES.map((c) => [c, true])),
-          compute(record) {
-            return calcularTotalesNutricionales(record).kcal
-          },
+          needs: eqNeeds,
+          compute: (record) => calcularTotalesNutricionales(record).kcal,
         },
         total_proteinas: {
-          needs: Object.fromEntries(CAMPOS_EQUIVALENTES.map((c) => [c, true])),
-          compute(record) {
-            return calcularTotalesNutricionales(record).proteinas
-          },
+          needs: eqNeeds,
+          compute: (record) => calcularTotalesNutricionales(record).proteinas,
         },
         total_carbohidratos: {
-          needs: Object.fromEntries(CAMPOS_EQUIVALENTES.map((c) => [c, true])),
-          compute(record) {
-            return calcularTotalesNutricionales(record).carbohidratos
-          },
+          needs: eqNeeds,
+          compute: (record) => calcularTotalesNutricionales(record).carbohidratos,
         },
         total_grasas: {
-          needs: Object.fromEntries(CAMPOS_EQUIVALENTES.map((c) => [c, true])),
-          compute(record) {
-            return calcularTotalesNutricionales(record).grasas
-          },
+          needs: eqNeeds,
+          compute: (record) => calcularTotalesNutricionales(record).grasas,
+        },
+        objetivos: {
+          needs: objetivoNeeds,
+          compute: (record) => calcularObjetivosGET(record),
         },
       },
     },

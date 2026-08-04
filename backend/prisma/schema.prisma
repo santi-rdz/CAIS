@@ -595,6 +595,12 @@ model cal_get_nutr {
   id                            Int                           @id @default(autoincrement())
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  peso                          Float?                        @db.Float
+  estatura                      Float?                        @db.Float
+  kcal_kg                       Float?                        @db.Float
+  proteina_g_kg                 Float?                        @db.Float
+  hc_porcentaje                 Float?                        @db.Float
+  lipidos_porcentaje            Float?                        @db.Float
   verdura                       Int?                          @db.TinyInt
   fruta                         Int?                          @db.TinyInt
   cereal_sin_grasa              Int?                          @db.TinyInt

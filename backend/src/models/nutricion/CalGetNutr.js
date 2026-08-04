@@ -1,41 +1,30 @@
+import { GRUPOS_EQUIVALENTES } from '@cais/shared/constants/nutricion'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
 
-// Grupos de intercambio guardados en cal_get_nutr. Los totales (total_kcal,
-// total_proteinas, total_carbohidratos) NO se calculan aquí: los agrega
-// automáticamente la Prisma Client Extension aplicada sobre `prisma` en
-// #config/prisma.js (ver lib/calGetNutrExtension.js). Este modelo solo lee y
-// escribe las cantidades crudas.
-const CAMPOS_EQUIVALENTES = [
-  'verdura',
-  'fruta',
-  'cereal_sin_grasa',
-  'cereal_con_grasa',
-  'leguminosas',
-  'aoa_a',
-  'aoa_b',
-  'aoa_c',
-  'aoa_d',
-  'leche_a',
-  'leche_b',
-  'leche_c',
-  'grasa_a',
-  'grasa_b',
-  'azucares',
-  'rice_dream',
-  'silk',
-  'soyactive',
-  'almond_breeze',
-  'aube_baja',
-  'nan_one',
-  'aube_alta',
+// Campos que el modelo lee/escribe crudos en cal_get_nutr. Los derivados
+// (total_* y objetivos) NO se calculan aquí: los agrega la Prisma Client
+// Extension sobre `prisma` (ver #config/CalGetNutrExtension.js). fecha_eval se
+// maneja aparte por su default en DB.
+//
+// Antropometría de la evaluación + inputs de la fórmula rápida; y las cantidades
+// de EQ, tomadas de GRUPOS_EQUIVALENTES (fuente única) para no re-listarlas.
+const CAMPOS_GET = [
+  'peso',
+  'estatura',
+  'kcal_kg',
+  'proteina_g_kg',
+  'hc_porcentaje',
+  'lipidos_porcentaje',
 ]
+
+const CAMPOS_GUARDADOS = [...CAMPOS_GET, ...GRUPOS_EQUIVALENTES]
 
 function pickCampos(data) {
   return Object.fromEntries(
-    CAMPOS_EQUIVALENTES.filter((c) => data[c] !== undefined).map((c) => [c, data[c]])
+    CAMPOS_GUARDADOS.filter((c) => data[c] !== undefined).map((c) => [c, data[c]])
   )
 }
 

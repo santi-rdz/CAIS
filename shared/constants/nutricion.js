@@ -1,11 +1,12 @@
 /**
- * @file Valores nutricionales por unidad de intercambio (grupos de
- * alimentos), proporcionados por el equipo de nutrición.
+ * @file Datos de referencia del cálculo de GET nutricional (valores por unidad
+ * de intercambio + factores de Atwater), proporcionados por el equipo de
+ * nutrición.
  *
- * Estos NO son datos de paciente: son constantes fijas de referencia
- * nutricional, iguales para todos los cálculos. Por eso viven en código, no
- * en una tabla — así se calculan los totales sin duplicar información
- * derivada en la DB.
+ * Son constantes fijas, iguales para todo cálculo — por eso viven en código y
+ * no en una tabla. Se comparten entre backend y frontend, así que residen en
+ * `shared/`. Las fórmulas que las consumen viven en
+ * `../calculations/nutricion.js`.
  *
  * Columnas de la tabla de referencia: Energía (kcal), Ps = proteínas (g),
  * Ls = lípidos/grasas (g), HC = hidratos de carbono (g). Todo por 1 EQ
@@ -45,24 +46,8 @@ export const EQUIVALENTES_NUTRICIONALES = {
   aube_alta: { kcal: 91, proteinas: 7.5, grasas: 4.2, carbohidratos: 5.9 },
 }
 
-/**
- * Calcula los totales (kcal, proteínas, grasas, carbohidratos) a partir de
- * las cantidades guardadas en un registro de cal_get_nutr.
- *
- * @param {Record<string, number|null>} cantidades - el registro de
- *   cal_get_nutr (o un subconjunto con las mismas llaves que
- *   EQUIVALENTES_NUTRICIONALES).
- */
-export function calcularTotalesNutricionales(cantidades) {
-  const totales = { kcal: 0, proteinas: 0, grasas: 0, carbohidratos: 0 }
+// Llaves de los grupos de intercambio, en el orden de la tabla de referencia.
+export const GRUPOS_EQUIVALENTES = Object.keys(EQUIVALENTES_NUTRICIONALES)
 
-  for (const [grupo, valores] of Object.entries(EQUIVALENTES_NUTRICIONALES)) {
-    const cantidad = cantidades?.[grupo] ?? 0
-    totales.kcal += cantidad * valores.kcal
-    totales.proteinas += cantidad * valores.proteinas
-    totales.grasas += cantidad * valores.grasas
-    totales.carbohidratos += cantidad * valores.carbohidratos
-  }
-
-  return totales
-}
+// Factores de Atwater (kcal por gramo de cada macronutriente).
+export const KCAL_POR_GRAMO = { proteinas: 4, carbohidratos: 4, grasas: 9 }

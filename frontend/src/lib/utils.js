@@ -19,6 +19,14 @@ export const isValidEmail = (email) => /^[\w.-]+@([\w-]+\.)+[a-zA-Z]{2,}$/.test(
 export const getInitials = (nombre, apellidos) =>
   `${nombre?.[0] ?? ''}${apellidos?.[0] ?? ''}`.toUpperCase()
 
+// Formatea un número para lectura: separador de miles y hasta 1 decimal.
+// Devuelve '—' si el valor no es numérico.
+export const formatNumber = (value, maxDecimals = 1) => {
+  const n = Number(value)
+  if (!Number.isFinite(n)) return '—'
+  return n.toLocaleString('es-MX', { maximumFractionDigits: maxDecimals })
+}
+
 /**
  * Omite recursivamente keys con valor vacío ('', null, undefined).
  * Si un objeto anidado queda sin keys, también se omite.
