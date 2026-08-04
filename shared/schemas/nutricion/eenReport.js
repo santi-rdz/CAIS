@@ -55,7 +55,13 @@ export function validateReporteEen(input) {
 }
 
 export function validatePartialReporteEen(input) {
-  return reporteEenObjectSchema.partial().safeParse(input)
+  return reporteEenObjectSchema
+    .partial()
+    .refine((data) => !(data.kid && data.adulto), {
+      message: 'No se pueden incluir datos del reporte pediátrico y de adulto al mismo tiempo',
+      path: ['kid'],
+    })
+    .safeParse(input)
 }
 
 export function validateDiagnosticoNutricional(input) {

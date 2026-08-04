@@ -182,6 +182,11 @@ export class ReporteEenModel {
 
     const kid = await tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } })
     if (kid) {
+      if (data.adulto) {
+        throw new ValidationError(
+          "Este reporte es de tipo pediátrico; no se pueden enviar datos de 'adulto'."
+        )
+      }
       const paciente_id = await getPacienteIdFromHistoria(toUUID(kid.historia_paciente_id), tx)
       await tx.reporte_een_kids_nutricion.update({
         where: { id: buffer },
@@ -196,6 +201,11 @@ export class ReporteEenModel {
 
     const adulto = await tx.reporte_een_adulto_nutricion.findUnique({ where: { id: buffer } })
     if (adulto) {
+      if (data.kid) {
+        throw new ValidationError(
+          "Este reporte es de tipo adulto; no se pueden enviar datos de 'kid'."
+        )
+      }
       const paciente_id = await getPacienteIdFromHistoria(toUUID(adulto.historia_paciente_id), tx)
       const { diagnosticos, ...adultoData } = data.adulto ?? {}
 
