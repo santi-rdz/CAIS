@@ -50,12 +50,12 @@ export const reporteEenSchema = reporteEenObjectSchema.refine(
   }
 )
 
-export function validateReportEen(input) {
+export function validateReporteEen(input) {
   return reporteEenSchema.safeParse(input)
 }
 
-export function validatePartialReportEen(input) {
-  return reporteEenSchema.partial().safeParse(input)
+export function validatePartialReporteEen(input) {
+  return reporteEenObjectSchema.partial().safeParse(input)
 }
 
 export function validateDiagnosticoNutricional(input) {

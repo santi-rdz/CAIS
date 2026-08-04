@@ -1,5 +1,5 @@
 import { prisma } from '#config/prisma.js'
-import { ReporteEenModel } from '#models/nutricion/ReporteEen.js'
+import { ReporteEenModel } from '#models/nutricion/eenReport.js'
 import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
