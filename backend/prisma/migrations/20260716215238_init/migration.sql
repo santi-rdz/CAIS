@@ -637,7 +637,7 @@ CREATE TABLE `cal_get_nutr` (
 -- CreateTable
 CREATE TABLE `diagnostico_nutricional_adulto` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `reporte_een_id` INTEGER NOT NULL,
+    `reporte_een_id` BINARY(16) NOT NULL,
     `pes` TEXT NULL,
     `intervencion` VARCHAR(50) NULL,
     `objetivos` TEXT NULL,
@@ -932,8 +932,9 @@ CREATE TABLE `registro_auditoria` (
 
 -- CreateTable
 CREATE TABLE `reporte_een_adulto_nutricion` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` BINARY(16) NOT NULL DEFAULT (uuid_to_bin(uuid())),
     `historia_paciente_id` BINARY(16) NOT NULL,
+    `fecha_eval` DATE NULL DEFAULT (curdate()),
     `habitos_ali_obs` TEXT NULL,
     `alteraciones_gastroin` TEXT NULL,
 
@@ -943,8 +944,9 @@ CREATE TABLE `reporte_een_adulto_nutricion` (
 
 -- CreateTable
 CREATE TABLE `reporte_een_kids_nutricion` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` BINARY(16) NOT NULL DEFAULT (uuid_to_bin(uuid())),
     `historia_paciente_id` BINARY(16) NOT NULL,
+    `fecha_eval` DATE NULL DEFAULT (curdate()),
     `eval_diag_edo_nutr` TEXT NULL,
     `solicito_orient` BOOLEAN NULL,
     `prescrip_nut_obs` TEXT NULL,
@@ -1096,7 +1098,7 @@ ALTER TABLE `bitacora_emergencias` ADD CONSTRAINT `fk_bitacora_usuario` FOREIGN 
 ALTER TABLE `cal_get_nutr` ADD CONSTRAINT `fk_cal_get_historia` FOREIGN KEY (`historia_paciente_id`) REFERENCES `historias_pacientes_nutricion`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE `diagnostico_nutricional_adulto` ADD CONSTRAINT `fk_reporte_diagnostico` FOREIGN KEY (`reporte_een_id`) REFERENCES `reporte_een_adulto_nutricion`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `diagnostico_nutricional_adulto` ADD CONSTRAINT `fk_reporte_diagnostico` FOREIGN KEY (`reporte_een_id`) REFERENCES `reporte_een_adulto_nutricion`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE `eval_antro_ad_nutricion` ADD CONSTRAINT `fk_eval_antro_historia` FOREIGN KEY (`historia_paciente_id`) REFERENCES `historias_pacientes_nutricion`(`id`) ON DELETE CASCADE ON UPDATE NO ACTION;

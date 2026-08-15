@@ -71,6 +71,7 @@ async function main() {
     'EVAL_NUTRICIONAL',
     'EVAL_ACT_FISICA_NUTRICION',
     'EVAL_CAL_SUENO',
+    'REPORTE_EEN',
   ]
 
   for (const codigo of estadosData) {

@@ -38,6 +38,8 @@ const DELETE_ORDER = [
     'planes_estudio',
     'tpan_nutricion',
     'cal_get_nutr',
+    'reporte_een_kids_nutricion',
+    'reporte_een_adulto_nutricion',
   ],
 
   // Nivel 3: hijos directos de pacientes. historias_pacientes_nutricion cascadea

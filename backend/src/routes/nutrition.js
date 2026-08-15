@@ -12,6 +12,7 @@ import { evalActFisicaRouter } from './nutricion/evalActFisica.js'
 import { anthropometricEvalRouter } from './nutricion/anthropometricEval.js'
 import { rec24hRouter } from './nutricion/rec24h.js'
 import { calGetNutrRouter } from './nutricion/calGetNutr.js'
+import { reporteEenRouter } from './nutricion/eenReport.js'
 
 export const nutritionRouter = Router()
 
@@ -29,3 +30,4 @@ nutritionRouter.use('/evaluacion-actividad-fisica', evalActFisicaRouter)
 nutritionRouter.use('/evaluacion-antropometrica', anthropometricEvalRouter)
 nutritionRouter.use('/rec-24h', rec24hRouter)
 nutritionRouter.use('/cal-get-nutr', calGetNutrRouter)
+nutritionRouter.use('/reporte-een', reporteEenRouter)

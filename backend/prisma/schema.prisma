@@ -630,14 +630,14 @@ model cal_get_nutr {
 
 model diagnostico_nutricional_adulto {
   id                           Int                          @id @default(autoincrement())
-  reporte_een_id               Int
+  reporte_een_id               Bytes                        @db.Binary(16)
   pes                          String?                      @db.Text
   intervencion                 String?                      @db.VarChar(50)
   objetivos                    String?                      @db.Text
   indicadores                  String?                      @db.Text
   criterio                     String?                      @db.Text
   progreso                     String?                      @db.VarChar(20)
-  reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reporte_diagnostico")
+  reporte_een_adulto_nutricion reporte_een_adulto_nutricion @relation(fields: [reporte_een_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_reporte_diagnostico")
 
   @@index([reporte_een_id], map: "fk_reporte_diagnostico")
 }
@@ -911,8 +911,9 @@ model registro_auditoria {
 }
 
 model reporte_een_adulto_nutricion {
-  id                             Int                              @id @default(autoincrement())
+  id                             Bytes                            @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id           Bytes                            @db.Binary(16)
+  fecha_eval                    DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
   habitos_ali_obs                String?                          @db.Text
   alteraciones_gastroin          String?                          @db.Text
   diagnostico_nutricional_adulto diagnostico_nutricional_adulto[]
@@ -922,8 +923,9 @@ model reporte_een_adulto_nutricion {
 }
 
 model reporte_een_kids_nutricion {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
+  fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   eval_diag_edo_nutr            String?                       @db.Text
   solicito_orient               Boolean?
   prescrip_nut_obs              String?                       @db.Text
