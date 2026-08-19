@@ -530,7 +530,7 @@ export const TPAN_HINTS = {
 
 // Evaluación antropométrica — catálogos de los selects (valores tal cual se
 // guardan en la DB) y los umbrales clínicos de las sugerencias automáticas.
-export const EDAD_ADULTO = 18
+export { EDAD_ADULTO } from '@cais/shared/constants/patients'
 
 // Interpretación NOM-031 (indicadores de crecimiento pediátrico).
 export const NOM031_OPTIONS = [
@@ -662,4 +662,38 @@ export const ANTRO_HINTS = {
   riesgo_cv: 'Riesgo cardiovascular por circunferencia de cintura (♀ >80 cm · ♂ >94 cm).',
   riesgo_eo_inf: 'Riesgo por circunferencia de cuello (♀ >34 cm · ♂ >37 cm).',
   angulo_fase: 'Se deriva de la resistencia y la reactancia de la bioimpedancia.',
+}
+
+// ── Reporte EEN (Evaluación, Diagnóstico y Tratamiento Nutricional) ──────────
+// Catálogos cerrados: fuente única en shared (el schema valida `apetito` contra
+// su catálogo).
+export {
+  EEN_APETITO_OPTIONS,
+  EEN_PES_OPTIONS,
+  EEN_INTERVENCION_OPTIONS,
+  EEN_PROGRESO_OPTIONS,
+} from '@cais/shared/constants/eenReport'
+
+// Rangos de IMC (OMS). `max` es el límite superior excluyente de cada rango.
+export const IMC_RANGES = [
+  { max: 18.5, label: 'Bajo peso', tone: 'amber' },
+  { max: 25, label: 'Normal', tone: 'teal' },
+  { max: 30, label: 'Sobrepeso', tone: 'amber' },
+  { max: Infinity, label: 'Obesidad', tone: 'red' },
+]
+
+export const IMC_OMS_HINT =
+  'Valores ideales IMC (OMS): Bajo peso <18.5 · Normal 18.5–24.9 · Sobrepeso 25–29.9 · Obesidad ≥30'
+
+// IMC = peso(kg) / estatura(m)². Devuelve null si falta o es inválido algún dato.
+export function computeIMC({ peso, estatura } = {}) {
+  const kg = Number(peso)
+  const m = Number(estatura) / 100
+  if (!Number.isFinite(kg) || !Number.isFinite(m) || kg <= 0 || m <= 0) return null
+  return kg / (m * m)
+}
+
+export function classifyIMC(imc) {
+  if (imc == null) return null
+  return IMC_RANGES.find((r) => imc < r.max) ?? null
 }

@@ -914,6 +914,10 @@ model reporte_een_adulto_nutricion {
   id                             Bytes                            @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id           Bytes                            @db.Binary(16)
   fecha_eval                    DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
+  peso                           Float?                           @db.Float
+  estatura                       Float?                           @db.Float
+  cintura                        Float?                           @db.Float
+  apetito                        String?                          @db.VarChar(20)
   habitos_ali_obs                String?                          @db.Text
   alteraciones_gastroin          String?                          @db.Text
   diagnostico_nutricional_adulto diagnostico_nutricional_adulto[]
@@ -926,6 +930,10 @@ model reporte_een_kids_nutricion {
   id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
+  peso                          Float?                        @db.Float
+  estatura                      Float?                        @db.Float
+  cintura                       Float?                        @db.Float
+  apetito                       String?                       @db.VarChar(20)
   eval_diag_edo_nutr            String?                       @db.Text
   solicito_orient               Boolean?
   prescrip_nut_obs              String?                       @db.Text

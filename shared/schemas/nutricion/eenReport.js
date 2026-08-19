@@ -1,7 +1,21 @@
 import { z } from 'zod'
-import { optionalDateSchema, str, num, text } from '../fields'
+import { optionalDateSchema, str, num, text } from '../fields.js'
+import { EEN_APETITO_OPTIONS } from '../../constants/eenReport.js'
 
 const bool = () => z.boolean().nullish()
+
+// Catálogo cerrado: '' se trata como sin valor (nullish).
+const enumField = (opts) =>
+  z.preprocess((v) => (v === '' ? undefined : v), z.enum(opts.map((o) => o.value)).nullish())
+
+// Antropometría/clínica de esta evaluación (no derivada). El IMC se deriva de
+// peso + estatura en el frontend, no se guarda.
+const antropometriaFields = {
+  peso: num({ min: 0, max: 500 }), // kg
+  estatura: num({ min: 0, max: 250 }), // cm
+  cintura: num({ min: 0, max: 300 }), // cm
+  apetito: enumField(EEN_APETITO_OPTIONS),
+}
 
 export const diagnosticoNutricionalSchema = z.object({
   reporte_een_id: z.uuid('El ID del reporte een debe ser un UUID válido'),
@@ -18,6 +32,7 @@ const diagnosticoNutricionalNestedSchema = diagnosticoNutricionalSchema.omit({
 })
 
 export const reporteEenAdultoSchema = z.object({
+  ...antropometriaFields,
   habitos_ali_obs: text(), // Observación de la doctora de los habitos de alimentación / Estilo de vida
   alteraciones_gastroin: text(), // Observaciones de la doctora de alteraciones gastrointestinales
   diagnosticos: z
@@ -27,6 +42,7 @@ export const reporteEenAdultoSchema = z.object({
 })
 
 export const reporteEenKidSchema = z.object({
+  ...antropometriaFields,
   eval_diag_edo_nutr: text(), // Evaluación y diagnóstico del estado de nutrición del paciente
   solicito_orient: bool(), // Si se solicitó orientación nutricional
   prescrip_nut_obs: text(), // Observación de la doctora de la prescripción nutricional
@@ -62,8 +78,4 @@ export function validatePartialReporteEen(input) {
       path: ['kid'],
     })
     .safeParse(input)
-}
-
-export function validateDiagnosticoNutricional(input) {
-  return diagnosticoNutricionalSchema.safeParse(input)
 }

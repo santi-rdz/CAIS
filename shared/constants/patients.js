@@ -1,3 +1,8 @@
+// Edad (años cumplidos) a partir de la cual un paciente se considera adulto.
+// La comparten backend y frontend para decidir el flujo adulto/pediátrico
+// (evaluaciones antropométrica y reporte EEN).
+export const EDAD_ADULTO = 18
+
 // Búsqueda de pacientes similares en la otra área (sincronización).
 export const SIMILAR_PATIENT_THRESHOLD = 0.75
 export const SIMILAR_PATIENT_MIN_CHARS = 2

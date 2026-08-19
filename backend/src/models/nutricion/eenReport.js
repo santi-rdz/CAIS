@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
-import { toUUID } from '#lib/prismaHelpers.js'
+import { toUUID, manyCreate, manyReplace } from '#lib/prismaHelpers.js'
 import { NotFoundError, ValidationError } from '#lib/appError.js'
+import { EDAD_ADULTO } from '@cais/shared/constants/patients'
 
-const EDAD_ADULTO = 18
+// paciente_id lives on the historia, not the report; include it only where the
+// controller needs it for auditing (create/update/delete).
+const historiaInclude = { historias_pacientes_nutricion: { select: { paciente_id: true } } }
+const adultoInclude = { diagnostico_nutricional_adulto: true }
 
 function calculateAge(fecha_nacimiento) {
   if (!fecha_nacimiento) return null
@@ -18,52 +22,46 @@ function calculateAge(fecha_nacimiento) {
   return age
 }
 
-/**
- * Resuelve paciente + edad a partir de la historia. Se usa solo en create()
- * para decidir kid vs adulto.
- */
-async function getPatientContext(historiaPacienteId, tx) {
+// Patient age; used only by create() to pick the kid vs adult report.
+async function getEdadPaciente(historiaPacienteId, tx) {
   const historia = await tx.historias_pacientes_nutricion.findUnique({
     where: { id: uuidToBuffer(historiaPacienteId) },
-    include: { pacientes: { select: { id: true, fecha_nacimiento: true } } },
+    select: { pacientes: { select: { fecha_nacimiento: true } } },
   })
   if (!historia) throw new NotFoundError('la historia del paciente')
-  return {
-    paciente_id: toUUID(historia.pacientes.id),
-    edad: calculateAge(historia.pacientes.fecha_nacimiento),
-  }
+  return calculateAge(historia.pacientes.fecha_nacimiento)
 }
 
-async function getPacienteIdFromHistoria(historiaPacienteId, tx) {
-  const historia = await tx.historias_pacientes_nutricion.findUnique({
-    where: { id: uuidToBuffer(historiaPacienteId) },
-    select: { paciente_id: true },
-  })
-  if (!historia) throw new NotFoundError('la historia del paciente')
-  return toUUID(historia.paciente_id)
-}
+const pacienteIdFrom = (historia) => (historia ? toUUID(historia.paciente_id) : undefined)
 
-function formatKid(n, paciente_id) {
+function formatKid(n) {
   if (!n) return null
+  const { historias_pacientes_nutricion, ...rest } = n
+  const paciente_id = pacienteIdFrom(historias_pacientes_nutricion)
   return {
-    ...n,
+    ...rest,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
     tipo: 'kid',
-    ...(paciente_id ? { paciente_id } : {}),
+    ...(paciente_id && { paciente_id }),
   }
 }
 
-function formatAdulto(n, paciente_id) {
+// El reporte_een_id (Buffer, FK interna) no se expone al cliente; el resto del
+// diagnóstico ya es plano.
+const formatDiagnostico = ({ reporte_een_id, ...rest }) => rest
+
+function formatAdulto(n) {
   if (!n) return null
-  const { diagnostico_nutricional_adulto, ...rest } = n
+  const { diagnostico_nutricional_adulto, historias_pacientes_nutricion, ...rest } = n
+  const paciente_id = pacienteIdFrom(historias_pacientes_nutricion)
   return {
     ...rest,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
     tipo: 'adulto',
-    diagnosticos: diagnostico_nutricional_adulto ?? [],
-    ...(paciente_id ? { paciente_id } : {}),
+    diagnosticos: (diagnostico_nutricional_adulto ?? []).map(formatDiagnostico),
+    ...(paciente_id && { paciente_id }),
   }
 }
 
@@ -79,7 +77,7 @@ export class ReporteEenModel {
       }),
       prisma.reporte_een_adulto_nutricion.findMany({
         where,
-        include: { diagnostico_nutricional_adulto: true },
+        include: adultoInclude,
         orderBy: [{ fecha_eval: 'desc' }, { id: 'desc' }],
       }),
     ])
@@ -97,20 +95,21 @@ export class ReporteEenModel {
   static async getById(id, tx = prisma) {
     const buffer = uuidToBuffer(id)
 
-    const kid = await tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } })
-    if (kid) return formatKid(kid)
+    // The id doesn't reveal which table holds the report, so probe both.
+    // Parallel and safe: UUIDs don't collide, so at most one row matches.
+    const [kid, adulto] = await Promise.all([
+      tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } }),
+      tx.reporte_een_adulto_nutricion.findUnique({ where: { id: buffer }, include: adultoInclude }),
+    ])
 
-    const adulto = await tx.reporte_een_adulto_nutricion.findUnique({
-      where: { id: buffer },
-      include: { diagnostico_nutricional_adulto: true },
-    })
+    if (kid) return formatKid(kid)
     if (adulto) return formatAdulto(adulto)
 
     throw new NotFoundError('el reporte EEN')
   }
 
   static async create(data, tx = prisma) {
-    const { paciente_id, edad } = await getPatientContext(data.historia_paciente_id, tx)
+    const edad = await getEdadPaciente(data.historia_paciente_id, tx)
     const esAdulto = edad !== null && edad >= EDAD_ADULTO
 
     if (esAdulto && !data.adulto) {
@@ -125,53 +124,51 @@ export class ReporteEenModel {
     }
 
     const reporteId = randomUUID()
+    const base = {
+      id: uuidToBuffer(reporteId),
+      historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
+      fecha_eval: data.fecha_eval,
+    }
 
     if (esAdulto) {
       const { diagnosticos, ...adultoData } = data.adulto
       const created = await tx.reporte_een_adulto_nutricion.create({
         data: {
-          id: uuidToBuffer(reporteId),
-          historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
-          fecha_eval: data.fecha_eval,
+          ...base,
           ...adultoData,
-          ...(diagnosticos?.length && {
-            diagnostico_nutricional_adulto: { create: diagnosticos },
-          }),
+          ...(diagnosticos?.length && { diagnostico_nutricional_adulto: manyCreate(diagnosticos) }),
         },
-        include: { diagnostico_nutricional_adulto: true },
+        include: { ...adultoInclude, ...historiaInclude },
       })
-      return formatAdulto(created, paciente_id)
+      return formatAdulto(created)
     }
 
     const created = await tx.reporte_een_kids_nutricion.create({
-      data: {
-        id: uuidToBuffer(reporteId),
-        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
-        fecha_eval: data.fecha_eval,
-        ...data.kid,
-      },
+      data: { ...base, ...data.kid },
+      include: historiaInclude,
     })
-    return formatKid(created, paciente_id)
+    return formatKid(created)
   }
 
   static async delete(id, tx = prisma) {
     const buffer = uuidToBuffer(id)
 
-    const kid = await tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } })
+    const kid = await tx.reporte_een_kids_nutricion.findUnique({
+      where: { id: buffer },
+      include: historiaInclude,
+    })
     if (kid) {
-      const paciente_id = await getPacienteIdFromHistoria(toUUID(kid.historia_paciente_id), tx)
       await tx.reporte_een_kids_nutricion.delete({ where: { id: buffer } })
-      return formatKid(kid, paciente_id)
+      return formatKid(kid)
     }
 
     const adulto = await tx.reporte_een_adulto_nutricion.findUnique({
       where: { id: buffer },
-      include: { diagnostico_nutricional_adulto: true },
+      include: { ...adultoInclude, ...historiaInclude },
     })
     if (adulto) {
-      const paciente_id = await getPacienteIdFromHistoria(toUUID(adulto.historia_paciente_id), tx)
       await tx.reporte_een_adulto_nutricion.delete({ where: { id: buffer } })
-      return formatAdulto(adulto, paciente_id)
+      return formatAdulto(adulto)
     }
 
     throw new NotFoundError('el reporte EEN')
@@ -180,57 +177,51 @@ export class ReporteEenModel {
   static async update(id, data, tx = prisma) {
     const buffer = uuidToBuffer(id)
 
-    const kid = await tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } })
+    const kid = await tx.reporte_een_kids_nutricion.findUnique({
+      where: { id: buffer },
+      select: { id: true },
+    })
     if (kid) {
       if (data.adulto) {
         throw new ValidationError(
           "Este reporte es de tipo pediátrico; no se pueden enviar datos de 'adulto'."
         )
       }
-      const paciente_id = await getPacienteIdFromHistoria(toUUID(kid.historia_paciente_id), tx)
-      await tx.reporte_een_kids_nutricion.update({
+      const updated = await tx.reporte_een_kids_nutricion.update({
         where: { id: buffer },
         data: {
           ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
           ...(data.kid ?? {}),
         },
+        include: historiaInclude,
       })
-      const updated = await tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } })
-      return formatKid(updated, paciente_id)
+      return formatKid(updated)
     }
 
-    const adulto = await tx.reporte_een_adulto_nutricion.findUnique({ where: { id: buffer } })
+    const adulto = await tx.reporte_een_adulto_nutricion.findUnique({
+      where: { id: buffer },
+      select: { id: true },
+    })
     if (adulto) {
       if (data.kid) {
         throw new ValidationError(
           "Este reporte es de tipo adulto; no se pueden enviar datos de 'kid'."
         )
       }
-      const paciente_id = await getPacienteIdFromHistoria(toUUID(adulto.historia_paciente_id), tx)
       const { diagnosticos, ...adultoData } = data.adulto ?? {}
-
-      await tx.reporte_een_adulto_nutricion.update({
+      const updated = await tx.reporte_een_adulto_nutricion.update({
         where: { id: buffer },
         data: {
           ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
           ...adultoData,
+          // Replace the whole list in one call (undefined = keep, [] = clear).
+          ...(diagnosticos !== undefined && {
+            diagnostico_nutricional_adulto: manyReplace(diagnosticos),
+          }),
         },
+        include: { ...adultoInclude, ...historiaInclude },
       })
-
-      if (diagnosticos !== undefined) {
-        await tx.diagnostico_nutricional_adulto.deleteMany({ where: { reporte_een_id: buffer } })
-        if (diagnosticos.length > 0) {
-          await tx.diagnostico_nutricional_adulto.createMany({
-            data: diagnosticos.map((d) => ({ ...d, reporte_een_id: buffer })),
-          })
-        }
-      }
-
-      const updated = await tx.reporte_een_adulto_nutricion.findUnique({
-        where: { id: buffer },
-        include: { diagnostico_nutricional_adulto: true },
-      })
-      return formatAdulto(updated, paciente_id)
+      return formatAdulto(updated)
     }
 
     throw new NotFoundError('el reporte EEN')
