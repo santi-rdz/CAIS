@@ -10,6 +10,7 @@ import BioquimicaTab from '@features/patients/nutricion/tabs/BioquimicaTab'
 import ExamFisicaTab from '@features/patients/nutricion/tabs/ExamFisicaTab'
 import Rec24hTab from '@features/patients/nutricion/tabs/Rec24hTab'
 import CalGetNutrTab from '@features/patients/nutricion/tabs/CalGetNutrTab'
+import EenReportTab from '@features/patients/nutricion/tabs/EenReportTab'
 import TpanTab from '@features/patients/nutricion/tabs/TpanTab'
 import AntropometricaTab from '@features/patients/nutricion/tabs/AntropometricaTab'
 import NutricionalTab from '@features/patients/nutricion/tabs/NutricionalTab'
@@ -114,6 +115,12 @@ const TABS = [
     render: (historia) => <CalGetNutrTab historia={historia} />,
   },
   {
+    group: 'Evaluaciones',
+    value: 'een',
+    label: 'Reporte EEN',
+    render: (historia, patient) => <EenReportTab historia={historia} patient={patient} />,
+  },
+  {
     group: 'Seguimiento',
     value: 'rec24h',
     label: 'Recordatorio 24h',
@@ -152,6 +159,8 @@ export default function PatientHistoriaNutricion({ patient }) {
       'recTab',
       'calGetEval',
       'calGetTab',
+      'eenEval',
+      'eenTab',
       'tpanEval',
       'antroEval',
       'antroTab',

@@ -3,8 +3,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError, ValidationError } from '#lib/appError.js'
-
-const EDAD_ADULTO = 18
+import { EDAD_ADULTO } from '@cais/shared/constants/patients'
 
 const includeRelations = {
   eval_antro_ad_kid_nutricion: true,
