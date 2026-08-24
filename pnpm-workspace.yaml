@@ -2,6 +2,7 @@ packages:
   - frontend
   - backend
   - shared
+  - e2e
 autoInstallPeers: true
 strictPeerDependencies: false
 saveExact: true

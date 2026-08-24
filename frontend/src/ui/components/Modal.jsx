@@ -124,6 +124,7 @@ Modal.Content = function Content({
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 max-sm:items-end max-sm:p-0"
         onClick={(e) => e.stopPropagation()}
+        data-testid="modal-overlay"
       >
         <div
           ref={ref}
