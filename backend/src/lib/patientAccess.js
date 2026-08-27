@@ -9,5 +9,5 @@ import { ROLES } from '@cais/shared/constants/users'
 export function canAccessPatient(patient, session) {
   if (!patient) return false
   if (session.role === ROLES.ADMIN) return true
-  return session.areaId != null && patient.areas.includes(session.areaId)
+  return session.area != null && patient.areas.includes(session.area)
 }

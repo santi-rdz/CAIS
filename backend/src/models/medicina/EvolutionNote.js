@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
+import { assertActiveMedicalHistory } from '#lib/historyGuard.js'
 import {
   toUUID,
   nestedCreate,
@@ -21,7 +23,7 @@ const includeRelations = {
 
 const listSelect = {
   id: true,
-  creado_at: true,
+  expedida_en: true,
   motivo_consulta: true,
   usuarios: { select: { nombre: true, foto: true } },
   planes_estudio: {
@@ -67,7 +69,7 @@ function formatListNote(n) {
     : (n.planes_estudio ?? null)
   return {
     id: toUUID(n.id),
-    creado_at: n.creado_at,
+    expedida_en: n.expedida_en,
     motivo_consulta: n.motivo_consulta,
     usuarios: n.usuarios,
     planes_estudio: plan
@@ -84,18 +86,14 @@ function formatListNote(n) {
 
 export class EvolutionNoteModel {
   static async getAll({ historia_medica_id, page = 1, limit = 10 } = {}) {
-    const where = {}
+    const where = { deleted_at: null, historias_medicas: { deleted_at: null } }
     if (historia_medica_id) where.historia_medica_id = uuidToBuffer(historia_medica_id)
-
-    const offset = (page - 1) * limit
 
     const [notes, total] = await prisma.$transaction([
       prisma.notas_evolucion.findMany({
         where,
         select: listSelect,
-        orderBy: { creado_at: 'desc' },
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: { expedida_en: 'desc' } }),
       }),
       prisma.notas_evolucion.count({ where }),
     ])
@@ -104,8 +102,8 @@ export class EvolutionNoteModel {
   }
 
   static async getById(id, tx = prisma) {
-    const note = await tx.notas_evolucion.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const note = await tx.notas_evolucion.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!note) throw new NotFoundError('la nota de evolución')
@@ -116,6 +114,7 @@ export class EvolutionNoteModel {
     if (!userId) {
       throw new Error('EvolutionNote.create requires a userId')
     }
+    await assertActiveMedicalHistory(data.historia_medica_id, tx)
     const noteId = randomUUID()
 
     await tx.notas_evolucion.create({
@@ -123,7 +122,7 @@ export class EvolutionNoteModel {
         id: uuidToBuffer(noteId),
         historia_medica_id: uuidToBuffer(data.historia_medica_id),
         usuario_id: uuidToBuffer(userId),
-        creado_at: data.creado_at ? new Date(data.creado_at) : undefined,
+        expedida_en: data.expedida_en ? new Date(data.expedida_en) : undefined,
         motivo_consulta: data.motivo_consulta ?? null,
         ant_gine_andro: data.ant_gine_andro ?? null,
         estudios_complementarios_efectuados: data.estudios_complementarios_efectuados ?? null,
@@ -138,24 +137,29 @@ export class EvolutionNoteModel {
   }
 
   static async delete(id, tx = prisma) {
-    const existing = await tx.notas_evolucion.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const existing = await tx.notas_evolucion.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la nota de evolución')
-    await tx.notas_evolucion.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.notas_evolucion.update({
+      where: { id: uuidToBuffer(id) },
+      data: { deleted_at: new Date() },
+    })
     return formatEvolutionNote(existing)
   }
 
   static async update(id, data, userId, tx = prisma) {
-    const existing = await tx.notas_evolucion.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.notas_evolucion.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('la nota de evolución')
 
     await tx.notas_evolucion.update({
       where: { id: uuidToBuffer(id) },
       data: {
-        ...(data.creado_at != null && {
-          creado_at: new Date(data.creado_at),
+        ...(data.expedida_en != null && {
+          expedida_en: new Date(data.expedida_en),
         }),
         motivo_consulta: data.motivo_consulta,
         ant_gine_andro: data.ant_gine_andro,

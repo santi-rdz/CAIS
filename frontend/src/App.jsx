@@ -3,6 +3,8 @@ import AppLayout from '@ui/AppLayout'
 import Dashboard from '@pages/Dashboard'
 import Auth from '@pages/Auth'
 import LoginForm from '@features/authentication/LoginForm'
+import ForgotPasswordForm from '@features/authentication/ForgotPasswordForm'
+import ResetPasswordForm from '@features/authentication/ResetPasswordForm'
 import RegisterPage from '@pages/RegisterPage'
 import Users from '@pages/Users'
 import ProtectedRoute from '@ui/ProtectedRoute'
@@ -38,6 +40,8 @@ function App() {
         </Route>
         <Route element={<Auth />}>
           <Route path="login" element={<LoginForm />} />
+          <Route path="recuperar-contrasena" element={<ForgotPasswordForm />} />
+          <Route path="restablecer-contrasena/:token" element={<ResetPasswordForm />} />
 
           <Route path="registro" element={<RegisterPage />} />
         </Route>

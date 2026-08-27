@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { biochemicalEvalFormSchema } from '@schemas/biochemicalEval'
 import { useStepForm } from '@hooks/useStepForm'
@@ -99,7 +100,7 @@ function getCreateDefaults() {
 function buildEditDefaults(evaluation) {
   return {
     ...fillDefaults(DEFAULT_VALUES_TEMPLATE, evaluation),
-    fecha: evaluation?.fecha ? dayjs(evaluation.fecha) : dayjs(),
+    fecha: parseDate(evaluation?.fecha) ?? dayjs(),
   }
 }
 

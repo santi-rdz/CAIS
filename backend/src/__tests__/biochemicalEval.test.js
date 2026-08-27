@@ -142,6 +142,22 @@ describe('POST /nutricion/evaluacion-bioquimica', () => {
 
     tracker.track('eval_bioq_nutricion', uuidToBuffer(e.id))
   })
+
+  test('404 — no permite crear bajo una historia soft-deleted', async () => {
+    const histRes = await agent
+      .post('/nutricion/historias-nutricion')
+      .send({ paciente_id: pacienteId, motivo_consulta: 'Historia a borrar' })
+    const deletedHistoriaId = histRes.body.history.id
+    tracker.track('historias_pacientes_nutricion', uuidToBuffer(deletedHistoriaId))
+
+    const del = await agent.delete(`/nutricion/historias-nutricion/${deletedHistoriaId}`)
+    expect(del.status).toBe(200)
+
+    const res = await agent
+      .post('/nutricion/evaluacion-bioquimica')
+      .send({ historia_paciente_id: deletedHistoriaId })
+    expect(res.status).toBe(404)
+  })
 })
 
 describe('PATCH /nutricion/evaluacion-bioquimica/:id', () => {

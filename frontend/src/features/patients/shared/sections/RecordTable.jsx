@@ -42,12 +42,19 @@ export default function RecordTable({
   rows,
   emptyMessage = 'Sin registros.',
   emptyIcon,
+  emptyAction,
   onEdit,
 }) {
   const hasRows = rows?.length > 0
 
   if (!hasRows) {
-    return <EmptyState icon={emptyIcon ?? <HiOutlineInbox size={24} />} message={emptyMessage} />
+    return (
+      <EmptyState
+        icon={emptyIcon ?? <HiOutlineInbox size={24} />}
+        message={emptyMessage}
+        action={emptyAction}
+      />
+    )
   }
 
   return (

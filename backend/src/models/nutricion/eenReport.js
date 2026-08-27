@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, manyCreate, manyReplace } from '#lib/prismaHelpers.js'
 import { NotFoundError, ValidationError } from '#lib/appError.js'
 import { EDAD_ADULTO } from '@cais/shared/constants/patients'
 
-// paciente_id lives on the historia, not the report; include it only where the
-// controller needs it for auditing (create/update/delete).
+// paciente_id cuelga de la historia, no del reporte; se incluye solo donde el
+// controller lo necesita para auditoría (create/update/delete).
 const historiaInclude = { historias_pacientes_nutricion: { select: { paciente_id: true } } }
 const adultoInclude = { diagnostico_nutricional_adulto: true }
 
@@ -22,7 +24,7 @@ function calculateAge(fecha_nacimiento) {
   return age
 }
 
-// Patient age; used only by create() to pick the kid vs adult report.
+// Edad del paciente; solo la usa create() para elegir reporte kid vs adulto.
 async function getEdadPaciente(historiaPacienteId, tx) {
   const historia = await tx.historias_pacientes_nutricion.findUnique({
     where: { id: uuidToBuffer(historiaPacienteId) },
@@ -42,6 +44,7 @@ function formatKid(n) {
     ...rest,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
+    fecha_eval: toDateOnly(n.fecha_eval),
     tipo: 'kid',
     ...(paciente_id && { paciente_id }),
   }
@@ -59,6 +62,7 @@ function formatAdulto(n) {
     ...rest,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
+    fecha_eval: toDateOnly(n.fecha_eval),
     tipo: 'adulto',
     diagnosticos: (diagnostico_nutricional_adulto ?? []).map(formatDiagnostico),
     ...(paciente_id && { paciente_id }),
@@ -67,7 +71,7 @@ function formatAdulto(n) {
 
 export class ReporteEenModel {
   static async getAll({ historia_paciente_id, page, limit } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
 
     const [kids, adultos] = await Promise.all([
@@ -95,8 +99,8 @@ export class ReporteEenModel {
   static async getById(id, tx = prisma) {
     const buffer = uuidToBuffer(id)
 
-    // The id doesn't reveal which table holds the report, so probe both.
-    // Parallel and safe: UUIDs don't collide, so at most one row matches.
+    // El id no revela en qué tabla está el reporte, así que se prueban ambas.
+    // En paralelo y seguro: los UUID no colisionan, a lo más una fila coincide.
     const [kid, adulto] = await Promise.all([
       tx.reporte_een_kids_nutricion.findUnique({ where: { id: buffer } }),
       tx.reporte_een_adulto_nutricion.findUnique({ where: { id: buffer }, include: adultoInclude }),
@@ -109,6 +113,7 @@ export class ReporteEenModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
     const edad = await getEdadPaciente(data.historia_paciente_id, tx)
     const esAdulto = edad !== null && edad >= EDAD_ADULTO
 
@@ -214,7 +219,7 @@ export class ReporteEenModel {
         data: {
           ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
           ...adultoData,
-          // Replace the whole list in one call (undefined = keep, [] = clear).
+          // Reemplaza la lista completa en una llamada (undefined = conservar, [] = limpiar).
           ...(diagnosticos !== undefined && {
             diagnostico_nutricional_adulto: manyReplace(diagnosticos),
           }),

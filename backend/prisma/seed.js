@@ -373,7 +373,6 @@ async function main() {
       contacto_emergencia: 'Laura Ruiz Pérez',
       telefono_emergencia: '6641112233',
       parentesco_emergencia: 'Esposa',
-      actualizado_at: new Date('2026-03-12T10:30:00'),
     },
     {
       doctor_id: sofiaId,
@@ -394,7 +393,6 @@ async function main() {
       contacto_emergencia: 'Pedro Fernández López',
       telefono_emergencia: '6642223344',
       parentesco_emergencia: 'Padre',
-      actualizado_at: new Date('2026-03-10T09:15:00'),
     },
     {
       doctor_id: sofiaId,
@@ -415,7 +413,6 @@ async function main() {
       contacto_emergencia: 'María Castillo Vega',
       telefono_emergencia: '6643334455',
       parentesco_emergencia: 'Madre',
-      actualizado_at: new Date('2026-02-28T16:00:00'),
     },
     {
       doctor_id: sofiaId,
@@ -436,7 +433,6 @@ async function main() {
       contacto_emergencia: 'Rosa Soto Díaz',
       telefono_emergencia: '6644445566',
       parentesco_emergencia: 'Madre',
-      actualizado_at: new Date('2026-03-05T14:20:00'),
     },
   ]
 
@@ -532,7 +528,7 @@ async function main() {
       motivo_consulta: 'Revisión anual. Paciente sin quejas.',
       ant_gine_andro: 'Sin antecedentes gineco-andros relevantes',
       estudios_complementarios_efectuados: 'Examen médico general de rutina',
-      creado_at: new Date('2026-01-10T10:00:00'),
+      expedida_en: new Date('2026-01-10T10:00:00'),
     },
     {
       id: uuidToBuf(NE_IDS.ne2),
@@ -541,7 +537,7 @@ async function main() {
       motivo_consulta: 'Control de diabetes. Refiere mejora parcial con medicamento.',
       ant_gine_andro: 'G2 P2 A0, ciclos regulares',
       estudios_complementarios_efectuados: 'Glucosa en ayuno, HbA1c',
-      creado_at: new Date('2026-02-14T14:30:00'),
+      expedida_en: new Date('2026-02-14T14:30:00'),
     },
     {
       id: uuidToBuf(NE_IDS.ne3),
@@ -550,7 +546,7 @@ async function main() {
       motivo_consulta: 'Seguimiento post-revisión. Resultados de laboratorio normales.',
       ant_gine_andro: 'Sin cambios',
       estudios_complementarios_efectuados: 'Resultados de laboratorio normales',
-      creado_at: new Date('2026-03-22T09:15:00'),
+      expedida_en: new Date('2026-03-22T09:15:00'),
     },
     {
       id: uuidToBuf(NE_IDS.ne4),
@@ -559,7 +555,7 @@ async function main() {
       motivo_consulta: 'Evaluación integral. Profesional médico en buen estado de salud.',
       ant_gine_andro: 'Sin antecedentes relevantes',
       estudios_complementarios_efectuados: 'Examen clínico completo, signos vitales normales',
-      creado_at: new Date('2026-03-01T11:45:00'),
+      expedida_en: new Date('2026-03-01T11:45:00'),
     },
     {
       id: uuidToBuf(NE_IDS.ne5),
@@ -568,7 +564,7 @@ async function main() {
       motivo_consulta: 'Examen preventivo anual. Estudiante sin síntomas. Vida sana.',
       ant_gine_andro: 'Ginecología normal, ciclos regulares',
       estudios_complementarios_efectuados: 'Laboratorio rutinario, ecografía pélvica',
-      creado_at: new Date('2026-02-20T15:30:00'),
+      expedida_en: new Date('2026-02-20T15:30:00'),
     },
   ]
 
@@ -636,7 +632,7 @@ async function main() {
       historia_medica_id: uuidToBuf(HM_IDS.carlos),
       nota_evolucion_id: uuidToBuf(NE_IDS.ne1),
       peso: 72.5,
-      altura: 1.75,
+      altura: 175,
       pa_sistolica: 120,
       pa_diastolica: 80,
       fc: 72,
@@ -653,7 +649,7 @@ async function main() {
       historia_medica_id: uuidToBuf(HM_IDS.ana),
       nota_evolucion_id: uuidToBuf(NE_IDS.ne2),
       peso: 85.0,
-      altura: 1.68,
+      altura: 168,
       pa_sistolica: 135,
       pa_diastolica: 88,
       fc: 80,
@@ -769,7 +765,6 @@ async function main() {
       nivel_educativo: 'Licenciatura',
       religion: 'Católica',
       nss: '11223344501',
-      actualizado_at: new Date('2026-04-10T10:00:00'),
     },
     {
       doctor_id: anaToTorresId,
@@ -786,7 +781,6 @@ async function main() {
       nivel_educativo: 'Bachillerato',
       religion: 'Ninguna',
       nss: '22334455602',
-      actualizado_at: new Date('2026-04-12T11:00:00'),
     },
     {
       doctor_id: mariaLopezId,
@@ -803,7 +797,6 @@ async function main() {
       nivel_educativo: 'Doctorado',
       religion: 'Ninguna',
       nss: '33445566703',
-      actualizado_at: new Date('2026-03-20T09:30:00'),
     },
     {
       doctor_id: mariaLopezId,
@@ -820,7 +813,6 @@ async function main() {
       nivel_educativo: 'Licenciatura',
       religion: 'Católica',
       nss: '44556677804',
-      actualizado_at: new Date('2026-04-18T14:00:00'),
     },
     {
       doctor_id: sofiaId,
@@ -837,7 +829,6 @@ async function main() {
       nivel_educativo: 'Primaria',
       religion: 'Cristiana',
       nss: '55667788905',
-      actualizado_at: new Date('2026-04-20T10:00:00'),
     },
   ]
 

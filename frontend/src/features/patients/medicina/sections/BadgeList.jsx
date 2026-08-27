@@ -1,4 +1,4 @@
-// Lista de badges para datos código-descripción (diagnósticos CIE-10 y
+// Lista de badges para datos código-descripción (diagnósticos CIE-11 y
 // similares), más legibles como etiquetas que como filas de campos.
 export default function BadgeList({ items }) {
   if (!items?.length) return <p className="text-5 text-zinc-300">—</p>
@@ -13,7 +13,7 @@ export default function BadgeList({ items }) {
           <span className="text-5 font-semibold tracking-tight text-zinc-700 tabular-nums">
             {it.label}
           </span>
-          {it.sub && <span className="text-6 text-zinc-500">{it.sub}</span>}
+          {it.sub && <span className="text-5 text-zinc-500">{it.sub}</span>}
         </span>
       ))}
     </div>

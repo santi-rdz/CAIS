@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, nestedCreate, nestedUpsert, buildNestedRelations } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -17,7 +20,7 @@ const selectBasic = {
   id: true,
   historia_paciente_id: true,
   fecha: true,
-  creado_at: true,
+  created_at: true,
 }
 
 const NESTED_RELATIONS = [
@@ -34,21 +37,20 @@ function formatEvalNutr(n) {
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    fecha: toDateOnly(n.fecha),
   }
 }
 
 function formatMinimal(n) {
-  const result = { ...n, id: toUUID(n.id) }
+  const result = { ...n, id: toUUID(n.id), fecha: toDateOnly(n.fecha) }
   if ('historia_paciente_id' in n) result.historia_paciente_id = toUUID(n.historia_paciente_id)
   return result
 }
 
 export class NutritionalEvalModel {
   static async getAll({ historia_paciente_id, page = 1, limit = 20, fields } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -60,9 +62,7 @@ export class NutritionalEvalModel {
       prisma.eval_nutr_fh.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ creado_at: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ created_at: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.eval_nutr_fh.count({ where }),
     ])
@@ -80,6 +80,7 @@ export class NutritionalEvalModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
     const evalId = randomUUID()
 
     await tx.eval_nutr_fh.create({

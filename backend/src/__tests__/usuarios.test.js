@@ -2,19 +2,21 @@ import request from 'supertest'
 import app from '#app'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { NIL_UUID } from './helpers/constants.js'
-import { authenticatedAdmin } from './helpers/agents.js'
-import { createTestCoordinador, createTestInvitation } from './helpers/db.js'
+import { authenticatedAdmin, authenticatedCoordinador } from './helpers/agents.js'
+import { createTestCoordinador, createTestPasante, createTestInvitation } from './helpers/db.js'
 import { createCleanupTracker } from './helpers/cleanup.js'
 import { buildPasanteCreate, buildCoordCreate } from './helpers/factories.js'
+import { uniqueEmail } from './helpers/ids.js'
 
 const api = request(app)
 const tracker = createCleanupTracker()
 
 let agent
+let adminUser
 let inviter // coordinador usado para crear invitaciones de prueba
 
 beforeAll(async () => {
-  ;({ agent } = await authenticatedAdmin({ tracker }))
+  ;({ agent, user: adminUser } = await authenticatedAdmin({ tracker }))
   inviter = await createTestCoordinador({ tracker })
 })
 
@@ -256,5 +258,58 @@ describe('DELETE /usuarios/:id', () => {
     expect(res.status).toBe(200)
     expect(res.body.message).toBeDefined()
     // El usuario ya está borrado; tracker.cleanup() para él será no-op (idempotente).
+  })
+
+  test('201 — permite re-registrar el mismo correo tras el soft delete', async () => {
+    const correo = uniqueEmail('recycla')
+
+    const first = await agent
+      .post('/usuarios')
+      .send(buildPasanteCreate({ correo, matricula: 'RC01' }))
+    expect(first.status).toBe(201)
+    tracker.track('usuarios', uuidToBuffer(first.body.usuario.id))
+
+    const del = await agent.delete(`/usuarios/${first.body.usuario.id}`)
+    expect(del.status).toBe(200)
+
+    const second = await agent
+      .post('/usuarios')
+      .send(buildPasanteCreate({ correo, matricula: 'RC02' }))
+    expect(second.status).toBe(201)
+    tracker.track('usuarios', uuidToBuffer(second.body.usuario.id))
+  })
+})
+
+// Jerarquía: solo se puede desactivar/eliminar cuentas de rango estrictamente
+// menor, nunca la propia ni un rango igual o mayor.
+describe('Jerarquía de roles al desactivar/eliminar', () => {
+  test('403 — admin no puede eliminarse a sí mismo', async () => {
+    const res = await agent.delete(`/usuarios/${adminUser.id}`)
+    expect(res.status).toBe(403)
+  })
+
+  test('403 — admin no puede desactivarse a sí mismo', async () => {
+    const res = await agent.patch(`/usuarios/${adminUser.id}`).send({ estado: 'INACTIVO' })
+    expect(res.status).toBe(403)
+  })
+
+  test('403 — coordinador no puede eliminar a otro coordinador', async () => {
+    const { agent: coordAgent } = await authenticatedCoordinador({ tracker })
+    const otroCoord = await createTestCoordinador({ tracker })
+    const res = await coordAgent.delete(`/usuarios/${otroCoord.id}`)
+    expect(res.status).toBe(403)
+  })
+
+  test('403 — coordinador no puede desactivarse a sí mismo', async () => {
+    const { agent: coordAgent, user: coord } = await authenticatedCoordinador({ tracker })
+    const res = await coordAgent.patch(`/usuarios/${coord.id}`).send({ estado: 'INACTIVO' })
+    expect(res.status).toBe(403)
+  })
+
+  test('200 — coordinador sí puede eliminar a un pasante', async () => {
+    const { agent: coordAgent } = await authenticatedCoordinador({ tracker })
+    const pasante = await createTestPasante({ tracker })
+    const res = await coordAgent.delete(`/usuarios/${pasante.id}`)
+    expect(res.status).toBe(200)
   })
 })

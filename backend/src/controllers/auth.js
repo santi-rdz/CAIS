@@ -126,6 +126,21 @@ export class AuthController {
     res.json(okResponse)
   }
 
+  // ─── Flujo: resolver el correo asociado a un token de reset ──────────────────
+  // GET /auth/password/reset/:token
+  // El token es un secreto que solo recibe el dueño del correo, por eso revelarle
+  // el correo asociado es aceptable (mismo criterio que la invitación de registro).
+
+  static async getResetTokenInfo(req, res) {
+    const resetToken = await AuthModel.findResetTokenWithUser(req.params.token)
+
+    if (!resetToken || resetToken.usado || resetToken.expira_at < new Date()) {
+      throw new BadRequestError('Token inválido, expirado o ya utilizado')
+    }
+
+    res.json({ correo: resetToken.usuarios.correo })
+  }
+
   // ─── Flujo: confirmar reset con token del correo ─────────────────────────────
   // POST /auth/password/reset
   // Body: { token, password, confirmPassword }
@@ -140,6 +155,11 @@ export class AuthController {
     if (resetToken.expira_at < new Date()) {
       await AuthModel.deleteResetToken(token)
       throw new BadRequestError('Token expirado')
+    }
+
+    const user = await AuthModel.findByIdWithHash(bufferToUUID(resetToken.usuario_id))
+    if (user?.password_hash && (await bcrypt.compare(password, user.password_hash))) {
+      throw new BadRequestError('La nueva contraseña no puede ser igual a la actual')
     }
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)

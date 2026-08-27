@@ -1,4 +1,4 @@
-import { ROLES, AREAS } from '@cais/shared/constants/users'
+import { ROLES, AREAS, ROLE_RANK } from '@cais/shared/constants/users'
 
 export const PERMISSIONS = {
   SEE_USER_AREA_COLUMN: 'SEE_USER_AREA_COLUMN',
@@ -17,6 +17,13 @@ const RULES = {
 export function can(user, permission) {
   const rule = RULES[permission]
   return rule ? rule(user) : false
+}
+
+// Desactivar/eliminar: solo cuentas de rango estrictamente menor, nunca la propia.
+export function canManageUserAccount(actor, target) {
+  if (!actor || !target || actor.id === target.id) return false
+  const rank = (rol) => ROLE_RANK[rol?.toUpperCase()] ?? 0
+  return rank(actor.rol) > rank(target.rol)
 }
 
 export function canSeeRoute(user, route) {

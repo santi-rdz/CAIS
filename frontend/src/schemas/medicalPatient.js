@@ -8,7 +8,7 @@ export const medicalPatientFormSchema = z.object({
   ...patientSchema.shape,
   ...medicalHistorySchema.omit({ paciente_id: true }).shape,
   fecha_nacimiento: dayjsDateSchema,
-  creado_at: dayjsDateSchema,
+  expedida_en: dayjsDateSchema,
 })
 
 // Sincronización con un paciente existente de otra área: los compartidos van
@@ -17,5 +17,5 @@ export const medicalPatientFormSchema = z.object({
 export const medicalSyncFormSchema = z.object({
   ...syncPatientShape,
   ...medicalHistorySchema.omit({ paciente_id: true }).shape,
-  creado_at: dayjsDateSchema,
+  expedida_en: dayjsDateSchema,
 })

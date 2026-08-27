@@ -12,7 +12,7 @@ const enumField = (opts) =>
 // peso + estatura en el frontend, no se guarda.
 const antropometriaFields = {
   peso: num({ min: 0, max: 500 }), // kg
-  estatura: num({ min: 0, max: 250 }), // cm
+  estatura: num({ min: 20, max: 250 }), // cm
   cintura: num({ min: 0, max: 300 }), // cm
   apetito: enumField(EEN_APETITO_OPTIONS),
 }

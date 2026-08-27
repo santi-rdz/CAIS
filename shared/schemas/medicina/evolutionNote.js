@@ -6,7 +6,7 @@ import { aparatosSistemasSchema, informacionFisicaSchema, planEstudioSchema } fr
 // el paciente se deriva de ella, no se recibe en el body.
 export const evolutionNoteSchema = z.object({
   historia_medica_id: uuidSchema,
-  creado_at: isoDateTimeSchema,
+  expedida_en: isoDateTimeSchema,
   motivo_consulta: text(),
   ant_gine_andro: text(),
   estudios_complementarios_efectuados: text(),

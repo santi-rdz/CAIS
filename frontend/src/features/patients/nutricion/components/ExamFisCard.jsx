@@ -55,7 +55,7 @@ export default function ExamFisCard({ exam, onView, onEdit, onDelete }) {
       <div className="flex min-w-0 items-center gap-1.5 pr-14">
         <HiOutlineClipboardDocumentCheck size={15} className="shrink-0 text-teal-500" />
         <time className="text-6 truncate font-semibold tracking-wide text-zinc-600 uppercase">
-          {formatFecha(exam.fecha ?? exam.creado_at)}
+          {formatFecha(exam.fecha ?? exam.created_at)}
         </time>
       </div>
 

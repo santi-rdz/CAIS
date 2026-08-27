@@ -11,8 +11,9 @@ import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
 import { formatPhone } from '@lib/utils'
 import MetaChip from '@components/MetaChip'
+import AreaSwitcher from '@features/patients/components/AreaSwitcher'
 
-export default function PatientHeader({ patient, tabs }) {
+export default function PatientHeader({ patient, tabs, areas = [], activeArea, onAreaChange }) {
   const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
@@ -79,7 +80,11 @@ export default function PatientHeader({ patient, tabs }) {
         </div>
       </div>
 
-      <Tab.List className="mt-5">
+      {areas.length > 1 && (
+        <AreaSwitcher areas={areas} activeArea={activeArea} onChange={onAreaChange} />
+      )}
+
+      <Tab.List className={areas.length > 1 ? 'mt-3' : 'mt-5'}>
         {tabs.map((tab) => (
           <Tab.Trigger key={tab.value} value={tab.value}>
             <span className="inline-flex items-center justify-center gap-1.5">

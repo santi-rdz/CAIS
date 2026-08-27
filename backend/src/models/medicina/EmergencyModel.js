@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { formatDefs } from '#lib/formatDef.js'
+import { buildListArgs, buildSearchWhere } from '#lib/queryFeatures.js'
+import { EMERGENCY_SEARCH_FIELDS } from '#lib/searchFields.js'
 import { EMERGENCY_SORT_DEFS } from '@cais/shared/constants/emergencies'
 import { NotFoundError } from '#lib/appError.js'
 
@@ -26,34 +28,19 @@ function formatEmergency(u) {
 
 export class EmergencyModel {
   static async getAll({ sortBy, search, page, limit, recurrentBoolean: recurrent }) {
-    const where = {}
-
-    if (search) {
-      where.OR = [
-        { nombre: { contains: search } },
-        { ubicacion: { contains: search } },
-        { matricula: { contains: search } },
-        { telefono: { contains: search } },
-        { diagnostico: { contains: search } },
-        { accion_realizada: { contains: search } },
-      ]
-    }
-
-    if (recurrent !== null) {
-      where.recurrente = recurrent
+    const where = {
+      deleted_at: null,
+      ...(recurrent !== null && { recurrente: recurrent }),
+      ...buildSearchWhere(search, EMERGENCY_SEARCH_FIELDS),
     }
 
     const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { fecha_hora: 'desc' }
-
-    const offset = (page - 1) * limit
 
     const [emergencies, total] = await prisma.$transaction([
       prisma.bitacora_emergencias.findMany({
         where,
         include: includeRelations,
-        orderBy,
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy }),
       }),
       prisma.bitacora_emergencias.count({ where }),
     ])
@@ -62,8 +49,8 @@ export class EmergencyModel {
   }
 
   static async getById(id, tx = prisma) {
-    const emergency = await tx.bitacora_emergencias.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const emergency = await tx.bitacora_emergencias.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!emergency) throw new NotFoundError('la emergencia')
@@ -94,17 +81,22 @@ export class EmergencyModel {
   }
 
   static async delete(id, tx = prisma) {
-    const existing = await tx.bitacora_emergencias.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const existing = await tx.bitacora_emergencias.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la emergencia')
-    await tx.bitacora_emergencias.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.bitacora_emergencias.update({
+      where: { id: uuidToBuffer(id) },
+      data: { deleted_at: new Date() },
+    })
     return formatEmergency(existing)
   }
 
   static async update(id, data, tx = prisma) {
-    const existing = await tx.bitacora_emergencias.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.bitacora_emergencias.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('la emergencia')
 
     await tx.bitacora_emergencias.update({ where: { id: uuidToBuffer(id) }, data })

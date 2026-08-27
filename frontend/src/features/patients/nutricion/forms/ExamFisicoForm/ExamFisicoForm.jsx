@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { physicalExamFormSchema } from '@schemas/physicalExam'
 import { useStepForm } from '@hooks/useStepForm'
@@ -45,7 +46,7 @@ function buildEditDefaults(exam) {
   }
   return {
     ...fillDefaults(EXAM_FISICO_DEFAULTS, source),
-    fecha: exam?.fecha ? dayjs(exam.fecha) : dayjs(),
+    fecha: parseDate(exam?.fecha) ?? dayjs(),
   }
 }
 

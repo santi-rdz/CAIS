@@ -3,10 +3,10 @@ import { formatFecha, formatHora } from '@lib/dateHelpers'
 import Button from '@components/Button'
 
 export default function NoteCard({ note, onClick, onEdit, isSelected = false, layout = 'grid' }) {
-  const { motivo_consulta, planes_estudio, usuarios, creado_at } = note
+  const { motivo_consulta, planes_estudio, usuarios, expedida_en } = note
 
-  const date = formatFecha(creado_at)
-  const hour = formatHora(creado_at)
+  const date = formatFecha(expedida_en)
+  const hour = formatHora(expedida_en)
   const doctor = usuarios
   const cie10Codes = planes_estudio?.cie10_codes ?? []
   const isList = layout === 'list'
@@ -87,7 +87,7 @@ export default function NoteCard({ note, onClick, onEdit, isSelected = false, la
         </p>
       </div>
 
-      {/* Footer: CIE-10 codes */}
+      {/* Footer: CIE-11 codes */}
       <div className="shrink-0 border-t border-zinc-100 px-4 py-2.5">
         {cie10Codes.length > 0 ? (
           <div className="flex flex-wrap gap-1.5">

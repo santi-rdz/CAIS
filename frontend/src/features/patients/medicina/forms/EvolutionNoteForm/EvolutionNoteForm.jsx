@@ -50,7 +50,7 @@ function getCreateDefaults() {
 }
 
 function buildEditDefaults(note) {
-  const createdAt = note?.creado_at ? dayjs(note.creado_at) : dayjs()
+  const createdAt = note?.expedida_en ? dayjs(note.expedida_en) : dayjs()
   const source = {
     ...note,
     planes_estudio: {
@@ -108,7 +108,7 @@ export default function EvolutionNoteForm({
 
       const payload = {
         ...nullifyEmpty(dirty),
-        creado_at: mergeFechaHora(data.fecha, data.hora),
+        expedida_en: mergeFechaHora(data.fecha, data.hora),
       }
 
       await updateNote(note.id, payload)
@@ -116,7 +116,7 @@ export default function EvolutionNoteForm({
       const cleaned = omitEmpty(data)
       const payload = {
         historia_medica_id: historiaId,
-        creado_at: mergeFechaHora(data.fecha, data.hora),
+        expedida_en: mergeFechaHora(data.fecha, data.hora),
         ...(cleaned.motivo_consulta && {
           motivo_consulta: cleaned.motivo_consulta,
         }),

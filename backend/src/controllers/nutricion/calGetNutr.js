@@ -13,6 +13,7 @@ export class CalGetNutrController {
           usuario_id: req.session.userId,
           accion: ACCIONES.CREAR,
           entidad: ENTIDADES.CAL_GET_NUTR,
+          objetivo_id: r.id,
           paciente_id: r.paciente_id,
         },
         tx
@@ -45,6 +46,7 @@ export class CalGetNutrController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ELIMINAR,
           entidad: ENTIDADES.CAL_GET_NUTR,
+          objetivo_id: r.id,
           paciente_id: r.paciente_id,
         },
         tx
@@ -63,6 +65,7 @@ export class CalGetNutrController {
           usuario_id: req.session.userId,
           accion: ACCIONES.ACTUALIZAR,
           entidad: ENTIDADES.CAL_GET_NUTR,
+          objetivo_id: r.id,
           paciente_id: r.paciente_id,
         },
         tx

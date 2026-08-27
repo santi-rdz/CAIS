@@ -28,7 +28,7 @@ export default function NutrDetail({ evaluation, onBack, onEdit, onDelete }) {
           </button>
           <span className="text-zinc-300">/</span>
           <span className="text-5 font-semibold text-zinc-700">
-            {formatFecha(evaluation.fecha ?? evaluation.creado_at)}
+            {formatFecha(evaluation.fecha ?? evaluation.created_at)}
           </span>
         </div>
         <div className="flex items-center gap-2">

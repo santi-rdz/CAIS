@@ -338,13 +338,13 @@ describe('DELETE /nutricion/historias-nutricion/:id', () => {
     expect(res.body.id).toBeDefined()
   })
 
-  test('borra en cascada la adicción asociada', async () => {
+  test('soft delete: conserva la adicción asociada para recuperación', async () => {
     expect(adiccionesId).toBeDefined()
     const adiccion = await prisma.adicciones.findUnique({ where: { id: adiccionesId } })
-    expect(adiccion).toBeNull()
+    expect(adiccion).not.toBeNull()
   })
 
-  test('404 — confirma que ya no existe tras eliminar', async () => {
+  test('404 — confirma que ya no es accesible tras eliminar', async () => {
     const res = await agent.get(`/nutricion/historias-nutricion/${historiaId}`)
     expect(res.status).toBe(404)
   })

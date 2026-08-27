@@ -24,19 +24,19 @@ export class AppError extends Error {
 
 export class BadRequestError extends AppError {
   constructor(message = 'Solicitud inválida', meta) {
-    super(message, 400, { error: 'BadRequest', ...meta })
+    super(message, 400, { ...meta, error: 'BadRequest' })
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor(message = 'No autorizado', meta) {
-    super(message, 401, { error: 'Unauthorized', ...meta })
+    super(message, 401, { ...meta, error: 'Unauthorized' })
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor(message = 'Acceso denegado', meta) {
-    super(message, 403, { error: 'Forbidden', ...meta })
+    super(message, 403, { ...meta, error: 'Forbidden' })
   }
 }
 
@@ -46,20 +46,26 @@ export class NotFoundError extends AppError {
   //   new NotFoundError('la nota de evolución')
   constructor(resource, meta) {
     super(resource ? `No se encontró ${resource}` : 'Recurso no encontrado', 404, {
-      error: 'NotFound',
       ...meta,
+      error: 'NotFound',
     })
   }
 }
 
 export class ConflictError extends AppError {
   constructor(message = 'Conflicto', meta) {
-    super(message, 409, { error: 'Conflict', ...meta })
+    super(message, 409, { ...meta, error: 'Conflict' })
   }
 }
 
 export class ValidationError extends AppError {
   constructor(message = 'Datos inválidos', meta) {
-    super(message, 422, { error: 'ValidationError', ...meta })
+    super(message, 422, { ...meta, error: 'ValidationError' })
+  }
+}
+
+export class BadGatewayError extends AppError {
+  constructor(message = 'Error en un servicio externo', meta) {
+    super(message, 502, { ...meta, error: 'BadGateway' })
   }
 }

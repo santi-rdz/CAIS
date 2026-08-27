@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { rec24hFormSchema } from '@schemas/rec24h'
 import { useStepForm } from '@hooks/useStepForm'
@@ -30,7 +31,7 @@ function buildEditDefaults(rec) {
   return {
     ...fillDefaults(REC24H_DEFAULTS, pickObjectivesFromRow(rec)),
     comidas: parseFoods(rec?.rec_24h_comidas),
-    fecha_eval: rec?.fecha_eval ? dayjs(rec.fecha_eval) : dayjs(),
+    fecha_eval: parseDate(rec?.fecha_eval) ?? dayjs(),
   }
 }
 

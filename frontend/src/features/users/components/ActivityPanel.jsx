@@ -3,30 +3,22 @@ import { useSearchParams } from 'react-router-dom'
 import { HiOutlineSquares2X2, HiOutlineListBullet, HiOutlineClock } from 'react-icons/hi2'
 import EmptyState from '@components/EmptyState'
 import Filter from '@ui/Filter'
+import LoadMore from '@components/LoadMore'
 import ActivityCard from '@features/users/components/ActivityCard'
 import { useUserActivity } from '@features/users/hooks/useUserActivity'
+import { buildActivityFilterGroups } from '@lib/activityStyles'
 
-const FILTER_GROUPS = [
-  {
-    label: 'Tipo de actividad',
-    field: 'entidad',
-    options: [
-      { label: 'Nota de evolución', value: 'NOTA_EVOLUCION' },
-      { label: 'Historia médica', value: 'HISTORIA_MEDICA' },
-      { label: 'Paciente', value: 'PACIENTE' },
-      { label: 'Emergencia', value: 'EMERGENCIA' },
-    ],
-  },
-]
-
-export default function ActivityPanel({ userId }) {
+export default function ActivityPanel({ userId, area }) {
   const [layout, setLayout] = useState('list')
   const [searchParams] = useSearchParams()
 
+  const filterGroups = buildActivityFilterGroups(area)
+
   const entidadFilter = searchParams.get('entidad')
-  const { activity, count, isPending } = useUserActivity(userId, {
-    entidad: entidadFilter,
-  })
+  const { activity, count, hasNextPage, fetchNextPage, isFetchingNextPage, isPending } =
+    useUserActivity(userId, {
+      entidad: entidadFilter,
+    })
 
   const filtered = activity
 
@@ -51,7 +43,7 @@ export default function ActivityPanel({ userId }) {
       <div className="mb-5 flex items-center justify-between gap-4">
         <p className="text-5 text-zinc-400">{count} acciones recientes</p>
         <div className="flex items-center gap-2">
-          <Filter groups={FILTER_GROUPS} placeholder="Filtrar actividad" />
+          <Filter groups={filterGroups} placeholder="Filtrar actividad" />
           <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
             <button
               type="button"
@@ -105,6 +97,18 @@ export default function ActivityPanel({ userId }) {
           {filtered.map((activity) => (
             <ActivityCard key={activity.id} activity={activity} layout="grid" />
           ))}
+        </div>
+      )}
+
+      {filtered.length > 0 && (
+        <div className="mt-4">
+          <LoadMore
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+            loaded={filtered.length}
+            count={count}
+          />
         </div>
       )}
     </div>

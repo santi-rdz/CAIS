@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -26,6 +29,7 @@ function formatTpan(t) {
     id: toUUID(t.id),
     historia_paciente_id: toUUID(t.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    fecha_eval: toDateOnly(t.fecha_eval),
     pacientes: historias_pacientes_nutricion?.pacientes,
   }
 }
@@ -34,15 +38,14 @@ function formatMinimal(t) {
   const result = { ...t }
   if ('id' in t) result.id = toUUID(t.id)
   if ('historia_paciente_id' in t) result.historia_paciente_id = toUUID(t.historia_paciente_id)
+  if ('fecha_eval' in t) result.fecha_eval = toDateOnly(t.fecha_eval)
   return result
 }
 
 export class TpanNutritionModel {
   static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -54,9 +57,7 @@ export class TpanNutritionModel {
       prisma.tpan_nutricion.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ fecha_eval: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha_eval: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.tpan_nutricion.count({ where }),
     ])
@@ -74,21 +75,14 @@ export class TpanNutritionModel {
   }
 
   static async create(data, tx = prisma) {
-    const tpanId = randomUUID()
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
+    const { historia_paciente_id, ...rest } = data
     const created = await tx.tpan_nutricion.create({
       include: includeRelations,
       data: {
-        id: uuidToBuffer(tpanId),
-        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
-        ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
-        ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
-        ...(data.observacion !== undefined && { observacion: data.observacion }),
-        ...(data.estandares_com !== undefined && { estandares_com: data.estandares_com }),
-        ...(data.decision !== undefined && { decision: data.decision }),
-        ...(data.problema_iden !== undefined && { problema_iden: data.problema_iden }),
-        ...(data.causa_probl !== undefined && { causa_probl: data.causa_probl }),
-        ...(data.evidencia_probl !== undefined && { evidencia_probl: data.evidencia_probl }),
-        ...(data.progreso !== undefined && { progreso: data.progreso }),
+        ...rest,
+        id: uuidToBuffer(randomUUID()),
+        historia_paciente_id: uuidToBuffer(historia_paciente_id),
       },
     })
     return formatTpan(created)
@@ -108,20 +102,9 @@ export class TpanNutritionModel {
     const existing = await tx.tpan_nutricion.findUnique({ where: { id: uuidToBuffer(id) } })
     if (!existing) throw new NotFoundError('el TPAN')
 
-    await tx.tpan_nutricion.update({
-      where: { id: uuidToBuffer(id) },
-      data: {
-        ...(data.fecha_eval !== undefined && { fecha_eval: data.fecha_eval }),
-        ...(data.eval_realizada !== undefined && { eval_realizada: data.eval_realizada }),
-        ...(data.observacion !== undefined && { observacion: data.observacion }),
-        ...(data.estandares_com !== undefined && { estandares_com: data.estandares_com }),
-        ...(data.decision !== undefined && { decision: data.decision }),
-        ...(data.problema_iden !== undefined && { problema_iden: data.problema_iden }),
-        ...(data.causa_probl !== undefined && { causa_probl: data.causa_probl }),
-        ...(data.evidencia_probl !== undefined && { evidencia_probl: data.evidencia_probl }),
-        ...(data.progreso !== undefined && { progreso: data.progreso }),
-      },
-    })
+    // historia_paciente_id no se actualiza (se descarta del spread).
+    const { historia_paciente_id, ...rest } = data
+    await tx.tpan_nutricion.update({ where: { id: uuidToBuffer(id) }, data: rest })
     return this.getById(id, tx)
   }
 }

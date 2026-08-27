@@ -32,7 +32,7 @@ export async function updateMedicalHistory(id, data) {
 }
 
 export async function getMedicalHistories(paciente_id) {
-  const params = new URLSearchParams({ paciente_id, fields: 'creado_at' })
+  const params = new URLSearchParams({ paciente_id, fields: 'expedida_en' })
   return fetchApi(`/medicina/historias-medicas?${params}`, {
     errorMsg: 'Error al obtener historias médicas',
   })

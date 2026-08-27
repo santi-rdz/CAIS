@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -29,6 +32,10 @@ function formatRec24h(n, paciente_id) {
     ...n,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
+    fecha_eval: toDateOnly(n.fecha_eval),
+    ...(n.rec_24h_comidas && {
+      rec_24h_comidas: n.rec_24h_comidas.map((c) => ({ ...c, fecha: toDateOnly(c.fecha) })),
+    }),
     ...(paciente_id ? { paciente_id } : {}),
   }
 }
@@ -44,18 +51,14 @@ async function getPacienteId(historiaPacienteId, tx) {
 
 export class Rec24hModel {
   static async getAll({ historia_paciente_id, page, limit } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const [recs, total] = await prisma.$transaction([
       prisma.rec_24h_nutricion.findMany({
         where,
         include: includeRelations,
-        orderBy: [{ fecha_eval: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha_eval: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.rec_24h_nutricion.count({ where }),
     ])
@@ -73,6 +76,7 @@ export class Rec24hModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
     const paciente_id = await getPacienteId(data.historia_paciente_id, tx)
     const recId = randomUUID()
 

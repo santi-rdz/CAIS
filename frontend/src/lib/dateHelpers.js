@@ -4,38 +4,41 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
-// Prisma serializa @db.Date como UTC midnight ISO string ('2026-06-24T00:00:00.000Z').
-// Sin corrección, dayjs lo convierte a hora local y retrocede un día en zonas UTC-.
-// Normaliza ambos formatos a 'YYYY-MM-DDT00:00:00' para que dayjs lo lea como local.
-function toLocalParseable(fechaHora) {
-  if (typeof fechaHora !== 'string') return fechaHora
-  if (/^\d{4}-\d{2}-\d{2}$/.test(fechaHora)) return fechaHora + 'T00:00:00'
-  if (/^\d{4}-\d{2}-\d{2}T00:00:00/.test(fechaHora)) return fechaHora.slice(0, 10) + 'T00:00:00'
-  return fechaHora
+// Contrato de fechas con el backend. El formato del wire ya distingue el tipo,
+// por eso el parseo es uniforme; las funciones separadas marcan la intención.
+//   • Fecha-sola (@db.Date): llega como 'YYYY-MM-DD' → parseDate / formatFecha.
+//   • Fecha con hora (@db.DateTime): llega como ISO con offset → parseDateTime /
+//     formatFechaHora.
+export function parseDate(value) {
+  return value ? dayjs(value) : null
+}
+
+export function parseDateTime(value) {
+  return value ? dayjs(value) : null
 }
 
 /** '11 marzo 2026' — para tablas */
-export function formatFecha(fechaHora) {
-  if (!fechaHora) return '---'
-  return dayjs(toLocalParseable(fechaHora)).locale(es).format('DD MMMM YYYY')
+export function formatFecha(value) {
+  if (!value) return '---'
+  return dayjs(value).locale(es).format('DD MMMM YYYY')
 }
 
 /** 'hace 3 días' — recencia para dropdowns y listas compactas */
-export function formatRelativo(fechaHora) {
-  if (!fechaHora) return null
-  return dayjs(toLocalParseable(fechaHora)).locale(es).fromNow()
+export function formatRelativo(value) {
+  if (!value) return null
+  return dayjs(value).locale(es).fromNow()
 }
 
 /** '11 de marzo de 2026' — para vistas de detalle */
-export function formatFechaLong(fechaHora) {
-  if (!fechaHora) return '---'
-  return dayjs(toLocalParseable(fechaHora)).locale(es).format('DD [de] MMMM [de] YYYY')
+export function formatFechaLong(value) {
+  if (!value) return '---'
+  return dayjs(value).locale(es).format('DD [de] MMMM [de] YYYY')
 }
 
 /** '13:25' */
-export function formatHora(fechaHora) {
-  if (!fechaHora) return '---'
-  return dayjs(fechaHora).format('HH:mm')
+export function formatHora(value) {
+  if (!value) return '---'
+  return dayjs(value).format('HH:mm')
 }
 
 /** Combina un dayjs de fecha con uno de hora → ISO con offset para el API */
@@ -43,7 +46,8 @@ export function mergeFechaHora(date, time) {
   return dayjs(date).hour(time.hour()).minute(time.minute()).second(0).format()
 }
 
-export function formatFechaHora(fechaHora) {
-  if (!fechaHora) return '---'
-  return dayjs(fechaHora).locale(es).format('DD MMM YYYY, HH:mm')
+/** '11 mar 2026, 13:25' — fecha con hora */
+export function formatFechaHora(value) {
+  if (!value) return '---'
+  return dayjs(value).locale(es).format('DD MMM YYYY, HH:mm')
 }

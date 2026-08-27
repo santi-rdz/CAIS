@@ -3,10 +3,10 @@ import { formatRelativo } from '@lib/dateHelpers'
 import { formatPhone } from '@lib/utils'
 
 export default function PatientSearchItem({ patient, onSelect }) {
-  const { nombre, apellidos, telefono, correo, actualizado_at } = patient
+  const { nombre, apellidos, telefono, correo, updated_at } = patient
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
   const contact = telefono ? formatPhone(telefono) : correo
-  const relativo = formatRelativo(actualizado_at)
+  const relativo = formatRelativo(updated_at)
 
   return (
     <li>

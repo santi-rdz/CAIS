@@ -268,7 +268,8 @@ describe('PATCH /nutricion/examinacion-fisica/:id', () => {
       .patch(`/nutricion/examinacion-fisica/${examId}`)
       .send({ fecha: '2024-04-01' })
     expect(res.status).toBe(200)
-    expect(res.body.fecha).toBe('2024-04-01T00:00:00.000Z')
+    // fecha es @db.Date → se serializa como 'YYYY-MM-DD' (sin desfase de zona).
+    expect(res.body.fecha).toBe('2024-04-01')
   })
 
   test('200 — actualiza eval_perdida_peso', async () => {

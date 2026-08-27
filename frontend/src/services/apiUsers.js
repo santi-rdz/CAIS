@@ -50,3 +50,10 @@ export async function updateUser(id, data) {
 export async function updateUserEstado(id, estado) {
   return updateUser(id, { estado })
 }
+
+export async function deleteUser(id) {
+  return fetchApi(`/usuarios/${id}`, {
+    method: 'DELETE',
+    errorMsg: 'Error al eliminar usuario',
+  })
+}

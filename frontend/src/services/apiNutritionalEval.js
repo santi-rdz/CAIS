@@ -1,7 +1,8 @@
 import { fetchApi } from '@lib/fetchApi'
 
-export async function getNutritionalEvals(historia_paciente_id) {
-  const params = new URLSearchParams({ historia_paciente_id, limit: 50 })
+export async function getNutritionalEvals(historia_paciente_id, { page = 1, limit } = {}) {
+  const params = new URLSearchParams({ historia_paciente_id, page })
+  if (limit) params.append('limit', limit)
   return fetchApi(`/nutricion/evaluacion-nutricional?${params}`, {
     errorMsg: 'Error al obtener evaluaciones nutricionales',
   })

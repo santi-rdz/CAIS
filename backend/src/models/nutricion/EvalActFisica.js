@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -24,21 +27,20 @@ function formatActFisica(a) {
     id: toUUID(a.id),
     historia_paciente_id: toUUID(a.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    fecha: toDateOnly(a.fecha),
   }
 }
 
 function formatMinimal(a) {
-  const result = { ...a, id: toUUID(a.id) }
+  const result = { ...a, id: toUUID(a.id), fecha: toDateOnly(a.fecha) }
   if ('historia_paciente_id' in a) result.historia_paciente_id = toUUID(a.historia_paciente_id)
   return result
 }
 
 export class EvalActFisicaModel {
   static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -50,9 +52,7 @@ export class EvalActFisicaModel {
       prisma.eval_act_fisica_nutricion.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ fecha: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.eval_act_fisica_nutricion.count({ where }),
     ])
@@ -70,24 +70,14 @@ export class EvalActFisicaModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
+    const { historia_paciente_id, ...rest } = data
     const evaluacionId = randomUUID()
     await tx.eval_act_fisica_nutricion.create({
       data: {
+        ...rest,
         id: uuidToBuffer(evaluacionId),
-        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
-        ...(data.fecha !== undefined && { fecha: data.fecha }),
-        ...(data.tipo !== undefined && { tipo: data.tipo }),
-        ...(data.porque_no !== undefined && { porque_no: data.porque_no }),
-        ...(data.frecuencia !== undefined && { frecuencia: data.frecuencia }),
-        ...(data.duracion !== undefined && { duracion: data.duracion }),
-        ...(data.intensidad !== undefined && { intensidad: data.intensidad }),
-        ...(data.clasif_tiempo_af !== undefined && { clasif_tiempo_af: data.clasif_tiempo_af }),
-        ...(data.tiempo_de_practica !== undefined && {
-          tiempo_de_practica: data.tiempo_de_practica,
-        }),
-        ...(data.pensamientos_con_realizar_AF !== undefined && {
-          pensamientos_con_realizar_AF: data.pensamientos_con_realizar_AF,
-        }),
+        historia_paciente_id: uuidToBuffer(historia_paciente_id),
       },
     })
     return this.getById(evaluacionId, tx)
@@ -109,24 +99,9 @@ export class EvalActFisicaModel {
     })
     if (!existing) throw new NotFoundError('la evaluación de actividad física')
 
-    await tx.eval_act_fisica_nutricion.update({
-      where: { id: uuidToBuffer(id) },
-      data: {
-        ...(data.fecha !== undefined && { fecha: data.fecha }),
-        ...(data.tipo !== undefined && { tipo: data.tipo }),
-        ...(data.porque_no !== undefined && { porque_no: data.porque_no }),
-        ...(data.frecuencia !== undefined && { frecuencia: data.frecuencia }),
-        ...(data.duracion !== undefined && { duracion: data.duracion }),
-        ...(data.intensidad !== undefined && { intensidad: data.intensidad }),
-        ...(data.clasif_tiempo_af !== undefined && { clasif_tiempo_af: data.clasif_tiempo_af }),
-        ...(data.tiempo_de_practica !== undefined && {
-          tiempo_de_practica: data.tiempo_de_practica,
-        }),
-        ...(data.pensamientos_con_realizar_AF !== undefined && {
-          pensamientos_con_realizar_AF: data.pensamientos_con_realizar_AF,
-        }),
-      },
-    })
+    // historia_paciente_id no se actualiza (se descarta del spread).
+    const { historia_paciente_id, ...rest } = data
+    await tx.eval_act_fisica_nutricion.update({ where: { id: uuidToBuffer(id) }, data: rest })
     return this.getById(id, tx)
   }
 }

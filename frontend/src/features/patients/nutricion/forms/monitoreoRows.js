@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import {
   evalCalSuenoSchema,
   evalActFisicaNutricionSchema,
@@ -16,7 +17,7 @@ export const ACT_FISICA_ROW_KEYS = Object.keys(evalActFisicaNutricionSchema.shap
 export function buildMonitoringRow(keys, row) {
   return Object.fromEntries(
     keys.map((k) => {
-      if (k === 'fecha') return ['fecha', row?.fecha ? dayjs(row.fecha) : dayjs()]
+      if (k === 'fecha') return ['fecha', parseDate(row?.fecha) ?? dayjs()]
       return [k, row?.[k] ?? '']
     })
   )

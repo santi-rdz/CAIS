@@ -52,4 +52,7 @@ export const serverConfig = {
   sessionSecret: envValue('SESSION_SECRET') ?? 'dev-secret-change-in-prod',
   sessionCookieSecure,
   trustProxy: isProduction,
+  // Credenciales de la API ICD-11 de la OMS (registro en icd.who.int/icdapi).
+  icdClientId: envValue('ICD_CLIENT_ID'),
+  icdClientSecret: envValue('ICD_CLIENT_SECRET'),
 }

@@ -13,9 +13,9 @@ export const evalPerdidaPesoSchema = z.object({
 
 // signos_vitales_nutricion
 export const signosVitalesNutricionSchema = z.object({
-  tas: num({ max: 300 }),
-  tad: num({ max: 200 }),
-  temperatura: num({ max: 45 }),
+  tas: num({ min: 40, max: 300 }), // presión sistólica, mmHg
+  tad: num({ min: 20, max: 200 }), // presión diastólica, mmHg
+  temperatura: num({ min: 30, max: 45 }), // °C
   dificultad_respiratoria: z.boolean().nullish(),
 })
 

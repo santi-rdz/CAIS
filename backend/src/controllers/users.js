@@ -1,10 +1,12 @@
 import { validateSignup } from '@cais/shared/schemas/users'
-import { ROLES } from '@cais/shared/constants/users'
+import { ROLES, ESTADOS } from '@cais/shared/constants/users'
 import { UserModel } from '#models/UserModel.js'
 import { InvitationModel } from '#models/InvitationModel.js'
 import { prisma } from '#config/prisma.js'
 import { parsePagination } from '#lib/paginate.js'
 import { BCRYPT_ROUNDS } from '#lib/constants.js'
+import { canManageUserAccount } from '#lib/userAccess.js'
+import { ForbiddenError } from '#lib/appError.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '#lib/formatErrors.js'
 
@@ -43,11 +45,23 @@ export class UserController {
   }
 
   static async delete(req, res) {
+    const target = await UserModel.getById(req.params.id)
+    if (!canManageUserAccount(req.session, target)) {
+      throw new ForbiddenError('No tienes permiso para eliminar esta cuenta')
+    }
     await UserModel.delete(req.params.id)
     res.json({ message: 'Usuario borrado exitosamente' })
   }
 
   static async update(req, res) {
+    // La desactivación sigue la jerarquía de roles; el resto del update ya está
+    // acotado por rol (middleware) y área (model).
+    if (req.body.estado === ESTADOS.INACTIVO) {
+      const target = await UserModel.getById(req.params.id)
+      if (!canManageUserAccount(req.session, target)) {
+        throw new ForbiddenError('No tienes permiso para desactivar esta cuenta')
+      }
+    }
     const updatedUser = await UserModel.update(req.params.id, req.body)
     res.json(updatedUser)
   }

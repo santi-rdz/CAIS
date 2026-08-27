@@ -64,7 +64,7 @@ export class StatsModel {
 
   static async #countPacientes(scope, period) {
     return prisma.pacientes.count({
-      where: { ...scope.pacientesFilter, creado_at: { gte: period.since } },
+      where: { ...scope.pacientesFilter, created_at: { gte: period.since } },
     })
   }
 
@@ -118,7 +118,7 @@ export class StatsModel {
           ELSE 3
         END
     `
-    // Always return all 3 buckets so the chart legend is consistent
+    // Devuelve siempre los 3 buckets para que la leyenda de la gráfica sea consistente.
     const buckets = { '< 18': 0, '18 - 59': 0, '>= 60': 0 }
     for (const r of rows) buckets[r.rango] = Number(r.count)
     return Object.entries(buckets).map(([rango, count]) => ({ rango, count }))
@@ -229,8 +229,8 @@ function buildScope({ area, userId, role }) {
       personal: true,
       usuariosFilter: { id: userBuffer },
       sql: () => Prisma.sql`u.id = ${userBuffer}`,
-      pacientesFilter: { pacientes_areas: { some: { doctor_id: userBuffer } } },
-      pacientesSql: Prisma.sql`EXISTS (SELECT 1 FROM pacientes_areas pa WHERE pa.paciente_id = p.id AND pa.doctor_id = ${userBuffer})`,
+      pacientesFilter: { deleted_at: null, pacientes_areas: { some: { doctor_id: userBuffer } } },
+      pacientesSql: Prisma.sql`p.deleted_at IS NULL AND EXISTS (SELECT 1 FROM pacientes_areas pa WHERE pa.paciente_id = p.id AND pa.doctor_id = ${userBuffer})`,
     }
   }
   // El admin no tiene área: ve las stats globales de todas las áreas.
@@ -240,8 +240,8 @@ function buildScope({ area, userId, role }) {
       personal: false,
       usuariosFilter: {},
       sql: () => Prisma.sql`1 = 1`,
-      pacientesFilter: {},
-      pacientesSql: Prisma.sql`1 = 1`,
+      pacientesFilter: { deleted_at: null },
+      pacientesSql: Prisma.sql`p.deleted_at IS NULL`,
     }
   }
   return {
@@ -249,8 +249,8 @@ function buildScope({ area, userId, role }) {
     personal: false,
     usuariosFilter: { areas: { nombre: area } },
     sql: (alias) => Prisma.sql`${Prisma.raw(alias)}.nombre = ${area}`,
-    pacientesFilter: { pacientes_areas: { some: { areas: { nombre: area } } } },
-    pacientesSql: Prisma.sql`EXISTS (SELECT 1 FROM pacientes_areas pa JOIN areas ar ON pa.area_id = ar.id WHERE pa.paciente_id = p.id AND ar.nombre = ${area})`,
+    pacientesFilter: { deleted_at: null, pacientes_areas: { some: { areas: { nombre: area } } } },
+    pacientesSql: Prisma.sql`p.deleted_at IS NULL AND EXISTS (SELECT 1 FROM pacientes_areas pa JOIN areas ar ON pa.area_id = ar.id WHERE pa.paciente_id = p.id AND ar.nombre = ${area})`,
   }
 }
 

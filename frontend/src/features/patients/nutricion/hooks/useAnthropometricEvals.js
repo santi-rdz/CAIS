@@ -1,14 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteList } from '@hooks/useInfiniteList'
 import { getAnthropometricEvals } from '@services/apiAntropometrica'
 
-// Se monta solo al entrar al tab de antropometría (Tab.Panel desmonta los tabs
-// inactivos), así que el fetch no carga la vista inicial del paciente.
 export function useAnthropometricEvals(historiaId) {
-  const { data, isPending, isError, error } = useQuery({
+  return useInfiniteList({
     queryKey: ['antro-list', historiaId],
-    queryFn: () => getAnthropometricEvals(historiaId),
+    queryFn: ({ page, limit }) => getAnthropometricEvals(historiaId, { page, limit }),
+    listKey: 'evals',
     enabled: !!historiaId,
   })
-
-  return { evals: data?.evals ?? [], isPending, isError, error }
 }

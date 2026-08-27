@@ -13,6 +13,7 @@ import { useEvolutionNote } from '@features/patients/medicina/hooks/useEvolution
 import NoteCard from '@features/patients/medicina/components/NoteCard'
 import NoteDetail from '@features/patients/medicina/components/NoteDetail'
 import EmptyState from '@components/EmptyState'
+import LoadMore from '@components/LoadMore'
 import EvolutionNoteForm from '@features/patients/medicina/forms/EvolutionNoteForm/EvolutionNoteForm'
 
 // Notas de evolución de la historia médica seleccionada. Vive dentro del sidebar
@@ -25,7 +26,8 @@ export default function NotesPanel({ historia, patient }) {
   const [noteToEditId, setNoteToEditId] = useState(null)
   const [editingStep, setEditingStep] = useState(0)
 
-  const { notes, isPending } = useEvolutionNotes(historiaId)
+  const { notes, count, hasNextPage, fetchNextPage, isFetchingNextPage, isPending } =
+    useEvolutionNotes(historiaId)
   const [selectedNoteId, setSelectedNoteId] = useUrlState('nota', null)
   const openModalRef = useRef(null)
 
@@ -134,23 +136,32 @@ export default function NotesPanel({ historia, patient }) {
       ) : selectedNoteId && isSelectedPending ? (
         <div className="h-[400px] animate-pulse rounded-xl bg-zinc-100" />
       ) : (
-        <div
-          className={
-            layout === 'grid'
-              ? 'grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3'
-              : 'flex flex-col gap-3'
-          }
-        >
-          {notes.map((note) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onClick={() => setSelectedNoteId(note.id)}
-              onEdit={handleOpenEdit}
-              isSelected={selectedNoteId === note.id}
-              layout={layout}
-            />
-          ))}
+        <div className="space-y-3">
+          <div
+            className={
+              layout === 'grid'
+                ? 'grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-3'
+                : 'flex flex-col gap-3'
+            }
+          >
+            {notes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                onClick={() => setSelectedNoteId(note.id)}
+                onEdit={handleOpenEdit}
+                isSelected={selectedNoteId === note.id}
+                layout={layout}
+              />
+            ))}
+          </div>
+          <LoadMore
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+            loaded={notes.length}
+            count={count}
+          />
         </div>
       )}
     </div>
