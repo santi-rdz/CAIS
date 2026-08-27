@@ -18,7 +18,7 @@ export function useDeletePatient() {
     toast.promise(promise, {
       loading: 'Eliminando paciente...',
       success: 'Paciente eliminado',
-      error: 'No se pudo eliminar el paciente',
+      error: (err) => err?.message ?? 'No se pudo eliminar el paciente',
     })
     return promise
   }

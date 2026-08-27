@@ -73,7 +73,9 @@ export class PatientController {
       }
       // Compartido: solo admin puede el borrado completo.
       if (existing.areas.length > 1 && req.session.role !== ROLES.ADMIN) {
-        throw new ConflictError('El paciente está sincronizado con otra área')
+        throw new ConflictError(
+          'Este paciente está sincronizado con otra área; solo un administrador puede eliminarlo.'
+        )
       }
 
       await PatientModel.delete(id, tx)

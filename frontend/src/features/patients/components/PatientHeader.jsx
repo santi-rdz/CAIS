@@ -10,11 +10,16 @@ import Tag from '@components/Tag'
 import Tab from '@components/Tab'
 import { formatFechaLong } from '@lib/dateHelpers'
 import { formatPhone } from '@lib/utils'
+import { AREA_LABELS } from '@cais/shared/constants/users'
+import usePermissions from '@hooks/usePermissions'
 import MetaChip from '@components/MetaChip'
 import AreaSwitcher from '@features/patients/components/AreaSwitcher'
 
 export default function PatientHeader({ patient, tabs, areas = [], activeArea, onAreaChange }) {
   const { nombre, apellidos, fecha_nacimiento, genero, es_externo, correo, telefono, nss } = patient
+  const { isAdmin, area } = usePermissions()
+
+  const otherAreas = (patient.areas ?? []).filter((a) => a !== area)
 
   const fullName = [nombre, apellidos].filter(Boolean).join(' ')
   const telDigits = telefono ? String(telefono).replace(/\D/g, '').slice(0, 10) : ''
@@ -50,6 +55,11 @@ export default function PatientHeader({ patient, tabs, areas = [], activeArea, o
                 Externo
               </Tag>
             )}
+            {!isAdmin && otherAreas.length > 0 && (
+              <span className="text-6 inline-flex items-center rounded-full border border-zinc-300 px-3 py-1 font-medium text-zinc-600">
+                También es paciente en {otherAreas.map((a) => AREA_LABELS[a] ?? a).join(' y ')}
+              </span>
+            )}
           </div>
           {subtitle && <p className="text-5 mt-1 text-zinc-400">{subtitle}</p>}
           {(correo || telDigits || nss) && (
@@ -80,11 +90,11 @@ export default function PatientHeader({ patient, tabs, areas = [], activeArea, o
         </div>
       </div>
 
-      {areas.length > 1 && (
+      {isAdmin && areas.length > 0 && (
         <AreaSwitcher areas={areas} activeArea={activeArea} onChange={onAreaChange} />
       )}
 
-      <Tab.List className={areas.length > 1 ? 'mt-3' : 'mt-5'}>
+      <Tab.List className={isAdmin && areas.length > 0 ? 'mt-3' : 'mt-5'}>
         {tabs.map((tab) => (
           <Tab.Trigger key={tab.value} value={tab.value}>
             <span className="inline-flex items-center justify-center gap-1.5">
