@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { tpanFormSchema } from '@schemas/tpan'
 import { useStepForm } from '@hooks/useStepForm'
@@ -26,7 +27,7 @@ function buildEditDefaults(tpan) {
   return {
     ...fillDefaults(TPAN_DEFAULTS, tpan),
     progreso: progresoToField(tpan?.progreso),
-    fecha_eval: tpan?.fecha_eval ? dayjs(tpan.fecha_eval) : dayjs(),
+    fecha_eval: parseDate(tpan?.fecha_eval) ?? dayjs(),
   }
 }
 

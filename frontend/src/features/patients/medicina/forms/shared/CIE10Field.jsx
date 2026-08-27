@@ -4,11 +4,12 @@ import { HiMagnifyingGlass, HiXMark } from 'react-icons/hi2'
 import Input from '@components/Input'
 import DropdownPanel from '@components/DropdownPanel'
 import useDropdownPosition from '@hooks/useDropdownPosition'
-import { CIE10_DATA } from '@features/patients/medicina/forms/shared/cie10Data'
+import useIcd11Search from '@features/patients/medicina/hooks/useIcd11Search'
 
 export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
   const { control } = useFormContext()
   const [query, setQuery] = useState('')
+  const { results, isLoading, isError } = useIcd11Search(query)
   const { triggerRef, isOpen, positionStyle, open, close } = useDropdownPosition(320)
 
   function openPanel() {
@@ -22,15 +23,6 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
       control={control}
       render={({ field: { value: selected = [], onChange } }) => {
         const selectedCodigos = selected.map((c) => c.codigo)
-
-        const filtered =
-          query.trim().length >= 1
-            ? CIE10_DATA.filter(
-                (c) =>
-                  c.codigo.toLowerCase().includes(query.toLowerCase()) ||
-                  c.descripcion.toLowerCase().includes(query.toLowerCase())
-              ).slice(0, 8)
-            : []
 
         function handleSelect(code) {
           if (!selectedCodigos.includes(code.codigo)) onChange([...selected, code])
@@ -80,8 +72,14 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
                 }}
                 className="overflow-hidden p-1.5"
               >
-                {filtered.length > 0 ? (
-                  filtered.map((code) => (
+                {isLoading ? (
+                  <p className="px-3 py-2.5 text-sm text-zinc-400">Buscando...</p>
+                ) : isError ? (
+                  <p className="px-3 py-2.5 text-sm text-red-500">
+                    Error al conectar con la API de CIE-11
+                  </p>
+                ) : results.length > 0 ? (
+                  results.map((code) => (
                     <button
                       key={code.codigo}
                       type="button"
@@ -131,7 +129,7 @@ export default function CIE10Field({ name = 'planes_estudio.cie10_codes' }) {
 
             {selected.length === 0 && (
               <p className="text-xs text-zinc-400">
-                Código ICD-10 — selecciona todos los diagnósticos correspondientes
+                Código CIE-11 — selecciona todos los diagnósticos correspondientes
               </p>
             )}
           </div>

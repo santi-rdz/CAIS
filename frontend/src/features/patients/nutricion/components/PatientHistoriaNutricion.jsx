@@ -1,4 +1,6 @@
-import { HiOutlineClipboardDocumentList, HiOutlineSparkles } from 'react-icons/hi2'
+import { HiOutlineClipboardDocumentList, HiOutlineSparkles, HiOutlinePlus } from 'react-icons/hi2'
+import Modal from '@components/Modal'
+import Button from '@components/Button'
 import { usePatientHistoria } from '@features/patients/hooks/usePatientHistoria'
 import PatientHistoriaShell from '@features/patients/components/PatientHistoriaShell'
 import { useNutritionHistories } from '@features/patients/nutricion/hooks/useNutritionHistories'
@@ -28,6 +30,19 @@ import {
 // HISTORIA_STEPS = STEPS.slice(1): 0=Historia Médica, 1=Tratamiento, 2=Adicciones, 3=Sueño, 4=AF
 const TAB_TO_STEP = { enfermedades: 0, tratamientos: 1, adicciones: 2, sueno: 3, af: 4 }
 
+// CTA del estado vacío: abre la modal de editar historia. initialStep ya
+// corresponde a la tab activa (via TAB_TO_STEP), así que cae en el paso correcto.
+function AddToHistoriaCta({ label }) {
+  return (
+    <Modal.Open opens="edit-history">
+      <Button variant="secondary" size="sm" className="gap-1.5">
+        <HiOutlinePlus size={13} strokeWidth={2.5} />
+        {label}
+      </Button>
+    </Modal.Open>
+  )
+}
+
 const TABS = [
   {
     group: 'Historia',
@@ -46,6 +61,7 @@ const TABS = [
             rows={historia.historias_medicas_nutricion}
             emptyMessage="Sin enfermedades registradas."
             emptyIcon={<HiOutlineClipboardDocumentList size={24} />}
+            emptyAction={<AddToHistoriaCta label="Agregar enfermedad" />}
           />
         </div>
       </div>
@@ -63,6 +79,7 @@ const TABS = [
           rows={historia.tratamiento_alt_nutricion}
           emptyMessage="Sin tratamientos alternativos registrados."
           emptyIcon={<HiOutlineSparkles size={24} />}
+          emptyAction={<AddToHistoriaCta label="Agregar tratamiento" />}
         />
       </div>
     ),

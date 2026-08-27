@@ -13,6 +13,7 @@ import { medicineRouter } from '#routes/medicine.js'
 import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { statsRouter } from '#routes/stats.js'
+import { icd11Router } from '#routes/icd11.js'
 import { AppError } from '#lib/appError.js'
 import { prismaErrorToAppError } from '#lib/prismaError.js'
 
@@ -55,16 +56,11 @@ app.use('/pacientes', patientRouter)
 app.use('/medicina', medicineRouter)
 app.use('/nutricion', nutritionRouter)
 app.use('/stats', statsRouter)
+app.use('/icd11', icd11Router)
 
-// Error middleware central. Express 5 reenvía aquí cualquier throw/rejection de
-// los handlers async, así que los controllers no necesitan su propio try/catch:
-// lanzan (o dejan propagar) y esto arma la respuesta.
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err)
 
-  // AppError de dominio (lanzado por el model/service) o su traducción desde un
-  // código Prisma que se escapó de un guard (red de seguridad). `meta` va primero
-  // para que nunca pise los campos fijos error/message.
   const appError = err instanceof AppError ? err : prismaErrorToAppError(err)
   if (appError) {
     return res.status(appError.statusCode).json({

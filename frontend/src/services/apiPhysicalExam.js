@@ -1,7 +1,8 @@
 import { fetchApi } from '@lib/fetchApi'
 
-export async function getPhysicalExams(historia_paciente_id) {
-  const params = new URLSearchParams({ historia_paciente_id, limit: 50 })
+export async function getPhysicalExams(historia_paciente_id, { page = 1, limit } = {}) {
+  const params = new URLSearchParams({ historia_paciente_id, page })
+  if (limit) params.append('limit', limit)
   return fetchApi(`/nutricion/examinacion-fisica?${params}`, {
     errorMsg: 'Error al obtener exámenes físicos',
   })

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import {
   toUUID,
@@ -10,6 +11,10 @@ import {
   buildNestedRelations,
 } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
+import { toDateOnly, withDateOnly } from '#lib/dates.js'
+
+// Fechas de vacunación (@db.Timestamp) — se emiten como fecha-sola.
+const INMUNIZACION_DATES = ['influenza', 'tetanos', 'hepatitis_b', 'covid_19']
 
 const includeRelations = {
   usuarios: { select: { nombre: true, foto: true } },
@@ -26,7 +31,7 @@ const includeRelations = {
 const selectBasic = {
   id: true,
   paciente_id: true,
-  creado_at: true,
+  expedida_en: true,
 }
 
 const NESTED_RELATIONS = [
@@ -46,6 +51,8 @@ function formatMedicalHistory(n) {
     ...rest,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
+    expedida_en: toDateOnly(n.expedida_en),
+    inmunizaciones: withDateOnly(n.inmunizaciones, INMUNIZACION_DATES),
 
     usuario_id: n.usuario_id ? toUUID(n.usuario_id) : null,
     planes_estudio: planes_estudio
@@ -64,17 +71,15 @@ function formatMedicalHistory(n) {
 }
 
 function formatMinimal(n) {
-  const result = { ...n, id: toUUID(n.id) }
+  const result = { ...n, id: toUUID(n.id), expedida_en: toDateOnly(n.expedida_en) }
   if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
   return result
 }
 
 export class MedicalHistoryModel {
   static async getAll({ paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { deleted_at: null }
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -86,9 +91,7 @@ export class MedicalHistoryModel {
       prisma.historias_medicas.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ creado_at: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ expedida_en: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.historias_medicas.count({ where }),
     ])
@@ -97,8 +100,8 @@ export class MedicalHistoryModel {
   }
 
   static async getById(id, tx = prisma) {
-    const history = await tx.historias_medicas.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const history = await tx.historias_medicas.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!history) throw new NotFoundError('la historia médica')
@@ -108,20 +111,15 @@ export class MedicalHistoryModel {
   static async create(data, userId, tx = prisma) {
     const historyId = randomUUID()
 
+    const { paciente_id, planes_estudio, ...rest } = data
     await tx.historias_medicas.create({
       data: {
+        ...rest,
         id: uuidToBuffer(historyId),
-        paciente_id: uuidToBuffer(data.paciente_id),
+        paciente_id: uuidToBuffer(paciente_id),
         usuario_id: uuidToBuffer(userId),
-        creado_at: data.creado_at,
-        tipo_sangre: data.tipo_sangre,
-        vacunas_infancia_completas: data.vacunas_infancia_completas,
-        motivo_consulta: data.motivo_consulta,
-        historia_enfermedad_actual: data.historia_enfermedad_actual,
         ...buildNestedRelations(data, NESTED_RELATIONS, nestedCreate),
-        ...(data.planes_estudio && {
-          planes_estudio: planesEstudioCreate(data.planes_estudio),
-        }),
+        ...(planes_estudio && { planes_estudio: planesEstudioCreate(planes_estudio) }),
       },
     })
 
@@ -129,33 +127,32 @@ export class MedicalHistoryModel {
   }
 
   static async delete(id, tx = prisma) {
-    const existing = await tx.historias_medicas.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const existing = await tx.historias_medicas.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!existing) throw new NotFoundError('la historia médica')
-    await tx.historias_medicas.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.historias_medicas.update({
+      where: { id: uuidToBuffer(id) },
+      data: { deleted_at: new Date() },
+    })
     return formatMedicalHistory(existing)
   }
 
   static async update(id, data, userId, tx = prisma) {
-    const existing = await tx.historias_medicas.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.historias_medicas.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('la historia médica')
 
+    // paciente_id no se actualiza (se descarta del spread).
+    const { paciente_id, planes_estudio, ...rest } = data
     await tx.historias_medicas.update({
       where: { id: uuidToBuffer(id) },
       data: {
-        ...(data.creado_at !== undefined && {
-          creado_at: data.creado_at,
-        }),
-        tipo_sangre: data.tipo_sangre,
-        vacunas_infancia_completas: data.vacunas_infancia_completas,
-        motivo_consulta: data.motivo_consulta,
-        historia_enfermedad_actual: data.historia_enfermedad_actual,
+        ...rest,
         ...buildNestedRelations(data, NESTED_RELATIONS, nestedUpsert),
-        ...(data.planes_estudio && {
-          planes_estudio: planesEstudioUpsert(data.planes_estudio),
-        }),
+        ...(planes_estudio && { planes_estudio: planesEstudioUpsert(planes_estudio) }),
       },
     })
     return this.getById(id, tx)

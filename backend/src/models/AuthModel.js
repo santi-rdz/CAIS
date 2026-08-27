@@ -4,8 +4,8 @@ import { BadRequestError } from '#lib/appError.js'
 
 export class AuthModel {
   static async findByEmail(correo) {
-    return prisma.usuarios.findUnique({
-      where: { correo },
+    return prisma.usuarios.findFirst({
+      where: { correo, deleted_at: null },
       select: {
         id: true,
         correo: true,
@@ -20,8 +20,8 @@ export class AuthModel {
   }
 
   static async findSessionUser(userId) {
-    return prisma.usuarios.findUnique({
-      where: { id: uuidToBuffer(userId) },
+    return prisma.usuarios.findFirst({
+      where: { id: uuidToBuffer(userId), deleted_at: null },
       select: {
         id: true,
         nombre: true,
@@ -34,8 +34,8 @@ export class AuthModel {
   }
 
   static async findByIdWithHash(userId) {
-    return prisma.usuarios.findUnique({
-      where: { id: uuidToBuffer(userId) },
+    return prisma.usuarios.findFirst({
+      where: { id: uuidToBuffer(userId), deleted_at: null },
       select: { id: true, password_hash: true },
     })
   }
@@ -87,6 +87,13 @@ export class AuthModel {
   static async findResetToken(token) {
     return prisma.password_reset_tokens.findUnique({
       where: { token: AuthModel.tokenToBuffer(token) },
+    })
+  }
+
+  static async findResetTokenWithUser(token) {
+    return prisma.password_reset_tokens.findUnique({
+      where: { token: AuthModel.tokenToBuffer(token) },
+      include: { usuarios: { select: { correo: true } } },
     })
   }
 

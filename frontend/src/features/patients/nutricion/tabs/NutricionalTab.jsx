@@ -11,7 +11,7 @@ const CONFIG = {
   urlParam: 'nutrEval',
   itemProp: 'evaluation',
   useList: useNutritionalEvals,
-  listKey: 'evaluations',
+  listKey: 'evals',
   useItem: useNutritionalEval,
   itemKey: 'evaluation',
   useDelete: useDeleteNutritionalEval,

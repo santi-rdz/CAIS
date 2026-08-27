@@ -1,43 +1,75 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { HiOutlineTrash } from 'react-icons/hi2'
 
 import Modal from '@components/Modal'
 import DangerConfirm from '@components/DangerConfirm'
 import Tab from '@components/Tab'
 import usePermissions from '@hooks/usePermissions'
+import { useUrlState } from '@hooks/useUrlState'
 import { usePatient } from '@features/patients/hooks/usePatient'
 import { useDeletePatient } from '@features/patients/hooks/useDeletePatient'
 import PatientActionBar from '@features/patients/components/PatientActionBar'
 import PatientHeader from '@features/patients/components/PatientHeader'
 import PatientSkeleton from '@features/patients/components/PatientSkeleton'
-import { getPatientArea } from '@features/patients/patientAreaRegistry'
+import {
+  getPatientAreaConfigs,
+  collectAreaScopedParams,
+} from '@features/patients/patientAreaRegistry'
 
 export default function PatientDetail() {
   const { patient, isPending } = usePatient()
   const { deletePatient, isDeleting } = useDeletePatient()
-  const { area } = usePermissions()
+  const { area: userArea, isAdmin } = usePermissions()
   const navigate = useNavigate()
-  const { tabs, editForm } = getPatientArea(area)
-  const paramGroups = useMemo(
-    () => Object.fromEntries(tabs.map((t) => [t.value, t.ownedParams ?? []])),
-    [tabs]
+  const [, setSearchParams] = useSearchParams()
+
+  // Admin ve todas las áreas del paciente; el resto solo la suya.
+  const areaConfigs = useMemo(
+    () => getPatientAreaConfigs(isAdmin ? patient?.areas : userArea ? [userArea] : []),
+    [isAdmin, patient?.areas, userArea]
   )
 
+  const [urlArea] = useUrlState('areaVista', areaConfigs[0]?.area)
+  const activeConfig = areaConfigs.find((c) => c.area === urlArea) ?? areaConfigs[0]
+
+  const paramGroups = useMemo(
+    () => Object.fromEntries((activeConfig?.tabs ?? []).map((t) => [t.value, t.ownedParams ?? []])),
+    [activeConfig]
+  )
+
+  function handleAreaChange(area) {
+    const scoped = collectAreaScopedParams(areaConfigs)
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        scoped.forEach((p) => next.delete(p))
+        next.set('areaVista', area)
+        return next
+      },
+      { replace: true }
+    )
+  }
+
   if (isPending) return <PatientSkeleton />
-  if (!patient) return null
+  if (!patient || !activeConfig) return null
 
   const { id } = patient
+  const fullName = [patient.nombre, patient.apellidos].filter(Boolean).join(' ')
+  const { tabs, editForm } = activeConfig
 
   return (
     <Modal>
       <div className="space-y-5">
-        <PatientActionBar
-          patientName={[patient.nombre, patient.apellidos].filter(Boolean).join(' ')}
-          isDeleting={isDeleting}
-        />
-        <Tab defaultTab={tabs[0]?.value} syncUrl paramGroups={paramGroups}>
-          <PatientHeader patient={patient} tabs={tabs} />
+        <PatientActionBar patientName={fullName} isDeleting={isDeleting} />
+        <Tab key={activeConfig.area} defaultTab={tabs[0]?.value} syncUrl paramGroups={paramGroups}>
+          <PatientHeader
+            patient={patient}
+            tabs={tabs}
+            areas={areaConfigs}
+            activeArea={activeConfig.area}
+            onAreaChange={handleAreaChange}
+          />
           <div className="mt-4 space-y-4">
             {tabs.map((tab) => (
               <Tab.Panel key={tab.value} value={tab.value} scrollable={false}>
@@ -60,7 +92,11 @@ export default function PatientDetail() {
       >
         <DangerConfirm
           title="Eliminar paciente"
-          description="¿Estás seguro? Esta acción no se puede deshacer."
+          description={
+            <>
+              ¿Estás seguro de borrar a <span className="font-medium">{fullName}</span>?
+            </>
+          }
           confirmLabel="Eliminar"
           onConfirm={() => deletePatient(id).then(() => navigate('/pacientes'))}
           isPending={isDeleting}

@@ -1,14 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteList } from '@hooks/useInfiniteList'
 import { getTpans } from '@services/apiTpan'
 
-// Se monta solo al entrar al tab de TPAN (Tab.Panel desmonta los tabs
-// inactivos), así que el fetch no carga la vista inicial del paciente.
 export function useTpans(historiaId) {
-  const { data, isPending, isError, error } = useQuery({
+  return useInfiniteList({
     queryKey: ['tpan-list', historiaId],
-    queryFn: () => getTpans(historiaId),
+    queryFn: ({ page, limit }) => getTpans(historiaId, { page, limit }),
+    listKey: 'tpans',
     enabled: !!historiaId,
   })
-
-  return { tpans: data?.tpans ?? [], isPending, isError, error }
 }

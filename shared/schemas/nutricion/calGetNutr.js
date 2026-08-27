@@ -14,7 +14,7 @@ const calGetNutrObjectSchema = z.object({
   // inputs de la fórmula rápida. El GET, los gramos objetivo y el balance se
   // derivan de estos valores + las cantidades de EQ.
   peso: num({ min: 0, max: 500 }),
-  estatura: num({ min: 0, max: 250 }),
+  estatura: num({ min: 20, max: 250 }),
   kcal_kg: num({ min: 0, max: 100 }),
   proteina_g_kg: num({ min: 0, max: 10 }),
   hc_porcentaje: num({ min: 0, max: 100 }),

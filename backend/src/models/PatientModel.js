@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { formatDefs } from '#lib/formatDef.js'
+import { buildListArgs, buildSearchWhere } from '#lib/queryFeatures.js'
+import { PATIENT_SEARCH_FIELDS } from '#lib/searchFields.js'
 import {
   PATIENT_SORT_DEFS,
   SIMILAR_PATIENT_THRESHOLD,
@@ -9,9 +11,10 @@ import {
 } from '@cais/shared/constants/patients'
 import { NotFoundError, ConflictError } from '#lib/appError.js'
 import { normalizeName, nameSimilarity } from '#lib/similarity.js'
+import { toDateOnly } from '#lib/dates.js'
 
 const includeRelations = {
-  pacientes_areas: { select: { area_id: true } },
+  pacientes_areas: { select: { areas: { select: { nombre: true } } } },
 }
 
 const SORT_OPTIONS = formatDefs(PATIENT_SORT_DEFS)
@@ -23,43 +26,27 @@ function formatPatient(u) {
     ...rest,
     id: bufferToUUID(u.id),
     doctor_id: bufferToUUID(u.doctor_id),
-    areas: pacientes_areas.map((pa) => pa.area_id),
+    fecha_nacimiento: toDateOnly(u.fecha_nacimiento),
+    areas: pacientes_areas.map((pa) => pa.areas.nombre),
   }
 }
 
 export class PatientModel {
   static async getAll({ sortBy, search, page, limit, genre, areaId }) {
-    const where = {}
-
-    if (areaId != null) {
-      where.pacientes_areas = { some: { area_id: areaId } }
+    const where = {
+      deleted_at: null,
+      ...(areaId != null && { pacientes_areas: { some: { area_id: areaId } } }),
+      ...(genre && { genero: genre }),
+      ...buildSearchWhere(search, PATIENT_SEARCH_FIELDS),
     }
 
-    if (search) {
-      const tokens = search.trim().split(/\s+/).filter(Boolean)
-      where.AND = tokens.map((token) => ({
-        OR: [
-          { nombre: { contains: token } },
-          { apellidos: { contains: token } },
-          { telefono: { contains: token } },
-        ],
-      }))
-    }
-
-    const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { creado_at: 'desc' }
-
-    if (genre) {
-      where.genero = genre
-    }
-    const offset = (page - 1) * limit
+    const orderBy = sortBy && SORT_OPTIONS[sortBy] ? SORT_OPTIONS[sortBy] : { created_at: 'desc' }
 
     const [patients, total] = await prisma.$transaction([
       prisma.pacientes.findMany({
         where,
         include: includeRelations,
-        orderBy,
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy }),
       }),
       prisma.pacientes.count({ where }),
     ])
@@ -68,8 +55,8 @@ export class PatientModel {
   }
 
   static async getById(id, tx = prisma) {
-    const patient = await tx.pacientes.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const patient = await tx.pacientes.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!patient) throw new NotFoundError('el paciente')
@@ -77,26 +64,32 @@ export class PatientModel {
   }
 
   static async delete(id, tx = prisma) {
-    const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.pacientes.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('el paciente')
-    await tx.pacientes.delete({ where: { id: uuidToBuffer(id) } })
+    await tx.pacientes.update({
+      where: { id: uuidToBuffer(id) },
+      data: { deleted_at: new Date() },
+    })
   }
 
   static async update(id, data, tx = prisma) {
-    const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.pacientes.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('el paciente')
 
-    await tx.pacientes.update({
-      where: { id: uuidToBuffer(id) },
-      data: { ...data, actualizado_at: new Date() },
-    })
+    await tx.pacientes.update({ where: { id: uuidToBuffer(id) }, data })
     return this.getById(id, tx)
   }
 
+  // Bump de updated_at (@updatedAt) cuando cambia un hijo del paciente.
+  // updateMany + deleted_at:null → no-op si el paciente está soft-deleted.
   static async touch(id, tx = prisma) {
-    await tx.pacientes.update({
-      where: { id: uuidToBuffer(id) },
-      data: { actualizado_at: new Date() },
+    await tx.pacientes.updateMany({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+      data: {},
     })
   }
 
@@ -121,6 +114,7 @@ export class PatientModel {
   static async findSimilar({ nombre, apellidos, fecha_nacimiento, genero, excludeAreaId }) {
     const candidates = await prisma.pacientes.findMany({
       where: {
+        deleted_at: null,
         fecha_nacimiento,
         genero,
         // Debe pertenecer a alguna área pero no a la del solicitante (excluye
@@ -146,7 +140,7 @@ export class PatientModel {
         id: bufferToUUID(c.id),
         nombre: c.nombre,
         apellidos: c.apellidos,
-        fecha_nacimiento: c.fecha_nacimiento,
+        fecha_nacimiento: toDateOnly(c.fecha_nacimiento),
         genero: c.genero,
         areas: c.pacientes_areas.map((pa) => pa.areas.nombre),
         score: nameSimilarity(target, normalizeName(`${c.nombre} ${c.apellidos}`)),
@@ -159,7 +153,9 @@ export class PatientModel {
   // Datos complementarios al sincronizar: solo escribe campos que la ficha
   // existente tiene vacíos — nunca sobrescribe lo capturado por la otra área.
   static async fillMissing(id, data, tx = prisma) {
-    const existing = await tx.pacientes.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await tx.pacientes.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('el paciente')
 
     const missing = {}
@@ -173,13 +169,16 @@ export class PatientModel {
 
     await tx.pacientes.update({
       where: { id: uuidToBuffer(id) },
-      data: { ...missing, actualizado_at: new Date() },
+      data: missing,
     })
   }
 
   static async addArea(id, areaId, userId, tx = prisma) {
     const idBuffer = uuidToBuffer(id)
-    const exists = await tx.pacientes.findUnique({ where: { id: idBuffer }, select: { id: true } })
+    const exists = await tx.pacientes.findFirst({
+      where: { id: idBuffer, deleted_at: null },
+      select: { id: true },
+    })
     if (!exists) throw new NotFoundError('el paciente')
 
     const already = await tx.pacientes_areas.findUnique({

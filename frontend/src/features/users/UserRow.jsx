@@ -13,14 +13,14 @@ import {
 } from 'react-icons/hi2'
 import useResendInvitation from '@features/users/hooks/useResendInvitation'
 import useDeleteInvitation from '@features/users/hooks/useDeleteInvitation'
+import useDeleteUser from '@features/users/hooks/useDeleteUser'
 import useToggleUserEstado from '@features/users/hooks/useToggleUserEstado'
 import usePermissions from '@hooks/usePermissions'
 import Can from '@components/Can'
-import { PERMISSIONS } from '@lib/permissions'
+import { PERMISSIONS, canManageUserAccount } from '@lib/permissions'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
 import { useNavigate } from 'react-router-dom'
-import { HiArrowRight } from 'react-icons/hi2'
 
 export default function UserRow({ user }) {
   const {
@@ -46,6 +46,7 @@ export default function UserRow({ user }) {
 
   const { resendInvitation, isResending } = useResendInvitation()
   const { deleteInvitation, isDeleting: isDeletingInvitation } = useDeleteInvitation()
+  const { deleteUser, isDeleting: isDeletingUser } = useDeleteUser()
   const { toggleEstado, isPending: isTogglingEstado } = useToggleUserEstado()
 
   const isInactive = status === 'inactivo'
@@ -53,6 +54,7 @@ export default function UserRow({ user }) {
   const navigate = useNavigate()
   const isCurrentUser = userId === id
   const showedName = isCurrentUser ? `Tú` : fullName
+  const canManage = canManageUserAccount(me, user)
 
   return (
     <Table.Row
@@ -60,19 +62,6 @@ export default function UserRow({ user }) {
       onClick={!isPending ? () => navigate(`/usuarios/${id}`) : undefined}
       data-testid={`user-row-${id}`}
     >
-      {!isPending && (
-        <>
-          <span className="pointer-events-none absolute inset-y-0 right-0 w-48 bg-gradient-to-l from-blue-50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <span className="pointer-events-none absolute inset-y-0 right-16 flex translate-x-2 items-center opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
-            <span className="text-6 flex items-center gap-1.5 rounded-full bg-blue-800 px-3 py-1.5 font-medium text-white shadow-sm">
-              Ver detalles
-              <span className="animate-nudge-x">
-                <HiArrowRight size={11} />
-              </span>
-            </span>
-          </span>
-        </>
-      )}
       <PersonCell
         name={showedName}
         secondary={email}
@@ -137,7 +126,7 @@ export default function UserRow({ user }) {
             />
           </Modal.Content>
         </Modal>
-      ) : (
+      ) : canManage ? (
         <Modal>
           <RowActionsMenu data-testid={`row-menu-${email}`}>
             <Modal.Open opens="toggle-estado">
@@ -152,6 +141,18 @@ export default function UserRow({ user }) {
               >
                 {isInactive ? <HiLockOpen size={16} /> : <HiLockClosed size={16} />}
                 {isInactive ? 'Activar usuario' : 'Desactivar usuario'}
+              </Button>
+            </Modal.Open>
+            <Modal.Open opens="delete-user">
+              <Button
+                variant="ghost"
+                size="md"
+                className="w-full justify-start text-nowrap text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={(e) => e.stopPropagation()}
+                data-testid="delete-user-btn"
+              >
+                <HiOutlineTrash size={16} />
+                Eliminar usuario
               </Button>
             </Modal.Open>
           </RowActionsMenu>
@@ -175,7 +176,28 @@ export default function UserRow({ user }) {
               isPending={isTogglingEstado}
             />
           </Modal.Content>
+
+          <Modal.Content
+            name="delete-user"
+            noPadding
+            variant="alert"
+            icon={<HiOutlineTrash size={26} />}
+          >
+            <DangerConfirm
+              title="Eliminar usuario"
+              description={
+                <>
+                  ¿Estás seguro de borrar a <span className="font-medium">{fullName}</span>?
+                </>
+              }
+              confirmLabel="Eliminar"
+              onConfirm={() => deleteUser(id)}
+              isPending={isDeletingUser}
+            />
+          </Modal.Content>
         </Modal>
+      ) : (
+        <div />
       )}
     </Table.Row>
   )

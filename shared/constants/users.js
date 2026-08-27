@@ -4,6 +4,13 @@ export const ROLES = {
   ADMIN: 'ADMIN',
 }
 
+// Jerarquía de roles: solo se puede desactivar/eliminar cuentas de rango menor.
+export const ROLE_RANK = {
+  [ROLES.PASANTE]: 1,
+  [ROLES.COORDINADOR]: 2,
+  [ROLES.ADMIN]: 3,
+}
+
 export const AREAS = {
   MEDICINA: 'MEDICINA',
   NUTRICION: 'NUTRICION',

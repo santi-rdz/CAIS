@@ -57,7 +57,7 @@ export default function BioqCard({ evaluation, onView, onEdit, onDelete }) {
         <div className="flex min-w-0 items-center gap-1.5">
           <HiOutlineBeaker size={15} className="shrink-0 text-teal-500" />
           <time className="text-6 truncate font-semibold tracking-wide text-zinc-600 uppercase">
-            {formatFecha(evaluation.fecha ?? evaluation.creado_at)}
+            {formatFecha(evaluation.fecha ?? evaluation.created_at)}
           </time>
         </div>
         <span className="text-7 shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 font-medium text-zinc-500">

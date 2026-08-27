@@ -1,7 +1,8 @@
 import { fetchApi } from '@lib/fetchApi'
 
-export async function getCalGetNutrs(historia_paciente_id) {
-  const params = new URLSearchParams({ historia_paciente_id, limit: 50 })
+export async function getCalGetNutrs(historia_paciente_id, { page = 1, limit } = {}) {
+  const params = new URLSearchParams({ historia_paciente_id, page })
+  if (limit) params.append('limit', limit)
   return fetchApi(`/nutricion/cal-get-nutr?${params}`, {
     errorMsg: 'Error al obtener los cálculos de GET nutricional',
   })

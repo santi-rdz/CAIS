@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { patientSchema } from '@cais/shared/schemas/medicina/patient'
+import { parseDate } from '@lib/dateHelpers'
 import { omitEmpty, nullifyEmpty } from '@lib/utils'
 import { DEFAULT_VALUES } from '@features/patients/medicina/forms/MedicalPatientForm/formConfig'
 
@@ -29,7 +30,7 @@ export function splitFormData(rawData) {
     aparatos_sistemas,
     informacion_fisica,
     planes_estudio,
-    creado_at,
+    expedida_en,
     motivo_consulta,
     historia_enfermedad_actual,
     tipo_sangre,
@@ -40,7 +41,7 @@ export function splitFormData(rawData) {
   const patientData = { ...patientFields }
 
   const historyData = {
-    ...(creado_at && { creado_at }),
+    ...(expedida_en && { expedida_en }),
     ...(tipo_sangre && { tipo_sangre }),
     ...(vacunas_infancia_completas != null && { vacunas_infancia_completas }),
     ...(motivo_consulta && { motivo_consulta }),
@@ -100,22 +101,18 @@ function fillDefaults(defaults, source) {
   return result
 }
 
-function toDayjsOrNull(value) {
-  return value ? dayjs(value) : null
-}
-
 export function buildEditDefaults(patient, historia) {
   const source = {
     ...patient,
-    fecha_nacimiento: toDayjsOrNull(patient.fecha_nacimiento),
+    fecha_nacimiento: parseDate(patient.fecha_nacimiento),
     ...historia,
-    creado_at: historia.creado_at ? dayjs(historia.creado_at) : dayjs(),
+    expedida_en: parseDate(historia.expedida_en) ?? dayjs(),
     inmunizaciones: {
       ...historia.inmunizaciones,
-      influenza: toDayjsOrNull(historia.inmunizaciones?.influenza),
-      tetanos: toDayjsOrNull(historia.inmunizaciones?.tetanos),
-      hepatitis_b: toDayjsOrNull(historia.inmunizaciones?.hepatitis_b),
-      covid_19: toDayjsOrNull(historia.inmunizaciones?.covid_19),
+      influenza: parseDate(historia.inmunizaciones?.influenza),
+      tetanos: parseDate(historia.inmunizaciones?.tetanos),
+      hepatitis_b: parseDate(historia.inmunizaciones?.hepatitis_b),
+      covid_19: parseDate(historia.inmunizaciones?.covid_19),
     },
     planes_estudio: {
       ...historia.planes_estudio,

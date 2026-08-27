@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { nutritionalEvalFormSchema } from '@schemas/nutritionalEval'
 import { useStepForm } from '@hooks/useStepForm'
@@ -51,7 +52,7 @@ function buildEditDefaults(evaluation) {
   return {
     ...filled,
     horarios_comida_nutricion: horarios,
-    fecha: evaluation?.fecha ? dayjs(evaluation.fecha) : dayjs(),
+    fecha: parseDate(evaluation?.fecha) ?? dayjs(),
   }
 }
 

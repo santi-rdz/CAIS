@@ -6,6 +6,7 @@ import Button from '@components/Button'
 import Heading from '@components/Heading'
 import EmptyState from '@components/EmptyState'
 import DangerConfirm from '@components/DangerConfirm'
+import LoadMore from '@components/LoadMore'
 
 // Tab de un recurso con endpoint propio: lista + detalle + form cargados por id
 // (no embebidos en la historia), así el fetch ocurre solo al montar el tab
@@ -163,16 +164,25 @@ export default function EndpointEvalTab({ historia, patient, config }) {
               hint={messages.emptyHint}
             />
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
-              {items.map((item) => (
-                <Card
-                  key={item.id}
-                  {...itemPropFor(item)}
-                  onView={(row) => setSelectedId(row.id)}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteRequest}
-                />
-              ))}
+            <div className="space-y-3">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+                {items.map((item) => (
+                  <Card
+                    key={item.id}
+                    {...itemPropFor(item)}
+                    onView={(row) => setSelectedId(row.id)}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteRequest}
+                  />
+                ))}
+              </div>
+              <LoadMore
+                hasNextPage={list.hasNextPage}
+                isFetchingNextPage={list.isFetchingNextPage}
+                onLoadMore={list.fetchNextPage}
+                loaded={items.length}
+                count={list.count}
+              />
             </div>
           )}
         </div>

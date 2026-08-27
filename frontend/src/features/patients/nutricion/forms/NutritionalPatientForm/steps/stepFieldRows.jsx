@@ -1,28 +1,8 @@
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { HiOutlineTrash, HiOutlineArrowUturnLeft } from 'react-icons/hi2'
-import SegmentedToggle from '@components/SegmentedToggle'
 
 // Primitivos compartidos por los steps de relaciones one-to-many
 // (HistoriaMedicaStep y TratamientoAlternativoStep).
-
-export function ToggleSiNo({ name, control, onSelectSi, ariaLabel = 'Selector sí o no' }) {
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <SegmentedToggle
-          value={field.value}
-          ariaLabel={ariaLabel}
-          onChange={(v) => {
-            field.onChange(v)
-            if (v === 'si') onSelectSi?.()
-          }}
-        />
-      )}
-    />
-  )
-}
 
 // Borrado con restauración: marca/desmarca la fila en vez de quitarla del form.
 export function DeleteButton({ isDeleted = false, onClick }) {

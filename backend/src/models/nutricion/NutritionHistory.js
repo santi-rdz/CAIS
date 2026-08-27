@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import {
   toUUID,
@@ -10,6 +11,7 @@ import {
   manyReplace,
 } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
+import { toDateOnly } from '#lib/dates.js'
 
 // ─── Relaciones a incluir en queries completas ───────────────────────────────
 
@@ -49,6 +51,7 @@ function formatChildIds(row) {
     ...row,
     id: toUUID(row.id),
     historia_paciente_id: toUUID(row.historia_paciente_id),
+    fecha: toDateOnly(row.fecha),
   }
 }
 
@@ -58,6 +61,7 @@ function formatNutritionHistory(n) {
     ...n,
     id: toUUID(n.id),
     paciente_id: toUUID(n.paciente_id),
+    fecha_ingreso: toDateOnly(n.fecha_ingreso),
     ...(n.eval_cal_sueno && { eval_cal_sueno: n.eval_cal_sueno.map(formatChildIds) }),
     ...(n.eval_act_fisica_nutricion && {
       eval_act_fisica_nutricion: n.eval_act_fisica_nutricion.map(formatChildIds),
@@ -66,7 +70,7 @@ function formatNutritionHistory(n) {
 }
 
 function formatMinimal(n) {
-  const result = { ...n, id: toUUID(n.id) }
+  const result = { ...n, id: toUUID(n.id), fecha_ingreso: toDateOnly(n.fecha_ingreso) }
   if ('paciente_id' in n) result.paciente_id = toUUID(n.paciente_id)
   return result
 }
@@ -75,10 +79,8 @@ function formatMinimal(n) {
 
 export class NutritionHistoryModel {
   static async getAll({ paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { deleted_at: null }
     if (paciente_id) where.paciente_id = uuidToBuffer(paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -90,9 +92,7 @@ export class NutritionHistoryModel {
       prisma.historias_pacientes_nutricion.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ fecha_ingreso: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha_ingreso: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.historias_pacientes_nutricion.count({ where }),
     ])
@@ -101,8 +101,8 @@ export class NutritionHistoryModel {
   }
 
   static async getById(id, tx = prisma) {
-    const history = await tx.historias_pacientes_nutricion.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const history = await tx.historias_pacientes_nutricion.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!history) throw new NotFoundError('la historia de nutrición')
@@ -126,27 +126,28 @@ export class NutritionHistoryModel {
     return this.getById(historyId, tx)
   }
 
-  // Todas las hijas (adicciones, historias_medicas_nutricion, eval_*, tratamiento,
-  // eval_bioq, eval_nutr, tpan, exam_fis) guardan historia_paciente_id con
-  // ON DELETE CASCADE → un delete plano las arrastra. Se lee antes con include
-  // para devolver el payload completo.
+  // Soft delete: marca deleted_at y conserva las hijas (no cascadea). Se lee
+  // antes con include para devolver el payload completo.
   static async delete(id, tx = prisma) {
     const idBuffer = uuidToBuffer(id)
 
-    const history = await tx.historias_pacientes_nutricion.findUnique({
-      where: { id: idBuffer },
+    const history = await tx.historias_pacientes_nutricion.findFirst({
+      where: { id: idBuffer, deleted_at: null },
       include: includeRelations,
     })
     if (!history) throw new NotFoundError('la historia de nutrición')
 
-    await tx.historias_pacientes_nutricion.delete({ where: { id: idBuffer } })
+    await tx.historias_pacientes_nutricion.update({
+      where: { id: idBuffer },
+      data: { deleted_at: new Date() },
+    })
 
     return formatNutritionHistory(history)
   }
 
   static async update(id, data, tx = prisma) {
-    const existing = await tx.historias_pacientes_nutricion.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const existing = await tx.historias_pacientes_nutricion.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
     })
     if (!existing) throw new NotFoundError('la historia de nutrición')
 

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { calGetNutrFormSchema } from '@schemas/calGetNutr'
 import { useStepForm } from '@hooks/useStepForm'
@@ -28,7 +29,7 @@ function getCreateDefaults() {
 function buildEditDefaults(registro) {
   return {
     ...fillDefaults(CAL_GET_NUTR_DEFAULTS, registro),
-    fecha_eval: registro?.fecha_eval ? dayjs(registro.fecha_eval) : dayjs(),
+    fecha_eval: parseDate(registro?.fecha_eval) ?? dayjs(),
   }
 }
 

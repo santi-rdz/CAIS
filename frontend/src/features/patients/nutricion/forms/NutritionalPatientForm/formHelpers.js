@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { patientSchema } from '@cais/shared/schemas/medicina/patient'
+import { parseDate } from '@lib/dateHelpers'
 import { omitEmpty, nullifyEmpty } from '@lib/utils'
 import { DEFAULT_VALUES } from '@features/patients/nutricion/forms/NutritionalPatientForm/formConfig'
 import {
@@ -69,21 +70,19 @@ function buildAdicciones(adicciones) {
   return out
 }
 
-// Keys que NO pertenecen al paciente: campos de la historia + flags solo-UI.
+// Keys que NO pertenecen al paciente: campos de la historia.
 const HISTORY_KEYS = new Set([
   'historias_medicas_nutricion',
   'tratamiento_alt_nutricion',
   'adicciones',
   'fecha_ingreso',
   'motivo_consulta',
-  'presenta_enfermedad',
-  'presenta_tratamiento',
   'eval_cal_sueno',
   'eval_act_fisica_nutricion',
 ])
 
 // Divide el form data en lo que pertenece al paciente vs la historia de
-// nutrición. Los flags presenta_* son solo-UI y se descartan.
+// nutrición.
 export function splitFormData(rawData) {
   const patientFields = {}
   for (const [key, value] of Object.entries(rawData)) {
@@ -125,8 +124,6 @@ export function splitFormData(rawData) {
 // ─── Edición: dirty fields → payload de update ────────────────────────────────
 
 const PATIENT_KEYS = new Set(Object.keys(patientSchema.shape))
-// Flags solo-UI (no son columnas) que nunca viajan al backend.
-const UI_FLAGS = new Set(['presenta_enfermedad', 'presenta_tratamiento'])
 
 // Separa los campos modificados en paciente vs historia. Si cambia cualquier
 // fila de una relación one-to-many, se envía la sección completa para que el
@@ -138,7 +135,6 @@ export function splitDirtyData(dirty, fullData) {
   const dirtyHistory = {}
 
   for (const key of Object.keys(dirty)) {
-    if (UI_FLAGS.has(key)) continue
     if (PATIENT_KEYS.has(key)) dirtyPatient[key] = dirty[key]
     else dirtyHistory[key] = dirty[key]
   }
@@ -227,16 +223,14 @@ export function buildEditDefaults(
   for (const key of Object.keys(DEFAULT_VALUES)) {
     if (key in patient) patientFields[key] = patient[key] ?? DEFAULT_VALUES[key]
   }
-  const parsedFechaNacimiento = patient.fecha_nacimiento ? dayjs(patient.fecha_nacimiento) : null
+  const parsedFechaNacimiento = parseDate(patient.fecha_nacimiento)
 
   return {
     ...DEFAULT_VALUES,
     ...patientFields,
     fecha_nacimiento: parsedFechaNacimiento?.isValid() ? parsedFechaNacimiento : null,
     motivo_consulta: historia.motivo_consulta ?? '',
-    presenta_enfermedad: enfermedades.length ? 'si' : 'no',
     historias_medicas_nutricion: enfermedades,
-    presenta_tratamiento: tratamientos.length ? 'si' : 'no',
     tratamiento_alt_nutricion: tratamientos,
     adicciones: patientOnly
       ? { ...DEFAULT_VALUES.adicciones }

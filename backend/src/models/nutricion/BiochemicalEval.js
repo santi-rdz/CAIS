@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, nestedCreate, nestedUpsert, buildNestedRelations } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -22,7 +25,7 @@ const selectBasic = {
   id: true,
   historia_paciente_id: true,
   fecha: true,
-  creado_at: true,
+  created_at: true,
 }
 
 const NESTED_RELATIONS = [
@@ -42,7 +45,7 @@ const RELATION_PRESENCE_SELECT = Object.fromEntries(
   NESTED_RELATIONS.map((key) => [key, { select: { id_eval_bioq: true } }])
 )
 
-const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
+const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'created_at'])
 
 function formatNested(obj) {
   if (!obj) return null
@@ -56,8 +59,8 @@ function formatBiochemicalEval(n) {
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
     paciente_id: toUUID(n.historias_pacientes_nutricion?.paciente_id),
-    fecha: n.fecha,
-    creado_at: n.creado_at,
+    fecha: toDateOnly(n.fecha),
+    created_at: n.created_at,
     perfil_anemia_nutricion: formatNested(n.perfil_anemia_nutricion),
     perfil_endocrino: formatNested(n.perfil_endocrino),
     perfil_renal_electrolitos: formatNested(n.perfil_renal_electrolitos),
@@ -70,7 +73,7 @@ function formatBiochemicalEval(n) {
 }
 
 function formatMinimal(n) {
-  const result = { ...n, id: toUUID(n.id) }
+  const result = { ...n, id: toUUID(n.id), fecha: toDateOnly(n.fecha) }
   if ('historia_paciente_id' in n) result.historia_paciente_id = toUUID(n.historia_paciente_id)
   for (const key of NESTED_RELATIONS) {
     if (key in n) result[key] = Boolean(n[key])
@@ -80,10 +83,8 @@ function formatMinimal(n) {
 
 export class BiochemicalEvalModel {
   static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const invalidFields = fields?.filter((f) => !ALLOWED_FIELDS.has(f))
     if (invalidFields?.length) {
@@ -105,9 +106,7 @@ export class BiochemicalEvalModel {
       prisma.eval_bioq_nutricion.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ creado_at: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ created_at: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.eval_bioq_nutricion.count({ where }),
     ])
@@ -125,6 +124,7 @@ export class BiochemicalEvalModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
     const evaluationId = randomUUID()
 
     await tx.eval_bioq_nutricion.create({

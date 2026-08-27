@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { parseDate } from '@lib/dateHelpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { eenFormSchema } from '@schemas/eenReport'
 import { useStepForm } from '@hooks/useStepForm'
@@ -36,7 +37,7 @@ function getCreateDefaults(esAdulto) {
 
 function buildEditDefaults(reporte, esAdulto) {
   const base = fillDefaults(buildEenDefaults(esAdulto), reporte)
-  base.fecha_eval = reporte?.fecha_eval ? dayjs(reporte.fecha_eval) : dayjs()
+  base.fecha_eval = parseDate(reporte?.fecha_eval) ?? dayjs()
   if (esAdulto) {
     base.diagnosticos = Array.isArray(reporte?.diagnosticos) ? reporte.diagnosticos : []
   } else {

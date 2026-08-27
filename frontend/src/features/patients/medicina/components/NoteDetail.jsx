@@ -21,11 +21,11 @@ export default function NoteDetail({ note, onBack, onEdit }) {
     aparatos_sistemas,
     informacion_fisica,
     usuarios,
-    creado_at,
+    expedida_en,
   } = note
 
-  const date = formatFecha(creado_at)
-  const hour = formatHora(creado_at)
+  const date = formatFecha(expedida_en)
+  const hour = formatHora(expedida_en)
   const doctorName = usuarios?.nombre
   const doctorPhoto = usuarios?.foto
 

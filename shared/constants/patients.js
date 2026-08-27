@@ -24,12 +24,12 @@ export const PATIENT_SORT_DEFS = [
   { key: PATIENT_SORT_KEYS.NOMBRE_DESC, field: 'nombre', dir: 'desc' },
   {
     key: PATIENT_SORT_KEYS.ACTUALIZACION_ASC,
-    field: 'actualizado_at',
+    field: 'updated_at',
     dir: 'asc',
   },
   {
     key: PATIENT_SORT_KEYS.ACTUALIZACION_DESC,
-    field: 'actualizado_at',
+    field: 'updated_at',
     dir: 'desc',
   },
   {

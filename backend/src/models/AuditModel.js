@@ -2,6 +2,7 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { validateAuditCreate } from '@cais/shared/schemas/audit'
 import { parsePagination } from '#lib/paginate.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { NotFoundError } from '#lib/appError.js'
 
 const includeRelations = {
@@ -54,15 +55,11 @@ export class AuditModel {
       where.paciente_id = uuidToBuffer(paciente_id)
     }
 
-    const offset = (safePage - 1) * safeLimit
-
     const [records, total] = await prisma.$transaction([
       prisma.registro_auditoria.findMany({
         where,
         include: includeRelations,
-        orderBy: { fecha_hora: 'desc' },
-        skip: offset,
-        take: safeLimit,
+        ...buildListArgs({ page: safePage, limit: safeLimit, orderBy: { fecha_hora: 'desc' } }),
       }),
       prisma.registro_auditoria.count({ where }),
     ])

@@ -1,10 +1,6 @@
 /**
  * @file Tests de integración para el cálculo de GET nutricional.
  *
- * A diferencia de las demás tablas de nutrición, `cal_get_nutr.id` es
- * INT AUTO_INCREMENT (no UUID/BINARY) — por eso la ruta usa /:id(\d+) y los
- * 404 se prueban con un id numérico inexistente, no con el UUID nulo.
- *
  * Además de los campos crudos, cada registro devuelve `total_kcal`,
  * `total_proteinas`, `total_grasas` y `total_carbohidratos`, calculados por
  * la Prisma Client Extension (ver lib/calGetNutrExtension.js) a partir de
@@ -16,6 +12,7 @@ import request from 'supertest'
 import app from '#app'
 import { prisma } from '#config/prisma.js'
 import { uuidToBuffer } from '#lib/uuid.js'
+import { NIL_UUID } from './helpers/constants.js'
 import { authenticatedCoordinador } from './helpers/agents.js'
 import { createTestPaciente } from './helpers/db.js'
 import { createCleanupTracker } from './helpers/cleanup.js'
@@ -104,7 +101,7 @@ describe('GET /nutricion/cal-get-nutr', () => {
   test('200 — filtra por historia_paciente_id', async () => {
     const created = await agent.post('/nutricion/cal-get-nutr').send(buildMinimal())
     expect(created.status).toBe(201)
-    tracker.track('cal_get_nutr', created.body.registro.id)
+    tracker.track('cal_get_nutr', uuidToBuffer(created.body.registro.id))
 
     const res = await agent.get(`/nutricion/cal-get-nutr?historia_paciente_id=${historiaId}`)
     expect(res.status).toBe(200)
@@ -117,7 +114,7 @@ describe('GET /nutricion/cal-get-nutr', () => {
 
 describe('GET /nutricion/cal-get-nutr/:id', () => {
   test('404 — registro no existe', async () => {
-    const res = await agent.get('/nutricion/cal-get-nutr/999999999')
+    const res = await agent.get(`/nutricion/cal-get-nutr/${NIL_UUID}`)
     expect(res.status).toBe(404)
     expect(res.body).toHaveProperty('message')
   })
@@ -155,7 +152,7 @@ describe('POST /nutricion/cal-get-nutr', () => {
     expect(r.total_grasas).toBe(0)
     expect(r.total_carbohidratos).toBe(0)
 
-    tracker.track('cal_get_nutr', r.id)
+    tracker.track('cal_get_nutr', uuidToBuffer(r.id))
   })
 
   test('201 — crea registro y calcula los totales correctamente', async () => {
@@ -169,7 +166,7 @@ describe('POST /nutricion/cal-get-nutr', () => {
     expect(r.total_grasas).toBe(TOTALES_ESPERADOS.grasas)
     expect(r.total_carbohidratos).toBe(TOTALES_ESPERADOS.carbohidratos)
 
-    tracker.track('cal_get_nutr', r.id)
+    tracker.track('cal_get_nutr', uuidToBuffer(r.id))
   })
 })
 
@@ -180,7 +177,7 @@ describe('PATCH /nutricion/cal-get-nutr/:id', () => {
     const res = await agent.post('/nutricion/cal-get-nutr').send(buildCompleto())
     registroId = res.body.registro?.id
     if (!registroId) throw new Error(`No se pudo crear registro para PATCH. status=${res.status}`)
-    tracker.track('cal_get_nutr', registroId)
+    tracker.track('cal_get_nutr', uuidToBuffer(registroId))
   })
 
   test('200 — actualiza una cantidad y recalcula los totales', async () => {
@@ -202,7 +199,7 @@ describe('PATCH /nutricion/cal-get-nutr/:id', () => {
   })
 
   test('404 — registro no existe', async () => {
-    const res = await agent.patch('/nutricion/cal-get-nutr/999999999').send({ verdura: 5 })
+    const res = await agent.patch(`/nutricion/cal-get-nutr/${NIL_UUID}`).send({ verdura: 5 })
     expect(res.status).toBe(404)
   })
 })
@@ -214,11 +211,11 @@ describe('DELETE /nutricion/cal-get-nutr/:id', () => {
     const res = await agent.post('/nutricion/cal-get-nutr').send(buildCompleto())
     registroId = res.body.registro?.id
     if (!registroId) throw new Error(`No se pudo crear registro para DELETE. status=${res.status}`)
-    tracker.track('cal_get_nutr', registroId)
+    tracker.track('cal_get_nutr', uuidToBuffer(registroId))
   })
 
   test('404 — registro no existe', async () => {
-    const res = await agent.delete('/nutricion/cal-get-nutr/999999999')
+    const res = await agent.delete(`/nutricion/cal-get-nutr/${NIL_UUID}`)
     expect(res.status).toBe(404)
   })
 
@@ -230,7 +227,9 @@ describe('DELETE /nutricion/cal-get-nutr/:id', () => {
     const check = await agent.get(`/nutricion/cal-get-nutr/${registroId}`)
     expect(check.status).toBe(404)
 
-    const enDb = await prisma.cal_get_nutr.findUnique({ where: { id: registroId } })
+    const enDb = await prisma.cal_get_nutr.findUnique({
+      where: { id: uuidToBuffer(registroId) },
+    })
     expect(enDb).toBeNull()
   })
 })

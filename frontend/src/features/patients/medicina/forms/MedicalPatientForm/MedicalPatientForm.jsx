@@ -59,7 +59,7 @@ export default function MedicalPatientForm({
   const defaultValues = isEdit
     ? buildEditDefaults(patient, historia ?? {})
     : isClone
-      ? { ...buildEditDefaults(patient, cloneHistoria), creado_at: dayjs() }
+      ? { ...buildEditDefaults(patient, cloneHistoria), expedida_en: dayjs() }
       : getDefaultValues()
 
   const skipPatientStep = isClone || (isEdit && historiaOnly)

@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID, nestedCreate, manyCreate, manyReplace } from '#lib/prismaHelpers.js'
 import { NotFoundError } from '#lib/appError.js'
@@ -36,6 +39,7 @@ function formatExamFis(e) {
     id: toUUID(e.id),
     historia_paciente_id: toUUID(e.historia_paciente_id),
     paciente_id: toUUID(historias_pacientes_nutricion?.paciente_id),
+    fecha: toDateOnly(e.fecha),
     pacientes: historias_pacientes_nutricion?.pacientes,
     eval_sintomas_gastroin_nutricion: e.eval_sintomas_gastroin_nutricion?.map((item) => ({
       ...item,
@@ -45,7 +49,7 @@ function formatExamFis(e) {
 }
 
 function formatMinimal(e) {
-  const result = { ...e, id: toUUID(e.id) }
+  const result = { ...e, id: toUUID(e.id), fecha: toDateOnly(e.fecha) }
   if ('historia_paciente_id' in e) result.historia_paciente_id = toUUID(e.historia_paciente_id)
   return result
 }
@@ -54,10 +58,8 @@ function formatMinimal(e) {
 
 export class PhysicalExaminationModel {
   static async getAll({ historia_paciente_id, page, limit, fields } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const queryOptions = {
       select: fields
@@ -69,9 +71,7 @@ export class PhysicalExaminationModel {
       prisma.exam_fis_orien_nutricion.findMany({
         where,
         ...queryOptions,
-        orderBy: [{ fecha: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.exam_fis_orien_nutricion.count({ where }),
     ])
@@ -89,6 +89,7 @@ export class PhysicalExaminationModel {
   }
 
   static async create(data, tx = prisma) {
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
     const examId = randomUUID()
 
     await tx.exam_fis_orien_nutricion.create({

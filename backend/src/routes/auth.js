@@ -1,7 +1,7 @@
 import express from 'express'
 import { AuthController } from '#controllers/auth.js'
 import { requireAuth } from '#middleware/auth.js'
-import { validate } from '#middleware/validate.js'
+import { validate, validateUuidParam } from '#middleware/validate.js'
 import { validateLogin, validateForgotPassword } from '@cais/shared/schemas/auth'
 import { validateChangePassword, validatePasswordReset } from '@cais/shared/schemas/password'
 import {
@@ -17,8 +17,6 @@ authRouter.post('/login', loginRateLimiter, validate(validateLogin), AuthControl
 authRouter.get('/me', requireAuth, AuthController.me)
 authRouter.post('/logout', AuthController.logout)
 
-// ─── Contraseña desde configuración (usuario autenticado) ──────────────────
-// PATCH /auth/password  { currentPassword, password, confirmPassword }
 authRouter.patch(
   '/password',
   requireAuth,
@@ -27,13 +25,20 @@ authRouter.patch(
 )
 
 // ─── Flujo "olvidé mi contraseña" (sin sesión) ─────────────────────────────
-// POST /auth/password/forgot   { correo }
-// POST /auth/password/reset    { token, password, confirmPassword }
+// POST /auth/password/forgot     { correo }
+// GET  /auth/password/reset/:token
+// POST /auth/password/reset      { token, password, confirmPassword }
 authRouter.post(
   '/password/forgot',
   forgotPasswordRateLimiter,
   validate(validateForgotPassword),
   AuthController.requestPasswordReset
+)
+authRouter.get(
+  '/password/reset/:token',
+  resetPasswordRateLimiter,
+  validateUuidParam('token'),
+  AuthController.getResetTokenInfo
 )
 authRouter.post(
   '/password/reset',

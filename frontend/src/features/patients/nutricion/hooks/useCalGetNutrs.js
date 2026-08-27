@@ -1,14 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteList } from '@hooks/useInfiniteList'
 import { getCalGetNutrs } from '@services/apiCalGetNutr'
 
-// Se monta solo al entrar al tab (Tab.Panel desmonta los inactivos), así que el
-// fetch no carga la vista inicial del paciente.
 export function useCalGetNutrs(historiaId) {
-  const { data, isPending, isError, error } = useQuery({
+  return useInfiniteList({
     queryKey: ['cal-get-nutr-list', historiaId],
-    queryFn: () => getCalGetNutrs(historiaId),
+    queryFn: ({ page, limit }) => getCalGetNutrs(historiaId, { page, limit }),
+    listKey: 'registros',
     enabled: !!historiaId,
   })
-
-  return { registros: data?.registros ?? [], isPending, isError, error }
 }

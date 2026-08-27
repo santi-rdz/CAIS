@@ -28,7 +28,7 @@ export default function ExamFisDetail({ exam, onBack, onEdit, onDelete }) {
           </button>
           <span className="text-zinc-300">/</span>
           <span className="text-5 font-semibold text-zinc-700">
-            {formatFecha(exam.fecha ?? exam.creado_at)}
+            {formatFecha(exam.fecha ?? exam.created_at)}
           </span>
         </div>
         <div className="flex items-center gap-2">

@@ -78,7 +78,7 @@ export default function PatientHistoria({ patient }) {
   const state = usePatientHistoria({
     useHistories: useMedicalHistories,
     useHistory: useMedicalHistory,
-    periodField: 'creado_at',
+    periodField: 'expedida_en',
     tabToStep: TAB_TO_STEP,
     // Las notas viven en el sidebar de la historia: al cambiar de período hay
     // que soltar la nota/tab seleccionados (podrían no existir en el otro).

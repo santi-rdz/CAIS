@@ -28,7 +28,7 @@ export default function UserInfoPanel({ user }) {
     cedula,
     inicio_servicio,
     fin_servicio,
-    creado_at,
+    created_at,
     ultimo_acceso,
     rol,
   } = user
@@ -80,7 +80,7 @@ export default function UserInfoPanel({ user }) {
         <DataField
           icon={<HiOutlineClock size={14} />}
           label="Miembro desde"
-          value={creado_at ? formatFechaLong(creado_at) : null}
+          value={created_at ? formatFechaLong(created_at) : null}
         />
         <DataField
           icon={<HiOutlineClock size={14} />}

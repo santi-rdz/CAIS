@@ -20,14 +20,23 @@ const routeMeta = {
     title: 'Crear cuenta',
     subtitle: 'Completa tu registro para acceder al sistema.',
   },
+  '/recuperar-contrasena': {
+    title: 'Restablecer contraseña',
+    subtitle: 'Ingresa tu correo institucional y te enviaremos un enlace para restablecerla.',
+  },
+}
+
+function resolveMeta(path) {
+  // El token vive en la URL (/restablecer-contrasena/:token), por eso se matchea
+  // por prefijo en lugar de por ruta exacta.
+  if (path.startsWith('/restablecer-contrasena'))
+    return { title: 'Crea una nueva contraseña', subtitle: 'Debe ser diferente a la anterior.' }
+  return routeMeta[path] ?? { title: 'Registrarme', subtitle: 'Completa tu registro.' }
 }
 
 function Main() {
   const path = useLocation().pathname
-  const { title, subtitle } = routeMeta[path] ?? {
-    title: 'Registrarme',
-    subtitle: 'Completa tu registro.',
-  }
+  const { title, subtitle } = resolveMeta(path)
   return (
     <main className="space-y-10">
       <header>

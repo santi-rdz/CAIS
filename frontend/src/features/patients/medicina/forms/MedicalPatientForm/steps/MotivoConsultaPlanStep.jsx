@@ -23,11 +23,11 @@ export default function MotivoConsultaPlanStep() {
 
       <FormRow label="Fecha de la Historia" className="w-1/2" required>
         <DatePickerComponent
-          name="creado_at"
+          name="expedida_en"
           control={control}
           birthdate={false}
           label="DD/MM/AAAA"
-          hasError={errors?.creado_at?.message}
+          hasError={errors?.expedida_en?.message}
           maxDate={dayjs()}
           rules={{
             required: 'Ingresa la fecha de la historia',

@@ -19,7 +19,7 @@ export const aparatosSistemasSchema = z.object({
 export const informacionFisicaSchema = z
   .object({
     peso: num({ max: 500 }),
-    altura: num({ max: 300 }),
+    altura: num({ min: 20, max: 250 }), // cm
     pa_sistolica: int({ max: 300 }),
     pa_diastolica: int({ max: 200 }),
     fc: int({ max: 300 }),

@@ -1,5 +1,5 @@
 import { HiOutlineClipboardDocument, HiOutlineIdentification } from 'react-icons/hi2'
-import { AREAS } from '@cais/shared/constants/users'
+import { AREAS, AREA_LABELS } from '@cais/shared/constants/users'
 import PersonalDataPanel from '@features/patients/components/PersonalDataPanel'
 import PatientHistoria from '@features/patients/medicina/components/PatientHistoria'
 import MedicalPatientForm from '@features/patients/medicina/forms/MedicalPatientForm/MedicalPatientForm'
@@ -52,7 +52,21 @@ const PATIENT_AREA = {
   },
 }
 
-// Devuelve la config del área del usuario; fallback a medicina.
-export function getPatientArea(area) {
-  return PATIENT_AREA[area] ?? PATIENT_AREA[AREAS.MEDICINA]
+const AREA_ORDER = [AREAS.MEDICINA, AREAS.NUTRICION]
+
+// Config de detalle de las áreas dadas, en orden canónico.
+export function getPatientAreaConfigs(areaNames = []) {
+  const set = new Set(areaNames)
+  return AREA_ORDER.filter((area) => set.has(area)).map((area) => ({
+    area,
+    label: AREA_LABELS[area],
+    ...PATIENT_AREA[area],
+  }))
+}
+
+// Params de URL propios de un área; se limpian al cambiar de área.
+export function collectAreaScopedParams(configs) {
+  const params = new Set(['historia'])
+  configs.forEach((c) => c.tabs.forEach((t) => (t.ownedParams ?? []).forEach((p) => params.add(p))))
+  return [...params]
 }

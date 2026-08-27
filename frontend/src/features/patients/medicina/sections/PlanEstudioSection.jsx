@@ -18,7 +18,7 @@ export default function PlanEstudioSection({ plan }) {
       <SubSection title="Plan y tratamiento">
         <FieldsSection fields={planFields} cols={1} />
       </SubSection>
-      <SubSection title="Diagnóstico (CIE-10)">
+      <SubSection title="Diagnóstico (CIE-11)">
         <BadgeList items={cieBadges} />
       </SubSection>
     </div>

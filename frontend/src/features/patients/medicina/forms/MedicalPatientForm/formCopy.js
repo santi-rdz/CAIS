@@ -19,14 +19,14 @@ export function getFormCopy({
   if (isEdit) {
     return {
       title: historiaOnly ? 'Editar Historia Médica' : 'Editar Paciente',
-      subtitle: historiaOnly ? formatFecha(historia.creado_at) : undefined,
+      subtitle: historiaOnly ? formatFecha(historia.expedida_en) : undefined,
       submitLabel: historiaOnly ? 'Actualizar historia' : 'Actualizar paciente',
     }
   }
   if (isClone) {
     return {
       title: 'Nueva Historia Médica',
-      subtitle: formatFecha(cloneHistoria.creado_at),
+      subtitle: formatFecha(cloneHistoria.expedida_en),
       description:
         'Se tomó la historia más reciente como base. Modifica los campos necesarios antes de guardar.',
       submitLabel: 'Crear historia',

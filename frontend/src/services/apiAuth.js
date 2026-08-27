@@ -29,6 +29,47 @@ export async function logout() {
   })
 }
 
+export async function requestPasswordReset({ correo }) {
+  const res = await fetch(`${BASE_URL}/auth/password/forgot`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ correo }),
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.message || body.error || 'Error al solicitar el restablecimiento')
+  }
+
+  return await res.json()
+}
+
+export async function getResetTokenInfo(token) {
+  const res = await fetch(`${BASE_URL}/auth/password/reset/${token}`)
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.message || body.error || 'Token inválido o expirado')
+  }
+
+  return await res.json()
+}
+
+export async function resetPassword({ token, password, confirmPassword }) {
+  const res = await fetch(`${BASE_URL}/auth/password/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, password, confirmPassword }),
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.message || body.error || 'Error al restablecer la contraseña')
+  }
+
+  return await res.json()
+}
+
 export async function changePassword(data) {
   const res = await fetch(`${BASE_URL}/auth/password`, {
     method: 'PATCH',

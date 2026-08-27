@@ -1,7 +1,8 @@
 import { fetchApi } from '@lib/fetchApi'
 
-export async function getEvolutionNotes(historia_medica_id) {
-  const params = new URLSearchParams({ historia_medica_id, limit: 50 })
+export async function getEvolutionNotes(historia_medica_id, { page = 1, limit } = {}) {
+  const params = new URLSearchParams({ historia_medica_id, page })
+  if (limit) params.append('limit', limit)
   return fetchApi(`/medicina/notas-evolucion?${params}`, {
     errorMsg: 'Error al obtener notas de evolución',
   })

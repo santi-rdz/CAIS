@@ -107,7 +107,7 @@ model pacientes_areas {
   paciente_id Bytes     @db.Binary(16)
   area_id     Int
   doctor_id   Bytes     @db.Binary(16)
-  creado_at   DateTime? @default(now()) @db.DateTime(0)
+  created_at  DateTime? @default(now()) @db.DateTime(0)
   pacientes   pacientes @relation(fields: [paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pa_paciente")
   areas       areas     @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pa_area")
   usuarios    usuarios  @relation(fields: [doctor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pa_doctor")
@@ -306,7 +306,10 @@ model historias_medicas {
   id                          Bytes                        @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id                 Bytes                        @db.Binary(16)
   usuario_id                  Bytes                        @db.Binary(16)
-  creado_at                   DateTime?                    @default(dbgenerated("(curdate())")) @db.Date
+  expedida_en                 DateTime?                    @default(dbgenerated("(curdate())")) @db.Date
+  created_at                  DateTime?                    @default(now()) @db.DateTime(0)
+  updated_at                  DateTime?                    @updatedAt @db.DateTime(0)
+  deleted_at                  DateTime?                    @db.DateTime(0)
   tipo_sangre                 String?                      @db.VarChar(5)
   vacunas_infancia_completas  Boolean?
   motivo_consulta             String?                      @db.Text
@@ -343,6 +346,9 @@ model historias_pacientes_nutricion {
   id                            Bytes                           @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   paciente_id                   Bytes                           @db.Binary(16)
   fecha_ingreso                 DateTime?                       @default(dbgenerated("(curdate())")) @db.Date
+  created_at                    DateTime?                       @default(now()) @db.DateTime(0)
+  updated_at                    DateTime?                       @updatedAt @db.DateTime(0)
+  deleted_at                    DateTime?                       @db.DateTime(0)
   motivo_consulta               String?                         @db.Text
   adicciones                    adicciones?
   cal_get_nutr                  cal_get_nutr[]
@@ -421,7 +427,10 @@ model notas_evolucion {
   motivo_consulta                     String?             @db.Text
   ant_gine_andro                      String?             @db.Text
   estudios_complementarios_efectuados String?             @db.Text
-  creado_at                           DateTime?           @default(now()) @db.DateTime(0)
+  expedida_en                         DateTime?           @default(now()) @db.DateTime(0)
+  created_at                          DateTime?           @default(now()) @db.DateTime(0)
+  updated_at                          DateTime?           @updatedAt @db.DateTime(0)
+  deleted_at                          DateTime?           @db.DateTime(0)
   aparatos_sistemas                   aparatos_sistemas?
   informacion_fisica                  informacion_fisica?
   historias_medicas                   historias_medicas   @relation(fields: [historia_medica_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_nota_historia")
@@ -455,8 +464,9 @@ model pacientes {
   contacto_emergencia           String?                         @db.VarChar(255)
   telefono_emergencia           String?                         @db.VarChar(30)
   parentesco_emergencia         String?                         @db.VarChar(100)
-  creado_at                     DateTime?                       @default(now()) @db.DateTime(0)
-  actualizado_at                DateTime?                       @db.DateTime(0)
+  created_at                    DateTime?                       @default(now()) @db.DateTime(0)
+  updated_at                    DateTime?                       @updatedAt @db.DateTime(0)
+  deleted_at                    DateTime?                       @db.DateTime(0)
   historias_medicas             historias_medicas[]
   historias_pacientes_nutricion historias_pacientes_nutricion[]
   pacientes_areas               pacientes_areas[]
@@ -540,7 +550,9 @@ model usuarios {
   estado_id             Int
   rol_id                Int
   area_id               Int?
-  creado_at             DateTime?               @default(now()) @db.DateTime(0)
+  created_at            DateTime?               @default(now()) @db.DateTime(0)
+  updated_at            DateTime?               @updatedAt @db.DateTime(0)
+  deleted_at            DateTime?               @db.DateTime(0)
   ultimo_acceso         DateTime?               @db.DateTime(0)
   foto                  String?                 @db.VarChar(255)
   matricula             String?                 @db.VarChar(20)
@@ -586,13 +598,16 @@ model bitacora_emergencias {
   accion_realizada  String?   @db.Text
   tratamiento_admin String?   @db.Text
   recurrente        Boolean?  @default(false)
+  created_at        DateTime? @default(now()) @db.DateTime(0)
+  updated_at        DateTime? @updatedAt @db.DateTime(0)
+  deleted_at        DateTime? @db.DateTime(0)
   usuarios          usuarios  @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bitacora_usuario")
 
   @@index([usuario_id], map: "fk_bitacora_usuario")
 }
 
 model cal_get_nutr {
-  id                            Int                           @id @default(autoincrement())
+  id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha_eval                    DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
   peso                          Float?                        @db.Float
@@ -665,7 +680,7 @@ model eval_bioq_nutricion {
   id                            Bytes                         @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id          Bytes                         @db.Binary(16)
   fecha                         DateTime?                     @default(dbgenerated("(curdate())")) @db.Date
-  creado_at                     DateTime?                     @default(now()) @db.DateTime(0)
+  created_at                    DateTime?                     @default(now()) @db.DateTime(0)
   balance_acido_base            balance_acido_base?
   historias_pacientes_nutricion historias_pacientes_nutricion @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_bioq_historia_paciente")
   eval_estado_nutricion         eval_estado_nutricion?
@@ -699,7 +714,7 @@ model eval_nutr_fh {
   tiene_alergia                    Boolean?
   cual_alergia                     String?                           @db.Text
   alimentos_disgusta               String?                           @db.Text
-  creado_at                        DateTime?                         @default(now()) @db.DateTime(0)
+  created_at                       DateTime?                         @default(now()) @db.DateTime(0)
   eval_apetito_nutricion           eval_apetito_nutricion?
   historias_pacientes_nutricion    historias_pacientes_nutricion     @relation(fields: [historia_paciente_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_eval_nutr_historia_paciente")
   frec_consumo_alimentos_nutricion frec_consumo_alimentos_nutricion?
@@ -738,7 +753,7 @@ model invitaciones_registro {
   token      Bytes     @unique(map: "token") @db.Binary(16)
   usado      Boolean?  @default(false)
   expira_at  DateTime  @db.DateTime(0)
-  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  created_at DateTime? @default(now()) @db.DateTime(0)
   creado_por Bytes     @db.Binary(16)
   usuarios   usuarios  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_creado_por")
   roles      roles     @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_rol")
@@ -753,7 +768,7 @@ model password_reset_tokens {
   token      Bytes     @unique(map: "token") @db.Binary(16)
   usado      Boolean?  @default(false)
   expira_at  DateTime  @db.DateTime(0)
-  creado_at  DateTime? @default(now()) @db.DateTime(0)
+  created_at DateTime? @default(now()) @db.DateTime(0)
   usuarios   usuarios  @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_password_reset_usuario")
 
   @@index([usuario_id], map: "idx_password_reset_usuario")
@@ -913,7 +928,7 @@ model registro_auditoria {
 model reporte_een_adulto_nutricion {
   id                             Bytes                            @id @default(dbgenerated("(uuid_to_bin(uuid()))")) @db.Binary(16)
   historia_paciente_id           Bytes                            @db.Binary(16)
-  fecha_eval                    DateTime?                         @default(dbgenerated("(curdate())")) @db.Date
+  fecha_eval                     DateTime?                        @default(dbgenerated("(curdate())")) @db.Date
   peso                           Float?                           @db.Float
   estatura                       Float?                           @db.Float
   cintura                        Float?                           @db.Float

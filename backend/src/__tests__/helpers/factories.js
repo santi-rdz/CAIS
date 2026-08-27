@@ -79,7 +79,7 @@ export function buildEmergency(overrides = {}) {
 export function buildEvolutionNote({ historiaMedicaId }, overrides = {}) {
   return {
     historia_medica_id: historiaMedicaId,
-    creado_at: new Date().toISOString(),
+    expedida_en: new Date().toISOString(),
     motivo_consulta: 'Dolor de cabeza',
     ant_gine_andro: 'Sin antecedentes',
     ...overrides,
@@ -189,7 +189,7 @@ export function buildMedicalHistory({ pacienteId, usuarioId }, overrides = {}) {
     aparatos_sistemas: { neurologico: 'Normal' },
     informacion_fisica: {
       peso: 70,
-      altura: 1.75,
+      altura: 175,
       pa_sistolica: 120,
       pa_diastolica: 80,
       fc: 72,

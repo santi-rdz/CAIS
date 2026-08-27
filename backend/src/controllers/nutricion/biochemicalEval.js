@@ -5,7 +5,7 @@ import { AuditModel } from '#models/AuditModel.js'
 import { parsePagination } from '#lib/paginate.js'
 import { ACCIONES, ENTIDADES } from '@cais/shared/constants/users'
 
-const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'creado_at'])
+const ALLOWED_FIELDS = new Set(['id', 'historia_paciente_id', 'fecha', 'created_at'])
 
 export class BiochemicalEvalController {
   static async create(req, res) {

@@ -2,8 +2,9 @@ import { fetchApi } from '@lib/fetchApi'
 
 const BASE = '/nutricion/evaluacion-antropometrica'
 
-export async function getAnthropometricEvals(historia_paciente_id) {
-  const params = new URLSearchParams({ historia_paciente_id, limit: 50 })
+export async function getAnthropometricEvals(historia_paciente_id, { page = 1, limit } = {}) {
+  const params = new URLSearchParams({ historia_paciente_id, page })
+  if (limit) params.append('limit', limit)
   return fetchApi(`${BASE}?${params}`, {
     errorMsg: 'Error al obtener las evaluaciones antropométricas',
   })

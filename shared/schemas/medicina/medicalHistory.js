@@ -60,7 +60,7 @@ export const serviciosSchema = z.object({
 })
 
 export const medicalHistoryBaseSchema = z.object({
-  creado_at: optionalDateSchema,
+  expedida_en: optionalDateSchema,
   tipo_sangre: str(5), // VarChar(5) en DB
   vacunas_infancia_completas: z.boolean().nullish(),
   motivo_consulta: text(),

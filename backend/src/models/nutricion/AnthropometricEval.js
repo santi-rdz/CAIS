@@ -1,5 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { prisma } from '#config/prisma.js'
+import { assertActiveNutritionHistory } from '#lib/historyGuard.js'
+import { toDateOnly } from '#lib/dates.js'
+import { buildListArgs } from '#lib/queryFeatures.js'
 import { uuidToBuffer } from '#lib/uuid.js'
 import { toUUID } from '#lib/prismaHelpers.js'
 import { NotFoundError, ValidationError } from '#lib/appError.js'
@@ -16,6 +19,7 @@ function formatAnthropometricEval(n, paciente_id) {
     ...n,
     id: toUUID(n.id),
     historia_paciente_id: toUUID(n.historia_paciente_id),
+    fecha: toDateOnly(n.fecha),
     ...(paciente_id ? { paciente_id } : {}),
   }
 }
@@ -52,18 +56,14 @@ async function getPatientContext(historiaPacienteId, tx) {
 
 export class AnthropometricEvalModel {
   static async getAll({ historia_paciente_id, page, limit } = {}) {
-    const where = {}
+    const where = { historias_pacientes_nutricion: { deleted_at: null } }
     if (historia_paciente_id) where.historia_paciente_id = uuidToBuffer(historia_paciente_id)
-
-    const offset = (page - 1) * limit
 
     const [evals, total] = await prisma.$transaction([
       prisma.eval_antro_ad_nutricion.findMany({
         where,
         include: includeRelations,
-        orderBy: [{ fecha: 'desc' }, { id: 'desc' }],
-        skip: offset,
-        take: limit,
+        ...buildListArgs({ page, limit, orderBy: [{ fecha: 'desc' }, { id: 'desc' }] }),
       }),
       prisma.eval_antro_ad_nutricion.count({ where }),
     ])
@@ -84,38 +84,30 @@ export class AnthropometricEvalModel {
   }
 
   static async create(data, tx = prisma) {
-    const { paciente_id, edad } = await getPatientContext(data.historia_paciente_id, tx)
+    await assertActiveNutritionHistory(data.historia_paciente_id, tx)
+    const { historia_paciente_id, adulto, kid, ...rest } = data
+    const { paciente_id, edad } = await getPatientContext(historia_paciente_id, tx)
     const esAdulto = edad !== null && edad >= EDAD_ADULTO
 
-    if (esAdulto && !data.adulto) {
+    if (esAdulto && !adulto) {
       throw new ValidationError(
         'El paciente es mayor de edad; se requieren los datos de evaluación de adulto'
       )
     }
-    if (!esAdulto && !data.kid) {
+    if (!esAdulto && !kid) {
       throw new ValidationError(
         'El paciente es menor de edad; se requieren los datos de evaluación pediátrica'
       )
     }
 
-    const evalId = randomUUID()
-
     const created = await tx.eval_antro_ad_nutricion.create({
       data: {
-        id: uuidToBuffer(evalId),
-        historia_paciente_id: uuidToBuffer(data.historia_paciente_id),
-        fecha: data.fecha,
-        peso_actual: data.peso_actual,
-        estatura: data.estatura,
-        imc: data.imc,
-        pantorrilla: data.pantorrilla,
-        cintura: data.cintura,
-        pb: data.pb,
-        pct: data.pct,
-        pcse: data.pcse,
+        ...rest,
+        id: uuidToBuffer(randomUUID()),
+        historia_paciente_id: uuidToBuffer(historia_paciente_id),
         ...(esAdulto
-          ? { eval_antro_ad_adulto_nutricion: { create: data.adulto } }
-          : { eval_antro_ad_kid_nutricion: { create: data.kid } }),
+          ? { eval_antro_ad_adulto_nutricion: { create: adulto } }
+          : { eval_antro_ad_kid_nutricion: { create: kid } }),
       },
       include: includeRelations,
     })
@@ -146,26 +138,15 @@ export class AnthropometricEvalModel {
     const esAdulto = Boolean(existing.eval_antro_ad_adulto_nutricion)
     const esKid = Boolean(existing.eval_antro_ad_kid_nutricion)
 
+    // historia_paciente_id no se actualiza (se descarta del spread).
+    const { historia_paciente_id, adulto, kid, ...rest } = data
+
     await tx.eval_antro_ad_nutricion.update({
       where: { id: uuidToBuffer(id) },
       data: {
-        ...(data.fecha !== undefined && { fecha: data.fecha }),
-        peso_actual: data.peso_actual,
-        estatura: data.estatura,
-        imc: data.imc,
-        pantorrilla: data.pantorrilla,
-        cintura: data.cintura,
-        pb: data.pb,
-        pct: data.pct,
-        pcse: data.pcse,
-        ...(esAdulto &&
-          data.adulto && {
-            eval_antro_ad_adulto_nutricion: { update: data.adulto },
-          }),
-        ...(esKid &&
-          data.kid && {
-            eval_antro_ad_kid_nutricion: { update: data.kid },
-          }),
+        ...rest,
+        ...(esAdulto && adulto && { eval_antro_ad_adulto_nutricion: { update: adulto } }),
+        ...(esKid && kid && { eval_antro_ad_kid_nutricion: { update: kid } }),
       },
     })
 

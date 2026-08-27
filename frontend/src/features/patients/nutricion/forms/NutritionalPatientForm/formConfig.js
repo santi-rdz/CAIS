@@ -71,11 +71,9 @@ const STATIC_DEFAULT_VALUES = {
   contacto_emergencia: '',
   telefono_emergencia: '',
   parentesco_emergencia: '',
-  // Step 2 — historias_medicas_nutricion (presenta_* es toggle solo-UI)
-  presenta_enfermedad: 'no',
+  // Step 2 — historias_medicas_nutricion
   historias_medicas_nutricion: [],
   // Step 2 — tratamiento_alt_nutricion
-  presenta_tratamiento: 'no',
   tratamiento_alt_nutricion: [],
   // Step 3 — adicciones (campos planos según la tabla adicciones)
   adicciones: {

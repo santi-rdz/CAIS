@@ -3,7 +3,10 @@ import { prisma } from '#config/prisma.js'
 import { uuidToBuffer, bufferToUUID } from '#lib/uuid.js'
 import { USER_SORT_DEFS, ESTADOS } from '@cais/shared/constants/users'
 import { formatDefs } from '#lib/formatDef.js'
+import { buildSearchWhere } from '#lib/queryFeatures.js'
+import { USER_SEARCH_FIELDS } from '#lib/searchFields.js'
 import { NotFoundError, ConflictError } from '#lib/appError.js'
+import { toDateOnly } from '#lib/dates.js'
 
 const SORT_OPTIONS = formatDefs(USER_SORT_DEFS)
 
@@ -19,6 +22,7 @@ function formatUser(u) {
   return {
     ...rest,
     id: bufferToUUID(u.id),
+    fecha_nacimiento: toDateOnly(u.fecha_nacimiento),
     estado: estados?.codigo ?? null,
     rol: roles?.codigo ?? null,
     area: areas?.nombre ?? null,
@@ -56,29 +60,13 @@ function buildPendingWhere({ rol, search, areaId }) {
 }
 
 function buildUserWhere({ statuses, rol, search, areaId }) {
-  const where = {}
-  if (statuses?.length) {
-    where.estados = { codigo: { in: statuses } }
+  return {
+    deleted_at: null,
+    ...(statuses?.length && { estados: { codigo: { in: statuses } } }),
+    ...(rol && { roles: { codigo: { in: rol.split(',').map((r) => r.trim().toUpperCase()) } } }),
+    ...(areaId != null && { area_id: areaId }),
+    ...buildSearchWhere(search, USER_SEARCH_FIELDS),
   }
-  if (rol) {
-    where.roles = {
-      codigo: { in: rol.split(',').map((r) => r.trim().toUpperCase()) },
-    }
-  }
-  if (search) {
-    const tokens = search.trim().split(/\s+/).filter(Boolean)
-    where.AND = tokens.map((token) => ({
-      OR: [
-        { nombre: { contains: token } },
-        { apellidos: { contains: token } },
-        { correo: { contains: token } },
-      ],
-    }))
-  }
-  if (areaId != null) {
-    where.area_id = areaId
-  }
-  return where
 }
 
 async function queryPending({ where, skip, take }) {
@@ -87,7 +75,7 @@ async function queryPending({ where, skip, take }) {
     prisma.invitaciones_registro.findMany({
       where,
       include: { roles: true },
-      orderBy: { creado_at: 'desc' },
+      orderBy: { created_at: 'desc' },
       skip,
       take,
     }),
@@ -130,7 +118,7 @@ export class UserModel {
       search,
       areaId,
     })
-    const orderBy = SORT_OPTIONS[sortBy] ?? { creado_at: 'desc' }
+    const orderBy = SORT_OPTIONS[sortBy] ?? { created_at: 'desc' }
     const globalOffset = (page - 1) * limit
 
     if (!includePending) {
@@ -176,8 +164,8 @@ export class UserModel {
   }
 
   static async getById(id, tx = prisma) {
-    const user = await tx.usuarios.findUnique({
-      where: { id: uuidToBuffer(id) },
+    const user = await tx.usuarios.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
       include: includeRelations,
     })
     if (!user) throw new NotFoundError('el usuario')
@@ -185,9 +173,16 @@ export class UserModel {
   }
 
   static async delete(id) {
-    const existing = await prisma.usuarios.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await prisma.usuarios.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('el usuario')
-    await prisma.usuarios.delete({ where: { id: uuidToBuffer(id) } })
+    await prisma.usuarios.update({
+      where: { id: uuidToBuffer(id) },
+      // Libera el correo (@unique) namespaceándolo por id, para no bloquear un
+      // re-registro con el mismo correo tras el soft delete.
+      data: { deleted_at: new Date(), correo: `deleted+${id}@deleted.internal` },
+    })
   }
 
   static async update(id, data) {
@@ -213,7 +208,9 @@ export class UserModel {
       ...(estado && { estados: { connect: { codigo: estado } } }),
     }
 
-    const existing = await prisma.usuarios.findUnique({ where: { id: uuidToBuffer(id) } })
+    const existing = await prisma.usuarios.findFirst({
+      where: { id: uuidToBuffer(id), deleted_at: null },
+    })
     if (!existing) throw new NotFoundError('el usuario')
 
     await prisma.usuarios.update({

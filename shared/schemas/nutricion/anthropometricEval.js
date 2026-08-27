@@ -16,7 +16,7 @@ export const evalAntroKidSchema = z.object({
   desviacion_estandar_peso: num({ min: -10, max: 10 }),
   interpretacion_nom_peso: str(50),
   talla_para_edad: num({ min: 0, max: 100 }),
-  talla_ideal: num({ min: 0, max: 250 }),
+  talla_ideal: num({ min: 20, max: 250 }),
   desviacion_estandar_talla: num({ min: -10, max: 10 }),
   interpretacion_nom_talla: str(50),
   peso_para_edad: num({ min: 0, max: 100 }),
@@ -54,7 +54,7 @@ export const evalAntroAdultoSchema = z.object({
 export const anthropometricEvalBaseSchema = z.object({
   fecha: optionalDateSchema,
   peso_actual: num({ min: 0, max: 500 }), // kg
-  estatura: num({ min: 0, max: 250 }), // cm
+  estatura: num({ min: 20, max: 250 }), // cm
   imc: num({ min: 0, max: 100 }),
   pantorrilla: num({ min: 0, max: 100 }), // cm
   cintura: num({ min: 0, max: 300 }), // cm
