@@ -36,8 +36,19 @@ export const coordinadorSchema = z.object({
   area: areaSchema.optional(),
 })
 
+// Admin: sin campos académicos (matrícula/cédula/servicio) y sin área.
+export const adminSchema = z.object({
+  ...personalFields,
+  fecha_nacimiento: dateSchema,
+  correo: correoSchema,
+  password: basicPasswordSchema,
+  rol: rolSchema,
+  area: areaSchema.nullable().optional(),
+})
+
 export function validateUserCreate(input) {
   const rol = input?.rol?.toUpperCase()
+  if (rol === ROLES.ADMIN) return adminSchema.safeParse(input)
   if (rol === ROLES.COORDINADOR) return coordinadorSchema.safeParse(input)
   return pasanteSchema.safeParse(input)
 }
@@ -56,8 +67,12 @@ export const pasanteSignupSchema = pasanteSchema.omit(omitForSignup).extend(sign
 
 export const coordinadorSignupSchema = coordinadorSchema.omit(omitForSignup).extend(signupFields)
 
+export const adminSignupSchema = adminSchema.omit(omitForSignup).extend(signupFields)
+
 export function validateSignup(input, rol) {
-  if (rol === ROLES.COORDINADOR)
+  const r = rol?.toUpperCase()
+  if (r === ROLES.ADMIN) return withPasswordConfirmation(adminSignupSchema).safeParse(input)
+  if (r === ROLES.COORDINADOR)
     return withPasswordConfirmation(coordinadorSignupSchema).safeParse(input)
   return withPasswordConfirmation(pasanteSignupSchema).safeParse(input)
 }

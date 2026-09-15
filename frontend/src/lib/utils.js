@@ -1,6 +1,14 @@
 import { clsx } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 import dayjs from 'dayjs'
+import { ROLES } from '@cais/shared/constants/users'
+
+export const doctorPrefix = (rol) => (rol?.toUpperCase() === ROLES.ADMIN ? '' : 'Dr. ')
+
+export const shortName = (nombre, apellidos) => {
+  const inicial = apellidos?.trim()?.[0]
+  return inicial ? `${nombre} ${inicial.toUpperCase()}.` : (nombre ?? '')
+}
 
 const twMerge = extendTailwindMerge({
   extend: {

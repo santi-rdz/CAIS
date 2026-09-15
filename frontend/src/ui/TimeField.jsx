@@ -9,7 +9,7 @@ export default function TimeField({
   required = true,
 }) {
   return (
-    <FormRow className="w-full" htmlFor={name} label={label}>
+    <FormRow className="w-full" htmlFor={name} label={label} required={required}>
       <TimePickerComponent
         name={name}
         control={control}

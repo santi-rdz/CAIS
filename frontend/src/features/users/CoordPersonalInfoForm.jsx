@@ -1,13 +1,19 @@
 import BirthdayField from '@ui/BirthdayField'
 import DomainEmailInput from '@ui/DomainEmailInput'
 import PhoneField from '@ui/PhoneField'
+import AreaField from '@ui/AreaField'
 import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
 import Input from '@components/Input'
 import Row from '@components/Row'
 import { useFormContext } from 'react-hook-form'
 
-export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
+export default function CoordPersonalInfoForm({
+  disabledEmail,
+  isUabcDomain,
+  setIsUabcDomain,
+  areaDisabled = false,
+}) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -17,7 +23,7 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
         Información Personal
       </Heading>
       <Row className="gap-4">
-        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full">
+        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full" required>
           <Input
             {...register('nombre')}
             id="nombre"
@@ -27,7 +33,7 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
             variant="outline"
           />
         </FormRow>
-        <FormRow htmlFor="apellidos" label="Apellidos" className="w-full">
+        <FormRow htmlFor="apellidos" label="Apellidos" className="w-full" required>
           <Input
             {...register('apellidos')}
             id="apellidos"
@@ -41,7 +47,7 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
 
       <Row className="gap-4">
         {disabledEmail ? (
-          <FormRow htmlFor="correo" label="Correo electrónico" className="w-full">
+          <FormRow htmlFor="correo" label="Correo electrónico" className="w-full" required>
             <Input {...register('correo')} id="correo" type="email" disabled variant="outline" />
           </FormRow>
         ) : (
@@ -53,6 +59,7 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
             register={register}
             error={errors?.correo?.message}
             className="w-full"
+            required
           />
         )}
       </Row>
@@ -63,7 +70,8 @@ export default function CoordPersonalInfoForm({ disabledEmail, isUabcDomain, set
       </Row>
 
       <Row className="gap-4">
-        <FormRow htmlFor="cedula" label="Cédula Profesional" className="w-full">
+        <AreaField className="w-full" disabled={areaDisabled} />
+        <FormRow htmlFor="cedula" label="Cédula Profesional" className="w-full" required>
           <Input
             {...register('cedula')}
             id="cedula"

@@ -19,6 +19,7 @@ proyecto. Está organizada por rubro; léela en orden si es tu primer día.
 | 06  | [Referencia de endpoints](./06-referencia-de-endpoints.md)   | Todos los endpoints por dominio                                            |
 | 07  | [Frontend](./07-frontend.md)                                 | Services, TanStack Query, formularios, permisos de UI                      |
 | 08  | [Flujos clave](./08-flujos-clave.md)                         | Registro, sincronización multi-área, historia clínica, reset de contraseña |
+| 09  | [Scheduler de limpieza](./09-scheduler-limpieza.md)          | Borrado periódico de sesiones y tokens vencidos                            |
 
 ## Resumen en 30 segundos
 

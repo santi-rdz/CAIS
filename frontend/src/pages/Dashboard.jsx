@@ -29,8 +29,20 @@ function ChartFallback({ height = 200 }) {
   return <div className="animate-pulse rounded-xl bg-gray-100" style={{ height }} />
 }
 
+function TrendCard({ title, rangeLabel, children }) {
+  return (
+    <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <Heading as="h4">{title}</Heading>
+        <ScopeBadge>{rangeLabel}</ScopeBadge>
+      </div>
+      <Suspense fallback={<ChartFallback height={250} />}>{children}</Suspense>
+    </div>
+  )
+}
+
 export default function Dashboard() {
-  const { isPasante } = usePermissions()
+  const { isPasante, isAdmin } = usePermissions()
   const [range, setRange] = useState(DEFAULT_STATS_RANGE)
   const { stats, isPending } = useDashboardStats(range)
 
@@ -90,16 +102,32 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Tendencia */}
-      <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <Heading as="h4">{trendTitle}</Heading>
-          <ScopeBadge>{rangeLabel}</ScopeBadge>
+      {/* Tendencia — el admin ve medicina y nutrición separadas: juntas en una
+          sola gráfica quedan acopladas y difíciles de leer. */}
+      {isAdmin ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <TrendCard title="Tendencia · Medicina" rangeLabel={rangeLabel}>
+            <TrendChart
+              data={stats?.tendencia}
+              loading={isPending}
+              range={range}
+              group="medicina"
+            />
+          </TrendCard>
+          <TrendCard title="Tendencia · Nutrición" rangeLabel={rangeLabel}>
+            <TrendChart
+              data={stats?.tendencia}
+              loading={isPending}
+              range={range}
+              group="nutricion"
+            />
+          </TrendCard>
         </div>
-        <Suspense fallback={<ChartFallback height={250} />}>
+      ) : (
+        <TrendCard title={trendTitle} rangeLabel={rangeLabel}>
           <TrendChart data={stats?.tendencia} loading={isPending} range={range} />
-        </Suspense>
-      </div>
+        </TrendCard>
+      )}
     </div>
   )
 }

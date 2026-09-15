@@ -63,10 +63,11 @@ const COMMON_CARDS = (counts, personal) => [
   {
     // Conteo en vivo — no depende del rango de tiempo.
     key: 'usuarios_conectados',
-    label: 'Usuarios conectados',
+    label: 'Usuarios en línea',
     value: counts?.usuarios_conectados,
     icon: <HiOutlineUserGroup size={18} />,
     live: true,
+    caption: 'Últimos 15 min',
   },
 ]
 

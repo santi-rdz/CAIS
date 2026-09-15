@@ -3,19 +3,28 @@ import { prisma } from '#config/prisma.js'
 import { ROLES } from '@cais/shared/constants/users'
 import { STATS_RANGES, STATS_RANGE_WINDOW } from '@cais/shared/constants/stats'
 import { bufferToUUID, uuidToBuffer } from '#lib/uuid.js'
+import { ONLINE_WINDOW_MS } from '#lib/constants.js'
 
 // Entidades por área para los counts de cards y la tendencia. Cada área tiene
 // sus propias stats — no se comparten.
 const AREA_CONFIG = {
   MEDICINA: [
-    { key: 'notas_evolucion', entidad: 'NOTA_EVOLUCION' },
-    { key: 'historias_medicas', entidad: 'HISTORIA_MEDICA' },
-    { key: 'emergencias', entidad: 'EMERGENCIA' },
+    { key: 'notas_evolucion', entidades: ['NOTA_EVOLUCION'] },
+    { key: 'historias_medicas', entidades: ['HISTORIA_MEDICA'] },
+    { key: 'emergencias', entidades: ['EMERGENCIA'] },
   ],
   NUTRICION: [
-    { key: 'historias_nutricion', entidad: 'HISTORIA_NUTRICION' },
-    { key: 'eval_antropometricas', entidad: 'EVAL_ANTROPOMETRICA' },
-    { key: 'eval_nutricionales', entidad: 'EVAL_NUTRICIONAL' },
+    { key: 'historias_nutricion', entidades: ['HISTORIA_NUTRICION'] },
+    { key: 'eval_antropometricas', entidades: ['EVAL_ANTROPOMETRICA'] },
+    { key: 'eval_nutricionales', entidades: ['EVAL_NUTRICIONAL'] },
+    { key: 'eval_bioquimica', entidades: ['EVAL_BIOQ_NUTRICION'] },
+    { key: 'examenes_fisicos', entidades: ['EXAMINACION_FISICA'] },
+    { key: 'cal_get_nutr', entidades: ['CAL_GET_NUTR'] },
+    { key: 'reportes_een', entidades: ['REPORTE_EEN'] },
+    { key: 'rec_24h', entidades: ['REC_24H'] },
+    { key: 'tpan', entidades: ['TPAN'] },
+    { key: 'eval_act_fisica', entidades: ['EVAL_ACT_FISICA_NUTRICION'] },
+    { key: 'eval_sueno', entidades: ['EVAL_CAL_SUENO'] },
   ],
 }
 
@@ -38,7 +47,7 @@ export class StatsModel {
       areaSpecificCounts,
     ] = await Promise.all([
       this.#countPacientes(scope, period),
-      scope.personal ? Promise.resolve(null) : this.#countUsuariosConectados(),
+      scope.personal ? Promise.resolve(null) : this.#countUsuariosConectados(scope.area),
       this.#getDistribucionGenero(scope),
       this.#getDistribucionEdad(scope),
       this.#getDistribucionProcedencia(scope),
@@ -68,9 +77,13 @@ export class StatsModel {
     })
   }
 
-  static async #countUsuariosConectados() {
-    return prisma.sessions.count({
-      where: { expire: { gt: new Date() } },
+  static async #countUsuariosConectados(area) {
+    return prisma.usuarios.count({
+      where: {
+        deleted_at: null,
+        ultimo_acceso: { gt: new Date(Date.now() - ONLINE_WINDOW_MS) },
+        ...(area && { areas: { nombre: area } }),
+      },
     })
   }
 
@@ -141,6 +154,7 @@ export class StatsModel {
       accion: r.acciones?.codigo ?? null,
       entidad: r.entidades?.nombre ?? null,
       usuario: r.usuarios?.nombre ?? null,
+      apellidos: r.usuarios?.apellidos ?? null,
       foto: r.usuarios?.foto ?? null,
       email: r.usuarios?.correo ?? null,
       paciente_id: r.paciente_id ? bufferToUUID(r.paciente_id) : null,
@@ -151,25 +165,30 @@ export class StatsModel {
 
   static async #getTendencia(scope, period) {
     const areaEntidades = entidadesForScope(scope)
-    const allEntidades = [...areaEntidades, { key: 'pacientes', entidad: 'PACIENTE' }]
 
-    const results = await Promise.all(
-      allEntidades.map(({ key, entidad }) =>
-        prisma.$queryRaw`
-          SELECT DATE_FORMAT(ra.fecha_hora, ${period.fmt}) as periodo, COUNT(*) as count
-          FROM registro_auditoria ra
-          JOIN acciones ac ON ra.accion_id = ac.id
-          JOIN entidades e ON ra.entidad_id = e.id
-          JOIN usuarios u ON ra.usuario_id = u.id
-          JOIN areas a ON u.area_id = a.id
-          WHERE ac.codigo = 'CREAR'
-            AND e.nombre = ${entidad}
-            AND ${scope.sql('a')}
-            AND ra.fecha_hora >= ${period.since}
-          GROUP BY periodo
-        `.then((rows) => ({ key, rows }))
-      )
-    )
+    const [entidadResults, pacientesResults] = await Promise.all([
+      Promise.all(
+        areaEntidades.map(({ key, entidades }) =>
+          prisma.$queryRaw`
+            SELECT DATE_FORMAT(ra.fecha_hora, ${period.fmt}) as periodo, COUNT(*) as count
+            FROM registro_auditoria ra
+            JOIN acciones ac ON ra.accion_id = ac.id
+            JOIN entidades e ON ra.entidad_id = e.id
+            JOIN usuarios u ON ra.usuario_id = u.id
+            JOIN areas a ON u.area_id = a.id
+            WHERE ac.codigo = 'CREAR'
+              AND e.nombre IN (${Prisma.join(entidades)})
+              AND ${scope.sql('a')}
+              AND ra.fecha_hora >= ${period.since}
+            GROUP BY periodo
+          `.then((rows) => ({ key, rows }))
+        )
+      ),
+      this.#getPacientesTendencia(scope, period),
+    ])
+
+    const results = [...entidadResults, ...pacientesResults]
+    const allKeys = [...areaEntidades.map((e) => e.key), ...pacientesResults.map((r) => r.key)]
 
     const map = Object.fromEntries(period.buckets.map((b) => [b, { fecha: b }]))
     for (const { key, rows } of results) {
@@ -182,22 +201,55 @@ export class StatsModel {
     return period.buckets.map((b) => {
       const entry = map[b]
       const filled = { fecha: b }
-      for (const { key } of allEntidades) filled[key] = entry[key] ?? 0
+      for (const key of allKeys) filled[key] = entry[key] ?? 0
       return filled
     })
   }
 
+  // Scopea por membresía real (pacientes_areas), igual que el card de
+  // pacientes registrados — no por el área actual de quien lo creó.
+  static async #getPacientesTendencia(scope, period) {
+    if (scope.area == null && !scope.personal) {
+      const rows = await prisma.$queryRaw`
+        SELECT ar.nombre as area, DATE_FORMAT(pa.created_at, ${period.fmt}) as periodo, COUNT(*) as count
+        FROM pacientes_areas pa
+        JOIN pacientes p ON p.id = pa.paciente_id
+        JOIN areas ar ON ar.id = pa.area_id
+        WHERE p.deleted_at IS NULL AND pa.created_at >= ${period.since}
+        GROUP BY ar.nombre, periodo
+      `
+      const byArea = { MEDICINA: [], NUTRICION: [] }
+      for (const row of rows) {
+        byArea[row.area]?.push(row)
+      }
+      return [
+        { key: 'pacientes_medicina', rows: byArea.MEDICINA },
+        { key: 'pacientes_nutricion', rows: byArea.NUTRICION },
+      ]
+    }
+
+    const rows = await prisma.$queryRaw`
+      SELECT DATE_FORMAT(pa.created_at, ${period.fmt}) as periodo, COUNT(*) as count
+      FROM pacientes_areas pa
+      JOIN pacientes p ON p.id = pa.paciente_id
+      JOIN areas ar ON ar.id = pa.area_id
+      WHERE p.deleted_at IS NULL AND ${scope.pacientesAreaSql} AND pa.created_at >= ${period.since}
+      GROUP BY periodo
+    `
+    return [{ key: 'pacientes', rows }]
+  }
+
   static async #getAreaSpecificCounts(scope, period) {
-    const entidades = entidadesForScope(scope)
-    if (entidades.length === 0) return {}
+    const areaEntidades = entidadesForScope(scope)
+    if (areaEntidades.length === 0) return {}
 
     const counts = await Promise.all(
-      entidades.map(({ key, entidad }) =>
+      areaEntidades.map(({ key, entidades }) =>
         prisma.registro_auditoria
           .count({
             where: {
               acciones: { codigo: 'CREAR' },
-              entidades: { nombre: entidad },
+              entidades: { nombre: { in: entidades } },
               usuarios: scope.usuariosFilter,
               fecha_hora: { gte: period.since },
             },
@@ -231,6 +283,7 @@ function buildScope({ area, userId, role }) {
       sql: () => Prisma.sql`u.id = ${userBuffer}`,
       pacientesFilter: { deleted_at: null, pacientes_areas: { some: { doctor_id: userBuffer } } },
       pacientesSql: Prisma.sql`p.deleted_at IS NULL AND EXISTS (SELECT 1 FROM pacientes_areas pa WHERE pa.paciente_id = p.id AND pa.doctor_id = ${userBuffer})`,
+      pacientesAreaSql: Prisma.sql`pa.doctor_id = ${userBuffer}`,
     }
   }
   // El admin no tiene área: ve las stats globales de todas las áreas.
@@ -242,6 +295,7 @@ function buildScope({ area, userId, role }) {
       sql: () => Prisma.sql`1 = 1`,
       pacientesFilter: { deleted_at: null },
       pacientesSql: Prisma.sql`p.deleted_at IS NULL`,
+      pacientesAreaSql: Prisma.sql`1 = 1`,
     }
   }
   return {
@@ -251,6 +305,7 @@ function buildScope({ area, userId, role }) {
     sql: (alias) => Prisma.sql`${Prisma.raw(alias)}.nombre = ${area}`,
     pacientesFilter: { deleted_at: null, pacientes_areas: { some: { areas: { nombre: area } } } },
     pacientesSql: Prisma.sql`p.deleted_at IS NULL AND EXISTS (SELECT 1 FROM pacientes_areas pa JOIN areas ar ON pa.area_id = ar.id WHERE pa.paciente_id = p.id AND ar.nombre = ${area})`,
+    pacientesAreaSql: Prisma.sql`ar.nombre = ${area}`,
   }
 }
 

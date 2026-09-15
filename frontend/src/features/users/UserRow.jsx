@@ -20,6 +20,7 @@ import Can from '@components/Can'
 import { PERMISSIONS, canManageUserAccount } from '@lib/permissions'
 import DateTime from '@components/DateTime'
 import PersonCell from '@components/PersonCell'
+import UserAvatar from '@components/UserAvatar'
 import { useNavigate } from 'react-router-dom'
 
 export default function UserRow({ user }) {
@@ -65,7 +66,7 @@ export default function UserRow({ user }) {
       <PersonCell
         name={showedName}
         secondary={email}
-        avatar={<PersonCell.UserAvatar picture={picture} email={email} />}
+        avatar={<UserAvatar foto={picture} nombre={nombre} apellidos={apellidos} />}
       />
       <div className="font-medium text-zinc-700 capitalize">{role}</div>
       <Can permission={PERMISSIONS.SEE_USER_AREA_COLUMN}>

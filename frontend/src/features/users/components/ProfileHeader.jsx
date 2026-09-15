@@ -1,5 +1,4 @@
 import {
-  HiOutlineUser,
   HiOutlinePhone,
   HiOutlineEnvelope,
   HiOutlineIdentification,
@@ -11,6 +10,7 @@ import Heading from '@components/Heading'
 import Tag from '@components/Tag'
 import Tab from '@components/Tab'
 import MetaChip from '@components/MetaChip'
+import UserAvatar from '@components/UserAvatar'
 import { formatFechaLong } from '@lib/dateHelpers'
 
 const ROL_LABELS = {
@@ -30,13 +30,6 @@ export default function ProfileHeader({ user }) {
       ? dayjs().diff(parsedBirthDate, 'year')
       : null
 
-  const initials =
-    [nombre, apellidos]
-      .filter(Boolean)
-      .map((s) => s[0].toUpperCase())
-      .join('')
-      .slice(0, 2) || null
-
   const subtitle = [
     age != null && `${age} años`,
     fecha_nacimiento && formatFechaLong(fecha_nacimiento),
@@ -50,19 +43,13 @@ export default function ProfileHeader({ user }) {
   return (
     <div className="shadow-card rounded-2xl border border-gray-100 bg-white p-6">
       <div className="flex items-start gap-5">
-        <div className="relative shrink-0">
-          {foto ? (
-            <img
-              src={foto}
-              alt={fullName || nombre}
-              className="h-14 w-14 rounded-full object-cover"
-            />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold tracking-tight text-blue-800 select-none">
-              {initials ?? <HiOutlineUser size={24} />}
-            </div>
-          )}
-        </div>
+        <UserAvatar
+          nombre={nombre}
+          apellidos={apellidos}
+          foto={foto}
+          size="lg"
+          className="bg-blue-100 font-semibold tracking-tight text-blue-800"
+        />
 
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">

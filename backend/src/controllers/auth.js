@@ -15,6 +15,7 @@ function formatSessionUser(user) {
   return {
     id: bufferToUUID(user.id),
     nombre: user.nombre,
+    apellidos: user.apellidos,
     correo: user.correo,
     foto: user.foto,
     rol: user.roles?.codigo,

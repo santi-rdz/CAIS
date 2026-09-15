@@ -10,7 +10,8 @@
       "#controllers/*": ["./src/controllers/*"],
       "#middleware/*": ["./src/middleware/*"],
       "#routes/*": ["./src/routes/*"],
-      "#services/*": ["./src/services/*"]
+      "#services/*": ["./src/services/*"],
+      "#jobs/*": ["./src/jobs/*"]
     }
   },
   "include": ["src"]

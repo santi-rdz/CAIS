@@ -2,23 +2,28 @@ import Modal from '@components/Modal'
 import Tab from '@components/Tab'
 import { useUser } from '@features/users/hooks/useUser'
 import usePermissions from '@hooks/usePermissions'
-import { PERMISSIONS } from '@lib/permissions'
+import { canEditUserAccount } from '@lib/permissions'
 import UserActionBar from '@features/users/components/UserActionBar'
 import UserHeader from '@features/users/components/UserHeader'
 import UserInfoPanel from '@features/users/components/UserInfoPanel'
 import ActivityPanel from '@features/users/components/ActivityPanel'
 import UserSkeleton from '@features/users/components/UserSkeleton'
 import InternForm from '@features/users/InternForm'
+import CoordForm from '@features/users/CoordForm'
+import AdminForm from '@features/users/AdminForm'
+
+const EDIT_FORMS = { pasante: InternForm, coordinador: CoordForm, admin: AdminForm }
 
 export default function UserDetail() {
   const { user, isPending } = useUser()
-  const { can } = usePermissions()
+  const { user: currentUser } = usePermissions()
 
   if (isPending) return <UserSkeleton />
   if (!user) return null
 
   const viewedRole = user.rol?.toLowerCase()
-  const canEdit = can(PERMISSIONS.EDIT_PASANTE) && viewedRole === 'pasante'
+  const EditForm = EDIT_FORMS[viewedRole]
+  const canEdit = Boolean(EditForm) && canEditUserAccount(currentUser, user)
 
   return (
     <Modal>
@@ -42,7 +47,7 @@ export default function UserDetail() {
 
       {canEdit && (
         <Modal.Content name="edit-user" size="md" noPadding>
-          <InternForm user={user} />
+          <EditForm user={user} />
         </Modal.Content>
       )}
     </Modal>

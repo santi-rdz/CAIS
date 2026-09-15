@@ -16,7 +16,7 @@ const calGetNutrObjectSchema = z.object({
   peso: num({ min: 0, max: 500 }),
   estatura: num({ min: 20, max: 250 }),
   kcal_kg: num({ min: 0, max: 100 }),
-  proteina_g_kg: num({ min: 0, max: 10 }),
+  proteina_g_kg: num({ min: 0, max: 5 }),
   hc_porcentaje: num({ min: 0, max: 100 }),
   lipidos_porcentaje: num({ min: 0, max: 100 }),
   verdura: equivalente(),

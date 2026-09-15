@@ -48,6 +48,10 @@ services:
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       EMAIL_USER: ${EMAIL_USER:-}
       EMAIL_PASS: ${EMAIL_PASS:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_NOMBRE: ${ADMIN_NOMBRE:-}
+      ADMIN_APELLIDOS: ${ADMIN_APELLIDOS:-}
     networks:
       - web
       - backend

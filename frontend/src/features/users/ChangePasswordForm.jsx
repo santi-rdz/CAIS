@@ -38,6 +38,7 @@ export default function ChangePasswordForm() {
           error={errors.currentPassword?.message}
           registration={register('currentPassword')}
           variant="outline"
+          required
         />
         <PasswordInput
           id="password"
@@ -46,6 +47,7 @@ export default function ChangePasswordForm() {
           error={errors.password?.message}
           registration={register('password')}
           variant="outline"
+          required
         />
         <PasswordInput
           id="confirmPassword"
@@ -54,6 +56,7 @@ export default function ChangePasswordForm() {
           error={errors.confirmPassword?.message}
           registration={register('confirmPassword')}
           variant="outline"
+          required
         />
         <PasswordRequirements password={newPassword} />
         <div className="flex justify-end pt-2">

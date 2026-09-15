@@ -48,7 +48,8 @@ RUN cd /out && \
 # prod — imagen final mínima, non-root, healthcheck real
 # =========================================================
 FROM node:${NODE_VERSION} AS prod
-RUN apk add --no-cache wget tini && \
+# openssl: requerido por el schema-engine de Prisma (migrate deploy) en Alpine/musl.
+RUN apk add --no-cache wget tini openssl && \
     addgroup -g 1001 -S app && \
     adduser -S app -u 1001 -G app
 WORKDIR /app
@@ -60,6 +61,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:8000/health >/dev/null 2>&1 || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
-# migrate deploy aplica migraciones pendientes; exec reemplaza el shell con node
-# para que tini gestione las señales correctamente.
-CMD ["sh", "-c", "node node_modules/.bin/prisma migrate deploy && exec node src/server.js"]
+# migrate deploy: aplica migraciones pendientes.
+# seedCatalogs: siembra los catálogos base — idempotente, seguro en cada arranque.
+# bootstrapAdmin: crea el admin inicial desde env — idempotente, no pisa si ya existe.
+# exec: reemplaza el shell con node para que tini gestione bien las señales.
+CMD ["sh", "-c", "node node_modules/prisma/build/index.js migrate deploy && node prisma/seedCatalogs.js && node prisma/bootstrapAdmin.js && exec node src/server.js"]

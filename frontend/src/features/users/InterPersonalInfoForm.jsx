@@ -16,7 +16,7 @@ export default function InterPersonalInfoForm() {
         Información Personal
       </Heading>
       <Row className="gap-4">
-        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full">
+        <FormRow htmlFor="nombre" label="Nombre(s)" className="w-full" required>
           <Input
             {...register('nombre')}
             id="nombre"
@@ -26,7 +26,7 @@ export default function InterPersonalInfoForm() {
             variant="outline"
           />
         </FormRow>
-        <FormRow htmlFor="apellidos" label="Apellidos" className="w-full">
+        <FormRow htmlFor="apellidos" label="Apellidos" className="w-full" required>
           <Input
             {...register('apellidos')}
             id="apellidos"

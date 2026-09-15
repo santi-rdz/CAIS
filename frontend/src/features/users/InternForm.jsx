@@ -26,12 +26,14 @@ function parseUserDefaults(user) {
     servicio_inicio_periodo: inicioPeriodo,
     servicio_fin_anio: finAnio,
     servicio_fin_periodo: finPeriodo,
+    area: user.area ?? '',
   }
 }
 
 import useCreateUser from '@features/users/hooks/useCreateUser'
 import useUpdateUser from '@features/users/hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
+import usePermissions from '@hooks/usePermissions'
 import { useStepForm } from '@hooks/useStepForm'
 import PasswordForm from '@features/users/PasswordForm'
 import RegistrationPasswordForm from '@features/users/RegistrationPasswordForm'
@@ -53,6 +55,7 @@ const PERSONAL_AND_ACADEMIC_FIELDS = [
   'servicio_inicio_periodo',
   'servicio_fin_anio',
   'servicio_fin_periodo',
+  'area',
 ]
 
 export default function InternForm({
@@ -60,6 +63,7 @@ export default function InternForm({
   onCloseModal,
   registration = false,
   email,
+  area,
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
@@ -73,6 +77,10 @@ export default function InternForm({
   const { createUser, isCreating } = useCreateUser()
   const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
+  const { isAdmin, area: myArea } = usePermissions()
+
+  // Solo el admin elige/cambia el área (al crear y al editar); el resto la hereda.
+  const areaDisabled = registration || !isAdmin
 
   const createFormSchema = buildInternCreateSchema(correoField)
 
@@ -80,7 +88,11 @@ export default function InternForm({
     ? [PERSONAL_AND_ACADEMIC_FIELDS]
     : [PERSONAL_AND_ACADEMIC_FIELDS, registration ? ['password', 'confirmPassword'] : ['password']]
 
-  const defaultValues = isEdit ? parseUserDefaults(user) : registration ? { correo: email } : {}
+  const defaultValues = isEdit
+    ? parseUserDefaults(user)
+    : registration
+      ? { correo: email, area: area ?? '' }
+      : { area: isAdmin ? '' : (myArea ?? '') }
 
   const resolver = isEdit
     ? zodResolver(internEditSchema)
@@ -115,6 +127,7 @@ export default function InternForm({
             servicio_inicio_periodo: data.servicio_inicio_periodo,
             servicio_fin_anio: data.servicio_fin_anio,
             servicio_fin_periodo: data.servicio_fin_periodo,
+            ...(isAdmin && { area: data.area }),
           },
         },
         { onSuccess: () => close?.() }
@@ -145,6 +158,7 @@ export default function InternForm({
           fecha_nacimiento: data.fecha_nacimiento,
           telefono: data.telefono,
           rol: 'pasante',
+          area: data.area,
           matricula: data.matricula,
           servicio_inicio_anio: data.servicio_inicio_anio,
           servicio_inicio_periodo: data.servicio_inicio_periodo,
@@ -228,6 +242,7 @@ export default function InternForm({
                 disabledEmail={isEdit ? user.correo : registration ? email : undefined}
                 isUabcDomain={isUabcDomain}
                 setIsUabcDomain={setIsUabcDomain}
+                areaDisabled={areaDisabled}
               />
             </div>
           </>

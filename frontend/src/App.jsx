@@ -1,5 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AppLayout from '@ui/AppLayout'
+import HomeRedirect from '@ui/HomeRedirect'
 import Dashboard from '@pages/Dashboard'
 import Auth from '@pages/Auth'
 import LoginForm from '@features/authentication/LoginForm'
@@ -27,7 +28,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="dashboard" />} />
+          <Route index element={<HomeRedirect />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="pacientes" element={<Patients />} />
           <Route path="pacientes/:id" element={<PatientDetail />} />

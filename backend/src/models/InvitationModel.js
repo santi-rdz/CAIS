@@ -10,6 +10,7 @@ export class InvitationModel {
         data: {
           correo: inv.correo,
           rol_id: inv.rolId,
+          area_id: inv.areaId ?? null,
           token: uuidToBuffer(inv.token),
           expira_at: inv.expiraAt,
           creado_por: uuidToBuffer(inv.creadoPor),
@@ -27,7 +28,7 @@ export class InvitationModel {
       },
       include: {
         roles: true,
-        usuarios: { select: { areas: { select: { nombre: true } } } },
+        areas: { select: { nombre: true } },
       },
     })
 
@@ -39,7 +40,7 @@ export class InvitationModel {
       rol: inv.roles.codigo,
       usado: inv.usado,
       expira_at: inv.expira_at,
-      area: inv.usuarios?.areas?.nombre ?? null,
+      area: inv.areas?.nombre ?? null,
     }
   }
 

@@ -4,7 +4,9 @@ import useClickOutside from '@hooks/useClickOutside'
 import useHoverOpen from '@hooks/useHoverOpen'
 import { HiOutlineChevronUpDown } from 'react-icons/hi2'
 
+import { doctorPrefix, shortName } from '@lib/utils'
 import Spinner from './components/Spinner'
+import UserAvatar from './components/UserAvatar'
 import ProfileDropdown from './ProfileDropdown'
 
 export default function ProfileCard({ isExpanded }) {
@@ -19,9 +21,9 @@ export default function ProfileCard({ isExpanded }) {
 
   if (isPending) return <Spinner />
 
-  const { nombre, apellidos, correo, foto } = user
+  const { nombre, apellidos, correo, foto, rol } = user
 
-  const formattedName = `Dr. ${[nombre, apellidos].filter(Boolean).join(' ')}`
+  const formattedName = `${doctorPrefix(rol)}${shortName(nombre, apellidos)}`
 
   return (
     <div ref={ref} className="relative mt-auto" onMouseEnter={onEnter} onMouseLeave={onLeave}>
@@ -44,9 +46,7 @@ export default function ProfileCard({ isExpanded }) {
         }`}
       >
         <div className="flex items-center">
-          <picture className="block w-10 shrink-0">
-            <img src={foto} className="w-full rounded-full object-cover" alt={nombre} />
-          </picture>
+          <UserAvatar nombre={nombre} apellidos={apellidos} foto={foto} size="md" />
 
           <div
             className={`flex flex-col transition-all duration-300 ease-in-out ${isExpanded ? 'ml-2 w-24' : 'w-0 max-lg:ml-2 max-lg:w-24'}`}

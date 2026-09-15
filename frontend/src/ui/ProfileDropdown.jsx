@@ -5,7 +5,9 @@ import {
   HiBuildingLibrary,
 } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
+import { doctorPrefix } from '@lib/utils'
 import Tag from './components/Tag'
+import UserAvatar from './components/UserAvatar'
 import DropdownPanel from './components/DropdownPanel'
 
 const NAV_ITEMS = [
@@ -39,7 +41,8 @@ function Divider() {
 
 export default function ProfileDropdown({ user, onClose, logout }) {
   const navigate = useNavigate()
-  const { nombre, correo, area, rol, foto } = user ?? {}
+  const { nombre, apellidos, correo, area, rol, foto } = user ?? {}
+  const fullName = `${doctorPrefix(rol)}${[nombre, apellidos].filter(Boolean).join(' ')}`
 
   function handleNavigate(path) {
     onClose()
@@ -57,14 +60,14 @@ export default function ProfileDropdown({ user, onClose, logout }) {
       className="absolute bottom-full left-0 z-50 mb-2 w-64 overflow-hidden"
     >
       <div className="flex items-center gap-3 p-4">
-        {foto && (
-          <picture className="block w-9 shrink-0">
-            <img src={foto} className="w-full rounded-full object-cover" alt={nombre} />
-          </picture>
-        )}
+        <UserAvatar nombre={nombre} apellidos={apellidos} foto={foto} size="sm" />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-zinc-900">
-            {nombre ? `Dr. ${nombre}` : ''}
+          <p
+            className="truncate text-sm font-semibold text-zinc-900"
+            title={nombre ? fullName : undefined}
+            aria-label={nombre ? fullName : undefined}
+          >
+            {nombre ? fullName : ''}
           </p>
           <p className="truncate text-xs text-zinc-400">{correo}</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">

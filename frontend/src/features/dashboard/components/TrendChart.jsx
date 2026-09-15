@@ -14,15 +14,78 @@ import { STATS_RANGES } from '@cais/shared/constants/stats'
 
 const SERIES = [
   // Medicina
-  { key: 'notas_evolucion', label: 'Notas de evolución', color: '#10b981' },
-  { key: 'historias_medicas', label: 'Historias médicas', color: '#3b82f6' },
-  { key: 'emergencias', label: 'Emergencias', color: '#ef4444' },
+  { key: 'notas_evolucion', label: 'Notas de evolución', color: '#10b981', group: 'medicina' },
+  { key: 'historias_medicas', label: 'Historias médicas', color: '#3b82f6', group: 'medicina' },
+  { key: 'emergencias', label: 'Emergencias', color: '#ef4444', group: 'medicina' },
   // Nutrición
-  { key: 'historias_nutricion', label: 'Historias de nutrición', color: '#3b82f6' },
-  { key: 'eval_antropometricas', label: 'Eval. antropométricas', color: '#8b5cf6' },
-  { key: 'eval_nutricionales', label: 'Eval. nutricionales', color: '#14b8a6' },
+  {
+    key: 'historias_nutricion',
+    label: 'Historias de nutrición',
+    color: '#3b82f6',
+    group: 'nutricion',
+  },
+  {
+    key: 'eval_antropometricas',
+    label: 'Eval. antropométricas',
+    color: '#8b5cf6',
+    group: 'nutricion',
+  },
+  { key: 'eval_nutricionales', label: 'Eval. nutricionales', color: '#14b8a6', group: 'nutricion' },
+  // sparse: solo se dibujan si tienen datos, para no saturar la leyenda.
+  {
+    key: 'eval_bioquimica',
+    label: 'Eval. bioquímica',
+    color: '#ec4899',
+    group: 'nutricion',
+    sparse: true,
+  },
+  {
+    key: 'examenes_fisicos',
+    label: 'Exámenes físicos',
+    color: '#f97316',
+    group: 'nutricion',
+    sparse: true,
+  },
+  {
+    key: 'cal_get_nutr',
+    label: 'Requerimientos (GET)',
+    color: '#0ea5e9',
+    group: 'nutricion',
+    sparse: true,
+  },
+  {
+    key: 'reportes_een',
+    label: 'Reportes EEN',
+    color: '#a855f7',
+    group: 'nutricion',
+    sparse: true,
+  },
+  {
+    key: 'rec_24h',
+    label: 'Recordatorios 24h',
+    color: '#22c55e',
+    group: 'nutricion',
+    sparse: true,
+  },
+  { key: 'tpan', label: 'TPAN', color: '#eab308', group: 'nutricion', sparse: true },
+  {
+    key: 'eval_act_fisica',
+    label: 'Actividad física',
+    color: '#06b6d4',
+    group: 'nutricion',
+    sparse: true,
+  },
+  {
+    key: 'eval_sueno',
+    label: 'Calidad del sueño',
+    color: '#6366f1',
+    group: 'nutricion',
+    sparse: true,
+  },
   // Común
-  { key: 'pacientes', label: 'Pacientes', color: '#f59e0b' },
+  { key: 'pacientes', label: 'Pacientes', color: '#f59e0b', group: 'comun' },
+  { key: 'pacientes_medicina', label: 'Pacientes', color: '#f59e0b', group: 'medicina' },
+  { key: 'pacientes_nutricion', label: 'Pacientes', color: '#f59e0b', group: 'nutricion' },
 ]
 
 // Año agrupa por mes ('YYYY-MM'); semana/mes por día ('YYYY-MM-DD').
@@ -37,7 +100,7 @@ function formatBucket(bucket, range) {
   }
 }
 
-export default function TrendChart({ data, loading, range }) {
+export default function TrendChart({ data, loading, range, group }) {
   if (loading) {
     return <div className="h-56 animate-pulse rounded-xl bg-gray-100" />
   }
@@ -47,9 +110,12 @@ export default function TrendChart({ data, loading, range }) {
   }
 
   const chartData = data.map((d) => ({ ...d, fecha: formatBucket(d.fecha, range) }))
-  const activeSeries = SERIES.filter(({ key }) =>
-    data.some((item) => Object.prototype.hasOwnProperty.call(item, key))
-  )
+  const activeSeries = SERIES.filter(({ key, group: seriesGroup, sparse }) => {
+    if (group && seriesGroup !== group && seriesGroup !== 'comun') return false
+    const hasKey = data.some((item) => Object.prototype.hasOwnProperty.call(item, key))
+    if (!hasKey) return false
+    return sparse ? data.some((item) => (item[key] ?? 0) > 0) : true
+  })
 
   return (
     <ResponsiveContainer width="100%" height={220}>

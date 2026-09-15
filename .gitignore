@@ -26,6 +26,10 @@ Thumbs.db
 .vscode/
 .idea/
 
+# --- curl cookie jars ---
+/*j.txt
+cookies*.txt
+
 # --- Docker ---
 docker-compose.override.yml
 .claude/settings.local.json

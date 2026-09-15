@@ -10,5 +10,5 @@ export const auditRouter = new Router()
 
 auditRouter.use(requireAuth)
 
-auditRouter.get('/', privileged, AuditController.getAll)
+auditRouter.get('/', AuditController.getAll)
 auditRouter.get('/:id', privileged, validateUuidParam(), AuditController.getById)

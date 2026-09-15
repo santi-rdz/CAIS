@@ -16,7 +16,6 @@ const navRoutes = [
     path: '/dashboard',
     name: 'Dashboard',
     icon: HiOutlineSquares2X2,
-    hiddenForRoles: [ROLES.ADMIN],
   },
   {
     path: '/pacientes',

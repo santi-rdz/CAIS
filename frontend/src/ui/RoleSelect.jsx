@@ -1,11 +1,15 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/Select'
 
-const options = [
+const BASE_OPTIONS = [
   { label: 'Pasante', value: 'pasante' },
   { label: 'Coordinador', value: 'coordinador' },
 ]
 
-export default function RoleSelect({ role, setRole, className }) {
+const ADMIN_OPTION = { label: 'Admin', value: 'admin' }
+
+export default function RoleSelect({ role, setRole, className, allowAdmin = false }) {
+  const options = allowAdmin ? [...BASE_OPTIONS, ADMIN_OPTION] : BASE_OPTIONS
+
   return (
     <Select value={role ?? ''} onValueChange={setRole} className={`w-fit ${className}`}>
       <SelectTrigger>

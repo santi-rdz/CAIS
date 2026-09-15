@@ -28,14 +28,6 @@ export default function PersonCell({ name, secondary, avatar }) {
   )
 }
 
-PersonCell.UserAvatar = function UserAvatar({ picture, email }) {
-  return (
-    <Avatar className="bg-gray-200 text-base font-medium text-zinc-600 uppercase">
-      {picture ? <img src={picture} alt="" className="size-full object-cover" /> : email?.at(0)}
-    </Avatar>
-  )
-}
-
 PersonCell.PatientAvatar = function PatientAvatar() {
   return (
     <Avatar className="bg-emerald-50 text-emerald-600">

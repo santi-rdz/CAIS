@@ -1,12 +1,14 @@
 import { HiOutlineEnvelope, HiOutlinePencil, HiOutlineTrash } from 'react-icons/hi2'
+import { AREA_LABELS } from '@cais/shared/constants/users'
 
 const ROLE_BADGE = {
   pasante: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
   coordinador: 'bg-violet-50 text-violet-700 ring-1 ring-violet-200',
+  admin: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
 }
 
 export default function InvitationCard({ user, isEditing, onEdit, onDelete }) {
-  const { email, role } = user
+  const { email, role, area } = user
 
   return (
     <li
@@ -24,11 +26,18 @@ export default function InvitationCard({ user, isEditing, onEdit, onDelete }) {
 
       <div className="flex-1 overflow-hidden">
         <p className="text-4 truncate font-medium text-gray-900">{email}</p>
-        <span
-          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[role] ?? 'bg-gray-100 text-gray-600'}`}
-        >
-          {role}
-        </span>
+        <div className="mt-0.5 flex flex-wrap gap-1.5">
+          <span
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${ROLE_BADGE[role] ?? 'bg-gray-100 text-gray-600'}`}
+          >
+            {role}
+          </span>
+          {area && (
+            <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+              {AREA_LABELS[area] ?? area}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">

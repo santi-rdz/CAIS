@@ -13,6 +13,7 @@ export default function DomainEmailInput({
   className,
   setIsDomain,
   isDomain,
+  required = true,
 }) {
   function handleDomainChange(val) {
     setIsDomain(val)
@@ -27,7 +28,12 @@ export default function DomainEmailInput({
   )
 
   return (
-    <FormRow htmlFor={id} label={isDomain ? 'Usuario' : 'Correo electrónico'} className={className}>
+    <FormRow
+      htmlFor={id}
+      label={isDomain ? 'Usuario' : 'Correo electrónico'}
+      className={className}
+      required={required}
+    >
       <Input
         {...register(fieldName, {
           required: isDomain ? 'Ingresa un usuario' : 'Ingresa un correo electrónico ',

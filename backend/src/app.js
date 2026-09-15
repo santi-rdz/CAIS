@@ -14,6 +14,7 @@ import { auditRouter } from '#routes/audit.js'
 import { nutritionRouter } from '#routes/nutrition.js'
 import { statsRouter } from '#routes/stats.js'
 import { icd11Router } from '#routes/icd11.js'
+import { trackPresence } from '#middleware/presence.js'
 import { AppError } from '#lib/appError.js'
 import { prismaErrorToAppError } from '#lib/prismaError.js'
 
@@ -47,6 +48,8 @@ app.use(
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' })
 })
+
+app.use(trackPresence)
 
 app.use('/usuarios', userRouter)
 app.use('/auth', authRouter)

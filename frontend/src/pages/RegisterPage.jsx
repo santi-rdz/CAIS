@@ -1,5 +1,6 @@
 import CoordForm from '@features/users/CoordForm'
 import InternForm from '@features/users/InternForm'
+import AdminForm from '@features/users/AdminForm'
 import { useInvitedUser } from '@features/users/hooks/useInvitedUser'
 import { toastApiError } from '@lib/ApiError'
 import { registroUsuario } from '@services/apiUsers'
@@ -48,9 +49,21 @@ export default function RegisterPage() {
       </div>
     )
 
-  const { correo, rol } = invitedUser
+  const { correo, rol, area } = invitedUser
 
+  if (rol === 'ADMIN')
+    return <AdminForm registration email={correo} onSubmit={onSubmit} isPending={isPending} />
   if (rol === 'COORDINADOR')
-    return <CoordForm registration email={correo} onSubmit={onSubmit} isPending={isPending} />
-  return <InternForm registration email={correo} onSubmit={onSubmit} isPending={isPending} />
+    return (
+      <CoordForm
+        registration
+        email={correo}
+        area={area}
+        onSubmit={onSubmit}
+        isPending={isPending}
+      />
+    )
+  return (
+    <InternForm registration email={correo} area={area} onSubmit={onSubmit} isPending={isPending} />
+  )
 }

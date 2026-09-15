@@ -25,6 +25,7 @@ export class AuthModel {
       select: {
         id: true,
         nombre: true,
+        apellidos: true,
         correo: true,
         foto: true,
         roles: { select: { codigo: true } },

@@ -95,10 +95,11 @@ model aparatos_sistemas {
 }
 
 model areas {
-  id              Int               @id @default(autoincrement())
-  nombre          String            @unique(map: "nombre") @db.VarChar(100)
-  usuarios        usuarios[]
-  pacientes_areas pacientes_areas[]
+  id                    Int                     @id @default(autoincrement())
+  nombre                String                  @unique(map: "nombre") @db.VarChar(100)
+  usuarios              usuarios[]
+  pacientes_areas       pacientes_areas[]
+  invitaciones_registro invitaciones_registro[]
 }
 
 // Membresía de un paciente en un área (fuente de verdad, permite multi-área).
@@ -750,6 +751,7 @@ model invitaciones_registro {
   id         Int       @id @default(autoincrement())
   correo     String    @unique(map: "correo") @db.VarChar(255)
   rol_id     Int
+  area_id    Int?
   token      Bytes     @unique(map: "token") @db.Binary(16)
   usado      Boolean?  @default(false)
   expira_at  DateTime  @db.DateTime(0)
@@ -757,9 +759,11 @@ model invitaciones_registro {
   creado_por Bytes     @db.Binary(16)
   usuarios   usuarios  @relation(fields: [creado_por], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_creado_por")
   roles      roles     @relation(fields: [rol_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_rol")
+  areas      areas?    @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invitacion_area")
 
   @@index([creado_por], map: "fk_invitacion_creado_por")
   @@index([rol_id], map: "fk_invitacion_rol")
+  @@index([area_id], map: "fk_invitacion_area")
 }
 
 model password_reset_tokens {

@@ -5,10 +5,14 @@ import { prisma } from '#config/prisma.js'
 import { sendEmail } from '#lib/sendEmail.js'
 import { registerEmail } from '#lib/registerEmail.js'
 import { serverConfig } from '#config/env.js'
-import { ConflictError } from '#lib/appError.js'
+import { ConflictError, ForbiddenError, ValidationError } from '#lib/appError.js'
+import { ROLES } from '@cais/shared/constants/users'
 
 export class UserService {
-  static async preRegister(usersData, creadoPor) {
+  // `creator`: { userId, role, areaId } de la sesión. Impone la autorización de
+  // área/rol: un no-admin solo invita a su propia área y no puede crear ADMIN.
+  static async preRegister(usersData, creator) {
+    const { userId: creadoPor, role: creatorRole, areaId: creatorAreaId } = creator
     const emails = usersData.map((u) => u.email)
 
     const uniqueEmails = [...new Set(emails)]
@@ -42,17 +46,39 @@ export class UserService {
       })
     }
 
+    const isAdminCreator = creatorRole === ROLES.ADMIN
+    const areaRows = await prisma.areas.findMany({ select: { id: true, nombre: true } })
+    const areaIdByName = new Map(areaRows.map((a) => [a.nombre, a.id]))
+    const roleRows = await prisma.roles.findMany({ select: { id: true, codigo: true } })
+    const roleIdByCode = new Map(roleRows.map((r) => [r.codigo, r.id]))
+
     const invitations = []
 
     for (const u of usersData) {
-      const roleRow = await prisma.roles.findFirst({
-        where: { codigo: u.role.toUpperCase() },
-      })
-      if (!roleRow) throw new Error(`Rol "${u.role}" no existe`)
+      const roleUp = u.role.toUpperCase()
+      const roleId = roleIdByCode.get(roleUp)
+      if (!roleId) throw new Error(`Rol "${u.role}" no existe`)
+
+      let areaId
+      if (!isAdminCreator) {
+        // El coordinador solo invita dentro de su propia área y nunca admins.
+        if (roleUp === ROLES.ADMIN) {
+          throw new ForbiddenError('No tienes permiso para invitar administradores')
+        }
+        areaId = creatorAreaId
+      } else if (roleUp === ROLES.ADMIN) {
+        areaId = null
+      } else {
+        areaId = u.area ? areaIdByName.get(u.area.toUpperCase()) : undefined
+        if (areaId == null) {
+          throw new ValidationError('El área es requerida para este rol', { emails: [u.email] })
+        }
+      }
 
       invitations.push({
         correo: u.email,
-        rolId: roleRow.id,
+        rolId: roleId,
+        areaId,
         token: randomUUID(),
         expiraAt: new Date(Date.now() + INVITATION_TTL_MS),
         creadoPor,

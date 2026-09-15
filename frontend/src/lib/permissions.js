@@ -2,14 +2,12 @@ import { ROLES, AREAS, ROLE_RANK } from '@cais/shared/constants/users'
 
 export const PERMISSIONS = {
   SEE_USER_AREA_COLUMN: 'SEE_USER_AREA_COLUMN',
-  EDIT_PASANTE: 'EDIT_PASANTE',
   SEE_MEDICINA_STATS: 'SEE_MEDICINA_STATS',
   SEE_NUTRICION_STATS: 'SEE_NUTRICION_STATS',
 }
 
 const RULES = {
   [PERMISSIONS.SEE_USER_AREA_COLUMN]: (user) => user?.rol?.toUpperCase() === ROLES.ADMIN,
-  [PERMISSIONS.EDIT_PASANTE]: (user) => user?.rol?.toUpperCase() === ROLES.COORDINADOR,
   [PERMISSIONS.SEE_MEDICINA_STATS]: (user) => user?.area?.toUpperCase() === AREAS.MEDICINA,
   [PERMISSIONS.SEE_NUTRICION_STATS]: (user) => user?.area?.toUpperCase() === AREAS.NUTRICION,
 }
@@ -17,6 +15,15 @@ const RULES = {
 export function can(user, permission) {
   const rule = RULES[permission]
   return rule ? rule(user) : false
+}
+
+// Editar cuenta: el admin edita a cualquiera; el coordinador solo a pasantes.
+export function canEditUserAccount(actor, target) {
+  if (!actor || !target) return false
+  const actorRol = actor.rol?.toUpperCase()
+  if (actorRol === ROLES.ADMIN) return true
+  if (actorRol === ROLES.COORDINADOR) return target.rol?.toUpperCase() === ROLES.PASANTE
+  return false
 }
 
 // Desactivar/eliminar: solo cuentas de rango estrictamente menor, nunca la propia.

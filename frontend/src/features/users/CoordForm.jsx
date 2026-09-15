@@ -19,12 +19,14 @@ function parseUserDefaults(user) {
     telefono: user.telefono ?? '',
     correo: user.correo ?? '',
     cedula: user.cedula ?? '',
+    area: user.area ?? '',
   }
 }
 
 import useCreateUser from '@features/users/hooks/useCreateUser'
 import useUpdateUser from '@features/users/hooks/useUpdateUser'
 import useEmailDomain from '@hooks/useEmailDomain'
+import usePermissions from '@hooks/usePermissions'
 import { useStepForm } from '@hooks/useStepForm'
 import CoordPersonalInfoForm from '@features/users/CoordPersonalInfoForm'
 import PasswordForm from '@features/users/PasswordForm'
@@ -39,6 +41,7 @@ export default function CoordForm({
   onCloseModal,
   registration = false,
   email,
+  area,
   onSubmit: externalOnSubmit,
   isPending = false,
   user, // present in edit mode
@@ -52,17 +55,22 @@ export default function CoordForm({
   const { createUser, isCreating } = useCreateUser()
   const { updateUser, isUpdating } = useUpdateUser()
   const { isUabcDomain, setIsUabcDomain, resolveEmail, correoField } = useEmailDomain()
+  const { isAdmin, area: myArea } = usePermissions()
+
+  const areaDisabled = registration || !isAdmin
 
   const createFormSchema = buildCoordCreateSchema(correoField)
 
+  const personalFields = ['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula']
   const stepsFields = isEdit
-    ? [['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula']]
-    : [
-        ['nombre', 'apellidos', 'correo', 'fecha_nacimiento', 'telefono', 'cedula'],
-        registration ? ['password', 'confirmPassword'] : ['password'],
-      ]
+    ? [isAdmin ? [...personalFields, 'area'] : personalFields]
+    : [[...personalFields, 'area'], registration ? ['password', 'confirmPassword'] : ['password']]
 
-  const defaultValues = isEdit ? parseUserDefaults(user) : registration ? { correo: email } : {}
+  const defaultValues = isEdit
+    ? parseUserDefaults(user)
+    : registration
+      ? { correo: email, area: area ?? '' }
+      : { area: isAdmin ? '' : (myArea ?? '') }
 
   const resolver = isEdit
     ? zodResolver(coordEditSchema)
@@ -93,6 +101,7 @@ export default function CoordForm({
             fecha_nacimiento: data.fecha_nacimiento,
             telefono: data.telefono,
             cedula: data.cedula,
+            ...(isAdmin && { area: data.area }),
           },
         },
         { onSuccess: () => close?.() }
@@ -119,6 +128,7 @@ export default function CoordForm({
           fecha_nacimiento: data.fecha_nacimiento,
           telefono: data.telefono,
           rol: 'coordinador',
+          area: data.area,
           cedula: data.cedula,
           password: data.password,
         },
@@ -192,6 +202,7 @@ export default function CoordForm({
             disabledEmail={isEdit ? user.correo : registration ? email : undefined}
             isUabcDomain={isUabcDomain}
             setIsUabcDomain={setIsUabcDomain}
+            areaDisabled={areaDisabled}
           />
         )}
         {!isEdit && currStep === 1 && <PasswordComponent />}

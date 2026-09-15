@@ -5,8 +5,12 @@ export class InvitationController {
   static async create(req, res) {
     // Los conflictos (correo ya registrado / invitación pendiente) los lanza
     // UserService como ConflictError → 409 vía el error middleware.
-    const creadoPor = req.session.userId || null
-    const response = await UserService.preRegister(req.body, creadoPor)
+    const creator = {
+      userId: req.session.userId || null,
+      role: req.session.role,
+      areaId: req.session.areaId,
+    }
+    const response = await UserService.preRegister(req.body, creator)
     res.status(201).json(response)
   }
 
@@ -51,6 +55,6 @@ export class InvitationController {
       })
     }
 
-    res.json({ correo: invitacion.correo, rol: invitacion.rol })
+    res.json({ correo: invitacion.correo, rol: invitacion.rol, area: invitacion.area })
   }
 }

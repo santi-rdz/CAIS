@@ -12,7 +12,9 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "prisma:seed:catalogs": "node --env-file-if-exists=../.env prisma/seedCatalogs.js",
+    "prisma:bootstrap-admin": "node --env-file-if-exists=../.env prisma/bootstrapAdmin.js"
   },
   "dependencies": {
     "@cais/shared": "workspace:*",
@@ -26,6 +28,7 @@
     "express-session": "1.19.0",
     "helmet": "8.2.0",
     "mariadb": "3.5.2",
+    "node-cron": "4.6.0",
     "nodemailer": "8.0.10",
     "zod": "4.1.12"
   },
@@ -46,6 +49,7 @@
     "#controllers/*": "./src/controllers/*",
     "#middleware/*": "./src/middleware/*",
     "#routes/*": "./src/routes/*",
-    "#services/*": "./src/services/*"
+    "#services/*": "./src/services/*",
+    "#jobs/*": "./src/jobs/*"
   }
 }

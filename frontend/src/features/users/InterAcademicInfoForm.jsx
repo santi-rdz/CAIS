@@ -1,4 +1,5 @@
 import DomainEmailInput from '@ui/DomainEmailInput'
+import AreaField from '@ui/AreaField'
 import FormRow from '@components/FormRow'
 import Heading from '@components/Heading'
 import Input from '@components/Input'
@@ -17,7 +18,12 @@ const PERIODS = [
   { value: '2', label: 'Julio - Diciembre' },
 ]
 
-export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, setIsUabcDomain }) {
+export default function InterAcademicInfoForm({
+  disabledEmail,
+  isUabcDomain,
+  setIsUabcDomain,
+  areaDisabled = false,
+}) {
   const { register, control, formState } = useFormContext()
   const { errors } = formState
 
@@ -27,7 +33,7 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
         Información Académica
       </Heading>
       {disabledEmail ? (
-        <FormRow htmlFor="correo" label="Correo electrónico">
+        <FormRow htmlFor="correo" label="Correo electrónico" required>
           <Input {...register('correo')} id="correo" type="email" disabled variant="outline" />
         </FormRow>
       ) : (
@@ -38,25 +44,33 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
           fieldName="correo"
           register={register}
           error={errors?.correo?.message}
+          required
         />
       )}
 
-      <FormRow htmlFor="matricula" label="Matricula">
-        <Input
-          {...register('matricula')}
-          id="matricula"
-          type="text"
-          placeholder="e.g 1299332"
-          hasError={errors?.matricula?.message}
-          variant="outline"
-          suffix={<HiOutlineIdentification size={20} className="text-gray-400" />}
-        />
-      </FormRow>
+      <Row className="gap-4">
+        <FormRow htmlFor="matricula" label="Matricula" className="w-full" required>
+          <Input
+            {...register('matricula')}
+            id="matricula"
+            type="text"
+            placeholder="e.g 1299332"
+            hasError={errors?.matricula?.message}
+            variant="outline"
+            suffix={<HiOutlineIdentification size={20} className="text-gray-400" />}
+          />
+        </FormRow>
+
+        <AreaField className="w-full" disabled={areaDisabled} />
+      </Row>
 
       <Row className="gap-8">
         {/* Inicio de Servicio */}
         <div className="flex-1">
-          <p className="text-5 mb-2">Inicio de Servicio</p>
+          <p className="text-5 mb-2">
+            Inicio de Servicio
+            <span className="ml-0.5 text-red-500">*</span>
+          </p>
           <div className="flex gap-2">
             <Controller
               name="servicio_inicio_anio"
@@ -114,7 +128,10 @@ export default function InterAcademicInfoForm({ disabledEmail, isUabcDomain, set
 
         {/* Fin de Servicio */}
         <div className="flex-1">
-          <p className="text-5 mb-2">Fin de Servicio</p>
+          <p className="text-5 mb-2">
+            Fin de Servicio
+            <span className="ml-0.5 text-red-500">*</span>
+          </p>
           <div className="flex gap-2">
             <Controller
               name="servicio_fin_anio"

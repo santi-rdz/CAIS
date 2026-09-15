@@ -128,7 +128,7 @@ function RequiredSection({ register, control, errors }) {
         />
         <TimeField control={control} errors={errors} />
       </Row>
-      <FormRow htmlFor="ubicacion" label="Ubicación de la emergencia">
+      <FormRow htmlFor="ubicacion" label="Ubicación de la emergencia" required>
         <Input
           {...register('ubicacion')}
           id="ubicacion"

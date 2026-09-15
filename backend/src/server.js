@@ -1,14 +1,18 @@
 import app from '#app'
 import { prisma } from '#config/prisma.js'
 import { serverConfig } from '#config/env.js'
+import { startScheduler, stopScheduler } from '#jobs/scheduler.js'
 
 const server = app.listen(serverConfig.port, () => {
   console.log(`Server is running on http://localhost:${serverConfig.port}`)
 })
 
+startScheduler()
+
 // Sin $disconnect, cada restart deja conexiones zombies hasta saturar MySQL.
 async function gracefulShutdown(signal) {
   console.log(`Received ${signal}, shutting down gracefully...`)
+  stopScheduler()
   server.close(async () => {
     await prisma.$disconnect()
     process.exit(0)

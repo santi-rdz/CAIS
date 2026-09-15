@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import bcrypt from 'bcryptjs'
 
+import { seedCatalogs } from './seedCatalogs.js'
+
 // ── Prisma client (standalone, no depende de app) ──────────────────
 const url = new URL(process.env.DATABASE_URL)
 const adapter = new PrismaMariaDb({
@@ -41,76 +43,15 @@ const NE_IDS = {
 }
 
 async function main() {
+  await seedCatalogs(prisma)
+
+  // Los datos de prueba solo se siembran en una DB vacía; en prod nunca corren.
   if ((await prisma.usuarios.count()) > 0) {
-    console.log('Seed skipped: ya existen usuarios en la DB.')
+    console.log('Datos de prueba omitidos: ya existen usuarios en la DB.')
     return
   }
 
   const passwordHash = await bcrypt.hash(SEED_PASSWORD, 12)
-
-  // ═══════════════════════════════════════════
-  // 1. CATÁLOGOS BASE
-  // ═══════════════════════════════════════════
-  const estadosData = ['ACTIVO', 'PENDIENTE', 'INACTIVO']
-  const rolesData = ['PASANTE', 'COORDINADOR', 'ADMIN']
-  const areasData = ['MEDICINA', 'NUTRICION']
-  const accionesData = ['CREAR', 'ACTUALIZAR', 'ELIMINAR', 'INICIAR_SESION']
-  const entidadesData = [
-    'NOTA_EVOLUCION',
-    'EXAMINACION_FISICA',
-    'TPAN',
-    'REC_24H',
-    'CAL_GET_NUTR',
-    'EVAL_ANTROPOMETRICA',
-    'HISTORIA_MEDICA',
-    'PACIENTE',
-    'USUARIO',
-    'EMERGENCIA',
-    'HISTORIA_NUTRICION',
-    'EVAL_BIOQ_NUTRICION',
-    'EVAL_NUTRICIONAL',
-    'EVAL_ACT_FISICA_NUTRICION',
-    'EVAL_CAL_SUENO',
-    'REPORTE_EEN',
-  ]
-
-  for (const codigo of estadosData) {
-    await prisma.estados.upsert({
-      where: { codigo },
-      update: {},
-      create: { codigo },
-    })
-  }
-  for (const codigo of rolesData) {
-    await prisma.roles.upsert({
-      where: { codigo },
-      update: {},
-      create: { codigo },
-    })
-  }
-  for (const nombre of areasData) {
-    await prisma.areas.upsert({
-      where: { nombre },
-      update: {},
-      create: { nombre },
-    })
-  }
-  for (const codigo of accionesData) {
-    await prisma.acciones.upsert({
-      where: { codigo },
-      update: {},
-      create: { codigo },
-    })
-  }
-  for (const nombre of entidadesData) {
-    await prisma.entidades.upsert({
-      where: { nombre },
-      update: {},
-      create: { nombre },
-    })
-  }
-
-  console.log('✓ Catálogos base insertados')
 
   // ═══════════════════════════════════════════
   // 2. USUARIOS DE PRUEBA
@@ -126,7 +67,6 @@ async function main() {
       estado_id: 1,
       rol_id: 1,
       area_id: 1,
-      foto: 'https://randomuser.me/api/portraits/men/45.jpg',
       matricula: 'MED001',
       cedula: 'CED-MED-001',
       inicio_servicio: '08:00',
@@ -143,7 +83,6 @@ async function main() {
       estado_id: 1,
       rol_id: 2,
       area_id: 1,
-      foto: 'https://randomuser.me/api/portraits/women/44.jpg',
       matricula: 'MED002',
       inicio_servicio: '09:00',
       fin_servicio: '15:00',
@@ -159,7 +98,6 @@ async function main() {
       estado_id: 3,
       rol_id: 1,
       area_id: 2,
-      foto: 'https://randomuser.me/api/portraits/men/32.jpg',
       matricula: 'NUT001',
       inicio_servicio: '10:00',
       fin_servicio: '14:00',
@@ -175,7 +113,6 @@ async function main() {
       estado_id: 1,
       rol_id: 1,
       area_id: 2,
-      foto: 'https://randomuser.me/api/portraits/women/65.jpg',
       matricula: 'NUT002',
       inicio_servicio: '07:00',
       fin_servicio: '13:00',
@@ -191,7 +128,6 @@ async function main() {
       estado_id: 1,
       rol_id: 2,
       area_id: 2,
-      foto: 'https://randomuser.me/api/portraits/women/52.jpg',
       matricula: 'NUT003',
       cedula: 'CED-NUT-001',
       inicio_servicio: '08:00',
@@ -208,11 +144,26 @@ async function main() {
       estado_id: 1,
       rol_id: 3,
       area_id: null,
-      foto: 'https://randomuser.me/api/portraits/men/60.jpg',
       matricula: null,
       inicio_servicio: null,
       fin_servicio: null,
       ultimo_acceso: new Date('2026-03-12T08:00:00'),
+    },
+    {
+      nombre: 'Mauricio',
+      apellidos: 'Sánchez',
+      fecha_nacimiento: new Date('1990-01-01'),
+      correo: 'mauricio.sachez@uabc.edu.mx',
+      telefono: '6861000007',
+      password_hash: passwordHash,
+      estado_id: 1,
+      rol_id: 3,
+      area_id: null,
+      foto: null,
+      matricula: null,
+      inicio_servicio: null,
+      fin_servicio: null,
+      ultimo_acceso: null,
     },
   ]
 

@@ -6,15 +6,9 @@ import { prisma } from '#config/prisma.js'
 import { parsePagination } from '#lib/paginate.js'
 import { BCRYPT_ROUNDS } from '#lib/constants.js'
 import { canManageUserAccount } from '#lib/userAccess.js'
-import { ForbiddenError } from '#lib/appError.js'
+import { ForbiddenError, ValidationError } from '#lib/appError.js'
 import bcrypt from 'bcryptjs'
 import { formatZodErrors } from '#lib/formatErrors.js'
-
-function randomAvatar() {
-  const gender = Math.random() < 0.5 ? 'men' : 'women'
-  const n = Math.floor(Math.random() * 99) + 1
-  return `https://randomuser.me/api/portraits/${gender}/${n}.jpg`
-}
 
 export class UserController {
   static async getAll(req, res) {
@@ -62,16 +56,38 @@ export class UserController {
         throw new ForbiddenError('No tienes permiso para desactivar esta cuenta')
       }
     }
-    const updatedUser = await UserModel.update(req.params.id, req.body)
+
+    const data = { ...req.body }
+    if (data.area && req.session.role !== ROLES.ADMIN) delete data.area
+
+    const updatedUser = await UserModel.update(req.params.id, data)
     res.json(updatedUser)
   }
 
   static async create(req, res) {
-    const area = req.session.role === ROLES.ADMIN ? req.body.area : req.session.area
+    const roleUp = (req.body.rol ?? '').toUpperCase()
+    const isAdminCreator = req.session.role === ROLES.ADMIN
+
+    // Autorización de área/rol (espejo de UserService.preRegister):
+    // no-admin queda forzado a su área y no puede crear administradores; el
+    // admin elige el área (null para rol ADMIN, requerida para el resto).
+    let area
+    if (!isAdminCreator) {
+      if (roleUp === ROLES.ADMIN) {
+        throw new ForbiddenError('No tienes permiso para crear administradores')
+      }
+      area = req.session.area
+    } else if (roleUp === ROLES.ADMIN) {
+      area = null
+    } else {
+      area = req.body.area
+      if (!area) throw new ValidationError('El área es requerida para este rol')
+    }
+
     const password_hash = await bcrypt.hash(req.body.password, BCRYPT_ROUNDS)
 
     const createdUser = await prisma.$transaction((tx) =>
-      UserModel.create({ ...req.body, area, foto: randomAvatar(), password_hash }, tx)
+      UserModel.create({ ...req.body, area, password_hash }, tx)
     )
 
     res.status(201).json({ message: 'Usuario creado exitosamente', usuario: createdUser })
@@ -104,7 +120,6 @@ export class UserController {
           correo: invitacion.correo,
           rol: invitacion.rol,
           area: invitacion.area ?? null,
-          foto: randomAvatar(),
           password_hash,
         },
         tx

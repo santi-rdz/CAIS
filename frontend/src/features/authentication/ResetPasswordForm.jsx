@@ -71,6 +71,7 @@ export default function ResetPasswordForm() {
         error={errors?.password?.message}
         registration={register('password')}
         variant="outline"
+        required
       />
 
       <PasswordInput
@@ -80,6 +81,7 @@ export default function ResetPasswordForm() {
         error={errors?.confirmPassword?.message}
         registration={register('confirmPassword')}
         variant="outline"
+        required
       />
 
       <PasswordRequirements password={password} />

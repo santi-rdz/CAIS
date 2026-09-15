@@ -16,6 +16,7 @@ export default function RegistrationPasswordForm() {
         error={errors?.password?.message}
         registration={register('password')}
         variant="outline"
+        required
       />
 
       <PasswordInput
@@ -25,6 +26,7 @@ export default function RegistrationPasswordForm() {
         error={errors?.confirmPassword?.message}
         registration={register('confirmPassword')}
         variant="outline"
+        required
       />
 
       <PasswordRequirements password={password} />

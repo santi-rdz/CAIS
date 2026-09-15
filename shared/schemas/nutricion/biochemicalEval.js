@@ -71,7 +71,7 @@ export const perfilRenalElectrolitosSchema = z.object({
   acido_urico: labNum,
   sodio: labNum,
   peso_sin_edema: num({ max: 500 }),
-  agua: percent,
+  agua: labNum,
   potasio: labNum,
   fosforo: labNum,
   calcio_serico: labNum,

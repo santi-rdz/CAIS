@@ -192,6 +192,7 @@ export class UserModel {
       servicio_fin_anio,
       servicio_fin_periodo,
       estado,
+      area,
       ...rest
     } = data
 
@@ -206,6 +207,7 @@ export class UserModel {
           fin_servicio: buildServicio(servicio_fin_anio, servicio_fin_periodo),
         }),
       ...(estado && { estados: { connect: { codigo: estado } } }),
+      ...(area && { areas: { connect: { nombre: area } } }),
     }
 
     const existing = await prisma.usuarios.findFirst({

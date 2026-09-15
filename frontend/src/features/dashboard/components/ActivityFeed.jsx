@@ -2,17 +2,10 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useNavigate } from 'react-router-dom'
 import { getActivityStyle, buildActivityTitle, buildActivityNavPath } from '@lib/activityStyles'
+import { shortName } from '@lib/utils'
+import UserAvatar from '@components/UserAvatar'
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-
-function UserAvatar({ foto, email }) {
-  const initial = email?.at(0)?.toUpperCase() ?? '?'
-  return (
-    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200 text-xs font-semibold text-gray-600 uppercase">
-      {foto ? <img src={foto} alt={email} className="size-full object-cover" /> : initial}
-    </div>
-  )
-}
 
 function ActivityItem({ item }) {
   const navigate = useNavigate()
@@ -32,12 +25,12 @@ function ActivityItem({ item }) {
       </div>
       <div className="min-w-0 flex-1 text-left">
         <p className="truncate text-sm text-gray-800">
-          <span className="font-semibold">{item.usuario}</span>{' '}
+          <span className="font-semibold">{shortName(item.usuario, item.apellidos)}</span>{' '}
           <span className="text-gray-500">{title}</span>
         </p>
         <p className="text-xs text-neutral-400">{timeAgo}</p>
       </div>
-      <UserAvatar foto={item.foto} email={item.email} />
+      <UserAvatar foto={item.foto} nombre={item.usuario} apellidos={item.apellidos} size="xs" />
     </>
   )
 

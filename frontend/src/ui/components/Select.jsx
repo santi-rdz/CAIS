@@ -10,7 +10,6 @@ import {
 } from 'react'
 import { HiCheck, HiChevronRight, HiXMark } from 'react-icons/hi2'
 import useDropdownPosition from '@hooks/useDropdownPosition'
-import useHoverOpen from '@hooks/useHoverOpen'
 import DropdownPanel from './DropdownPanel'
 import Checkbox from './Checkbox'
 import { cn } from '@lib/utils'
@@ -51,7 +50,7 @@ export function Select({
   className = '',
   hasError,
 }) {
-  const { triggerRef, isOpen, openAbove, positionStyle, open, close, toggle } = useDropdownPosition(
+  const { triggerRef, isOpen, openAbove, positionStyle, close, toggle } = useDropdownPosition(
     dropdownHeight,
     { align, fullWidth }
   )
@@ -66,8 +65,6 @@ export function Select({
     close()
     setSearchQuery('')
   }, [close])
-
-  const { onEnter, onLeave } = useHoverOpen(open, closeAndReset)
 
   const registerLabel = useCallback((val, label) => {
     labelsRef.current[val] = label
@@ -154,19 +151,8 @@ export function Select({
 
   return (
     <SelectContext.Provider value={contextValue}>
-      <div
-        ref={triggerRef}
-        className={cn('relative', className)}
-        onMouseEnter={onEnter}
-        onMouseLeave={onLeave}
-        onBlur={handleBlur}
-      >
+      <div ref={triggerRef} className={cn('relative', className)} onBlur={handleBlur}>
         {children}
-        {isOpen && (
-          <div
-            className={cn('absolute left-0 h-2 w-full', openAbove ? 'bottom-full' : 'top-full')}
-          />
-        )}
       </div>
     </SelectContext.Provider>
   )
@@ -281,6 +267,7 @@ export function SelectContent({ children, portal = false, maxHeight = 220 }) {
         {showAddOption && (
           <button
             type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => handleCustomAdd(searchQuery.trim())}
             className="text-5 mt-0.5 flex w-full cursor-pointer items-center gap-2 rounded-sm border-t border-gray-100 px-3 py-1.5 pt-2 text-green-700 transition-colors hover:bg-green-50"
           >
@@ -305,6 +292,7 @@ function ClearSelection() {
   return (
     <button
       type="button"
+      onMouseDown={(e) => e.preventDefault()}
       onClick={() => handleValueChange('')}
       className="text-5 flex w-full cursor-pointer items-center gap-2 rounded-sm px-3 py-2 font-medium text-red-500 transition-colors hover:bg-red-50"
     >
@@ -399,6 +387,9 @@ export function SelectItem({ children, value, icon: Icon }) {
     <button
       type="button"
       tabIndex={isOpen ? 0 : -1}
+      // Evita que el trigger pierda foco (mousedown) antes del click: con el
+      // dropdown en portal, ese blur cerraría el panel antes del mouseup.
+      onMouseDown={(e) => e.preventDefault()}
       onClick={() => handleValueChange(value)}
       className={`${ITEM_BASE} ${isActive && !multiple && ITEM_ACTIVE_SINGLE}`}
     >

@@ -29,6 +29,7 @@ export default function PasswordForm() {
         error={errors?.password?.message}
         registration={register('password')}
         variant="outline"
+        required
       />
     </div>
   )

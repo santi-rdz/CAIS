@@ -1,6 +1,8 @@
 import { HiOutlineArrowLeft, HiOutlinePencilSquare, HiOutlineTrash } from 'react-icons/hi2'
+import Tab from '@components/Tab'
 import Button from '@components/Button'
 import Heading from '@components/Heading'
+import { useTabStep } from '@hooks/useTabStep'
 import { formatFecha } from '@lib/dateHelpers'
 import { formatNumber } from '@lib/utils'
 import { computeIMC, classifyIMC } from '@features/patients/nutricion/constants'
@@ -37,12 +39,53 @@ function ObsBlock({ label, value }) {
   )
 }
 
+// Tab del detalle → step de EenReportForm (mismo orden que ADULTO_STEPS ahí).
+const TAB_TO_STEP = { evaluacion: 0, pes: 1 }
+
 export default function EenReportDetail({ reporte, onBack, onEdit, onDelete }) {
   const esAdulto = reporte.tipo === 'adulto'
   const imc = computeIMC({ peso: reporte.peso, estatura: reporte.estatura })
   // Los rangos OMS del IMC son de adulto; no se clasifican reportes pediátricos.
   const clasif = esAdulto ? classifyIMC(imc) : null
   const obsFields = esAdulto ? ADULTO_OBS_FIELDS : KID_OBS_FIELDS
+  const { activeTab, setActiveTab, initialStep } = useTabStep(TAB_TO_STEP, undefined, 'eenTab')
+
+  const evaluacionContent = (
+    <div className="space-y-6">
+      <section className="space-y-3">
+        <Heading as="h4" showBar>
+          Evaluación nutricional
+        </Heading>
+        <div className="grid grid-cols-4 gap-3 max-sm:grid-cols-2">
+          <DatoTile label="Peso" value={fmt(reporte.peso, 'kg')} />
+          <DatoTile label="Estatura" value={fmt(reporte.estatura, 'cm')} />
+          <DatoTile label="Cintura" value={fmt(reporte.cintura, 'cm')} />
+          <DatoTile
+            label="IMC (kg/m²)"
+            value={imc != null ? formatNumber(imc) : '—'}
+            sub={clasif?.label}
+            subTone={clasif ? IMC_TONE[clasif.tone] : undefined}
+          />
+        </div>
+        <DatoTile label="Apetito" value={reporte.apetito || '—'} />
+      </section>
+
+      <section className="space-y-3">
+        <Heading as="h4" showBar>
+          Observaciones
+        </Heading>
+        {!esAdulto && (
+          <ObsBlock
+            label="¿Se solicitó orientación nutricional?"
+            value={reporte.solicito_orient == null ? '—' : reporte.solicito_orient ? 'Sí' : 'No'}
+          />
+        )}
+        {obsFields.map((f) => (
+          <ObsBlock key={f.name} label={f.label} value={reporte[f.name]} />
+        ))}
+      </section>
+    </div>
+  )
 
   return (
     <div data-testid="een-report-detail">
@@ -74,56 +117,42 @@ export default function EenReportDetail({ reporte, onBack, onEdit, onDelete }) {
           >
             <HiOutlineTrash size={16} />
           </Button>
-          <Button variant="secondary" size="md" className="gap-1.5" onClick={() => onEdit?.(0)}>
+          <Button
+            variant="secondary"
+            size="md"
+            className="gap-1.5"
+            onClick={() => onEdit?.(initialStep)}
+          >
             <HiOutlinePencilSquare size={14} />
             Editar reporte
           </Button>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <section className="space-y-3">
-          <Heading as="h4" showBar>
-            Evaluación nutricional
-          </Heading>
-          <div className="grid grid-cols-4 gap-3 max-sm:grid-cols-2">
-            <DatoTile label="Peso" value={fmt(reporte.peso, 'kg')} />
-            <DatoTile label="Estatura" value={fmt(reporte.estatura, 'cm')} />
-            <DatoTile label="Cintura" value={fmt(reporte.cintura, 'cm')} />
-            <DatoTile
-              label="IMC (kg/m²)"
-              value={imc != null ? formatNumber(imc) : '—'}
-              sub={clasif?.label}
-              subTone={clasif ? IMC_TONE[clasif.tone] : undefined}
-            />
+      {esAdulto ? (
+        <Tab variant="underline" value={activeTab} onValueChange={setActiveTab}>
+          <Tab.List>
+            <Tab.Trigger value="evaluacion">Evaluación nutricional</Tab.Trigger>
+            <Tab.Trigger value="pes">Diagnóstico (PES)</Tab.Trigger>
+          </Tab.List>
+
+          <div className="pt-5">
+            <Tab.Panel value="evaluacion" scrollable={false}>
+              {evaluacionContent}
+            </Tab.Panel>
+            <Tab.Panel value="pes" scrollable={false}>
+              <section className="space-y-3">
+                <Heading as="h4" showBar>
+                  Diagnóstico nutricional (PES)
+                </Heading>
+                <DiagnosticosResumen diagnosticos={reporte.diagnosticos} />
+              </section>
+            </Tab.Panel>
           </div>
-          <DatoTile label="Apetito" value={reporte.apetito || '—'} />
-        </section>
-
-        <section className="space-y-3">
-          <Heading as="h4" showBar>
-            Observaciones
-          </Heading>
-          {!esAdulto && (
-            <ObsBlock
-              label="¿Se solicitó orientación nutricional?"
-              value={reporte.solicito_orient == null ? '—' : reporte.solicito_orient ? 'Sí' : 'No'}
-            />
-          )}
-          {obsFields.map((f) => (
-            <ObsBlock key={f.name} label={f.label} value={reporte[f.name]} />
-          ))}
-        </section>
-
-        {esAdulto && (
-          <section className="space-y-3">
-            <Heading as="h4" showBar>
-              Diagnóstico nutricional (PES)
-            </Heading>
-            <DiagnosticosResumen diagnosticos={reporte.diagnosticos} />
-          </section>
-        )}
-      </div>
+        </Tab>
+      ) : (
+        evaluacionContent
+      )}
     </div>
   )
 }

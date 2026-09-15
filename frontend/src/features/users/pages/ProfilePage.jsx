@@ -12,6 +12,7 @@ import UserSkeleton from '@features/users/components/UserSkeleton'
 import ChangePasswordForm from '@features/users/ChangePasswordForm'
 import InternForm from '@features/users/InternForm'
 import CoordForm from '@features/users/CoordForm'
+import AdminForm from '@features/users/AdminForm'
 
 function ConfigHint({ onGoToConfig }) {
   return (
@@ -31,13 +32,13 @@ function ConfigHint({ onGoToConfig }) {
 
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { isCoordinador } = usePermissions()
+  const { isAdmin, isCoordinador } = usePermissions()
   const { user, isPending } = useMyProfile()
 
   if (isPending) return <UserSkeleton />
   if (!user) return null
 
-  const EditForm = isCoordinador ? CoordForm : InternForm
+  const EditForm = isAdmin ? AdminForm : isCoordinador ? CoordForm : InternForm
 
   return (
     <Modal>
